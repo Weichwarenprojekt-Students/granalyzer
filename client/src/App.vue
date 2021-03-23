@@ -1,11 +1,26 @@
 <template>
-    <div id="nav">
-        <router-link to="/">Home</router-link>
-        |
-        <router-link to="/about">About</router-link>
-    </div>
+    <Navigation />
     <router-view />
+    <button @click="setLang('de')">DE</button>
+    <button @click="setLang('en')">EN</button>
 </template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import Navigation from "@/components/Navigation.vue";
+
+export default defineComponent({
+    name: "App",
+    components: {
+        Navigation,
+    },
+    methods: {
+        setLang(lang: string) {
+            this.$store.commit("setLocale", { lang, i18n: this.$i18n });
+        },
+    },
+});
+</script>
 
 <style lang="less">
 #app {

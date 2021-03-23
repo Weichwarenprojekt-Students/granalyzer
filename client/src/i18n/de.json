@@ -1,5 +1,5 @@
 {
-  "messages": {
-    "hello": "Hallo Welt!"
-  }
+  "start": "Start",
+  "editor": "Editor",
+  "inventory": "Inventar"
 }
