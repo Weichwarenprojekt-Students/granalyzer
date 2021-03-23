@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class AppService {
     getHello(): string {
-        return 'Hello World!';
+        const title = {
+            title: process.env.DB_USERNAME,
+        };
+        return JSON.stringify(title);
     }
 }
