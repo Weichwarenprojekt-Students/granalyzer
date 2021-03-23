@@ -1,5 +1,7 @@
 <template>
-    <h1>{{ $t("editor.title") }}</h1>
+    <div id="content">
+        <h1>{{ $t("editor.title") }}</h1>
+    </div>
 </template>
 
 <script lang="ts">
@@ -9,3 +11,11 @@ export default defineComponent({
     name: "Editor",
 });
 </script>
+
+<style lang="less" scoped>
+@import "../../global.less";
+
+#content {
+    margin-left: @navbar_width_collapsed;
+}
+</style>

@@ -1,5 +1,7 @@
 <template>
-    <h1>{{ $t("inventory.title") }}</h1>
+    <div id="content">
+        <h1>{{ $t("inventory.title") }}</h1>
+    </div>
 </template>
 
 <script lang="ts">
@@ -10,4 +12,10 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style lang="less" scoped>
+@import "../../global.less";
+
+#content {
+    margin-left: @navbar_width_collapsed;
+}
+</style>

@@ -5,7 +5,11 @@ import Inventory from "./modules/inventory/Inventory.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
-        path: "/",
+        path: "/:catchAll(.*)",
+        redirect: "/start",
+    },
+    {
+        path: "/start",
         name: "Start",
         component: Start,
     },
