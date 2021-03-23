@@ -1,5 +1,5 @@
 <template>
-    <div>I am the diagram div</div>
+    <h2>{{ $t("start.diagrams.title") }}</h2>
 </template>
 
 <script lang="ts">
@@ -12,8 +12,6 @@ export default defineComponent({
 
 <style lang="less" scoped>
 div {
-    height: 100%;
     width: 100%;
-    background: lightgrey;
 }
 </style>

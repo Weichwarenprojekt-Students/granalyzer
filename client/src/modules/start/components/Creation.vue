@@ -1,12 +1,16 @@
 <template>
-    <div id="wrapper">
-        <header>
-            <h1>New Graph</h1>
-        </header>
-        <div class="cards">
-            <CreationCard description="Create Empty" :imagePath="require('@/assets/img/plus.svg')"></CreationCard>
-            <CreationCard description="Create From Node" :imagePath="require('@/assets/img/editor.svg')"></CreationCard>
-        </div>
+    <h2>{{ $t("start.newDiagram.title") }}</h2>
+    <div class="cards">
+        <CreationCard
+            :title="$t('start.newDiagram.blank.title')"
+            :description="$t('start.newDiagram.blank.description')"
+            :imagePath="require('@/assets/img/plus.svg')"
+        ></CreationCard>
+        <CreationCard
+            :title="$t('start.newDiagram.node.title')"
+            :description="$t('start.newDiagram.node.description')"
+            :imagePath="require('@/assets/img/editor.svg')"
+        ></CreationCard>
     </div>
 </template>
 
@@ -23,23 +27,10 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-#wrapper {
-    height: 440px;
-
-    header {
-        height: 88px;
-
-        h1 {
-            margin-top: 0;
-            padding: 40px 0 0 40px;
-        }
-    }
-
-    .cards {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        height: 352px;
-    }
+.cards {
+    margin-top: 32px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
 }
 </style>

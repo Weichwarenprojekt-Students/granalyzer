@@ -1,11 +1,8 @@
 <template>
     <div id="content">
-        <div id="diagram-creation">
-            <Creation></Creation>
-        </div>
-        <div id="diagram">
-            <Diagram></Diagram>
-        </div>
+        <Creation></Creation>
+        <hr />
+        <Diagram></Diagram>
     </div>
 </template>
 
@@ -34,9 +31,6 @@ export default defineComponent({
 #content {
     margin-left: @navbar_width;
     height: 100vh;
-
-    #diagram-creation {
-        height: 440px;
-    }
+    padding: 32px 64px;
 }
 </style>

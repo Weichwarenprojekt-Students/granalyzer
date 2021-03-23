@@ -44,7 +44,10 @@ export default defineComponent({
     position: fixed;
     width: @navbar_width;
     height: 100vh;
+    background: white;
     transition: width 500ms;
+    overflow: hidden;
+    border-right: 2px solid @font_color;
 }
 
 .sidebar-collapsed {
@@ -52,7 +55,7 @@ export default defineComponent({
 }
 
 .logo {
-    margin: @padding (@padding - 4px);
+    margin: 32px (@padding - 4px);
     height: @icon_size + 8px;
 }
 

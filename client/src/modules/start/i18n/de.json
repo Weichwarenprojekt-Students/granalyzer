@@ -1,3 +1,17 @@
 {
-  "title": "Das ist der Anfang!"
+  "title": "Das ist der Anfang!",
+  "newDiagram": {
+    "title": "Neues Diagramm",
+    "blank": {
+      "title": "Leeres Diagramm",
+      "description": "Starte mit einem komplett neuen Diagramm"
+    },
+    "node": {
+      "title": "Basierend auf einer Node",
+      "description": "Generiere automatisch ein Diagram basierend auf einer bestimmten Node"
+    }
+  },
+  "diagrams":{
+    "title": "Ihre Diagramme"
+  }
 }

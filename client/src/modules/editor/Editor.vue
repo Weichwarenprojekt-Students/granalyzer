@@ -16,6 +16,9 @@ export default defineComponent({
 @import "../../global.less";
 
 #content {
+    padding: 32px;
     margin-left: @navbar_width_collapsed;
+    height: 100vh;
+    background: @grey;
 }
 </style>

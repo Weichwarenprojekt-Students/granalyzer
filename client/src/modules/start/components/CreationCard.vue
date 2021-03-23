@@ -1,11 +1,10 @@
 <template>
     <div id="creation-card">
         <div class="card-icon">
-            <img :src="imagePath" :alt="description" />
+            <img :src="imagePath" :alt="title" />
         </div>
-        <div class="card-title">
-            <h3>{{ description }}</h3>
-        </div>
+        <h3 class="title">{{ title }}</h3>
+        <p>{{ description }}</p>
     </div>
 </template>
 
@@ -16,31 +15,40 @@ export default defineComponent({
     name: "CreationCard",
     props: {
         imagePath: String,
+        title: String,
         description: String,
     },
 });
 </script>
 
 <style lang="less" scoped>
+@import "../../../global";
+
 #creation-card {
-    height: 320px;
-    margin: 40px 0 0 40px;
-    width: 400px;
+    margin-right: 64px;
 
     .card-icon {
-        height: 224px;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
-
+        width: 300px;
+        height: 200px;
+        border: 2px solid black;
         display: flex;
         align-items: center;
         justify-content: center;
+        margin-bottom: 16px;
+        cursor: pointer;
 
         img {
+            height: 100px;
+        }
+
+        &:hover {
+            background: @accent_color;
         }
     }
 
-    .card-title {
-        height: 96px;
+    .title {
+        font-weight: bold;
+        margin-bottom: 8px;
     }
 }
 </style>

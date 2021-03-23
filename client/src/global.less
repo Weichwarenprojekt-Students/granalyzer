@@ -5,12 +5,13 @@
 @secondary_color: #FFCC80;
 @accent_color: #FFE0B2;
 @font_color: #333333;
+@grey: #EBEBEB;
 
 /**
  * Font sizes
  */
-@h1: 32px;
-@h2: 24px;
+@h1: 34px;
+@h2: 26px;
 @h3: 20px;
 @h4: 18px;
 @normal_text: 16px;
@@ -46,11 +47,17 @@ h4 {
   font-size: @h4;
 }
 
+hr {
+  margin: 64px 0;
+  border: 1px solid @secondary_color;
+}
+
 * {
   color: @font_color;
   font-size: @normal_text;
   font-family: "Fira Sans", normal, sans-serif;
   margin: 0;
+  font-weight: normal;
 }
 
 /**
