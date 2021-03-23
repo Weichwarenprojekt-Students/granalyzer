@@ -1,0 +1,36 @@
+name: CI
+
+# Run action on every push and pull request
+on: [push, pull_request]
+
+jobs:
+
+  build:
+  
+    runs-on: ubuntu-latest
+    
+    steps:
+    
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      
+      # Install neo4j database
+      - name: Install Neo4J
+        uses: baptouuuu/setup-neo4j@v1.2.0
+        with:
+          tag: '4.2.1'
+          password: '12345'
+      
+      # Install NodeJS
+      - name: Install NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.16.0'
+      
+      # Run the server tests
+      - name: Run Server Tests
+        working-directory: './server'
+        run: |
+          npm i
+          npm run test
