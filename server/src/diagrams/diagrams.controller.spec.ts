@@ -2,7 +2,9 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { DiagramsController } from "./diagrams.controller";
 import { DiagramsService } from "./diagrams.service";
 import { Neo4jService } from "nest-neo4j/dist";
-import { QueryResult, Result, ResultObserver } from "neo4j-driver";
+import Result from "neo4j-driver/types/result";
+import ResultSummary from "neo4j-driver/types/result-summary";
+import * as neo4j from "neo4j-driver";
 
 describe("DiagramsController", () => {
     let service: DiagramsService;
@@ -10,17 +12,25 @@ describe("DiagramsController", () => {
     let controller: DiagramsController;
 
     const mockResult = (res): Result => {
-        return {
-            ...new Promise<QueryResult>(res),
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            subscribe(observer: ResultObserver) {
-                return;
-            },
+        const mock = {
+            records: res.map((row) => ({
+                keys: Object.keys(row),
+                get: (key: string) => (row.hasOwnProperty(key) ? row[key] : null),
+            })),
+            summary: <ResultSummary>{},
         };
+
+        return <Result>new Promise((resolve) => {
+            resolve(mock);
+        });
     };
 
     beforeEach(async () => {
-        const MockNeo4jService = {};
+        const MockNeo4jService = {
+            read() {
+                return;
+            },
+        };
 
         const module: TestingModule = await Test.createTestingModule({
             controllers: [DiagramsController],
@@ -47,12 +57,20 @@ describe("DiagramsController", () => {
         it("should return all diagrams", async () => {
             const mock = mockResult([
                 {
-                    id: 0,
-                    name: "diagram 1",
+                    diagram: {
+                        identity: neo4j.int(0),
+                        properties: {
+                            name: "diagram 1",
+                        },
+                    },
                 },
                 {
-                    id: 1,
-                    name: "diagram 2",
+                    diagram: {
+                        identity: neo4j.int(1),
+                        properties: {
+                            name: "diagram 2",
+                        },
+                    },
                 },
             ]);
 
@@ -64,12 +82,12 @@ describe("DiagramsController", () => {
                     name: "diagram 1",
                 },
                 {
-                    id: 0,
-                    name: "diagram 1",
+                    id: 1,
+                    name: "diagram 2",
                 },
             ];
 
-            expect(await controller.getAllDiagrams()).toBe(result);
+            expect(await controller.getAllDiagrams()).toStrictEqual(result);
         });
     });
 });
