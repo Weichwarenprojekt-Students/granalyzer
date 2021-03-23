@@ -7,11 +7,77 @@
 @font_color: #333333;
 
 /**
+ * Font sizes
+ */
+@h1: 32px;
+@h2: 24px;
+@h3: 20px;
+@h4: 18px;
+@normal_text: 16px;
+@description: 14px;
+
+/**
  * The navbar width (expanded)
  */
-@navbar_width: 300px;
+@navbar_width: 280px;
 
 /**
  * The navbar width (collapsed)
  */
-@navbar_width_collapsed: 100px;
+@navbar_width_collapsed: 60px;
+
+/**
+ * Global styles
+ */
+
+h1 {
+  font-size: @h1;
+}
+
+h2 {
+  font-size: @h2;
+}
+
+h3 {
+  font-size: @h3;
+}
+
+h4 {
+  font-size: @h4;
+}
+
+* {
+  color: @font_color;
+  font-size: @normal_text;
+  font-family: "Fira Sans", normal, sans-serif;
+  margin: 0;
+}
+
+/**
+ * Load the font
+ */
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-weight: 300;
+  src: url('assets/fonts/FiraSans-Light.ttf');
+}
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-weight: 400;
+  src: url('assets/fonts/FiraSans-Regular.ttf');
+}
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-weight: 500;
+  src: url('assets/fonts/FiraSans-Medium.ttf');
+}
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-weight: 700;
+  src: url('assets/fonts/FiraSans-Bold.ttf');
+}
+

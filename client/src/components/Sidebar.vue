@@ -1,11 +1,15 @@
 <template>
     <div :class="['sidebar', isStartPage ? '' : 'sidebar-collapsed']">
-        <div id="logo">
-            <img src="../assets/img/logo.svg" alt="GranalyzerLogo" />
-        </div>
-        <nav v-for="item in items" :key="item">
-            <router-link :to="'/' + item" :class="{ isSelected: $route.path === '/' + item }">
-                <img :src="require('@/assets/img/' + item + '.svg')" :alt="item" />
+        <img v-show="isStartPage" class="logo" src="../assets/img/logo.svg" alt="GranalyzerLogo" />
+        <img v-show="!isStartPage" class="logo" src="../assets/img/logo-minimized.svg" alt="GranalyzerLogo" />
+        <nav>
+            <router-link
+                v-for="item in items"
+                :key="item"
+                :to="'/' + item"
+                :class="{ isSelected: $route.path === '/' + item }"
+            >
+                <img class="icon" :src="require('@/assets/img/' + item + '.svg')" :alt="item" />
                 <p v-show="isStartPage">{{ $t("global." + item) }}</p>
             </router-link>
         </nav>
@@ -33,10 +37,14 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "../global.less";
 
+@padding: 16px;
+@icon_size: 28px;
+
 .sidebar {
     position: fixed;
     width: @navbar_width;
     height: 100vh;
+    transition: width 500ms;
 }
 
 .sidebar-collapsed {
@@ -44,37 +52,33 @@ export default defineComponent({
 }
 
 .logo {
-    padding: 8px;
-    height: 40px;
+    margin: @padding (@padding - 4px);
+    height: @icon_size + 8px;
+}
+
+.icon {
+    margin: @padding;
+    height: @icon_size;
 }
 
 nav {
     a {
         display: flex;
-        justify-content: flex-start;
-
         text-decoration: none;
-        font-size: 20px;
-        color: #333333;
-
         width: 100%;
-
         p {
-            line-height: 24px;
+            font-size: @h4;
+            margin: @padding @padding @padding 0;
+            line-height: @icon_size;
         }
     }
 
     a:hover {
-        background: @secondary_color;
+        background: @accent_color;
     }
 
     .isSelected {
-        background: @primary_color;
-    }
-
-    img {
-        margin: 0 16px 0 12px;
-        padding: 0 16px 0 12px;
+        background: @secondary_color;
     }
 }
 </style>
