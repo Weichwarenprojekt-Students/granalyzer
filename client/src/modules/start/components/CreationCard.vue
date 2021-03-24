@@ -4,7 +4,7 @@
             <img :src="imagePath" :alt="title" />
         </div>
         <h3 class="title">{{ title }}</h3>
-        <p>{{ description }} dsfdsfkj sdlkfjsdlkfj kldsfjsdlk fj</p>
+        <p>{{ description }}</p>
     </div>
 </template>
 

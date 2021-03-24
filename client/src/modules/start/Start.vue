@@ -1,5 +1,5 @@
 <template>
-    <div id="content">
+    <div :class="['content', sidebarMinimized ? 'sidebar-collapsed' : '']">
         <CreationSection></CreationSection>
         <hr />
         <Diagram></Diagram>
@@ -22,13 +22,18 @@ export default defineComponent({
             this.$store.commit("setLocale", { lang, i18n: this.$i18n });
         },
     },
+    computed: {
+        sidebarMinimized(): boolean {
+            return this.$store.getters.sidebarMinimized;
+        },
+    },
 });
 </script>
 
 <style lang="less" scoped>
 @import "../../global.less";
 
-#content {
+.content {
     margin-left: @navbar_width;
     height: 100vh;
     padding: 32px 48px;
@@ -36,5 +41,9 @@ export default defineComponent({
     hr {
         margin: 64px 16px;
     }
+}
+
+.sidebar-collapsed {
+    margin-left: @navbar_width_collapsed;
 }
 </style>

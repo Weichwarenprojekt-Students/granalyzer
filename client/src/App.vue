@@ -12,6 +12,23 @@ export default defineComponent({
     components: {
         Sidebar,
     },
+    created() {
+        window.addEventListener("resize", this.windowResized);
+    },
+    unmounted() {
+        window.removeEventListener("resize", this.windowResized);
+    },
+    methods: {
+        windowResized(): void {
+            const windowWidth = window.innerWidth;
+
+            if (windowWidth < 1080 && !this.$store.getters.sidebarMinimized) {
+                this.$store.dispatch("toggleSidebar");
+            } else if (windowWidth >= 1080 && this.$store.getters.sidebarMinimized) {
+                this.$store.dispatch("toggleSidebar");
+            }
+        },
+    },
 });
 </script>
 

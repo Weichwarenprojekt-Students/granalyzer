@@ -10,12 +10,12 @@
         </div>
 
         <div class="diagram-item" v-for="title in fetchFolders()" :key="title">
-            <img class="diagram-item-image" src="@/assets/img/folder.svg" alt="Folder" />
+            <img class="diagram-item-image" src="@/assets/img/folder.svg" alt="Folder" draggable="false" />
             <p class="diagram-item-text">{{ title }}</p>
         </div>
 
         <div class="diagram-item" v-for="title in fetchDiagrams()" :key="title">
-            <img class="diagram-item-image" src="@/assets/img/diagram.svg" alt="Folder" />
+            <img class="diagram-item-image" src="@/assets/img/diagram.svg" alt="Folder" draggable="false" />
             <p class="diagram-item-text">{{ title }}</p>
         </div>
     </div>
@@ -28,7 +28,7 @@ export default defineComponent({
     name: "Diagram",
     data() {
         return {
-            mockTitlesFolder: ["Administration", "Delevop"],
+            mockTitlesFolder: ["Administration", "Develop"],
             mockTitlesDiagrams: ["Diagram_1", "Diagram_2"],
         };
     },

@@ -1,7 +1,7 @@
 <template>
-    <div :class="['sidebar', isStartPage ? '' : 'sidebar-collapsed']">
-        <img v-show="isStartPage" class="logo" src="../assets/img/logo.svg" alt="GranalyzerLogo" />
-        <img v-show="!isStartPage" class="logo" src="../assets/img/logo-minimized.svg" alt="GranalyzerLogo" />
+    <div :class="['sidebar', !sidebarMinimized ? '' : 'sidebar-collapsed']">
+        <img v-show="!sidebarMinimized" class="logo" src="../assets/img/logo.svg" alt="GranalyzerLogo" />
+        <img v-show="sidebarMinimized" class="logo" src="../assets/img/logo-minimized.svg" alt="GranalyzerLogo" />
         <nav>
             <router-link
                 v-for="item in items"
@@ -10,7 +10,7 @@
                 :class="{ isSelected: $route.path === '/' + item }"
             >
                 <img class="icon" :src="require('@/assets/img/' + item + '.svg')" :alt="item" />
-                <p v-show="isStartPage">{{ $t("global." + item) }}</p>
+                <p v-show="!sidebarMinimized">{{ $t("global." + item) }}</p>
             </router-link>
         </nav>
     </div>
@@ -27,8 +27,8 @@ export default defineComponent({
         };
     },
     computed: {
-        isStartPage(): boolean {
-            return this.$route.path === "/start";
+        sidebarMinimized(): boolean {
+            return this.$store.getters.sidebarMinimized || !(this.$route.path === "/start");
         },
     },
 });
@@ -70,6 +70,7 @@ nav {
         display: flex;
         text-decoration: none;
         width: 100%;
+
         p {
             font-size: @h3;
             margin: @padding @padding @padding 0;
