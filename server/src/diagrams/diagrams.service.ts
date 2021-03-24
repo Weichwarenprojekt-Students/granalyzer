@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import * as neo4j from "neo4j-driver";
+import { Diagram } from "./diagram.model";
 
 @Injectable()
 export class DiagramsService {
@@ -14,7 +15,7 @@ export class DiagramsService {
     /**
      * Fetches all diagrams from the db
      */
-    async getDiagrams() {
+    async getDiagrams(): Promise<Diagram[]> {
         // language=Cypher
         const cypher = "MATCH (d:Diagram) RETURN d AS diagram";
         const params = {};
@@ -29,7 +30,7 @@ export class DiagramsService {
      *
      * @param id Identifier of the diagram
      */
-    async getDiagram(id: number) {
+    async getDiagram(id: number): Promise<Diagram> {
         // language=Cypher
         const cypher = "MATCH (d:Diagram) WHERE id(d) = $id RETURN d AS diagram";
         const params = {
@@ -49,7 +50,7 @@ export class DiagramsService {
      *
      * @param name
      */
-    async addDiagram(name: string) {
+    async addDiagram(name: string): Promise<Diagram> {
         // language=Cypher
         const cypher = "CREATE (d:Diagram {name: $name}) RETURN d AS diagram";
         const params = {
@@ -66,7 +67,7 @@ export class DiagramsService {
      * @param id Identifier of the diagram
      * @param name Name of the diagram
      */
-    async updateDiagram(id: number, name: string) {
+    async updateDiagram(id: number, name: string): Promise<Diagram> {
         // language=Cypher
         const cypher = "MATCH (d:Diagram) WHERE id(d) = $id SET d = {name: $name} RETURN d AS diagram";
         const params = {
@@ -86,7 +87,7 @@ export class DiagramsService {
      *
      * @param id Identifier
      */
-    deleteDiagram(id: number) {
+    async deleteDiagram(id: number): Promise<Diagram> {
         // language=Cypher
         const cypher = "MATCH (d:Diagram) WHERE ID(d) = $id DETACH DELETE d RETURN d AS diagram";
         const params = {
@@ -107,10 +108,10 @@ export class DiagramsService {
      * @param record
      * @private
      */
-    private static parseDiagram(record: Record<any, any>) {
+    private static parseDiagram(record: Record<any, any>): Diagram {
         return {
             ...record.get("diagram").properties,
             id: record.get("diagram").identity.toNumber(),
-        };
+        } as Diagram;
     }
 }
