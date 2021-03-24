@@ -1,6 +1,6 @@
 <template>
     <div id="content">
-        <Creation></Creation>
+        <CreationSection></CreationSection>
         <hr />
         <Diagram></Diagram>
     </div>
@@ -8,13 +8,13 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Creation from "@/modules/start/components/Creation.vue";
+import CreationSection from "@/modules/start/components/CreationSection.vue";
 import Diagram from "@/modules/start/components/Diagram.vue";
 
 export default defineComponent({
     name: "Start",
     components: {
-        Creation,
+        CreationSection,
         Diagram,
     },
     methods: {
@@ -31,6 +31,10 @@ export default defineComponent({
 #content {
     margin-left: @navbar_width;
     height: 100vh;
-    padding: 32px 64px;
+    padding: 32px 48px;
+
+    hr {
+        margin: 64px 16px;
+    }
 }
 </style>

@@ -17,27 +17,4 @@ export default defineComponent({
 
 <style lang="less">
 @import "./global.less";
-
-html {
-    font-size: 100%;
-    box-sizing: border-box;
-}
-
-*,
-*::before,
-*::after {
-    box-sizing: inherit;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    line-height: 1;
-}
-
-#app {
-    font-family: Avenir, Helvetica, Arial, sans-serif;
-    color: @font_color;
-    height: 100vh;
-}
 </style>

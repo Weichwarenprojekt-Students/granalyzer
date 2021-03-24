@@ -19,7 +19,7 @@ import { defineComponent } from "vue";
 import CreationCard from "./CreationCard.vue";
 
 export default defineComponent({
-    name: "Creation",
+    name: "CreationSection",
     components: {
         CreationCard,
     },
@@ -27,10 +27,16 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
+h2 {
+    margin-left: 16px;
+}
+
 .cards {
-    margin-top: 32px;
+    width: 100%;
+    margin: 16px 16px 0 16px;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     justify-content: flex-start;
 }
 </style>

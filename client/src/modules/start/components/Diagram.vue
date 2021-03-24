@@ -11,7 +11,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-div {
-    width: 100%;
+h2 {
+    margin-left: 16px;
 }
 </style>

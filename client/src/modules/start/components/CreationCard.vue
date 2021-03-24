@@ -4,7 +4,7 @@
             <img :src="imagePath" :alt="title" />
         </div>
         <h3 class="title">{{ title }}</h3>
-        <p>{{ description }}</p>
+        <p>{{ description }} dsfdsfkj sdlkfjsdlkfj kldsfjsdlk fj</p>
     </div>
 </template>
 
@@ -26,11 +26,13 @@ export default defineComponent({
 
 #creation-card {
     margin-right: 64px;
+    width: 280px;
+    min-width: 280px;
+    margin-top: 16px;
 
     .card-icon {
-        width: 300px;
-        height: 200px;
-        border: 2px solid black;
+        height: 180px;
+        border: 1px solid black;
         display: flex;
         align-items: center;
         justify-content: center;

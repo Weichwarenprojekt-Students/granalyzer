@@ -19,6 +19,6 @@ export default defineComponent({
     padding: 32px;
     margin-left: @navbar_width_collapsed;
     height: 100vh;
-    background: @grey;
+    background: @light_grey;
 }
 </style>
