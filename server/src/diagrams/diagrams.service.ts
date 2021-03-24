@@ -9,7 +9,7 @@ export class DiagramsService {
     /**
      * @private Configures the default database
      */
-    private readonly database = "tool";
+    private readonly database = process.env.DB_TOOL;
 
     /**
      * Fetches all diagrams from the db
