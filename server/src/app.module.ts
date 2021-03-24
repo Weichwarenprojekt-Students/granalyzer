@@ -29,7 +29,7 @@ export class AppModule {
      * On startup check if the necessary tool and customer DB exists and create them if not
      */
     initDatabase() {
-        this.neo4jService.write("CREATE DATABASE tool IF NOT EXISTS").catch(console.error);
-        this.neo4jService.write("CREATE DATABASE customer IF NOT EXISTS").catch(console.error);
+        this.neo4jService.write(`CREATE DATABASE ${process.env.DB_TOOL} IF NOT EXISTS`).catch(console.error);
+        this.neo4jService.write(`CREATE DATABASE ${process.env.DB_CUSTOMER} IF NOT EXISTS`).catch(console.error);
     }
 }
