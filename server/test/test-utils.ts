@@ -8,7 +8,6 @@ export class TestUtils {
      * Returns a valid noe4j response from the given data
      *
      * @param res
-     * @private
      */
     static mockDbResult(res: any[]): Result {
         const mock = {
