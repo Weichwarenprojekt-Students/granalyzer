@@ -31,7 +31,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../global.less";
+@import "../../styles/global.less";
 
 .content {
     margin-left: @navbar_width;

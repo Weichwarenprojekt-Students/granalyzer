@@ -8,6 +8,7 @@
                 :key="item"
                 :to="'/' + item"
                 :class="{ isSelected: $route.path === '/' + item }"
+                v-tooltip="sidebarMinimized ? $t('global.' + item) : ''"
             >
                 <img class="icon" :src="require('@/assets/img/' + item + '.svg')" :alt="item" />
                 <p v-show="!sidebarMinimized">{{ $t("global." + item) }}</p>
@@ -35,7 +36,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../global.less";
+@import "../styles/global.less";
 
 @padding: 16px;
 @icon_size: 28px;
@@ -45,7 +46,7 @@ export default defineComponent({
     width: @navbar_width;
     height: 100vh;
     background: white;
-    transition: width 500ms;
+    transition: width 400ms;
     overflow: hidden;
     border-right: 1px solid @grey;
 }

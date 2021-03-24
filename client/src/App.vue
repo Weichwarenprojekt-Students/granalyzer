@@ -1,6 +1,7 @@
 <template>
     <Sidebar />
     <router-view />
+    <Toast />
 </template>
 
 <script lang="ts">
@@ -14,6 +15,7 @@ export default defineComponent({
     },
     created() {
         window.addEventListener("resize", this.windowResized);
+        this.windowResized();
     },
     unmounted() {
         window.removeEventListener("resize", this.windowResized);
@@ -33,5 +35,5 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "./global.less";
+@import "styles/styles.less";
 </style>

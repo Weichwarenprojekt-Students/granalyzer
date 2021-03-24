@@ -1,5 +1,9 @@
 {
   "start": "Start",
   "editor": "Editor",
-  "inventory": "Inventar"
+  "inventory": "Inventar",
+  "dialog": {
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen"
+  }
 }

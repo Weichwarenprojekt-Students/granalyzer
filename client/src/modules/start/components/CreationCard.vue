@@ -22,13 +22,12 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../../global";
+@import "../../../styles/global";
 
 #creation-card {
-    margin-right: 64px;
+    margin: 32px 32px 0 16px;
     width: 280px;
     min-width: 280px;
-    margin-top: 16px;
 
     .card-icon {
         height: 180px;

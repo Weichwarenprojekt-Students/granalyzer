@@ -1,0 +1,127 @@
+/**
+ * These are the general styles (imported once in the App.vue)
+ */
+@import "prime-vue-components.less";
+
+/**
+ * Button
+ */
+.btn {
+  border-radius: 4px;
+  padding: 8px;
+  width: 160px;
+  border: 1px solid @dark;
+  cursor: pointer;
+  outline: 0;
+
+  &:disabled {
+    cursor: default;
+    background: transparent;
+  }
+}
+
+.btn-normal {
+  color: white;
+  background: @dark;
+
+  &:hover {
+    border-color: @dark_accent;
+    background: @dark_accent;
+  }
+
+  &:disabled {
+    color: @dark;
+
+    &:hover {
+      border-color: @dark;
+      background: transparent;
+    }
+  }
+}
+
+.btn-primary {
+  color: white;
+  border-color: @primary_color;
+  background: @primary_color;
+
+  &:hover {
+    border-color: @secondary_color;
+    background: @secondary_color;
+  }
+
+  &:disabled {
+    color: @primary_color;
+
+    &:hover {
+      border-color: @primary_color;
+      background: transparent;
+    }
+  }
+}
+
+/**
+ * Global styles
+ */
+
+h1 {
+  font-size: @h1;
+}
+
+h2 {
+  font-size: @h2;
+}
+
+h3 {
+  font-size: @h3;
+}
+
+hr {
+  border: 1px solid @secondary_color;
+}
+
+html,
+body {
+  box-sizing: border-box;
+  line-height: 1.3;
+}
+
+* {
+  box-sizing: inherit;
+  color: @dark;
+  font-size: @normal_text;
+  font-family: "Fira Sans", normal, sans-serif;
+  margin: 0;
+  padding: 0;
+  font-weight: normal;
+}
+
+/**
+ * Load the font
+ */
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-weight: 300;
+  src: url("../assets/fonts/FiraSans-Light.ttf");
+}
+
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-weight: 400;
+  src: url("../assets/fonts/FiraSans-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-weight: 500;
+  src: url("../assets/fonts/FiraSans-Medium.ttf");
+}
+
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-weight: 700;
+  src: url("../assets/fonts/FiraSans-Bold.ttf");
+}
