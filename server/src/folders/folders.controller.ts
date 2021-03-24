@@ -29,4 +29,24 @@ export class FoldersController {
     deleteFolder(@Param("id") id: number) {
         return this.foldersService.deleteFolder(id);
     }
+
+    @Get(":id/children")
+    getChildrenOfFolder(@Param("id") id: number) {
+        return this.foldersService.getChildrenOfFolder(id);
+    }
+
+    @Get(":id/children/:childId")
+    getChildOfFolder(@Param("id") id: number, @Param("childId") childId: number) {
+        return this.foldersService.getChildOfFolder(id, childId);
+    }
+
+    @Post(":id/children/:childId")
+    addChildToFolder(@Param("id") id: number, @Param("childId") childId: number) {
+        return this.foldersService.addChildToFolder(id, childId);
+    }
+
+    @Delete(":id/children/:childId")
+    removeChildFromFolder(@Param("id") id: number, @Param("childId") childId: number) {
+        return this.foldersService.removeChildFromFolder(id, childId);
+    }
 }
