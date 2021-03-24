@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, Put } from "@nestjs/common";
+import { Controller, Get, Param, Post, Body, Put, Delete } from "@nestjs/common";
 import { DiagramsService } from "./diagrams.service";
 
 @Controller("diagrams")
@@ -23,5 +23,10 @@ export class DiagramsController {
     @Put(":id")
     async updateDiagram(@Param("id") id: number, @Body("name") name: string) {
         return this.diagramsService.updateDiagram(id, name);
+    }
+
+    @Delete(":id")
+    async deleteDiagram(@Param("id") id: number) {
+        return this.diagramsService.deleteDiagram(id);
     }
 }

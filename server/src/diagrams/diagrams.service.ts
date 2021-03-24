@@ -82,6 +82,26 @@ export class DiagramsService {
     }
 
     /**
+     * Delete specific diagram
+     *
+     * @param id Identifier
+     */
+    deleteDiagram(id: number) {
+        // language=Cypher
+        const cypher = "MATCH (d:Diagram) WHERE ID(d) = $id DETACH DELETE d RETURN d AS diagram";
+        const params = {
+            id: neo4j.int(id),
+        };
+
+        return this.neo4jService.write(cypher, params, this.database).then((res) => {
+            if (!res.records.length) {
+                throw new NotFoundException(`Element with id: ${id} not found`);
+            }
+            return DiagramsService.parseDiagram(res.records[0]);
+        });
+    }
+
+    /**
      * Restructure the response of the db
      *
      * @param record
