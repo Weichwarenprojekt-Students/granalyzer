@@ -3,6 +3,7 @@ import { DiagramsController } from "./diagrams.controller";
 import { DiagramsService } from "./diagrams.service";
 import { Neo4jService } from "nest-neo4j/dist";
 import { DiagramsRepository } from "./diagrams.repository";
+import { MockNeo4jService } from "../../test/mock-neo4j.service";
 
 describe("DiagramsController", () => {
     let service: DiagramsService;
@@ -10,12 +11,6 @@ describe("DiagramsController", () => {
     let controller: DiagramsController;
 
     beforeEach(async () => {
-        const MockNeo4jService = {
-            read() {
-                return;
-            },
-        };
-
         const module: TestingModule = await Test.createTestingModule({
             controllers: [DiagramsController],
             providers: [
