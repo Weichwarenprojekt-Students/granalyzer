@@ -50,7 +50,7 @@ export class FoldersService {
      */
     async addFolder(name: string) {
         // language=Cypher
-        const cypher = "";
+        const cypher = "CREATE (f:Folder {name: $name}) RETURN f AS folder";
         const params = {
             name,
         };
