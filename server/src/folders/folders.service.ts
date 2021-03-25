@@ -1,14 +1,15 @@
-import { Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotAcceptableException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { EntityNotValidException } from "../util/exceptions/EntityNotValidException";
 import { Diagram } from "../diagrams/diagram.model";
 import { Folder } from "./folder.model";
 import { Transaction } from "neo4j-driver";
 import Result from "neo4j-driver/types/result";
+import { UtilsNode } from "../util/utils.node";
 
 @Injectable()
 export class FoldersService {
-    constructor(private readonly neo4jService: Neo4jService) {}
+    constructor(private readonly neo4jService: Neo4jService, private readonly utilsNode: UtilsNode) {}
 
     /**
      * @private Configures the default database
@@ -35,7 +36,7 @@ export class FoldersService {
      */
     async getFolder(id: number): Promise<Folder> {
         // Check whether id belongs to a folder
-        if (!(await this.isFolder(id))) throw new NotAcceptableException("Id does not belong to a folder");
+        await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
         const cypher = "MATCH (f:Folder) WHERE id(f) = $id RETURN f AS folder";
@@ -44,9 +45,6 @@ export class FoldersService {
         };
 
         return this.neo4jService.read(cypher, param, this.database).then((res) => {
-            if (!res.records.length) {
-                throw new NotFoundException(`Element with id: ${id} not found`);
-            }
             return FoldersService.parseFolder(res.records[0]);
         });
     }
@@ -74,7 +72,7 @@ export class FoldersService {
      */
     async deleteFolder(id: number): Promise<Folder> {
         // Check whether id belongs to a folder
-        if (!(await this.isFolder(id))) throw new NotAcceptableException("Id does not belong to a folder");
+        await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
         const cypher = "MATCH (f:Folder) WHERE id(f) = $id DETACH DELETE f RETURN f AS folder";
@@ -83,9 +81,6 @@ export class FoldersService {
         };
 
         return this.neo4jService.write(cypher, params, this.database).then((res) => {
-            if (!res.records.length) {
-                throw new NotFoundException(`Element with id: ${id} not found`);
-            }
             return FoldersService.parseFolder(res.records[0]);
         });
     }
@@ -98,7 +93,7 @@ export class FoldersService {
      */
     async updateFolder(id: number, name: string): Promise<Folder> {
         // Check whether id belongs to a folder
-        if (!(await this.isFolder(id))) throw new NotAcceptableException("Id does not belong to a folder");
+        await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
         const cypher = "MATCH (f:Folder) WHERE id(f) = $id SET name = $name RETURN f AS folder";
@@ -108,9 +103,6 @@ export class FoldersService {
         };
 
         return this.neo4jService.write(cypher, params, this.database).then((res) => {
-            if (!res.records.length) {
-                throw new NotFoundException(`Element with id: ${id} not found`);
-            }
             return FoldersService.parseFolder(res.records[0]);
         });
     }
@@ -122,7 +114,7 @@ export class FoldersService {
      */
     async getChildrenOfFolder(id: number): Promise<Array<Folder | Diagram>> {
         // Check whether id belongs to a folder
-        if (!(await this.isFolder(id))) throw new NotAcceptableException("Id does not belong to a folder");
+        await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
         const cypher = "MATCH (n)-[r:IS_CHILD]->(f:Folder) WHERE id(f) = $id RETURN n AS child";
@@ -143,7 +135,7 @@ export class FoldersService {
      */
     async getChildOfFolder(parentId: number, childId: number): Promise<Folder | Diagram> {
         // Check whether id belongs to a folder
-        if (!(await this.isFolder(parentId))) throw new NotAcceptableException("Id does not belong to a folder");
+        await this.utilsNode.checkElementForLabel(parentId, "Folder");
 
         // language=Cypher
         const cypher = "MATCH (n)-[r:IS_CHILD]->(f:Folder) WHERE id(f) = $parentId AND id(n) = $childId RETURN n";
@@ -152,9 +144,6 @@ export class FoldersService {
             childId: this.neo4jService.int(childId),
         };
         return this.neo4jService.read(cypher, params, this.database).then((res) => {
-            if (!res.records.length) {
-                throw new NotFoundException(`Element with id: ${childId} not found`);
-            }
             return FoldersService.parseFolderOrDiagram(res.records[0]);
         });
     }
@@ -201,29 +190,11 @@ export class FoldersService {
      */
     async removeChildFromFolder(parentId: number, childId: number) {
         // Check whether id belongs to a folder
-        if (!(await this.isFolder(parentId))) throw new NotAcceptableException("Id does not belong to a folder");
+        await this.utilsNode.checkElementForLabel(parentId, "Folder");
 
         return this.deleteIsChildRelation(childId, this.database).then((res) =>
             FoldersService.parseFolderOrDiagram(res.records[0]),
         );
-    }
-
-    /**
-     * Checks whether the element with the given id is an entity of type Folder
-     *
-     * @param id
-     * @private
-     */
-    private async isFolder(id: number): Promise<boolean> {
-        // language=Cypher
-        const cypher = "MATCH (f) WHERE id(f) = $id RETURN labels(f) AS label";
-        const params = {
-            id: this.neo4jService.int(id),
-        };
-
-        return this.neo4jService.read(cypher, params, this.database).then((res) => {
-            return res.records[0]?.get("label").indexOf("Folder") > -1;
-        });
     }
 
     /**

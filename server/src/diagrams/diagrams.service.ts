@@ -1,11 +1,12 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import * as neo4j from "neo4j-driver";
 import { Diagram } from "./diagram.model";
+import { UtilsNode } from "../util/utils.node";
 
 @Injectable()
 export class DiagramsService {
-    constructor(private readonly neo4jService: Neo4jService) {}
+    constructor(private readonly neo4jService: Neo4jService, private readonly utilsNode: UtilsNode) {}
 
     /**
      * @private Configures the default database
@@ -31,6 +32,9 @@ export class DiagramsService {
      * @param id Identifier of the diagram
      */
     async getDiagram(id: number): Promise<Diagram> {
+        // Check whether id belongs to a diagram
+        await this.utilsNode.checkElementForLabel(id, "Diagram");
+
         // language=Cypher
         const cypher = "MATCH (d:Diagram) WHERE id(d) = $id RETURN d AS diagram";
         const params = {
@@ -38,9 +42,6 @@ export class DiagramsService {
         };
 
         return this.neo4jService.read(cypher, params, this.database).then((res) => {
-            if (!res.records.length) {
-                throw new NotFoundException(`Element with id: ${id} not found`);
-            }
             return DiagramsService.parseDiagram(res.records[0]);
         });
     }
@@ -68,6 +69,9 @@ export class DiagramsService {
      * @param name Name of the diagram
      */
     async updateDiagram(id: number, name: string): Promise<Diagram> {
+        // Check whether id belongs to a diagram
+        await this.utilsNode.checkElementForLabel(id, "Diagram");
+
         // language=Cypher
         const cypher = "MATCH (d:Diagram) WHERE id(d) = $id SET d = {name: $name} RETURN d AS diagram";
         const params = {
@@ -75,9 +79,6 @@ export class DiagramsService {
             name,
         };
         return this.neo4jService.write(cypher, params, this.database).then((res) => {
-            if (!res.records.length) {
-                throw new NotFoundException(`Element with id: ${id} not found`);
-            }
             return DiagramsService.parseDiagram(res.records[0]);
         });
     }
@@ -88,6 +89,9 @@ export class DiagramsService {
      * @param id Identifier
      */
     async deleteDiagram(id: number): Promise<Diagram> {
+        // Check whether id belongs to a diagram
+        await this.utilsNode.checkElementForLabel(id, "Diagram");
+
         // language=Cypher
         const cypher = "MATCH (d:Diagram) WHERE ID(d) = $id DETACH DELETE d RETURN d AS diagram";
         const params = {
@@ -95,9 +99,6 @@ export class DiagramsService {
         };
 
         return this.neo4jService.write(cypher, params, this.database).then((res) => {
-            if (!res.records.length) {
-                throw new NotFoundException(`Element with id: ${id} not found`);
-            }
             return DiagramsService.parseDiagram(res.records[0]);
         });
     }

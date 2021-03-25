@@ -69,13 +69,6 @@ export class DiagramsRepository {
     }
 
     /**
-     * Return an empty response
-     */
-    static mockEmptyResponse() {
-        return TestUtils.mockDbResult([]);
-    }
-
-    /**
      * Returns mocked DB data
      */
     static mockAddDiagram() {

@@ -69,13 +69,6 @@ export class FoldersRepository {
     }
 
     /**
-     * Return an empty response
-     */
-    static mockEmptyResponse() {
-        return TestUtils.mockDbResult([]);
-    }
-
-    /**
      * Returns mocked DB data
      */
     static mockAddFolder() {
@@ -320,27 +313,5 @@ export class FoldersRepository {
             id: 2,
             name: "removed chart",
         };
-    }
-
-    /**
-     * Returns mocked DB data for a folder type
-     */
-    static mockIsFolder() {
-        return TestUtils.mockDbResult([
-            {
-                label: ["Folder"],
-            },
-        ]);
-    }
-
-    /**
-     * Returns mocked DB data for not a folder type
-     */
-    static mockIsNotFolder() {
-        return TestUtils.mockDbResult([
-            {
-                label: ["Diagram"],
-            },
-        ]);
     }
 }
