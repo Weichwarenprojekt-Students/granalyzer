@@ -154,6 +154,175 @@ export class FoldersRepository {
     }
 
     /**
+     * Returns mocked DB data
+     */
+    static mockGetChildrenOfFolder() {
+        return TestUtils.mockDbResult([
+            {
+                n: {
+                    identity: neo4j.int(2),
+                    labels: ["Diagram"],
+                    properties: {
+                        name: "inner chart",
+                    },
+                },
+            },
+            {
+                n: {
+                    identity: neo4j.int(3),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "inner folder",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from getChildrenOfFolder
+     */
+    static resultGetChildrenOfFolder() {
+        return [
+            {
+                id: 2,
+                name: "inner chart",
+            },
+            {
+                id: 3,
+                name: "inner folder",
+            },
+        ];
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockGetChildOfFolder() {
+        return TestUtils.mockDbResult([
+            {
+                n: {
+                    identity: neo4j.int(2),
+                    labels: ["Diagram"],
+                    properties: {
+                        name: "child diagram",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from getChildOfFolder
+     */
+    static resultGetChildOfFolder() {
+        return {
+            id: 2,
+            name: "child diagram",
+        };
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockAddChildToFolder() {
+        return TestUtils.mockDbResult([
+            {
+                n: {
+                    identity: neo4j.int(2),
+                    labels: ["Diagram"],
+                    properties: {
+                        name: "chart 3",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockValidateParentAndChildById() {
+        return TestUtils.mockDbResult([
+            {
+                n: {
+                    identity: neo4j.int(5),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "folder 3",
+                    },
+                },
+            },
+            {
+                n: {
+                    identity: neo4j.int(2),
+                    labels: ["Diagram"],
+                    properties: {
+                        name: "chart 3",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Returns mocked DB data with type error
+     */
+    static mockValidateParentAndChildByIdError() {
+        return TestUtils.mockDbResult([
+            {
+                n: {
+                    identity: neo4j.int(5),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "folder 3",
+                    },
+                },
+            },
+            {
+                n: {
+                    identity: neo4j.int(2),
+                    labels: ["Mirko"],
+                    properties: {
+                        name: "chart 3",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from addChildToFolder
+     */
+    static resultAddChildToFolder() {
+        return {
+            id: 2,
+            name: "chart 3",
+        };
+    }
+
+    static mockRemoveChildFromFolder() {
+        return TestUtils.mockDbResult([
+            {
+                n: {
+                    identity: neo4j.int(2),
+                    labels: ["Diagram"],
+                    properties: {
+                        name: "removed chart",
+                    },
+                },
+            },
+        ]);
+    }
+
+    static resultRemoveChildFromFolder() {
+        return {
+            id: 2,
+            name: "removed chart",
+        };
+    }
+
+    /**
      * Returns mocked DB data for a folder type
      */
     static mockIsFolder() {

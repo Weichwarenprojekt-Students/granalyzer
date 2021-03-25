@@ -118,4 +118,78 @@ describe("FoldersController", () => {
             await expect(controller.deleteFolder(2)).rejects.toThrowError(NotFoundException);
         });
     });
+
+    describe("getChildrenOfFolder", () => {
+        it("should return all children of the given folder", async () => {
+            // First call checks whether id belongs to a folder
+            jest.spyOn(neo4jService, "read").mockImplementationOnce(() => FoldersRepository.mockIsFolder());
+
+            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockGetChildrenOfFolder());
+
+            expect(await controller.getChildrenOfFolder(1)).toStrictEqual(
+                FoldersRepository.resultGetChildrenOfFolder(),
+            );
+        });
+    });
+
+    describe("getChildOfFolder", () => {
+        it("should return the child with the given id", async () => {
+            // First call checks whether id belongs to a folder
+            jest.spyOn(neo4jService, "read").mockImplementationOnce(() => FoldersRepository.mockIsFolder());
+
+            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockGetChildOfFolder());
+
+            expect(await controller.getChildOfFolder(1, 2)).toStrictEqual(FoldersRepository.resultGetChildOfFolder());
+        });
+
+        it("should return not found exception", async () => {
+            // First call checks whether id belongs to a folder
+            jest.spyOn(neo4jService, "read").mockImplementationOnce(() => FoldersRepository.mockIsFolder());
+
+            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockEmptyResponse());
+
+            await expect(controller.getChildOfFolder(1, 3)).rejects.toThrowError(NotFoundException);
+        });
+
+        it("should return not acceptable exception", async () => {
+            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockEmptyResponse());
+
+            await expect(controller.getChildOfFolder(1, 3)).rejects.toThrowError(NotAcceptableException);
+        });
+    });
+
+    describe("addChildToFolder", () => {
+        it("should return the added child", async () => {
+            // First call checks child and parent are allowed types
+            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
+                FoldersRepository.mockValidateParentAndChildById(),
+            );
+
+            jest.spyOn(neo4jService, "write").mockImplementation(() => FoldersRepository.mockAddChildToFolder());
+
+            expect(await controller.addChildToFolder(5, 2)).toStrictEqual(FoldersRepository.resultAddChildToFolder());
+        });
+
+        it("should return not acceptable exception", async () => {
+            // First call checks child and parent are allowed types
+            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
+                FoldersRepository.mockValidateParentAndChildByIdError(),
+            );
+
+            await expect(controller.addChildToFolder(5, 2)).rejects.toThrowError(NotAcceptableException);
+        });
+    });
+
+    describe("removeChildFromFolder", () => {
+        it("should return the removed child", async () => {
+            // First call checks whether id belongs to a folder
+            jest.spyOn(neo4jService, "read").mockImplementationOnce(() => FoldersRepository.mockIsFolder());
+
+            jest.spyOn(neo4jService, "write").mockImplementation(() => FoldersRepository.mockRemoveChildFromFolder());
+
+            expect(await controller.removeChildFromFolder(5, 2)).toStrictEqual(
+                FoldersRepository.resultRemoveChildFromFolder(),
+            );
+        });
+    });
 });
