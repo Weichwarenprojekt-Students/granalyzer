@@ -5,6 +5,7 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
+    // Setup swagger docs
     const config = new DocumentBuilder()
         .setTitle("Granalyzer API")
         .setDescription("Awesome access to the Graph")
@@ -12,11 +13,13 @@ async function bootstrap() {
         .addTag("cats")
         .build();
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup("docs", app, document);
+    SwaggerModule.setup(process.env.SWAGGER_PREFIX, app, document);
 
-    app.setGlobalPrefix("api");
+    // Set route prefix which is used globally
+    app.setGlobalPrefix(process.env.API_PREFIX);
 
-    await app.listen(3000);
+    // Start server at defined port
+    await app.listen(process.env.BACKEND_PORT);
 }
 
 bootstrap();
