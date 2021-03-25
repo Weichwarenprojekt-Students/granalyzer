@@ -4,6 +4,7 @@ import { EntityNotValidException } from "../util/exceptions/EntityNotValidExcept
 import { Diagram } from "../diagrams/diagram.model";
 import { Folder } from "./folder.model";
 import { Transaction } from "neo4j-driver";
+import Result from "neo4j-driver/types/result";
 
 @Injectable()
 export class FoldersService {
@@ -234,9 +235,9 @@ export class FoldersService {
      * @param databaseOrTransaction The current database or a neo4j transaction
      * @private
      */
-    private deleteIsChildRelation(childId: number, databaseOrTransaction?: string | Transaction) {
+    private deleteIsChildRelation(childId: number, databaseOrTransaction?: string | Transaction): Result {
         //language=Cypher
-        const cypher = "MATCH (c)-[r:IS_CHILD]->() WHERE id(c) = $childId DELETE r";
+        const cypher = "MATCH (c)-[r:IS_CHILD]->() WHERE id(c) = $childId DELETE r RETURN c AS n";
         const params = {
             childId: this.neo4jService.int(childId),
         };
