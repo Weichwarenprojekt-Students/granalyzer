@@ -314,4 +314,40 @@ export class FoldersRepository {
             name: "removed chart",
         };
     }
+
+    static mockGetAllRootElements() {
+        return TestUtils.mockDbResult([
+            {
+                n: {
+                    identity: neo4j.int(0),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "folder 1",
+                    },
+                },
+            },
+            {
+                n: {
+                    identity: neo4j.int(1),
+                    labels: ["Diagram"],
+                    properties: {
+                        name: "diagram 1",
+                    },
+                },
+            },
+        ]);
+    }
+
+    static resultGetAllRootElements() {
+        return [
+            {
+                id: 0,
+                name: "folder 1",
+            },
+            {
+                id: 1,
+                name: "diagram 1",
+            },
+        ];
+    }
 }

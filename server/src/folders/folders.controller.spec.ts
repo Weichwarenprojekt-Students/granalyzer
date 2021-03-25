@@ -41,9 +41,17 @@ describe("FoldersController", () => {
         it("should return all folders", async () => {
             jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockGetFolders());
 
-            expect(await controller.getAllRootFolders()).toStrictEqual(FoldersRepository.resultGetFolders());
+            expect(await controller.getAllFolders()).toStrictEqual(FoldersRepository.resultGetFolders());
         });
     });
+
+    describe("getAllRootElements", () => {
+        it("Should return all diagrams and folders", async () => {
+            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockGetAllRootElements());
+
+            expect(await controller.getAllRootElements()).toStrictEqual(FoldersRepository.resultGetAllRootElements());
+        })
+    })
 
     describe("getFolder", () => {
         it("should return one Folder", async () => {
