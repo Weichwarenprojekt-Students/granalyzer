@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotAcceptableException } from "@nestjs/common";
+import { Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { EntityNotValidException } from "../util/exceptions/EntityNotValidException";
 import { Diagram } from "../diagrams/diagram.model";
@@ -247,6 +247,9 @@ export class FoldersService {
         };
 
         return this.neo4jService.read(cypher, params, this.database).then((res) => {
+            if (res.records.length != 2) {
+                throw new NotFoundException("Either parent or child element with given ID does not exist.");
+            }
             try {
                 return res.records.map((res) => FoldersService.parseValidationRecord(res, parentId, childId));
             } catch (e: unknown) {
