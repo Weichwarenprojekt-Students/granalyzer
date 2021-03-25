@@ -117,7 +117,7 @@ export class FoldersService {
         await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
-        const cypher = "MATCH (n)-[r:IS_CHILD]->(f:Folder) WHERE id(f) = $id RETURN n AS child";
+        const cypher = "MATCH (n)-[r:IS_CHILD]->(f:Folder) WHERE id(f) = $id RETURN n AS n";
         const params = {
             id: this.neo4jService.int(id),
         };
