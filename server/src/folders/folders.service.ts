@@ -150,9 +150,12 @@ export class FoldersService {
             parentId: this.neo4jService.int(parentId),
             childId: this.neo4jService.int(childId),
         };
-        return this.neo4jService
-            .read(cypher, params, this.database)
-            .then((res) => FoldersService.parseFolderOrDiagram(res.records[0]));
+        return this.neo4jService.read(cypher, params, this.database).then((res) => {
+            if (!res.records.length) {
+                throw new NotFoundException(`Element with id: ${childId} not found`);
+            }
+            return FoldersService.parseFolderOrDiagram(res.records[0]);
+        });
     }
 
     /**
