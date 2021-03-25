@@ -7,12 +7,13 @@ import PrimeVue from "primevue/config";
 import Tooltip from "primevue/tooltip";
 import ToastService from "primevue/toastservice";
 import Dialog from "primevue/dialog";
+import Toast from "primevue/toast";
+import InputNumber from "primevue/inputnumber";
 
 // Load the prime vue styles
 import "primevue/resources/themes/saga-blue/theme.css";
 import "primevue/resources/primevue.min.css";
 import "primeicons/primeicons.css";
-import Toast from "primevue/toast";
 
 // Create the vue app
 const app = createApp(App).use(store).use(router).use(i18n);
@@ -21,6 +22,7 @@ const app = createApp(App).use(store).use(router).use(i18n);
 app.use(PrimeVue);
 app.use(ToastService).component("Toast", Toast);
 app.component("Dialog", Dialog);
+app.component("InputNumber", InputNumber);
 app.directive("tooltip", Tooltip);
 
 // Mount the app

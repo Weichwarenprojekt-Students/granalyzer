@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import CreationSection from "@/modules/start/components/CreationSection.vue";
+import CreationSection from "@/modules/start/modules/creation-section/CreationSection.vue";
 import Diagram from "@/modules/start/modules/diagram-explorer/DiagramExplorer.vue";
 
 export default defineComponent({

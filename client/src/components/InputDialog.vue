@@ -1,10 +1,10 @@
 <template>
-    <BaseDialog :show="show">
+    <BaseDialog :show="show" @confirm="$emit('input-confirm', name)">
         <div id="mid-section">
-            <img src="@/assets/img/warning.svg" alt="Warning" />
-            <div>
-                <h1 class="title">{{ title }}</h1>
-                <h3>{{ description }}</h3>
+            <img src="@/assets/img/circle-plus.svg" alt="Add" />
+            <div class="input-wrap">
+                <label for="diagramName">{{ title }}</label>
+                <input class="input-large" v-model="name" type="text" id="diagramName" placeholder="Name" />
             </div>
         </div>
     </BaseDialog>
@@ -15,14 +15,18 @@ import { defineComponent } from "vue";
 import BaseDialog from "@/components/BaseDialog.vue";
 
 export default defineComponent({
-    name: "ConfirmDialog",
+    name: "InputDialog",
     components: {
         BaseDialog,
     },
     props: {
-        show: Boolean,
         title: String,
-        description: String,
+        show: Boolean,
+    },
+    data() {
+        return {
+            name: "",
+        };
     },
 });
 </script>
@@ -43,8 +47,15 @@ export default defineComponent({
         margin-right: 32px;
     }
 
-    .title {
-        margin-bottom: 12px;
+    div {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        label {
+            font-size: @h1;
+            margin-bottom: 8px;
+        }
     }
 }
 </style>

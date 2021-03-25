@@ -22,13 +22,7 @@ export default defineComponent({
     },
     methods: {
         windowResized(): void {
-            const windowWidth = window.innerWidth;
-
-            if (windowWidth < 1080 && !this.$store.getters.sidebarMinimized) {
-                this.$store.dispatch("toggleSidebar");
-            } else if (windowWidth >= 1080 && this.$store.getters.sidebarMinimized) {
-                this.$store.dispatch("toggleSidebar");
-            }
+            this.$store.dispatch("minimizeSidebar", window.innerWidth < 1080);
         },
     },
 });

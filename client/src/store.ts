@@ -4,25 +4,27 @@ import { editor } from "@/modules/editor/store";
 import { inventory } from "@/modules/inventory/store";
 import { Locales } from "@/i18n";
 
+export class RootState {
+    public locale: string = navigator.language.split("-")[0];
+    public sidebarMinimized = false;
+}
+
 export default createStore({
-    state: {
-        locale: navigator.language.split("-")[0],
-        sidebarMinimized: false,
-    },
+    state: new RootState(),
     mutations: {
-        setLocale(state, payload) {
+        setLocale(state, payload): void {
             if (Object.values(Locales).includes(payload.lang)) {
                 state.locale = payload.lang;
                 payload.i18n.locale = payload.lang;
             }
         },
-        toggleSidebar(state): void {
-            state.sidebarMinimized = !state.sidebarMinimized;
+        minimizeSidebar(state, value): void {
+            state.sidebarMinimized = value;
         },
     },
     actions: {
-        toggleSidebar(context): void {
-            context.commit("toggleSidebar");
+        minimizeSidebar(context, value): void {
+            context.commit("minimizeSidebar", value);
         },
     },
     getters: {

@@ -11,19 +11,19 @@
 
         <div
             class="diagram-item"
-            v-for="title in fetchFolders()"
-            :key="title"
+            v-for="folder in fetchFolders()"
+            :key="folder.name"
             draggable="true"
-            @dragstart="startDrag($event, title)"
-            @dragenter="dragEnter($event, title)"
-            @dragleave.self="dragLeave($event, title)"
-            @drop="onDrop($event, title)"
+            @dragstart="startDrag($event, folder.name)"
+            @dragenter="dragEnter($event, folder.name)"
+            @dragleave.self="dragLeave($event, folder.name)"
+            @drop="onDrop($event, folder.name)"
             @dragover.prevent
             @dragenter.prevent
-            :ref="title"
+            :ref="folder.name"
         >
             <img class="diagram-item-image" src="@/assets/img/folder.svg" alt="Folder" draggable="false" />
-            <p class="diagram-item-text">{{ title }}</p>
+            <p class="diagram-item-text">{{ folder.name }}</p>
         </div>
 
         <div
@@ -33,6 +33,7 @@
             draggable="true"
             @dragstart="startDrag($event, title)"
             @dragend="endDrag($event, title)"
+            @click="onClick($event, title)"
             :ref="title"
         >
             <img class="diagram-item-image" src="@/assets/img/diagram.svg" alt="Folder" draggable="false" />
@@ -43,22 +44,25 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { Folder } from "@/modules/start/models/Folder";
 
 export default defineComponent({
     name: "Diagram",
     data() {
         return {
-            mockTitlesFolder: ["Administration", "Develop"],
             mockTitlesDiagrams: ["Diagram_1", "Diagram_2"],
         };
+    },
+    created() {
+        this.$store.dispatch("loadFolders");
     },
     methods: {
         /**
          * Fetches the names of the folders in the view
          * @return Returns a string array containing the folder names
          */
-        fetchFolders(): string[] {
-            return this.mockTitlesFolder; // Mock data
+        fetchFolders(): Folder[] {
+            return this.$store.getters.getFolders;
         },
         /**
          * Fetches the names of the diagrams in the view
@@ -133,10 +137,12 @@ export default defineComponent({
             if (itemID.toString() === title) {
                 return;
             }
-
-            // Adjust mock data
-            this.mockTitlesDiagrams = this.mockTitlesDiagrams.filter((name) => name !== itemID.toString());
-            this.mockTitlesFolder = this.mockTitlesFolder.filter((name) => name !== itemID.toString());
+        },
+        // eslint-disable-next-line
+        onClick(evt: any, title: string): void {
+            console.log("click detected");
+            console.log(evt);
+            console.log(title);
         },
     },
 });
