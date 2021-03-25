@@ -8,9 +8,14 @@ export class FoldersController {
     /**
      * Return all folders at top level (which are not nested into another folder)
      */
+    @Get("/children")
+    getAllRootElements() {
+        return this.foldersService.getAllRootElements();
+    }
+    
     @Get()
-    getAllRootFolders() {
-        return this.foldersService.getAllRootFolders();
+    getAllFolders() {
+        return this.foldersService.getAllFolders();
     }
 
     @Get(":id")

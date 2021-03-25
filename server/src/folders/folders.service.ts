@@ -17,16 +17,32 @@ export class FoldersService {
     private readonly database = process.env.DB_TOOL;
 
     /**
-     * Return all folders at top level (which are not nested into another folder)
+     * Return all folders
      */
-    async getAllRootFolders(): Promise<Folder[]> {
+    async getAllFolders(): Promise<Folder[]> {
         // language=Cypher
-        const cypher = "MATCH (f:Folder) WHERE NOT (f)-[:IS_CHILD]->() RETURN f AS folder";
+        const cypher = "MATCH (f:Folder) RETURN f AS folder";
         const params = {};
 
         return this.neo4jService
             .read(cypher, params, this.database)
             .then((res) => res.records.map(FoldersService.parseFolder));
+    }
+
+    /**
+     * Return all folders at top level (which are not nested into another folder)
+     */
+    async getAllRootElements(): Promise<Array<Folder | Diagram>> {
+        // language=Cypher
+        const cypher =
+            "MATCH (f:Folder)WHERE NOT (f)-[:IS_CHILD]->() RETURN f AS n " +
+            "UNION ALL " +
+            "MATCH (d:Diagram) WHERE NOT (d)-[:IS_CHILD]->()RETURN d AS n";
+        const params = {};
+
+        return this.neo4jService
+            .read(cypher, params, this.database)
+            .then((res) => res.records.map(FoldersService.parseFolderOrDiagram));
     }
 
     /**
