@@ -1,8 +1,33 @@
 <template>
     <div id="diagram-content">
         <h2>{{ $t("start.diagrams.title") }}</h2>
-        <img class="add-button" src="../../../../assets/img/add-folder.svg" alt="Add Folder" />
+        <img
+            class="add-button"
+            src="../../../../assets/img/add-folder.svg"
+            alt="Add Folder"
+            @click="folderAddEmpty = true"
+        />
+        <img
+            v-show="selectedItem != null"
+            class="add-button"
+            src="../../../../assets/img/editor.svg"
+            alt="Editor"
+            @click="folderAddEmpty = true"
+        />
+        <img
+            v-show="selectedItem != null"
+            class="add-button"
+            src="../../../../assets/img/trash.svg"
+            alt="Delete"
+            @click="folderAddEmpty = true"
+        />
     </div>
+    <InputDialog
+        @input-confirm="addEmptyFolder"
+        @cancel="folderAddEmpty = false"
+        :show="folderAddEmpty"
+        title="Add Folder"
+    ></InputDialog>
     <div id="diagram-select">
         <div class="diagram-item">
             <img class="diagram-item-image" src="../../../../assets/img/folder-light.svg" alt="Return" />
@@ -28,16 +53,16 @@
 
         <div
             class="diagram-item"
-            v-for="title in fetchDiagrams()"
-            :key="title"
+            v-for="diagram in fetchDiagrams()"
+            :key="diagram.name"
             draggable="true"
-            @dragstart="startDrag($event, title)"
-            @dragend="endDrag($event, title)"
-            @click="onClick($event, title)"
-            :ref="title"
+            @dragstart="startDrag($event, diagram.name)"
+            @dragend="endDrag($event, diagram.name)"
+            @click="onClick($event, diagram.name)"
+            :ref="diagram.name"
         >
             <img class="diagram-item-image" src="@/assets/img/diagram.svg" alt="Folder" draggable="false" />
-            <p class="diagram-item-text">{{ title }}</p>
+            <p class="diagram-item-text">{{ diagram.name }}</p>
         </div>
     </div>
 </template>
@@ -45,20 +70,44 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Folder } from "@/modules/start/models/Folder";
+import InputDialog from "@/components/InputDialog.vue";
 
 export default defineComponent({
     name: "Diagram",
+    components: {
+        InputDialog,
+    },
     data() {
         return {
-            mockTitlesDiagrams: ["Diagram_1", "Diagram_2"],
+            folderAddEmpty: false,
+            selectedItem: null,
         };
     },
     created() {
         this.$store.dispatch("loadFolders");
+        this.$store.dispatch("loadDiagrams");
+        //const route = useRoute();
+        //console.log(route.params.id);
     },
     methods: {
         /**
+         * Add an empty folder
+         *
+         * @param folderName The name of the folder
+         */
+        addEmptyFolder(folderName: string): void {
+            this.$toast.add({
+                severity: "success",
+                summary: "Added Folder",
+                detail: "Added an empty folder!",
+                life: 3000,
+            });
+            this.folderAddEmpty = false;
+            this.$store.dispatch("addFolder", new Folder(folderName));
+        },
+        /**
          * Fetches the names of the folders in the view
+         *
          * @return Returns a string array containing the folder names
          */
         fetchFolders(): Folder[] {
@@ -66,13 +115,15 @@ export default defineComponent({
         },
         /**
          * Fetches the names of the diagrams in the view
+         *
          * @return Returns a string array containing the diagram names
          */
         fetchDiagrams(): string[] {
-            return this.mockTitlesDiagrams; // Mock data
+            return this.$store.getters.getDiagrams;
         },
         /**
          * Event function to start dragging elements
+         *
          * @param evt Type of MouseEvent
          * @param title Label of the div that is being dragged
          */
@@ -91,6 +142,7 @@ export default defineComponent({
         },
         /**
          * Event function when entering an element while dragging
+         *
          * @param evt Type of MouseEvent
          * @param title Label of the div that is entered
          */
@@ -101,6 +153,7 @@ export default defineComponent({
         },
         /**
          * Event function when leaving an element while dragging
+         *
          * @param evt Type of MouseEvent
          * @param title Label of the div that is left
          */
@@ -111,6 +164,7 @@ export default defineComponent({
         },
         /**
          * Event function when cancelling a drag operation
+         *
          * @param evt Type of MouseEvent
          * @param title Label of the div that is dragged
          */
@@ -121,6 +175,7 @@ export default defineComponent({
         },
         /**
          * Event function that handles the drop event
+         *
          * @param evt Type of MouseEvent
          * @param title Label of the div that is dragged
          */
@@ -138,6 +193,12 @@ export default defineComponent({
                 return;
             }
         },
+        /**
+         * Event function that handles the click on a folder
+         *
+         * @param evt
+         * @param title
+         */
         // eslint-disable-next-line
         onClick(evt: any, title: string): void {
             console.log("click detected");

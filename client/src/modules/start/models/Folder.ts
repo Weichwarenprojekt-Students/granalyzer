@@ -2,8 +2,8 @@ export class Folder {
     /**
      * Folder Model
      *
-     * @param id Identifier
      * @param name Name of the specific folder
+     * @param id Identifier
      */
-    constructor(public id: number, public name: string) {}
+    constructor(public name: string, public id: number = 0) {}
 }

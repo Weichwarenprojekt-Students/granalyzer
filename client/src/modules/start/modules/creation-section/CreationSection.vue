@@ -10,45 +10,41 @@
         <CreationCard
             :title="$t('start.newDiagram.node.title')"
             :description="$t('start.newDiagram.node.description')"
-            :imagePath="require('@/assets/img/editor.svg')"
-            @click="dialogConfirm = true"
+            :imagePath="require('@/assets/img/editor-thin.svg')"
+            @click="dialogAddEmpty = true"
         ></CreationCard>
         <InputDialog
             @input-confirm="addEmptyDiagram"
             @cancel="dialogAddEmpty = false"
             :show="dialogAddEmpty"
-            title="Test"
+            title="Add Diagram"
         ></InputDialog>
-        <ConfirmDialog
-            @input-confirm="addEmptyDiagram"
-            @cancel="dialogConfirm = false"
-            :show="dialogConfirm"
-            title="Test"
-            description="Test2"
-        ></ConfirmDialog>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { Diagram } from "@/modules/start/models/Diagram";
 import CreationCard from "./components/CreationCard.vue";
 import InputDialog from "@/components/InputDialog.vue";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 export default defineComponent({
     name: "CreationSection",
     components: {
         CreationCard,
         InputDialog,
-        ConfirmDialog,
     },
     data() {
         return {
             dialogAddEmpty: false,
-            dialogConfirm: false,
         };
     },
     methods: {
+        /**
+         * Add an empty diagram
+         *
+         * @param diagramName The name of the diagram
+         */
         addEmptyDiagram(diagramName: string): void {
             this.$toast.add({
                 severity: "success",
@@ -57,7 +53,7 @@ export default defineComponent({
                 life: 3000,
             });
             this.dialogAddEmpty = false;
-            console.log(diagramName);
+            this.$store.dispatch("addDiagram", new Diagram(diagramName));
         },
     },
 });
