@@ -33,6 +33,9 @@ export class FoldersService {
      * @param id
      */
     async getFolder(id: number): Promise<Folder> {
+        // Check whether id belongs to a folder
+        if (!(await this.isFolder(id))) throw new NotAcceptableException("Id does not belong to a folder");
+
         // language=Cypher
         const cypher = "MATCH (f:Folder) WHERE id(f) = $id RETURN f AS folder";
         const param = {
@@ -69,6 +72,9 @@ export class FoldersService {
      * @param id
      */
     async deleteFolder(id: number): Promise<Folder> {
+        // Check whether id belongs to a folder
+        if (!(await this.isFolder(id))) throw new NotAcceptableException("Id does not belong to a folder");
+
         // language=Cypher
         const cypher = "MATCH (f:Folder) WHERE id(f) = $id DETACH DELETE f RETURN f AS folder";
         const params = {
@@ -90,6 +96,9 @@ export class FoldersService {
      * @param name
      */
     async updateFolder(id: number, name: string): Promise<Folder> {
+        // Check whether id belongs to a folder
+        if (!(await this.isFolder(id))) throw new NotAcceptableException("Id does not belong to a folder");
+
         // language=Cypher
         const cypher = "MATCH (f:Folder) WHERE id(f) = $id SET name = $name RETURN f AS folder";
         const params = {
@@ -111,6 +120,9 @@ export class FoldersService {
      * @param id
      */
     async getChildrenOfFolder(id: number): Promise<Array<Folder | Diagram>> {
+        // Check whether id belongs to a folder
+        if (!(await this.isFolder(id))) throw new NotAcceptableException("Id does not belong to a folder");
+
         // language=Cypher
         const cypher = "MATCH (n)-[r:IS_CHILD]->(f:Folder) WHERE id(f) = $id RETURN n AS child";
         const params = {
@@ -129,6 +141,9 @@ export class FoldersService {
      * @param childId
      */
     async getChildOfFolder(parentId: number, childId: number): Promise<Folder | Diagram> {
+        // Check whether id belongs to a folder
+        if (!(await this.isFolder(parentId))) throw new NotAcceptableException("Id does not belong to a folder");
+
         // language=Cypher
         const cypher = "MATCH (n)-[r:IS_CHILD]->(f:Folder) WHERE id(f) = $parentId AND id(n) = $childId RETURN n";
         const params = {
@@ -181,9 +196,30 @@ export class FoldersService {
      * @param childId
      */
     async removeChildFromFolder(parentId: number, childId: number) {
+        // Check whether id belongs to a folder
+        if (!(await this.isFolder(parentId))) throw new NotAcceptableException("Id does not belong to a folder");
+
         return this.deleteIsChildRelation(childId, this.database).then((res) =>
             FoldersService.parseFolderOrDiagram(res.records[0]),
         );
+    }
+
+    /**
+     * Checks whether the element with the given id is an entity of type Folder
+     *
+     * @param id
+     * @private
+     */
+    private async isFolder(id: number): Promise<boolean> {
+        // language=Cypher
+        const cypher = "MATCH (f) WHERE id(f) = $id RETURN labels(f) AS label";
+        const params = {
+            id: this.neo4jService.int(id),
+        };
+
+        return this.neo4jService.read(cypher, params, this.database).then((res) => {
+            return res.records[0]?.get("label").indexOf("Folder") > -1;
+        });
     }
 
     /**

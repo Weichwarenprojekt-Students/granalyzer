@@ -152,4 +152,26 @@ export class FoldersRepository {
             name: "deleted folder",
         };
     }
+
+    /**
+     * Returns mocked DB data for a folder type
+     */
+    static mockIsFolder() {
+        return TestUtils.mockDbResult([
+            {
+                label: ["Folder"],
+            },
+        ]);
+    }
+
+    /**
+     * Returns mocked DB data for not a folder type
+     */
+    static mockIsNotFolder() {
+        return TestUtils.mockDbResult([
+            {
+                label: ["Diagram"],
+            },
+        ]);
+    }
 }
