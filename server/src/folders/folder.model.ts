@@ -1,9 +1,19 @@
+import { ApiProperty } from "@nestjs/swagger";
+
 export class Folder {
-    /**
-     * Folder Model
-     *
-     * @param id Identifier
-     * @param name Name of the specific folder
-     */
-    constructor(public id: number, public name: string) {}
+    @ApiProperty({
+        required: true,
+        type: "number",
+        name: "id",
+        description: "Id of the folder",
+    })
+    id: number;
+
+    @ApiProperty({
+        required: true,
+        type: "string",
+        name: "name",
+        description: "Name of the folder",
+    })
+    name: string;
 }

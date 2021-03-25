@@ -10,7 +10,8 @@ async function bootstrap() {
         .setTitle("Granalyzer API")
         .setDescription("Awesome access to the Graph")
         .setVersion("1.0")
-        .addTag("cats")
+        .addTag("diagrams")
+        .addTag("folders")
         .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup(process.env.SWAGGER_PREFIX, app, document);
