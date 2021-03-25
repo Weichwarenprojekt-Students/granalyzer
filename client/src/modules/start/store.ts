@@ -47,8 +47,50 @@ export const start = {
 
             if (res.status === 201) state.folders.push(await res.json());
         },
+        /**
+         * Deletes a folder in the tool database
+         *
+         * @param state Storage state
+         * @param folder Folder to be deleted
+         */
+        async deleteFolder(state: StartState, folder: Folder): Promise<void> {
+            const res = await fetch("api/folders/" + folder.id, {
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                method: "DELETE",
+                body: JSON.stringify(folder),
+            });
+
+            if (res.status === 200) state.folders = state.folders.filter((item) => item.id !== folder.id);
+        },
+        /**
+         * Deletes a folder in the tool database
+         *
+         * @param state Storage state
+         * @param diagram Diagram to be deleted
+         */
+        async deleteDiagram(state: StartState, diagram: Diagram): Promise<void> {
+            const res = await fetch("api/diagrams/" + diagram.id, {
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                method: "DELETE",
+                body: JSON.stringify(diagram),
+            });
+
+            if (res.status === 200) state.diagrams = state.diagrams.filter((item) => item.id !== diagram.id);
+        },
+        /**
+         * Edits a folder and updates the name
+         *
+         * @param state Storage state
+         * @param folder Folder to be updated
+         */
         async editFolder(state: StartState, folder: Folder): Promise<void> {
-            await fetch("api/folders", {
+            const res = await fetch("api/folders/" + folder.id, {
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json",
@@ -56,9 +98,20 @@ export const start = {
                 method: "PUT",
                 body: JSON.stringify(folder),
             });
+
+            if (res.status === 200) {
+                state.folders = state.folders.filter((item) => item.id !== folder.id);
+                state.folders.push(await res.json());
+            }
         },
+        /**
+         * Edits a diagram and updates the name
+         *
+         * @param state Storage state
+         * @param diagram Folder to be updated
+         */
         async editDiagram(state: StartState, diagram: Diagram): Promise<void> {
-            await fetch("api/diagrams", {
+            const res = await fetch("api/diagrams/" + diagram.id, {
                 headers: {
                     Accept: "application/json",
                     "Content-Type": "application/json",
@@ -66,6 +119,11 @@ export const start = {
                 method: "PUT",
                 body: JSON.stringify(diagram),
             });
+
+            if (res.status === 200) {
+                state.diagrams = state.diagrams.filter((item) => item.id !== diagram.id);
+                state.diagrams.push(await res.json());
+            }
         },
         /**
          * Loads the root folders into the folder state
@@ -104,6 +162,24 @@ export const start = {
          */
         addFolder(context: ActionContext<StartState, RootState>, folder: Folder): void {
             context.commit("addFolder", folder);
+        },
+        /**
+         * Deletes a diagram
+         *
+         * @param context -
+         * @param diagram Diagram to be deleted
+         */
+        deleteDiagram(context: ActionContext<StartState, RootState>, diagram: Diagram): void {
+            context.commit("deleteDiagram", diagram);
+        },
+        /**
+         * Deletes a folder
+         *
+         * @param context -
+         * @param folder Folder to be deleted
+         */
+        deleteFolder(context: ActionContext<StartState, RootState>, folder: Folder): void {
+            context.commit("deleteFolder", folder);
         },
         /**
          * Changes the name of a diagram
