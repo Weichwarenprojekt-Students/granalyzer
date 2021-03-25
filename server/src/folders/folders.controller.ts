@@ -28,7 +28,7 @@ export class FoldersController {
         return this.foldersService.addFolder(name);
     }
 
-    @Delete("id")
+    @Delete(":id")
     deleteFolder(@Param("id") id: number) {
         return this.foldersService.deleteFolder(id);
     }
