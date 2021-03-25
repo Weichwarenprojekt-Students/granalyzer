@@ -16,17 +16,17 @@ export class DiagramsController {
     }
 
     @Post()
-    async addDiagram(@Body("name") name: string) {
+    addDiagram(@Body("name") name: string) {
         return this.diagramsService.addDiagram(name);
     }
 
     @Put(":id")
-    async updateDiagram(@Param("id") id: number, @Body("name") name: string) {
+    updateDiagram(@Param("id") id: number, @Body("name") name: string) {
         return this.diagramsService.updateDiagram(id, name);
     }
 
     @Delete(":id")
-    async deleteDiagram(@Param("id") id: number) {
+    deleteDiagram(@Param("id") id: number) {
         return this.diagramsService.deleteDiagram(id);
     }
 }
