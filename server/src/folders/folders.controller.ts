@@ -5,9 +5,12 @@ import { FoldersService } from "./folders.service";
 export class FoldersController {
     constructor(private readonly foldersService: FoldersService) {}
 
+    /**
+     * Return all folders at top level (which are not nested into another folder)
+     */
     @Get()
-    getAllFolders() {
-        return this.foldersService.getFolders();
+    getAllRootFolders() {
+        return this.foldersService.getAllRootFolders();
     }
 
     @Get(":id")
