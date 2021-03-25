@@ -11,12 +11,17 @@ export abstract class Attribute {
     /**
      * Name of the attribute
      */
-    name = "";
+    name: string;
 
     /**
      * Indicator if the attribute is mandatory
      */
-    mandatory = false;
+    mandatory: boolean;
+
+    /**
+     * Datatype of the attribute
+     */
+    abstract datatype: string;
 
     /**
      * Decorator for automatically filling the data type registry
@@ -29,11 +34,11 @@ export abstract class Attribute {
     }
 
     /**
-     * Deserialize attribute from a JSON string into the corresponding typescript object
+     * Deserialize attributes from a JSON string into the corresponding typescript objects
      *
      * @param json the JSON string
      */
-    static deserializeAttributeFromJSON(json: string): Attribute {
+    static fromJson(json: string) {
         return JSON.parse(json, Attribute.reviver);
     }
 
@@ -43,7 +48,7 @@ export abstract class Attribute {
      * @param k key
      * @param v value
      */
-    private static readonly reviver = (k: string, v: any) =>
+    static readonly reviver = (k: string, v: any) =>
         typeof v === "object" && "datatype" in v && v.datatype in Attribute.typeRegistry
             ? Object.assign(new Attribute.typeRegistry[v.datatype](), v)
             : v;
@@ -59,7 +64,21 @@ export class StringAttribute extends Attribute {
     /**
      * Default string value
      */
-    defaultValue = "";
+    defaultValue: string;
+
+    /**
+     * Constructor
+     *
+     * @param name name of the attribute
+     * @param mandatory indicate if the attribute is mandatory
+     * @param defaultValue default value if the attribute is mandatory
+     */
+    constructor(name?: string, mandatory?: boolean, defaultValue?: string) {
+        super();
+        this.name = name || "";
+        this.mandatory = mandatory || false;
+        this.defaultValue = defaultValue || "";
+    }
 }
 
 @Attribute.serializable
@@ -72,7 +91,21 @@ export class NumberAttribute extends Attribute {
     /**
      * Default number value
      */
-    defaultValue = 0;
+    defaultValue: number;
+
+    /**
+     * Constructor
+     *
+     * @param name name of the attribute
+     * @param mandatory indicate if the attribute is mandatory
+     * @param defaultValue default value if the attribute is mandatory
+     */
+    constructor(name?: string, mandatory?: boolean, defaultValue?: number) {
+        super();
+        this.name = name || "";
+        this.mandatory = mandatory || false;
+        this.defaultValue = defaultValue || 0;
+    }
 }
 
 /**
@@ -88,5 +121,19 @@ export class ColorAttribute extends Attribute {
     /**
      * Default color value
      */
-    defaultValue = "#000";
+    defaultValue: string;
+
+    /**
+     * Constructor
+     *
+     * @param name name of the attribute
+     * @param mandatory indicate if the attribute is mandatory
+     * @param defaultValue default value if the attribute is mandatory
+     */
+    constructor(name?: string, mandatory?: boolean, defaultValue?: string) {
+        super();
+        this.name = name || "";
+        this.mandatory = mandatory || false;
+        this.defaultValue = defaultValue || "#000";
+    }
 }
