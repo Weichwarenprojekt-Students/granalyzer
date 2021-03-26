@@ -12,6 +12,7 @@ export class FoldersRepository {
                     identity: neo4j.int(0),
                     properties: {
                         name: "folder 1",
+                        parentId: neo4j.int(2),
                     },
                 },
             },
@@ -34,10 +35,12 @@ export class FoldersRepository {
             {
                 id: 0,
                 name: "folder 1",
+                parentId: 2,
             },
             {
                 id: 1,
                 name: "folder 2",
+                parentId: undefined,
             },
         ];
     }
@@ -65,6 +68,7 @@ export class FoldersRepository {
         return {
             id: 0,
             name: "folder 1",
+            parentId: undefined,
         };
     }
 
@@ -91,6 +95,7 @@ export class FoldersRepository {
         return {
             id: 0,
             name: "added folder",
+            parentId: undefined,
         };
     }
 
@@ -117,6 +122,7 @@ export class FoldersRepository {
         return {
             id: 0,
             name: "updated folder",
+            parentId: undefined,
         };
     }
 
@@ -143,6 +149,7 @@ export class FoldersRepository {
         return {
             id: 0,
             name: "deleted folder",
+            parentId: undefined,
         };
     }
 
@@ -180,10 +187,12 @@ export class FoldersRepository {
             {
                 id: 2,
                 name: "inner folder",
+                parentId: undefined,
             },
             {
                 id: 3,
                 name: "inner folder",
+                parentId: undefined,
             },
         ];
     }
@@ -212,6 +221,7 @@ export class FoldersRepository {
         return {
             id: 2,
             name: "child folder",
+            parentId: undefined,
         };
     }
 
@@ -239,6 +249,7 @@ export class FoldersRepository {
         return {
             id: 2,
             name: "folder 3",
+            parentId: undefined,
         };
     }
 
@@ -266,6 +277,7 @@ export class FoldersRepository {
         return {
             id: 2,
             name: "removed folder",
+            parentId: undefined,
         };
     }
 
@@ -280,6 +292,7 @@ export class FoldersRepository {
                     labels: ["Folder"],
                     properties: {
                         name: "folder 1",
+                        parentId: undefined,
                     },
                 },
             },
@@ -289,6 +302,7 @@ export class FoldersRepository {
                     labels: ["Folder"],
                     properties: {
                         name: "folder 2",
+                        parentId: undefined,
                     },
                 },
             },
@@ -303,10 +317,12 @@ export class FoldersRepository {
             {
                 id: 0,
                 name: "folder 1",
+                parentId: undefined,
             },
             {
                 id: 1,
                 name: "folder 2",
+                parentId: undefined,
             },
         ];
     }
@@ -345,10 +361,12 @@ export class FoldersRepository {
             {
                 id: 2,
                 name: "inner diagram",
+                parentId: undefined,
             },
             {
                 id: 3,
                 name: "inner diagram",
+                parentId: undefined,
             },
         ];
     }
@@ -377,6 +395,7 @@ export class FoldersRepository {
         return {
             id: 2,
             name: "child diagram",
+            parentId: undefined,
         };
     }
 
@@ -404,6 +423,7 @@ export class FoldersRepository {
         return {
             id: 2,
             name: "diagram 3",
+            parentId: undefined,
         };
     }
 
@@ -431,6 +451,7 @@ export class FoldersRepository {
         return {
             id: 2,
             name: "removed diagram",
+            parentId: undefined,
         };
     }
 }
