@@ -16,4 +16,12 @@ export class Folder {
         description: "Name of the folder",
     })
     name: string;
+
+    @ApiProperty({
+        required: false,
+        type: "number",
+        name: "parentId",
+        description: "The Id of the parent folder",
+    })
+    parentId?: number;
 }

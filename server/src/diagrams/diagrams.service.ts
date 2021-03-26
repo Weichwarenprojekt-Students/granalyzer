@@ -186,6 +186,7 @@ export class DiagramsService {
         //language=Cypher
         const cypher =
             "MATCH (p:Folder), (c:Diagram) WHERE id(p) = $parentId AND id(c) = $childId " +
+            "SET c.parentId = id(p)" +
             "CREATE (c)-[r:IS_CHILD]->(p) RETURN c AS diagram";
         const params = {
             parentId: this.neo4jService.int(parentId),
@@ -229,7 +230,8 @@ export class DiagramsService {
      */
     deleteIsChildRelation(childId: number, databaseOrTransaction?: string | Transaction): Result {
         //language=Cypher
-        const cypher = "MATCH (c:Diagram)-[r:IS_CHILD]->() WHERE id(c) = $childId DELETE r RETURN c AS diagram";
+        const cypher =
+            "MATCH (c:Diagram)-[r:IS_CHILD]->() WHERE id(c) = $childId DELETE r REMOVE c.parentId RETURN c AS diagram";
         const params = {
             childId: this.neo4jService.int(childId),
         };
@@ -243,9 +245,12 @@ export class DiagramsService {
      * @private
      */
     static parseDiagram(record: Record<any, any>): Diagram {
+        const diagram = record.get("diagram");
+
         return {
-            ...record.get("diagram").properties,
-            id: record.get("diagram").identity.toNumber(),
+            name: diagram.properties["name"],
+            parentId: diagram.properties["parentId"]?.toNumber(),
+            id: diagram.identity.toNumber(),
         } as Diagram;
     }
 }

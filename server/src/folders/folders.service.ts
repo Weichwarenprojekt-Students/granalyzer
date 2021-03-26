@@ -181,6 +181,7 @@ export class FoldersService {
         //language=Cypher
         const cypher =
             "MATCH (p:Folder), (c:Folder) WHERE id(p) = $parentId AND id(c) = $childId " +
+            "SET c.parentId = id(p)" +
             "CREATE (c)-[r:IS_CHILD]->(p) RETURN c AS folder";
         const params = {
             parentId: this.neo4jService.int(parentId),
@@ -224,7 +225,8 @@ export class FoldersService {
      */
     deleteIsChildRelation(childId: number, databaseOrTransaction?: string | Transaction): Result {
         //language=Cypher
-        const cypher = "MATCH (c:Folder)-[r:IS_CHILD]->() WHERE id(c) = $childId DELETE r RETURN c AS folder";
+        const cypher =
+            "MATCH (c: Folder)-[r:IS_CHILD]->() WHERE id(c) = $childId DELETE r REMOVE c.parentId RETURN c AS folder";
         const params = {
             childId: this.neo4jService.int(childId),
         };
@@ -238,9 +240,12 @@ export class FoldersService {
      * @private
      */
     static parseFolder(record: Record<any, any>): Folder {
+        const folder = record.get("folder");
+
         return {
-            ...record.get("folder").properties,
-            id: record.get("folder").identity.toNumber(),
+            name: folder.properties["name"],
+            parentId: folder.properties["parentId"]?.toNumber(),
+            id: folder.identity.toNumber(),
         } as Folder;
     }
 }

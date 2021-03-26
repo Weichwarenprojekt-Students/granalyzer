@@ -16,4 +16,12 @@ export class Diagram {
         description: "Name of the diagram",
     })
     name: string;
+
+    @ApiProperty({
+        required: false,
+        type: "number",
+        name: "parentId",
+        description: "The Id of the parent folder",
+    })
+    parentId?: number;
 }
