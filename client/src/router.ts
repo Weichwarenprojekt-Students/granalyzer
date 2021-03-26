@@ -2,7 +2,6 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import Start from "./modules/start/Start.vue";
 import Editor from "./modules/editor/Editor.vue";
 import Inventory from "./modules/inventory/Inventory.vue";
-import { startRouter } from "./modules/start/router";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -10,10 +9,9 @@ const routes: Array<RouteRecordRaw> = [
         redirect: "/start",
     },
     {
-        path: "/start",
+        path: "/start/:id?",
         name: "Start",
         component: Start,
-        children: startRouter,
     },
     {
         path: "/editor",

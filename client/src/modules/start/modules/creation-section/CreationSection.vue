@@ -17,6 +17,7 @@
             @input-confirm="addEmptyDiagram"
             @cancel="dialogAddEmpty = false"
             :show="dialogAddEmpty"
+            :image-src="require('@/assets/img/circle-plus.svg')"
             title="Add Diagram"
         ></InputDialog>
     </div>

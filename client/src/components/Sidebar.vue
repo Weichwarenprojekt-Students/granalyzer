@@ -7,7 +7,7 @@
                 v-for="item in items"
                 :key="item"
                 :to="'/' + item"
-                :class="{ isSelected: $route.path === '/' + item }"
+                :class="{ isSelected: $route.path.startsWith('/' + item) }"
                 v-tooltip="sidebarMinimized ? $t('global.' + item) : ''"
             >
                 <img class="icon" :src="require('@/assets/img/' + item + '.svg')" :alt="item" />

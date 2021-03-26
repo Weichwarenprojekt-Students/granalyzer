@@ -12,6 +12,16 @@
     }
   },
   "diagrams":{
-    "title": "Ihre Diagramme"
+    "title": "Ihre Diagramme",
+    "addFolder": "Ordner hinzufügen",
+    "renameItem": "{item} umbenennen",
+    "deleteItem": {
+      "title": "{item} löschen",
+      "description": "Wollen Sie das ausgewählte Element löschen?"
+    },
+    "noSelection": {
+      "title": "Kein Element ausgewählt",
+      "description": "Sie müssen ein Element auswählen um es zu editieren!"
+    }
   }
 }

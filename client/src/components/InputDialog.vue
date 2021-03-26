@@ -1,7 +1,7 @@
 <template>
     <BaseDialog :show="show" @confirm="$emit('input-confirm', name)">
         <div id="mid-section" @keyup.enter="$emit('input-confirm', name)">
-            <img src="@/assets/img/circle-plus.svg" alt="Add" />
+            <img :src="imageSrc" alt="Add" />
             <div class="input-wrap">
                 <label for="diagramName">{{ title }}</label>
                 <input class="input-large" v-model="name" type="text" id="diagramName" placeholder="Name" />
@@ -22,6 +22,7 @@ export default defineComponent({
     props: {
         title: String,
         show: Boolean,
+        imageSrc: String,
     },
     data() {
         return {

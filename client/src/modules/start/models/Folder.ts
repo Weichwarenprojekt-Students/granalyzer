@@ -6,4 +6,14 @@ export class Folder {
      * @param id Identifier
      */
     constructor(public name: string, public id: number = 0) {}
+
+    /**
+     * Copy a folder
+     *
+     * @param folder The folder to be copied
+     * @return The copy
+     */
+    public static copy(folder: Folder): Folder {
+        return new Folder(folder.name, folder.id);
+    }
 }

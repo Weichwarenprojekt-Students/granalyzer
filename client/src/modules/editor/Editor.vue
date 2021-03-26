@@ -1,14 +1,22 @@
 <template>
     <div id="content">
-        <h1>{{ $t("editor.title") }}</h1>
+        <h1>{{ title }}</h1>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { isEmpty } from "@/utility";
 
 export default defineComponent({
     name: "Editor",
+    computed: {
+        title(): string {
+            const diagram = this.$store.getters.diagram;
+            if (!isEmpty(diagram)) return diagram.name;
+            else return this.$t("editor.title");
+        },
+    },
 });
 </script>
 

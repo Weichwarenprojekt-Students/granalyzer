@@ -1,42 +1,57 @@
 <template>
     <div id="diagram-content">
+        <InputDialog
+            @input-confirm="addEmptyFolder"
+            @cancel="addFolderDialog = false"
+            :show="addFolderDialog"
+            :image-src="require('@/assets/img/circle-plus.svg')"
+            :title="$t('start.diagrams.addFolder')"
+        ></InputDialog>
+        <InputDialog
+            @input-confirm="renameItem"
+            @cancel="renameItemDialog = false"
+            :show="renameItemDialog"
+            :image-src="require('@/assets/img/editor-thin.svg')"
+            :title="$t('start.diagrams.renameItem', { item: selectedItemName })"
+        ></InputDialog>
+        <ConfirmDialog
+            @confirm="deleteItem"
+            @cancel="deleteItemDialog = false"
+            :show="deleteItemDialog"
+            :title="$t('start.diagrams.deleteItem.title', { item: selectedItemName })"
+            :description="$t('start.diagrams.deleteItem.description')"
+        ></ConfirmDialog>
         <h2>{{ $t("start.diagrams.title") }}</h2>
         <img
             class="add-button"
             src="../../../../assets/img/add-folder.svg"
             alt="Add Folder"
-            @click="folderAddEmpty = true"
+            @click="addFolderDialog = true"
         />
         <img
-            v-show="selectedItem != null"
+            v-show="isItemSelected"
             class="add-button"
             src="../../../../assets/img/editor.svg"
             alt="Editor"
-            @click="folderAddEmpty = true"
+            @click="renameItemDialog = true"
         />
         <img
-            v-show="selectedItem != null"
+            v-show="isItemSelected"
             class="add-button"
             src="../../../../assets/img/trash.svg"
             alt="Delete"
-            @click="folderAddEmpty = true"
+            @click="deleteItemDialog = true"
         />
     </div>
-    <InputDialog
-        @input-confirm="addEmptyFolder"
-        @cancel="folderAddEmpty = false"
-        :show="folderAddEmpty"
-        title="Add Folder"
-    ></InputDialog>
     <div id="diagram-select">
-        <div class="diagram-item">
+        <div v-show="$route.params.id !== ''" class="diagram-item" @click="$router.go(-1)">
             <img class="diagram-item-image" src="../../../../assets/img/folder-light.svg" alt="Return" />
             <p class="diagram-item-text diagram-explorer-back">..</p>
         </div>
 
         <div
-            class="diagram-item"
-            v-for="folder in fetchFolders()"
+            :class="['diagram-item', { selected: selectedFolder.id === folder.id }]"
+            v-for="folder in folders"
             :key="folder.name"
             draggable="true"
             @dragstart="startDrag($event, folder.name)"
@@ -45,6 +60,8 @@
             @drop="onDrop($event, folder.name)"
             @dragover.prevent
             @dragenter.prevent
+            @click="selectFolder(folder)"
+            v-on:dblclick="doubleClickedFolder"
             :ref="folder.name"
         >
             <img class="diagram-item-image" src="@/assets/img/folder.svg" alt="Folder" draggable="false" />
@@ -52,13 +69,14 @@
         </div>
 
         <div
-            class="diagram-item"
-            v-for="diagram in fetchDiagrams()"
+            :class="['diagram-item', { selected: selectedDiagram.id === diagram.id }]"
+            v-for="diagram in diagrams"
             :key="diagram.name"
             draggable="true"
             @dragstart="startDrag($event, diagram.name)"
             @dragend="endDrag($event, diagram.name)"
-            @click="onClick($event, diagram.name)"
+            @click="selectDiagram(diagram)"
+            v-on:dblclick="doubleClickedDiagram"
             :ref="diagram.name"
         >
             <img class="diagram-item-image" src="@/assets/img/diagram.svg" alt="Folder" draggable="false" />
@@ -70,24 +88,67 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Folder } from "@/modules/start/models/Folder";
+import { Diagram } from "@/modules/start/models/Diagram";
+import { isEmpty } from "@/utility";
 import InputDialog from "@/components/InputDialog.vue";
+import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 export default defineComponent({
     name: "Diagram",
     components: {
+        ConfirmDialog,
         InputDialog,
     },
     data() {
         return {
-            folderAddEmpty: false,
-            selectedItem: null,
+            addFolderDialog: false,
+            renameItemDialog: false,
+            deleteItemDialog: false,
+            selectedFolder: {} as Folder,
+            selectedDiagram: {} as Diagram,
         };
     },
+    /**
+     * Load the folders
+     */
     created() {
         this.$store.dispatch("loadFolders");
         this.$store.dispatch("loadDiagrams");
-        //const route = useRoute();
-        //console.log(route.params.id);
+    },
+    computed: {
+        /**
+         * @return True if any item is selected
+         */
+        isItemSelected(): boolean {
+            return !isEmpty(this.selectedFolder) || !isEmpty(this.selectedDiagram);
+        },
+        /**
+         * @return The name of the selected item
+         */
+        selectedItemName(): string {
+            for (let i = 0; i < this.folders.length; i++)
+                if (this.folders[i].id == this.selectedFolder.id) return this.folders[i].name;
+            for (let i = 0; i < this.diagrams.length; i++)
+                if (this.diagrams[i].id == this.selectedDiagram.id) return this.diagrams[i].name;
+            console.log("teskljlk");
+            return "";
+        },
+        /**
+         * Fetches the names of the folders in the view
+         *
+         * @return Returns a string array containing the folder names
+         */
+        folders(): Folder[] {
+            return this.$store.getters.folders;
+        },
+        /**
+         * Fetches the names of the diagrams in the view
+         *
+         * @return Returns a string array containing the diagram names
+         */
+        diagrams(): Diagram[] {
+            return this.$store.getters.diagrams;
+        },
     },
     methods: {
         /**
@@ -96,30 +157,80 @@ export default defineComponent({
          * @param folderName The name of the folder
          */
         addEmptyFolder(folderName: string): void {
-            this.$toast.add({
-                severity: "success",
-                summary: "Added Folder",
-                detail: "Added an empty folder!",
-                life: 3000,
-            });
-            this.folderAddEmpty = false;
+            this.addFolderDialog = false;
             this.$store.dispatch("addFolder", new Folder(folderName));
         },
         /**
-         * Fetches the names of the folders in the view
+         * Rename an item
          *
-         * @return Returns a string array containing the folder names
+         * @param newName The new name of the item
          */
-        fetchFolders(): Folder[] {
-            return this.$store.getters.getFolders;
+        renameItem(newName: string) {
+            if (!isEmpty(this.selectedFolder)) {
+                const copy = Folder.copy(this.selectedFolder);
+                copy.name = newName;
+                this.$store.dispatch("editFolder", copy);
+            } else if (!isEmpty(this.selectedDiagram)) {
+                const copy = Diagram.copy(this.selectedDiagram);
+                copy.name = newName;
+                this.$store.dispatch("editDiagram", copy);
+            } else this.showSelectionError();
+            this.renameItemDialog = false;
         },
         /**
-         * Fetches the names of the diagrams in the view
-         *
-         * @return Returns a string array containing the diagram names
+         * Delete an item
          */
-        fetchDiagrams(): string[] {
-            return this.$store.getters.getDiagrams;
+        deleteItem() {
+            if (!isEmpty(this.selectedFolder)) {
+                this.$store.dispatch("deleteFolder", this.selectedFolder);
+            } else if (!isEmpty(this.selectedDiagram)) {
+                this.$store.dispatch("deleteDiagram", this.selectedDiagram);
+            } else this.showSelectionError();
+            this.deleteItemDialog = false;
+        },
+        /**
+         * Show a selection error
+         */
+        showSelectionError(): void {
+            this.$toast.add({
+                severity: "error",
+                summary: this.$t("start.diagrams.noSelection.title"),
+                detail: this.$t("start.diagrams.noSelection.description"),
+                life: 3000,
+            });
+            this.selectedFolder = {} as Folder;
+            this.selectedDiagram = {} as Diagram;
+        },
+        /**
+         * Handle double click on folder
+         */
+        doubleClickedFolder(): void {
+            console.log("test");
+        },
+        /**
+         * Handle double click on diagram
+         */
+        doubleClickedDiagram(): void {
+            this.$store.dispatch("setDiagram", this.selectedDiagram);
+            this.$router.push("/editor");
+        },
+        /**
+         * Select a folder
+         *
+         * @param folder The folder that was selected
+         */
+        selectFolder(folder: Folder): void {
+            this.selectedFolder = folder;
+            this.selectedDiagram = {} as Diagram;
+        },
+        /**
+         * Select a diagram
+         *
+         * @param diagram The diagram that was selected
+         */
+        selectDiagram(diagram: Diagram): void {
+            this.selectedDiagram = diagram;
+            this.selectedFolder = {} as Folder;
         },
         /**
          * Event function to start dragging elements
@@ -193,18 +304,6 @@ export default defineComponent({
                 return;
             }
         },
-        /**
-         * Event function that handles the click on a folder
-         *
-         * @param evt
-         * @param title
-         */
-        // eslint-disable-next-line
-        onClick(evt: any, title: string): void {
-            console.log("click detected");
-            console.log(evt);
-            console.log(title);
-        },
     },
 });
 </script>
@@ -243,6 +342,10 @@ export default defineComponent({
         :hover {
             background: white;
         }
+    }
+
+    .selected {
+        background: @secondary_color;
     }
 
     .dragOver {

@@ -12,6 +12,16 @@
     }
   },
   "diagrams":{
-    "title": "Your Diagrams"
+    "title": "Your Diagrams",
+    "addFolder": "Add folder",
+    "renameItem": "Rename {item}",
+    "deleteItem": {
+      "title": "Delete {item}",
+      "description": "Are you sure you want to delete the selected item?"
+    },
+    "noSelection": {
+      "title": "No item selected",
+      "description": "You have to select an item to edit it!"
+    }
   }
 }
