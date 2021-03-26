@@ -4,7 +4,9 @@
             <slot></slot>
             <div id="bottom-section">
                 <button @click="$emit('cancel')" class="btn btn-normal">{{ $t("global.dialog.cancel") }}</button>
-                <button @click="$emit('confirm')" class="btn btn-primary">{{ $t("global.dialog.confirm") }}</button>
+                <button id="confirm-button" @click="$emit('confirm')" class="btn btn-primary">
+                    {{ $t("global.dialog.confirm") }}
+                </button>
             </div>
         </Dialog>
     </div>
@@ -17,6 +19,13 @@ export default defineComponent({
     name: "BaseDialog",
     props: {
         show: Boolean,
+        input: Boolean,
+    },
+    watch: {
+        show() {
+            // Focus confirm button when ConfirmDialog is shown
+            if (!this.input) this.$nextTick().then(() => document.getElementById("confirm-button")?.focus());
+        },
     },
 });
 </script>

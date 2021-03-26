@@ -130,7 +130,6 @@ export default defineComponent({
                 if (this.folders[i].id == this.selectedFolder.id) return this.folders[i].name;
             for (let i = 0; i < this.diagrams.length; i++)
                 if (this.diagrams[i].id == this.selectedDiagram.id) return this.diagrams[i].name;
-            console.log("teskljlk");
             return "";
         },
         /**
@@ -205,7 +204,7 @@ export default defineComponent({
          * Handle double click on folder
          */
         doubleClickedFolder(): void {
-            console.log("test");
+            console.log("Folder Double Click");
         },
         /**
          * Handle double click on diagram

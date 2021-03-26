@@ -1,10 +1,17 @@
 <template>
-    <BaseDialog :show="show" @confirm="$emit('input-confirm', name)">
+    <BaseDialog :input="true" :show="show" @confirm="$emit('input-confirm', name)">
         <div id="mid-section" @keyup.enter="$emit('input-confirm', name)">
             <img :src="imageSrc" alt="Add" />
             <div class="input-wrap">
                 <label for="diagramName">{{ title }}</label>
-                <input class="input-large" v-model="name" type="text" id="diagramName" placeholder="Name" />
+                <input
+                    tabindex="0"
+                    class="input-large"
+                    v-model="name"
+                    type="text"
+                    id="diagramName"
+                    placeholder="Name"
+                />
             </div>
         </div>
     </BaseDialog>

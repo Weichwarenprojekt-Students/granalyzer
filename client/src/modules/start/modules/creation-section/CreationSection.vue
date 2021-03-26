@@ -47,6 +47,7 @@ export default defineComponent({
          * @param diagramName The name of the diagram
          */
         addEmptyDiagram(diagramName: string): void {
+            if (!diagramName) return;
             this.$toast.add({
                 severity: "success",
                 summary: "Added Diagram",
