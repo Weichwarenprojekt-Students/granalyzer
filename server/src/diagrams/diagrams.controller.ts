@@ -28,6 +28,18 @@ export class DiagramsController {
         return this.diagramsService.getDiagrams();
     }
 
+    @Get("/root")
+    @ApiOperation({
+        description: "Return all diagrams at top level (which are not nested into another folder)",
+    })
+    @ApiOkResponse({
+        description: "Returns all diagrams at root level",
+        type: [Diagram],
+    })
+    getAllRootDiagrams() {
+        return this.diagramsService.getAllRootDiagrams();
+    }
+
     @Get(":id")
     @ApiOperation({
         description: "Returns the specific diagram represented by the given id",

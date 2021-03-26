@@ -6,9 +6,12 @@ import { DiagramsRepository } from "./diagrams.repository";
 import MockNeo4jService from "../../test/mock-neo4j.service";
 import { UtilsRepository } from "../util/utils.repository";
 import { UtilsNode } from "../util/utils.node";
+import { FoldersService } from "../folders/folders.service";
+import { DiagramsModule } from "./diagrams.module";
 
 describe("DiagramsController", () => {
     let service: DiagramsService;
+    let foldersService: FoldersService;
     let neo4jService: Neo4jService;
     let controller: DiagramsController;
 
@@ -17,6 +20,7 @@ describe("DiagramsController", () => {
             controllers: [DiagramsController],
             providers: [
                 DiagramsService,
+                FoldersService,
                 {
                     provide: Neo4jService,
                     useValue: MockNeo4jService,
@@ -27,11 +31,13 @@ describe("DiagramsController", () => {
 
         neo4jService = module.get<Neo4jService>(Neo4jService);
         service = module.get<DiagramsService>(DiagramsService);
+        foldersService = module.get<FoldersService>(FoldersService);
         controller = module.get<DiagramsController>(DiagramsController);
     });
 
     it("should be defined", () => {
         expect(service).toBeDefined();
+        expect(foldersService).toBeDefined();
         expect(neo4jService).toBeDefined();
         expect(controller).toBeDefined();
     });
@@ -41,6 +47,14 @@ describe("DiagramsController", () => {
             jest.spyOn(neo4jService, "read").mockImplementation(() => DiagramsRepository.mockGetDiagrams());
 
             expect(await controller.getAllDiagrams()).toStrictEqual(DiagramsRepository.resultGetDiagrams());
+        });
+    });
+
+    describe("getRootDiagrams", () => {
+        it("should return all root diagrams", async () => {
+            jest.spyOn(neo4jService, "read").mockImplementation(() => DiagramsRepository.mockGetDiagrams());
+
+            expect(await controller.getAllRootDiagrams()).toStrictEqual(DiagramsRepository.resultGetDiagrams());
         });
     });
 

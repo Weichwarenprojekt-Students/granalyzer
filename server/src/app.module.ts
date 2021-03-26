@@ -1,6 +1,4 @@
 import { Module } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
 import { ConfigModule } from "@nestjs/config";
 import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
 import { DiagramsModule } from "./diagrams/diagrams.module";
@@ -19,8 +17,6 @@ import { FoldersModule } from "./folders/folders.module";
         DiagramsModule,
         FoldersModule,
     ],
-    controllers: [AppController],
-    providers: [AppService],
 })
 export class AppModule {
     constructor(private neo4jService: Neo4jService) {
