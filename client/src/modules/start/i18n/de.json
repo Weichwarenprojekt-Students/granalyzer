@@ -9,9 +9,13 @@
     "node": {
       "title": "Basierend auf einer Node",
       "description": "Generiere automatisch ein Diagram basierend auf einer bestimmten Node"
+    },
+    "empty": {
+      "title": "Diagramm nicht erstellt",
+      "description": "Namensfeld ist leer"
     }
   },
-  "diagrams":{
+  "diagrams": {
     "title": "Ihre Diagramme",
     "addFolder": "Ordner hinzufügen",
     "renameItem": "{item} umbenennen",
@@ -22,6 +26,12 @@
     "noSelection": {
       "title": "Kein Element ausgewählt",
       "description": "Sie müssen ein Element auswählen um es zu editieren!"
+    }
+  },
+  "newFolder": {
+    "empty": {
+      "title": "Ordner nicht erstellt",
+      "description": "Namensfeld ist leer"
     }
   }
 }

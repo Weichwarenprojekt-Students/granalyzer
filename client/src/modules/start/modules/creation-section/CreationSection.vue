@@ -47,13 +47,15 @@ export default defineComponent({
          * @param diagramName The name of the diagram
          */
         addEmptyDiagram(diagramName: string): void {
-            if (!diagramName) return;
-            this.$toast.add({
-                severity: "success",
-                summary: "Added Diagram",
-                detail: "Added an empty diagram!",
-                life: 3000,
-            });
+            if (!diagramName) {
+                this.$toast.add({
+                    severity: "error",
+                    summary: this.$t("start.newDiagram.empty.title"),
+                    detail: this.$t("start.newDiagram.empty.description"),
+                    life: 3000,
+                });
+                return;
+            }
             this.dialogAddEmpty = false;
             this.$store.dispatch("addDiagram", new Diagram(diagramName));
         },

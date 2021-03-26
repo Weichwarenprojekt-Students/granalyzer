@@ -156,6 +156,15 @@ export default defineComponent({
          * @param folderName The name of the folder
          */
         addEmptyFolder(folderName: string): void {
+            if (!folderName) {
+                this.$toast.add({
+                    severity: "error",
+                    summary: this.$t("start.newFolder.empty.title"),
+                    detail: this.$t("start.newFolder.empty.description"),
+                    life: 3000,
+                });
+                return;
+            }
             this.addFolderDialog = false;
             this.$store.dispatch("addFolder", new Folder(folderName));
         },

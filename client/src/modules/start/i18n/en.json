@@ -9,9 +9,13 @@
     "node": {
       "title": "From Node",
       "description": "Auto-generate diagram from a certain node"
+    },
+    "empty": {
+      "title": "Failed adding a diagram",
+      "description": "Diagram name is empty"
     }
   },
-  "diagrams":{
+  "diagrams": {
     "title": "Your Diagrams",
     "addFolder": "Add folder",
     "renameItem": "Rename {item}",
@@ -22,6 +26,12 @@
     "noSelection": {
       "title": "No item selected",
       "description": "You have to select an item to edit it!"
+    }
+  },
+  "newFolder": {
+    "empty": {
+      "title": "Failed adding a folder",
+      "description": "Folder name is empty"
     }
   }
 }
