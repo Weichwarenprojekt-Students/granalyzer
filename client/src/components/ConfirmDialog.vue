@@ -1,6 +1,6 @@
 <template>
     <BaseDialog :show="show">
-        <div id="mid-section">
+        <div id="mid-section" @keyup.enter="$emit('input-confirm', name)">
             <img src="@/assets/img/warning.svg" alt="Warning" />
             <div>
                 <h1 class="title">{{ title }}</h1>
