@@ -94,7 +94,7 @@ import InputDialog from "@/components/InputDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 export default defineComponent({
-    name: "Diagram",
+    name: "DiagramExplorer",
     components: {
         ConfirmDialog,
         InputDialog,
@@ -114,6 +114,10 @@ export default defineComponent({
     created() {
         this.$store.dispatch("loadFolders");
         this.$store.dispatch("loadDiagrams");
+        window.addEventListener("keyup", this.onKeyUp);
+    },
+    unmounted() {
+        window.removeEventListener("keyup", this.onKeyUp);
     },
     computed: {
         /**
@@ -150,6 +154,13 @@ export default defineComponent({
         },
     },
     methods: {
+        /**
+         * Handle keyup events
+         */
+        onKeyUp(e: KeyboardEvent) {
+            if (e.key !== "Delete") return;
+            if (!isEmpty(this.selectedDiagram) || !isEmpty(this.selectedFolder)) this.deleteItemDialog = true;
+        },
         /**
          * Add an empty folder
          *
@@ -195,6 +206,8 @@ export default defineComponent({
                 this.$store.dispatch("deleteDiagram", this.selectedDiagram);
             } else this.showSelectionError();
             this.deleteItemDialog = false;
+            this.selectedDiagram = {} as Diagram;
+            this.selectedFolder = {} as Folder;
         },
         /**
          * Show a selection error
@@ -206,8 +219,8 @@ export default defineComponent({
                 detail: this.$t("start.diagrams.noSelection.description"),
                 life: 3000,
             });
-            this.selectedFolder = {} as Folder;
             this.selectedDiagram = {} as Diagram;
+            this.selectedFolder = {} as Folder;
         },
         /**
          * Handle double click on folder

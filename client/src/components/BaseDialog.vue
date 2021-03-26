@@ -21,10 +21,18 @@ export default defineComponent({
         show: Boolean,
         input: Boolean,
     },
-    watch: {
-        show() {
-            // Focus confirm button when ConfirmDialog is shown
-            if (!this.input) this.$nextTick().then(() => document.getElementById("confirm-button")?.focus());
+    mounted() {
+        window.addEventListener("keyup", this.onKeyUp);
+    },
+    unmounted() {
+        window.removeEventListener("keyup", this.onKeyUp);
+    },
+    methods: {
+        onKeyUp(e: KeyboardEvent) {
+            if (this.show) {
+                if (e.key == "Escape") this.$emit("cancel");
+                else if (e.key == "Enter") this.$emit("confirm");
+            }
         },
     },
 });

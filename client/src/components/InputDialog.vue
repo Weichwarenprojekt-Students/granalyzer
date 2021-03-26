@@ -1,6 +1,6 @@
 <template>
     <BaseDialog :input="true" :show="show" @confirm="$emit('input-confirm', name)">
-        <div id="mid-section" @keyup.enter="$emit('input-confirm', name)">
+        <div id="mid-section">
             <img :src="imageSrc" alt="Add" />
             <div class="input-wrap">
                 <label for="diagramName">{{ title }}</label>
