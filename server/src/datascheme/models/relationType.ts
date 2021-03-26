@@ -24,9 +24,9 @@ export class RelationType {
      * @param attributes Attributes of the relation type
      * @param connections Possible connections of the relation type
      */
-    constructor(name: string, attributes: Attribute[], connections: Connection[]) {
-        this.name = name;
-        this.attributes = attributes;
-        this.connections = connections;
+    constructor(name?: string, attributes?: Attribute[], connections?: Connection[]) {
+        this.name = name || "";
+        this.attributes = attributes || [];
+        this.connections = connections || [];
     }
 }
