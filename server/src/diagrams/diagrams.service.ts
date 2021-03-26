@@ -4,6 +4,8 @@ import * as neo4j from "neo4j-driver";
 import { Diagram } from "./diagram.model";
 import { UtilsNode } from "../util/utils.node";
 import { FoldersService } from "../folders/folders.service";
+import { Transaction } from "neo4j-driver";
+import Result from "neo4j-driver/types/result";
 
 @Injectable()
 export class DiagramsService {
@@ -211,9 +213,27 @@ export class DiagramsService {
         await this.utilsNode.checkElementForLabel(parentId, "Folder");
         await this.utilsNode.checkElementForLabel(childId, "Diagram");
 
-        return this.foldersService
-            .deleteIsChildRelation(childId, this.database)
-            .then((res) => DiagramsService.parseDiagram(res.records[0]));
+        return this.deleteIsChildRelation(childId, this.database).then((res) =>
+            DiagramsService.parseDiagram(res.records[0]),
+        );
+    }
+
+    /**
+     * Deletes all outgoing IS_CHILD relations of node with childId
+     *
+     * To provide a folder structure a child must be assigned to only one parent!
+     *
+     * @param childId Id of the node whose relations should be deleted
+     * @param databaseOrTransaction The current database or a neo4j transaction
+     * @private
+     */
+    deleteIsChildRelation(childId: number, databaseOrTransaction?: string | Transaction): Result {
+        //language=Cypher
+        const cypher = "MATCH (c:Diagram)-[r:IS_CHILD]->() WHERE id(c) = $childId DELETE r RETURN c AS diagram";
+        const params = {
+            childId: this.neo4jService.int(childId),
+        };
+        return this.neo4jService.write(cypher, params, databaseOrTransaction);
     }
 
     /**
