@@ -13,7 +13,7 @@ export default defineComponent({
     computed: {
         title(): string {
             const diagram = this.$store.getters.diagram;
-            if (!isEmpty(diagram)) return diagram.name;
+            if (!isEmpty(diagram)) return diagram;
             else return this.$t("editor.title");
         },
     },

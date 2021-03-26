@@ -46,7 +46,7 @@ export default defineComponent({
          *
          * @param diagramName The name of the diagram
          */
-        addEmptyDiagram(diagramName: string): void {
+        async addEmptyDiagram(diagramName: string): Promise<void> {
             if (!diagramName) {
                 this.$toast.add({
                     severity: "error",
@@ -57,7 +57,10 @@ export default defineComponent({
                 return;
             }
             this.dialogAddEmpty = false;
-            this.$store.dispatch("addDiagram", new Diagram(diagramName));
+
+            const createdDiagram = await this.$store.dispatch("addDiagram", new Diagram(diagramName));
+            this.$store.dispatch("setDiagram", createdDiagram);
+            await this.$router.push("/editor");
         },
     },
 });
