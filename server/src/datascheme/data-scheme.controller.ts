@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, Put, Delete } from "@nestjs/common";
+import { Controller, Get, Param } from "@nestjs/common";
 import { DataSchemeService } from "./data-scheme.service";
 
 @Controller("data-scheme")
@@ -7,7 +7,26 @@ export class DataSchemeController {
 
     @Get()
     getScheme() {
-        return "Correct Tested";
-        //return this.dataSchemeService.getDataScheme();
+        return this.dataSchemeService.getScheme();
+    }
+
+    @Get("/label")
+    getAllLabels() {
+        return this.dataSchemeService.getAllLabel();
+    }
+
+    @Get("/label/:id")
+    getLabel(@Param("id") id: number) {
+        return this.dataSchemeService.getLabel(id);
+    }
+
+    @Get("relation")
+    getAllRealtions() {
+        return this.dataSchemeService.getAllRelations();
+    }
+
+    @Get("/relation/:id")
+    getRelation(@Param("id") id: number) {
+        return this.dataSchemeService.getRelation(id);
     }
 }
