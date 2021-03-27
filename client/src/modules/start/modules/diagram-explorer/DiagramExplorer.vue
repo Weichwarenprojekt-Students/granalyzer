@@ -291,7 +291,6 @@ export default defineComponent({
 
 #diagram-select {
     display: flex;
-    padding-top: 16px;
     flex-wrap: wrap;
 }
 </style>

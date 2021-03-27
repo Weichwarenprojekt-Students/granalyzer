@@ -5,7 +5,8 @@
         @dragstart="startDrag($event, title)"
         @dragend="endDrag($event, title)"
         @dragenter="dragEnter($event, title)"
-        @dragleave.self="dragLeave($event, title)"
+        @dragleave="dragLeave($event, title)"
+        @drop="dragLeave($event, title)"
         :ref="title"
     >
         <img :src="imageSrc" alt="Explorer Item" draggable="false" />
@@ -33,8 +34,11 @@ export default defineComponent({
          */
         // eslint-disable-next-line
         startDrag(evt: any, title: string): void {
+            // Timeout on hide class is necessary as it would also effect
+            // the drag preview otherwise
             const target = evt.currentTarget;
-            setTimeout(() => (target.style.display = "none"), 0.5);
+            target.classList.add("dragged");
+            setTimeout(() => target.classList.add("dragged-hide"), 0);
         },
         /**
          * Event function when entering an element while dragging
@@ -65,7 +69,8 @@ export default defineComponent({
          */
         // eslint-disable-next-line
         endDrag(evt: any, title: string): void {
-            evt.currentTarget.style.display = "block";
+            evt.currentTarget.classList.remove("dragged-hide");
+            evt.currentTarget.classList.remove("dragged");
         },
     },
 });
@@ -73,6 +78,29 @@ export default defineComponent({
 
 <style lang="less" scoped>
 @import "../../../../../styles/global";
+
+/**
+ * This class will be set as soon as an element
+ * is dragged. The width will be set to 0 and the
+ * margin will simulate the full size of the element.
+ * This is necessary for the CSS transition to work.
+ */
+.dragged {
+    margin-right: 160px;
+    background: white !important;
+}
+
+.dragged-hide {
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transition-duration: 400ms;
+
+    p,
+    img {
+        display: none;
+    }
+}
 
 .drag-over {
     background: @accent_color;
@@ -83,17 +111,19 @@ export default defineComponent({
 }
 
 .diagram-item {
+    margin-top: 16px;
     margin-right: 32px;
     cursor: pointer;
     padding: 16px;
-    transition: auto 400ms;
+    overflow: hidden;
+    width: 128px;
 
     &:hover {
         background: @accent_color;
     }
 
     img {
-        width: 100px;
+        width: 100%;
         pointer-events: none;
     }
 
