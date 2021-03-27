@@ -45,11 +45,6 @@ export class Saver {
                     attribs: JSON.stringify(l.attributes),
                 },
             )
-            .then((res) => {
-                res.records.forEach((rec) => {
-                    console.log(rec.get("label"));
-                });
-            })
             .catch((err) => {
                 console.error(err);
             });
@@ -73,11 +68,6 @@ export class Saver {
                     connects: JSON.stringify(r.connections),
                 },
             )
-            .then((res) => {
-                res.records.forEach((rec) => {
-                    console.log(rec.get("relation"));
-                });
-            })
             .catch((err) => {
                 console.error(err);
             });

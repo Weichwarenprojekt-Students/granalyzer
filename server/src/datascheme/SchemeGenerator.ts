@@ -82,12 +82,9 @@ export class SchemeGenerator {
 
         const labelNames = await this.fetchData(query, {}, "label", session);
 
-        console.log(labelNames);
-
         const labels: Label[] = [];
 
         for (const labelName of labelNames) {
-            console.log("Label Name " + labelName);
             // Generate a new named label with a random color
             const newLabel = new Label(labelName, SchemeGenerator.getRandomColor());
 

@@ -40,8 +40,6 @@ doWithDriver(async (driver) => {
     // Generate the data model scheme from the customer-database
     const scheme = await SchemeGenerator.getDataScheme(driver);
 
-    console.log(scheme);
-
     // Write the scheme to the tool db
     await Saver.writeScheme(scheme, driver);
 }).then(() => {
