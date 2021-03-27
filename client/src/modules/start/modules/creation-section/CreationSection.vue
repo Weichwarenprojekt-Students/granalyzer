@@ -58,9 +58,11 @@ export default defineComponent({
             }
             this.dialogAddEmpty = false;
 
-            const createdDiagram = await this.$store.dispatch("addDiagram", new Diagram(diagramName));
-            this.$store.dispatch("setDiagram", createdDiagram);
-            await this.$router.push("/editor");
+            const response = await this.$store.dispatch("addDiagram", new Diagram(diagramName));
+            if (response.status === 201) {
+                this.$store.dispatch("setDiagram", await response.json());
+                await this.$router.push("/editor");
+            }
         },
     },
 });

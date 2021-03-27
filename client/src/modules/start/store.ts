@@ -104,14 +104,14 @@ export const start = {
          * @param context -
          * @param diagram Diagram to be added
          */
-        async addDiagram(context: ActionContext<StartState, RootState>, diagram: Diagram): Promise<Diagram> {
+        async addDiagram(context: ActionContext<StartState, RootState>, diagram: Diagram): Promise<Response> {
             const res = await POST("/api/diagrams", JSON.stringify(diagram));
-            const data = await res.json();
+            const ret = res.clone();
             if (res.status === 201) {
-                context.commit("addDiagram", data);
+                context.commit("addDiagram", await res.json());
                 context.commit("sortDiagrams");
             }
-            return data;
+            return ret;
         },
         /**
          * Adds a folder to the tool-database
