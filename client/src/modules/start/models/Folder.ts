@@ -5,7 +5,7 @@ export class Folder {
      * @param name Name of the specific folder
      * @param id Identifier
      */
-    constructor(public name: string, public id: number = 0) {}
+    constructor(public name: string = "", public id: number = -1) {}
 
     /**
      * Copy a folder

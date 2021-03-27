@@ -22,7 +22,10 @@
             :description="$t('start.diagrams.deleteItem.description')"
         ></ConfirmDialog>
         <h2 id="title">{{ $t("start.diagrams.title") }}</h2>
+        <h2 v-show="$store.getters.parent.name" id="title-minus">&#8212;</h2>
+        <h2 v-show="$store.getters.parent.name" id="title-folder">{{ $store.getters.parent.name }}</h2>
         <img
+            id="add-folder"
             class="add-button"
             src="../../../../assets/img/add-folder.svg"
             alt="Add Folder"
@@ -56,27 +59,31 @@
         />
         <!-- The folders -->
         <ExplorerItem
-            v-for="folder in folders"
-            :key="folder.name"
+            v-for="folder in $store.getters.folders"
+            :key="folder.id"
             @mousedown="selectFolder(folder)"
             v-on:dblclick="doubleClickedFolder"
             :image-src="require('@/assets/img/folder.svg')"
             :title="folder.name"
             :is-selected="folder.id === selectedFolder.id"
             :is-folder="true"
+            :itemID="folder.id"
             @dragover.prevent
             @drop.stop.prevent
+            @folder-drop="moveFolder"
+            @diagram-drop="moveDiagram"
         />
         <!-- The diagrams -->
         <ExplorerItem
-            v-for="diagram in diagrams"
-            :key="diagram.name"
+            v-for="diagram in $store.getters.diagrams"
+            :key="diagram.id"
             @mousedown="selectDiagram(diagram)"
             v-on:dblclick="doubleClickedDiagram"
             :image-src="require('@/assets/img/diagram.svg')"
             :title="diagram.name"
             :is-selected="diagram.id === selectedDiagram.id"
             :is-folder="false"
+            :itemID="diagram.id"
         />
     </div>
 </template>
@@ -89,6 +96,7 @@ import { isEmpty } from "@/utility";
 import InputDialog from "@/components/InputDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import ExplorerItem from "./components/ExplorerItem.vue";
+import { ItemDragEvent } from "@/modules/start/modules/diagram-explorer/models/ItemDragEvent";
 
 export default defineComponent({
     name: "DiagramExplorer",
@@ -110,7 +118,7 @@ export default defineComponent({
      * Load the folders
      */
     created() {
-        this.updateFoldersAndDiagrams();
+        this.loadItems();
         window.addEventListener("keyup", this.onKeyUp);
     },
     unmounted() {
@@ -118,7 +126,7 @@ export default defineComponent({
     },
     watch: {
         $route() {
-            this.updateFoldersAndDiagrams();
+            this.loadItems();
         },
     },
     computed: {
@@ -132,33 +140,21 @@ export default defineComponent({
          * @return The name of the selected item
          */
         selectedItemName(): string {
-            for (let i = 0; i < this.folders.length; i++)
-                if (this.folders[i].id == this.selectedFolder.id) return this.folders[i].name;
-            for (let i = 0; i < this.diagrams.length; i++)
-                if (this.diagrams[i].id == this.selectedDiagram.id) return this.diagrams[i].name;
+            const folders = this.$store.getters.folders;
+            const diagrams = this.$store.getters.diagrams;
+            for (let i = 0; i < folders.length; i++)
+                if (folders[i].id == this.selectedFolder.id) return folders[i].name;
+            for (let i = 0; i < diagrams.length; i++)
+                if (diagrams[i].id == this.selectedDiagram.id) return diagrams[i].name;
             return "";
-        },
-        /**
-         * Fetches the names of the folders in the view
-         *
-         * @return Returns a string array containing the folder names
-         */
-        folders(): Folder[] {
-            return this.$store.getters.folders;
-        },
-        /**
-         * Fetches the names of the diagrams in the view
-         *
-         * @return Returns a string array containing the diagram names
-         */
-        diagrams(): Diagram[] {
-            return this.$store.getters.diagrams;
         },
     },
     methods: {
-        updateFoldersAndDiagrams(): void {
-            this.$store.dispatch("loadFolders", this.$route.params.id);
-            this.$store.dispatch("loadDiagrams", this.$route.params.id);
+        /**
+         * Update the folders and diagrams based on the route
+         */
+        loadItems(): void {
+            this.$store.dispatch("loadItems", this.$route.params.id);
         },
         /**
          * Handle keyup events
@@ -170,6 +166,7 @@ export default defineComponent({
         /**
          * Add an empty folder
          *
+         * @param folderName The name of the folder
          * @param folderName The name of the folder
          */
         addEmptyFolder(folderName: string): void {
@@ -205,15 +202,16 @@ export default defineComponent({
         /**
          * Delete an item
          */
-        deleteItem() {
+        async deleteItem() {
             if (!isEmpty(this.selectedFolder)) {
-                this.$store.dispatch("deleteFolder", this.selectedFolder);
+                await this.$store.dispatch("deleteFolder", this.selectedFolder);
+                this.loadItems();
             } else if (!isEmpty(this.selectedDiagram)) {
                 this.$store.dispatch("deleteDiagram", this.selectedDiagram);
             } else this.showSelectionError();
+
             this.deleteItemDialog = false;
-            this.selectedDiagram = {} as Diagram;
-            this.selectedFolder = {} as Folder;
+            this.clearSelection();
         },
         /**
          * Show a selection error
@@ -225,8 +223,7 @@ export default defineComponent({
                 detail: this.$t("start.diagrams.noSelection.description"),
                 life: 3000,
             });
-            this.selectedDiagram = {} as Diagram;
-            this.selectedFolder = {} as Folder;
+            this.clearSelection();
         },
         /**
          * Handle double click on folder
@@ -241,6 +238,9 @@ export default defineComponent({
             this.$store.dispatch("setDiagram", this.selectedDiagram);
             this.$router.push("/editor");
         },
+        /**
+         * Handle a click on the ".." folder
+         */
         doubleClickedBack(): void {
             this.$router.back();
         },
@@ -262,6 +262,27 @@ export default defineComponent({
             this.selectedDiagram = diagram;
             this.selectedFolder = {} as Folder;
         },
+        /**
+         * Move a folder
+         */
+        moveFolder(event: ItemDragEvent): void {
+            this.$store.dispatch("moveFolder", { parentID: event.newParent, id: event.currentDragItem });
+            this.clearSelection();
+        },
+        /**
+         * Move a diagram
+         */
+        moveDiagram(event: ItemDragEvent): void {
+            this.$store.dispatch("moveDiagram", { parentID: event.newParent, id: event.currentDragItem });
+            this.clearSelection();
+        },
+        /**
+         * Clear the active selection
+         */
+        clearSelection(): void {
+            this.selectedDiagram = {} as Diagram;
+            this.selectedFolder = {} as Folder;
+        },
     },
 });
 </script>
@@ -274,8 +295,16 @@ export default defineComponent({
     margin-left: 16px;
 }
 
-#title {
-    margin-right: 16px;
+#add-folder {
+    margin-left: 32px;
+}
+
+#title-minus {
+    margin: 0 12px;
+}
+
+#title-folder {
+    font-style: italic;
 }
 
 .add-button {

@@ -2,12 +2,11 @@
     <div
         :class="['diagram-item', { selected: isSelected }]"
         draggable="true"
-        @dragstart="startDrag($event, title)"
-        @dragend="endDrag($event, title)"
-        @dragenter="dragEnter($event, title)"
-        @dragleave="dragLeave($event, title)"
-        @drop="dragLeave($event, title)"
-        :ref="title"
+        @dragstart="startDrag"
+        @dragend="endDrag"
+        @dragenter="dragEnter"
+        @dragleave="dragLeave"
+        @drop="drop"
     >
         <img :src="imageSrc" alt="Explorer Item" draggable="false" />
         <p>{{ title }}</p>
@@ -16,6 +15,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { ItemDragEvent } from "../models/ItemDragEvent";
 
 export default defineComponent({
     name: "ExplorerItem",
@@ -24,16 +24,20 @@ export default defineComponent({
         title: String,
         isSelected: Boolean,
         isFolder: Boolean,
+        itemID: {
+            type: Number,
+            default: 0,
+        },
     },
     methods: {
         /**
          * Event function to start dragging elements
-         *
-         * @param evt Type of MouseEvent
-         * @param title Label of the div that is being dragged
          */
         // eslint-disable-next-line
-        startDrag(evt: any, title: string): void {
+        startDrag(evt: any): void {
+            evt.dataTransfer.setData("currentDragId", this.itemID);
+            evt.dataTransfer.setData("isFolder", this.isFolder);
+
             // Timeout on hide class is necessary as it would also effect
             // the drag preview otherwise
             const target = evt.currentTarget;
@@ -41,36 +45,47 @@ export default defineComponent({
             setTimeout(() => target.classList.add("dragged-hide"), 0);
         },
         /**
-         * Event function when entering an element while dragging
-         *
-         * @param evt Type of MouseEvent
-         * @param title Label of the div that is entered
+         * Event function when cancelling a drag operation
          */
         // eslint-disable-next-line
-        dragEnter(evt: any, title: string): void {
+        endDrag(evt: any): void {
+            evt.currentTarget.classList.remove("dragged-hide");
+            evt.currentTarget.classList.remove("dragged");
+        },
+        /**
+         * Event function when entering an element while dragging
+         */
+        // eslint-disable-next-line
+        dragEnter(evt: any): void {
             if (!this.isFolder) return;
             evt.currentTarget.classList.add("drag-over");
         },
         /**
          * Event function when leaving an element while dragging
-         *
-         * @param evt Type of MouseEvent
-         * @param title Label of the div that is left
          */
         // eslint-disable-next-line
-        dragLeave(evt: any, title: string): void {
+        dragLeave(evt: any): void {
             evt.currentTarget.classList.remove("drag-over");
         },
         /**
-         * Event function when cancelling a drag operation
-         *
-         * @param evt Type of MouseEvent
-         * @param title Label of the div that is dragged
+         * Event function when an element is dropped on this component
          */
         // eslint-disable-next-line
-        endDrag(evt: any, title: string): void {
-            evt.currentTarget.classList.remove("dragged-hide");
-            evt.currentTarget.classList.remove("dragged");
+        drop(evt: any): void {
+            // Get the transfer data
+            const dragId = evt.dataTransfer.getData("currentDragId");
+            const isFolder = evt.dataTransfer.getData("isFolder") == "true";
+
+            // Remove the dragged element and the highlighting
+            this.dragLeave(evt);
+            this.$store.commit("deleteDiagram", { id: dragId });
+
+            // Check if the folder was dropped on itself
+            if (dragId != this.itemID) {
+                if (isFolder) this.$emit("folder-drop", new ItemDragEvent(dragId, this.itemID));
+                else this.$emit("diagram-drop", new ItemDragEvent(dragId, this.itemID));
+            }
+            return;
         },
     },
 });
@@ -132,6 +147,8 @@ export default defineComponent({
         margin-top: 16px;
         max-width: 100px;
         pointer-events: none;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 </style>
