@@ -1,27 +1,49 @@
 import * as dotenv from "dotenv";
 import { Saver } from "../saver";
 import { SchemeGenerator } from "../SchemeGenerator";
+import * as neo4j from "neo4j-driver";
+import { Driver } from "neo4j-driver";
+
+/**
+ * Execute a function with an instance of the saver
+ *
+ * Automatically closes the neo4j driver connection which is needed for the scheme saver.
+ *
+ * @param fn The function to execute
+ */
+async function doWithDriver(fn: (driver: Driver) => void) {
+    // Construct instance of this saver
+    const driver = getDriver();
+
+    // Execute the function
+    await fn(driver);
+
+    // Cleanup by closing the driver
+    await driver.close();
+}
+
+/**
+ * Get instance of a configured neo4j driver
+ */
+function getDriver() {
+    return neo4j.driver(
+        `bolt://${process.env.DB_HOST}:${process.env.DB_PORT}`,
+        neo4j.auth.basic(process.env.DB_USERNAME, process.env.DB_PASSWORD),
+    );
+}
 
 // Load the .env config
 dotenv.config();
 
-const host = process.env.DB_HOST;
-const port = process.env.DB_PORT;
-const username = process.env.DB_USERNAME;
-const password = process.env.DB_PASSWORD;
-const database = process.env.DB_CUSTOMER;
-
-// Generate a new scheme generator
-const service = new SchemeGenerator(host, port, username, password, database);
-
-// Generate the data model scheme from the customer-database
-service.openDBConnection();
-const scheme = service.getDataScheme();
-
 // Save scheme
-Saver.doWithDriver(async (saver) => {
-    await saver.writeScheme(await scheme);
+doWithDriver(async (driver) => {
+    // Generate the data model scheme from the customer-database
+    const scheme = await SchemeGenerator.getDataScheme(driver);
+
+    console.log(scheme);
+
+    // Write the scheme to the tool db
+    await Saver.writeScheme(scheme, driver);
 }).then(() => {
-    service.closeDBConnection();
     console.log("Scheme written successfully!");
 });

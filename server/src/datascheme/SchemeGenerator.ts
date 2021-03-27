@@ -1,79 +1,45 @@
 import * as neo4j from "neo4j-driver";
-import { Session } from "neo4j-driver";
+import { Driver, Session } from "neo4j-driver";
 import { Scheme } from "./models/scheme";
 import { Label } from "./models/label";
 import { StringAttribute } from "./models/attributes";
 import { RelationType } from "./models/relationType";
-import { Cardinality, Connection } from "./models/connection";
+import { Connection } from "./models/connection";
 
 export class SchemeGenerator {
     /**
-     *
-     * @private Destination host machine
+     * Generates the data scheme of the connected database
+     * @param driver Neo4j driver
      */
-    private readonly host: string;
+    public static async getDataScheme(driver: Driver): Promise<Scheme> {
+        const session = driver.session({ database: process.env.DB_CUSTOMER, defaultAccessMode: neo4j.session.WRITE });
 
-    /**
-     *
-     * @private Destination service port
-     */
-    private readonly port: number;
+        const labels = await this.generateLabelScheme(session);
+        const relationTypes = await this.generateRelationTypeScheme(session);
 
-    /**
-     *
-     * @private Username for database server
-     */
-    private readonly username: string;
+        await session.close();
 
-    /**
-     *
-     * @private Password for database server
-     */
-    private readonly password: string;
-
-    /**
-     *
-     * @private Name of database/scheme
-     */
-    private readonly database: string;
-
-    /**
-     *
-     * @private Database session handle
-     */
-    private session: Session;
-
-    /**
-     * Constructor
-     *
-     * @param host Destination host machine
-     * @param port Destination service port
-     * @param username Username for database server
-     * @param password Password for database server
-     * @param database Name of database/scheme
-     */
-    constructor(host: string, port: string, username: string, password: string, database: string) {
-        this.host = host;
-        this.port = Number(port);
-        this.username = username;
-        this.password = password;
-        this.database = database;
+        return new Scheme(labels, relationTypes);
     }
 
     /**
-     * Opens connection to the specified database
+     * Generates a random RGB color in hex format with leading # prefix
+     * @private
      */
-    public openDBConnection() {
-        const uri = "neo4j://" + this.host + ":" + this.port;
-        const driver = neo4j.driver(uri, neo4j.auth.basic(this.username, this.password));
-        this.session = driver.session({ database: this.database, defaultAccessMode: neo4j.session.WRITE });
-    }
+    private static getRandomColor(): string {
+        const randomChannelColor = () => {
+            return Math.floor(Math.random() * (255 + 1));
+        };
 
-    /**
-     * Closes connection to the specified database
-     */
-    public async closeDBConnection() {
-        await this.session.close();
+        const R = randomChannelColor();
+        const G = randomChannelColor();
+        const B = randomChannelColor();
+
+        const toHex = (c: number) => {
+            return c.toString(16).padStart(2, "0");
+        };
+
+        return "#" + toHex(R) + toHex(G) + toHex(B);
     }
 
     /**
@@ -82,85 +48,66 @@ export class SchemeGenerator {
      * @param query The cypher query to be executed
      * @param args The arguments, marked with '$', used in the query
      * @param key The column which should be returned with corresponding
+     * @param session Database session
      * @private
      */
-    private async fetchData(query: string, args: any, key: string): Promise<string[]> {
+    private static async fetchData(query: string, args: any, key: string, session: Session): Promise<string[]> {
         const data: string[] = [];
 
-        const result = await this.session.run(query, args);
+        const result = await session.run(query, args);
         const records = result.records;
 
-        for (let i = 0; i < records.length; i++) {
+        records.forEach((record) => {
             // Add current row value from column, specified by 'key'
-            data.push(records[i].get(key));
-        }
+            data.push(record.get(key));
+        });
 
         return data;
     }
 
     /**
-     * Generates a random integer number
-     * @param min Inclusive lower range
-     * @param max Exclusive upper range
-     * @private
-     */
-    private getRandomInt(min, max): number {
-        /*
-            https://stackoverflow.com/questions/1527803/generating-random-whole-numbers-in
-            -javascript-in-a-specific-range
-         */
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    /**
-     * Generates a random RGB color in hex format with leading # prefix
-     * @private
-     */
-    private getRandomColor(): string {
-        const R = this.getRandomInt(0, 255);
-        const G = this.getRandomInt(0, 255);
-        const B = this.getRandomInt(0, 255);
-
-        return (
-            "#" + R.toString(16).padStart(2, "0") + G.toString(16).padStart(2, "0") + B.toString(16).padStart(2, "0")
-        );
-    }
-
-    /**
      * Generates the schema for all labels from the database
+     * @param session Database session
      * @private
      */
-    private async generateLabelScheme(): Promise<Label[]> {
+    private static async generateLabelScheme(session: Session): Promise<Label[]> {
         // Get all label names
-        let query = `MATCH(node) WITH DISTINCT LABELS(node) AS
-             labels UNWIND labels AS label RETURN DISTINCT label`;
+        // language=cypher
+        let query = `
+          MATCH(node)
+          WITH DISTINCT labels(node) AS
+                        labels
+          UNWIND labels AS label
+          RETURN DISTINCT label`;
 
-        const labelNames = await this.fetchData(query, {}, "label");
+        const labelNames = await this.fetchData(query, {}, "label", session);
+
+        console.log(labelNames);
 
         const labels: Label[] = [];
 
-        for (let i = 0; i < labelNames.length; i++) {
+        for (const labelName of labelNames) {
+            console.log("Label Name " + labelName);
             // Generate a new named label with a random color
-            const newLabel = new Label(labelNames[i], this.getRandomColor());
+            const newLabel = new Label(labelName, SchemeGenerator.getRandomColor());
 
             // Get all existing keys of properties/attributes of the current label
-            query = `MATCH(node) WHERE $nodeName IN LABELS(node)
-                       UNWIND KEYS(node) AS keys RETURN DISTINCT keys`;
+            // language=cypher
+            query = `
+              MATCH(node)
+                WHERE $nodeName IN labels(node)
+              UNWIND keys(node) AS keys
+              RETURN DISTINCT keys`;
 
-            const labelAttributes = await this.fetchData(query, { nodeName: labelNames[i] }, "keys");
+            const labelAttributes = await this.fetchData(query, { nodeName: labelName }, "keys", session);
 
-            for (let x = 0; x < labelAttributes.length; x++) {
-                /*
-                    By default, generate a new string attribute key
-                    and add the current attribute key to the current label
-                 */
-                const newAttribute = new StringAttribute(labelAttributes[x]);
+            labelAttributes.forEach((attr) => {
+                // Generate a new string attribute key and add the current attribute key to the current label
+                const newAttribute = new StringAttribute(attr);
                 newLabel.attributes.push(newAttribute);
-            }
+            });
 
-            labels[i] = newLabel;
+            labels.push(newLabel);
         }
 
         return labels;
@@ -168,80 +115,85 @@ export class SchemeGenerator {
 
     /**
      * Generates the relation type scheme from the database
+     * @param session Database session
      * @private
      */
-    private async generateRelationTypeScheme(): Promise<RelationType[]> {
-        const relationtypes: RelationType[] = [];
+    private static async generateRelationTypeScheme(session: Session): Promise<RelationType[]> {
+        const relationTypes: RelationType[] = [];
 
         // Get all relation types
-        let query = `MATCH(startNode)-[relation]-(endNode) 
-        RETURN DISTINCT TYPE(relation) AS types`;
+        // language=cypher
+        let query = `
+          MATCH (startNode)-[relation]-(endNode)
+          RETURN DISTINCT type(relation) AS types`;
 
-        const relationNames = await this.fetchData(query, {}, "types");
+        const relationNames = await this.fetchData(query, {}, "types", session);
 
-        for (let i = 0; i < relationNames.length; i++) {
-            const newType = new RelationType(relationNames[i]);
+        for (const relationName of relationNames) {
+            const newType = new RelationType(relationName);
 
             // Get all existing keys of properties/attributes of the current relation
-            query = `MATCH(startNode)-[relation]-(endNode) 
-            WHERE TYPE(relation)=$relType UNWIND KEYS(relation)
-             AS keys RETURN DISTINCT keys`;
+            // language=cypher
+            query = `
+              MATCH(startNode)-[relation]-(endNode)
+                WHERE type(relation) = $relType
+              UNWIND keys(relation)
+              AS keys
+              RETURN DISTINCT keys`;
 
-            const relationAttributes = await this.fetchData(query, { relType: relationNames[i] }, "keys");
+            const relationAttributes = await this.fetchData(query, { relType: relationName }, "keys", session);
 
-            for (let x = 0; x < relationAttributes.length; x++) {
-                /*
-                   By default, generate a new string attribute key
-                   and add the current attribute key to the current relation
-                */
-                const newAttribute = new StringAttribute(relationAttributes[x]);
+            relationAttributes.forEach((attr) => {
+                // Generate a new string attribute and add the current attribute key to the current relation
+                const newAttribute = new StringAttribute(attr);
                 newType.attributes.push(newAttribute);
-            }
+            });
 
             // Get all connections for the current relation
-            newType.connections = await this.getConnections(relationNames[i]);
-            relationtypes.push(newType);
+            newType.connections = await this.getConnections(relationName, session);
+            relationTypes.push(newType);
         }
 
-        return relationtypes;
+        return relationTypes;
     }
 
     /**
      * Returns all connections for a specific relation
      * @param relationName Name of the node relation
+     * @param session Database session
      * @private
      */
-    private async getConnections(relationName: string): Promise<Connection[]> {
+    private static async getConnections(relationName: string, session: Session): Promise<Connection[]> {
         const connections: Connection[] = [];
 
         // Get all 'from' labels for this relation
-        let query = `MATCH(startNode)-[relation]->(endNode) WHERE TYPE(relation)=$relationName
-            UNWIND LABELS(startNode) AS froms RETURN DISTINCT froms;`;
+        // language=cypher
+        let query = `
+          MATCH(startNode)-[relation]->(endNode)
+            WHERE type(relation) = $relationName
+          UNWIND labels(startNode) AS froms
+          RETURN DISTINCT froms;`;
 
-        const froms = await this.fetchData(query, { relationName }, "froms");
+        const froms = await this.fetchData(query, { relationName }, "froms", session);
 
-        for (let i = 0; i < froms.length; i++) {
+        for (const from of froms) {
             // Get all "to" labels for this relation
-            query = `MATCH(startNode)-[relation]->(endNode) WHERE $startLabel IN LABELS(startNode)
-             AND TYPE(relation)=$relationName UNWIND LABELS(endNode) AS tos RETURN DISTINCT tos`;
+            // language=cypher
+            query = `
+              MATCH(startNode)-[relation]->(endNode)
+                WHERE $startLabel IN labels(startNode)
+                AND type(relation) = $relationName
+              UNWIND labels(endNode) AS tos
+              RETURN DISTINCT tos`;
 
-            const tos = await this.fetchData(query, { startLabel: froms[i], relationName }, "tos");
+            const tos = await this.fetchData(query, { startLabel: from, relationName }, "tos", session);
 
-            for (let x = 0; x < tos.length; x++) {
+            tos.forEach((to) => {
                 // By default, connections always have M:N cardinalities
-                const connection = new Connection(froms[i], tos[x], Cardinality.N, Cardinality.N);
+                const connection = new Connection(from, to);
                 connections.push(connection);
-            }
+            });
         }
         return connections;
-    }
-
-    /**
-     * Generates the data scheme of the connected database
-     */
-    public async getDataScheme(): Promise<Scheme> {
-        const labels = await this.generateLabelScheme();
-        const relationTypes = await this.generateRelationTypeScheme();
-        return new Scheme(labels, relationTypes);
     }
 }
