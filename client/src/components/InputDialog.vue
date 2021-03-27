@@ -3,15 +3,8 @@
         <div id="mid-section">
             <img :src="imageSrc" alt="Add" />
             <div class="input-wrap">
-                <label for="diagramName">{{ title }}</label>
-                <input
-                    tabindex="0"
-                    class="input-large"
-                    v-model="name"
-                    type="text"
-                    id="diagramName"
-                    placeholder="Name"
-                />
+                <label for="name-input">{{ title }}</label>
+                <input tabindex="0" class="input-large" v-model="name" type="text" id="name-input" placeholder="Name" />
             </div>
         </div>
     </BaseDialog>
@@ -35,6 +28,9 @@ export default defineComponent({
         return {
             name: "",
         };
+    },
+    updated() {
+        this.$nextTick().then(() => document.getElementById("name-input")?.focus());
     },
 });
 </script>

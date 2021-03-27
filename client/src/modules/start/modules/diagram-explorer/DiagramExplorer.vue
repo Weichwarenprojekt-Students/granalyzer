@@ -21,7 +21,7 @@
             :title="$t('start.diagrams.deleteItem.title', { item: selectedItemName })"
             :description="$t('start.diagrams.deleteItem.description')"
         ></ConfirmDialog>
-        <h2>{{ $t("start.diagrams.title") }}</h2>
+        <h2 id="title">{{ $t("start.diagrams.title") }}</h2>
         <img
             class="add-button"
             src="../../../../assets/img/add-folder.svg"
@@ -44,44 +44,40 @@
         />
     </div>
     <div id="diagram-select">
-        <div v-show="$route.params.id !== ''" class="diagram-item" @click="$router.go(-1)">
-            <img class="diagram-item-image" src="../../../../assets/img/folder-light.svg" alt="Return" />
-            <p class="diagram-item-text diagram-explorer-back">..</p>
-        </div>
-
-        <div
-            :class="['diagram-item', { selected: selectedFolder.id === folder.id }]"
+        <!-- The back item-->
+        <ExplorerItem
+            v-show="$route.params.id !== ''"
+            @click="$router.go(-1)"
+            :is-selected="false"
+            title=".."
+            :image-src="require('@/assets/img/folder-light.svg')"
+            :is-folder="true"
+            @dragover.prevent
+        />
+        <!-- The folders -->
+        <ExplorerItem
             v-for="folder in folders"
             :key="folder.name"
-            draggable="true"
-            @dragstart="startDrag($event, folder.name)"
-            @dragenter="dragEnter($event, folder.name)"
-            @dragleave.self="dragLeave($event, folder.name)"
-            @drop="onDrop($event, folder.name)"
-            @dragover.prevent
-            @dragenter.prevent
-            @click="selectFolder(folder)"
+            @mousedown="selectFolder(folder)"
             v-on:dblclick="doubleClickedFolder"
-            :ref="folder.name"
-        >
-            <img class="diagram-item-image" src="@/assets/img/folder.svg" alt="Folder" draggable="false" />
-            <p class="diagram-item-text">{{ folder.name }}</p>
-        </div>
-
-        <div
-            :class="['diagram-item', { selected: selectedDiagram.id === diagram.id }]"
+            :image-src="require('@/assets/img/folder.svg')"
+            :title="folder.name"
+            :is-selected="folder.id === selectedFolder.id"
+            :is-folder="true"
+            @dragover.prevent
+            @drop.stop.prevent
+        />
+        <!-- The diagrams -->
+        <ExplorerItem
             v-for="diagram in diagrams"
             :key="diagram.name"
-            draggable="true"
-            @dragstart="startDrag($event, diagram.name)"
-            @dragend="endDrag($event, diagram.name)"
-            @click="selectDiagram(diagram)"
+            @mousedown="selectDiagram(diagram)"
             v-on:dblclick="doubleClickedDiagram"
-            :ref="diagram.name"
-        >
-            <img class="diagram-item-image" src="@/assets/img/diagram.svg" alt="Folder" draggable="false" />
-            <p class="diagram-item-text">{{ diagram.name }}</p>
-        </div>
+            :image-src="require('@/assets/img/diagram.svg')"
+            :title="diagram.name"
+            :is-selected="diagram.id === selectedDiagram.id"
+            :is-folder="false"
+        />
     </div>
 </template>
 
@@ -92,12 +88,14 @@ import { Diagram } from "@/modules/start/models/Diagram";
 import { isEmpty } from "@/utility";
 import InputDialog from "@/components/InputDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import ExplorerItem from "./components/ExplorerItem.vue";
 
 export default defineComponent({
     name: "DiagramExplorer",
     components: {
         ConfirmDialog,
         InputDialog,
+        ExplorerItem,
     },
     data() {
         return {
@@ -253,78 +251,6 @@ export default defineComponent({
             this.selectedDiagram = diagram;
             this.selectedFolder = {} as Folder;
         },
-        /**
-         * Event function to start dragging elements
-         *
-         * @param evt Type of MouseEvent
-         * @param title Label of the div that is being dragged
-         */
-        // eslint-disable-next-line
-        startDrag(evt: any, title: string): void {
-            const dataTransfer = evt.dataTransfer;
-
-            dataTransfer.dropEffect = "move";
-            dataTransfer.effectAllowed = "move";
-
-            // Store the ID of the element
-            dataTransfer.setData("itemID", title);
-
-            // Set styling for dragged element
-            evt.currentTarget.classList.add("dragging");
-        },
-        /**
-         * Event function when entering an element while dragging
-         *
-         * @param evt Type of MouseEvent
-         * @param title Label of the div that is entered
-         */
-        // eslint-disable-next-line
-        dragEnter(evt: any, title: string): void {
-            // Set styling for the element that is hovered
-            evt.currentTarget.classList.add("dragOver");
-        },
-        /**
-         * Event function when leaving an element while dragging
-         *
-         * @param evt Type of MouseEvent
-         * @param title Label of the div that is left
-         */
-        // eslint-disable-next-line
-        dragLeave(evt: any, title: string): void {
-            // Remove styling of the hovered element
-            evt.currentTarget.classList.remove("dragOver");
-        },
-        /**
-         * Event function when cancelling a drag operation
-         *
-         * @param evt Type of MouseEvent
-         * @param title Label of the div that is dragged
-         */
-        // eslint-disable-next-line
-        endDrag(evt: any, title: string): void {
-            // Remove styling of the dragged element
-            evt.currentTarget.classList.remove("dragging");
-        },
-        /**
-         * Event function that handles the drop event
-         *
-         * @param evt Type of MouseEvent
-         * @param title Label of the div that is dragged
-         */
-        // eslint-disable-next-line
-        onDrop(evt: any, title: string): void {
-            // Retrieve the ID of the dragged element
-            const itemID = evt.dataTransfer.getData("itemID");
-
-            // Reset styling of the element that an item is dropped on
-            const element = evt.currentTarget;
-            element.classList.remove("dragOver");
-            element.classList.remove("dragging");
-
-            if (itemID.toString() === title) {
-                return;
-            }
-        },
     },
 });
 </script>
@@ -337,6 +263,10 @@ export default defineComponent({
     margin-left: 16px;
 }
 
+#title {
+    margin-right: 16px;
+}
+
 .add-button {
     cursor: pointer;
     margin-left: 16px;
@@ -344,7 +274,7 @@ export default defineComponent({
     padding: 0 2px 2px 2px;
 
     &:hover {
-        border-bottom: 2px solid #ffa726;
+        border-bottom: 2px solid @secondary_color;
     }
 }
 
@@ -352,47 +282,5 @@ export default defineComponent({
     display: flex;
     padding-top: 16px;
     flex-wrap: wrap;
-
-    :hover {
-        background: @accent_color;
-    }
-
-    .dragging {
-        background: white;
-
-        :hover {
-            background: white;
-        }
-    }
-
-    .selected {
-        background: @secondary_color;
-    }
-
-    .dragOver {
-        background: @accent_color;
-    }
-
-    .diagram-item {
-        margin-right: 32px;
-        cursor: pointer;
-        padding: 16px;
-
-        .diagram-explorer-back {
-            color: @dark_grey;
-        }
-
-        .diagram-item-image {
-            width: 100px;
-            pointer-events: none;
-        }
-
-        .diagram-item-text {
-            text-align: center;
-            margin-top: 16px;
-            max-width: 100px;
-            pointer-events: none;
-        }
-    }
 }
 </style>
