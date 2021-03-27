@@ -117,10 +117,14 @@ export const start = {
          * Adds a folder to the tool-database
          *
          * @param context -
-         * @param folder Folder to be added
+         * @param payload
          */
-        async addFolder(context: ActionContext<StartState, RootState>, folder: Folder): Promise<void> {
-            const res = await POST("/api/folders", JSON.stringify(folder));
+        async addFolder(
+            context: ActionContext<StartState, RootState>,
+            payload: { folder: Folder; folderId: number },
+        ): Promise<void> {
+            const path = payload.folderId ? "folders/" + payload.folderId + "/folders" : "folders";
+            const res = await POST("/api/" + path, JSON.stringify(payload.folder));
             if (res.status === 201) {
                 context.commit("addFolder", await res.json());
                 context.commit("sortFolders");
@@ -182,9 +186,12 @@ export const start = {
          * Loads the root diagrams into the folder state
          *
          * @param context -
+         * @param routeId Route
          */
-        async loadDiagrams(context: ActionContext<StartState, RootState>): Promise<void> {
-            const res = await GET("/api/diagrams");
+        async loadDiagrams(context: ActionContext<StartState, RootState>, routeId: number): Promise<void> {
+            const path = routeId ? `/api/folders/${routeId}/diagrams` : "/api/diagrams/root";
+
+            const res = await GET(path);
             if (res.status === 200) {
                 context.commit("loadDiagrams", await res.json());
                 context.commit("sortDiagrams");
@@ -194,9 +201,12 @@ export const start = {
          * Loads the root folders into the folder state
          *
          * @param context -
+         * @param routeId Route
          */
-        async loadFolders(context: ActionContext<StartState, RootState>): Promise<void> {
-            const res = await GET("/api/folders");
+        async loadFolders(context: ActionContext<StartState, RootState>, routeId: number): Promise<void> {
+            const path = routeId ? `/api/folders/${routeId}/folders` : "/api/folders/root";
+
+            const res = await GET(path);
             if (res.status === 200) {
                 context.commit("loadFolders", await res.json());
                 context.commit("sortFolders");

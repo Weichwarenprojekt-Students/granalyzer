@@ -47,7 +47,7 @@
         <!-- The back item-->
         <ExplorerItem
             v-show="$route.params.id !== ''"
-            @click="$router.go(-1)"
+            @dblclick="doubleClickedBack"
             :is-selected="false"
             title=".."
             :image-src="require('@/assets/img/folder-light.svg')"
@@ -110,12 +110,16 @@ export default defineComponent({
      * Load the folders
      */
     created() {
-        this.$store.dispatch("loadFolders");
-        this.$store.dispatch("loadDiagrams");
+        this.updateFoldersAndDiagrams();
         window.addEventListener("keyup", this.onKeyUp);
     },
     unmounted() {
         window.removeEventListener("keyup", this.onKeyUp);
+    },
+    watch: {
+        $route() {
+            this.updateFoldersAndDiagrams();
+        },
     },
     computed: {
         /**
@@ -152,6 +156,10 @@ export default defineComponent({
         },
     },
     methods: {
+        updateFoldersAndDiagrams(): void {
+            this.$store.dispatch("loadFolders", this.$route.params.id);
+            this.$store.dispatch("loadDiagrams", this.$route.params.id);
+        },
         /**
          * Handle keyup events
          */
@@ -175,7 +183,7 @@ export default defineComponent({
                 return;
             }
             this.addFolderDialog = false;
-            this.$store.dispatch("addFolder", new Folder(folderName));
+            this.$store.dispatch("addFolder", { folder: new Folder(folderName), folderId: this.$route.params.id });
         },
         /**
          * Rename an item
@@ -224,7 +232,7 @@ export default defineComponent({
          * Handle double click on folder
          */
         doubleClickedFolder(): void {
-            console.log("Folder Double Click");
+            this.$router.push("/start/" + this.selectedFolder.id);
         },
         /**
          * Handle double click on diagram
@@ -232,6 +240,9 @@ export default defineComponent({
         doubleClickedDiagram(): void {
             this.$store.dispatch("setDiagram", this.selectedDiagram);
             this.$router.push("/editor");
+        },
+        doubleClickedBack(): void {
+            this.$router.back();
         },
         /**
          * Select a folder

@@ -29,7 +29,7 @@ export default defineComponent({
     },
     computed: {
         sidebarMinimized(): boolean {
-            return this.$store.getters.sidebarMinimized || !(this.$route.path === "/start");
+            return this.$store.getters.sidebarMinimized || !this.$route.path.startsWith("/start");
         },
     },
 });
