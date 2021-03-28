@@ -181,7 +181,7 @@ export class DiagramsService {
         const transaction = this.neo4jService.beginTransaction(this.database);
 
         // Delete old IS_CHILD relation if available
-        await this.foldersService.deleteIsChildRelation(childId, transaction);
+        await this.deleteIsChildRelation(childId, transaction);
 
         //language=Cypher
         const cypher =
