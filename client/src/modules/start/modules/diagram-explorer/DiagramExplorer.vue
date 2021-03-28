@@ -56,7 +56,11 @@
             title=".."
             :image-src="require('@/assets/img/folder-light.svg')"
             :is-folder="true"
+            :itemId="$store.getters.parent.parentId"
+            draggable="false"
             @dragover.prevent
+            @folder-drop="moveFolder"
+            @diagram-drop="moveDiagram"
         />
         <!-- The folders -->
         <ExplorerItem
@@ -68,7 +72,7 @@
             :title="folder.name"
             :is-selected="folder.id === selectedFolder.id"
             :is-folder="true"
-            :itemID="folder.id"
+            :itemId="folder.id"
             @dragover.prevent
             @drop.stop.prevent
             @folder-drop="moveFolder"
@@ -84,7 +88,7 @@
             :title="diagram.name"
             :is-selected="diagram.id === selectedDiagram.id"
             :is-folder="false"
-            :itemID="diagram.id"
+            :itemId="diagram.id"
         />
     </div>
 </template>
@@ -231,6 +235,7 @@ export default defineComponent({
          */
         doubleClickedFolder(): void {
             this.$router.push("/start/" + this.selectedFolder.id);
+            this.clearSelection();
         },
         /**
          * Handle double click on diagram
@@ -238,12 +243,14 @@ export default defineComponent({
         doubleClickedDiagram(): void {
             this.$store.dispatch("setDiagram", this.selectedDiagram);
             this.$router.push("/editor");
+            this.clearSelection();
         },
         /**
          * Handle a click on the ".." folder
          */
         doubleClickedBack(): void {
-            this.$router.back();
+            const parentId = this.$store.getters.parent.parentId;
+            this.$router.push(parentId === undefined ? "/start" : `/start/${parentId}`);
         },
         /**
          * Select a folder
@@ -267,14 +274,14 @@ export default defineComponent({
          * Move a folder
          */
         moveFolder(event: ItemDragEvent): void {
-            this.$store.dispatch("moveFolder", { parentID: event.newParent, id: event.currentDragItem });
+            this.$store.dispatch("moveFolder", { parentId: event.newParent, id: event.currentDragItem });
             this.clearSelection();
         },
         /**
          * Move a diagram
          */
         moveDiagram(event: ItemDragEvent): void {
-            this.$store.dispatch("moveDiagram", { parentID: event.newParent, id: event.currentDragItem });
+            this.$store.dispatch("moveDiagram", { parentId: event.newParent, id: event.currentDragItem });
             this.clearSelection();
         },
         /**

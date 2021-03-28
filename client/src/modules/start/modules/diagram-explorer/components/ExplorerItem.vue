@@ -24,10 +24,7 @@ export default defineComponent({
         title: String,
         isSelected: Boolean,
         isFolder: Boolean,
-        itemID: {
-            type: Number,
-            default: 0,
-        },
+        itemId: Number,
     },
     methods: {
         /**
@@ -35,7 +32,7 @@ export default defineComponent({
          */
         // eslint-disable-next-line
         startDrag(evt: any): void {
-            evt.dataTransfer.setData("currentDragId", this.itemID);
+            evt.dataTransfer.setData("currentDragId", this.itemId);
             evt.dataTransfer.setData("isFolder", this.isFolder);
 
             // Timeout on hide class is necessary as it would also effect
@@ -80,13 +77,13 @@ export default defineComponent({
             this.dragLeave(evt);
 
             // Check if the folder was dropped on itself
-            if (dragId != this.itemID) {
+            if (dragId != this.itemId) {
                 if (isFolder) {
                     this.$store.commit("deleteFolder", { id: dragId });
-                    this.$emit("folder-drop", new ItemDragEvent(dragId, this.itemID));
+                    this.$emit("folder-drop", new ItemDragEvent(dragId, this.itemId));
                 } else {
                     this.$store.commit("deleteDiagram", { id: dragId });
-                    this.$emit("diagram-drop", new ItemDragEvent(dragId, this.itemID));
+                    this.$emit("diagram-drop", new ItemDragEvent(dragId, this.itemId));
                 }
             }
             return;

@@ -133,9 +133,13 @@ export const start = {
          */
         async moveDiagram(
             context: ActionContext<StartState, RootState>,
-            payload: { parentID: number; id: number },
+            payload: { parentId: number; id: number },
         ): Promise<void> {
-            const res = await PUT(`/api/folders/${payload.parentID}/diagrams/${payload.id}`, "");
+            const res =
+                payload.parentId === undefined
+                    ? await DELETE("/api/folders/" + context.getters.parent.id + "/diagrams/" + payload.id)
+                    : await PUT(`/api/folders/${payload.parentId}/diagrams/${payload.id}`, "");
+
             if (res.status === 201) context.commit("moveDiagram", payload.id);
         },
         /**
@@ -143,9 +147,13 @@ export const start = {
          */
         async moveFolder(
             context: ActionContext<StartState, RootState>,
-            payload: { parentID: number; id: number },
+            payload: { parentId: number; id: number },
         ): Promise<void> {
-            const res = await PUT(`/api/folders/${payload.parentID}/folders/${payload.id}`, "");
+            const res =
+                payload.parentId === undefined
+                    ? await DELETE("/api/folders/" + context.getters.parent.id + "/folders/" + payload.id)
+                    : await PUT(`/api/folders/${payload.parentId}/folders/${payload.id}`, "");
+
             if (res.status === 201) context.commit("moveFolder", payload.id);
         },
         /**
