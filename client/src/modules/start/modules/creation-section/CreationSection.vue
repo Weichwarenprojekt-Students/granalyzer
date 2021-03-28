@@ -7,18 +7,18 @@
         title="Add Diagram"
     ></InputDialog>
     <div id="creation-section">
-        <h2 class="underlined-title">{{ $t("start.newDiagram.title") }}</h2>
+        <h2>{{ $t("start.newDiagram.title") }}</h2>
         <div class="cards">
             <CreationCard
                 :title="$t('start.newDiagram.blank.title')"
                 :description="$t('start.newDiagram.blank.description')"
-                :imagePath="require('@/assets/img/plus.svg')"
+                :imagePath="require('@/assets/img/plus-orange.svg')"
                 @card-click="dialogAddEmpty = true"
             ></CreationCard>
             <CreationCard
                 :title="$t('start.newDiagram.node.title')"
                 :description="$t('start.newDiagram.node.description')"
-                :imagePath="require('@/assets/img/editor-thin.svg')"
+                :imagePath="require('@/assets/img/diagram.png')"
                 @card-click="dialogAddEmpty = true"
             ></CreationCard>
         </div>
@@ -78,7 +78,7 @@ export default defineComponent({
     background: @light_grey;
     width: 100%;
     padding: 32px 64px;
-    margin-bottom: 32px;
+    margin-bottom: 64px;
 }
 
 .cards {

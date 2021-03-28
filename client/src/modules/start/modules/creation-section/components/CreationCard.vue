@@ -25,13 +25,14 @@ export default defineComponent({
 @import "../../../../../styles/global";
 
 #creation-card {
-    margin: 32px 32px 0 0;
+    margin: 24px 32px 0 0;
     width: 280px;
     min-width: 280px;
 
     .card-icon {
         height: 180px;
-        border: 1px solid black;
+        border-radius: @border-radius;
+        border: 2px solid @grey;
         display: flex;
         align-items: center;
         justify-content: center;

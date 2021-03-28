@@ -21,9 +21,9 @@
         :description="$t('start.diagrams.deleteItem.description')"
     ></ConfirmDialog>
     <div id="explorer-header">
-        <h2 id="title" class="underlined-title">{{ $t("start.diagrams.title") }}</h2>
+        <h2 id="title">{{ $t("start.diagrams.title") }}</h2>
         <h2 v-show="$store.state.start.parent.name" id="title-minus">&#8212;</h2>
-        <h2 v-show="$store.state.start.parent.name">{{ $store.state.start.parent.name }}</h2>
+        <h2 v-show="$store.state.start.parent.name" id="title-folder">{{ $store.state.start.parent.name }}</h2>
         <img
             id="add-folder"
             class="explorer-button"
@@ -310,6 +310,10 @@ export default defineComponent({
 
 #title-minus {
     margin: 0 12px;
+}
+
+#title-folder {
+    font-style: italic;
 }
 
 .explorer-button {

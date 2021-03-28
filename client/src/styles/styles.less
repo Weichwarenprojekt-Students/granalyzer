@@ -7,7 +7,7 @@
  * Button
  */
 .btn {
-  border-radius: 4px;
+  border-radius: @border-radius;
   padding: 8px;
   width: 160px;
   border: 1px solid @dark;
@@ -74,14 +74,6 @@ input {
 }
 
 /**
- * Special titles
- */
-.underlined-title {
-  border-bottom: 2px solid @primary_color;
-  display: inline-block;
-}
-
-/**
  * Global styles
  */
 
@@ -98,7 +90,7 @@ h3 {
 }
 
 hr {
-  border: 1px solid @secondary_color;
+  border: 1px solid @primary_color;
 }
 
 html,
