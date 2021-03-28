@@ -1,6 +1,6 @@
 <template>
     <div
-        :class="['diagram-item', { selected: isSelected }]"
+        :class="['diagram-item', { selected: isSelected }, { 'enable-hovering': !$store.state.start.dragging }]"
         draggable="true"
         @dragstart="startDrag"
         @dragend="endDrag"
@@ -35,17 +35,26 @@ export default defineComponent({
             evt.dataTransfer.setData("currentDragId", this.itemId);
             evt.dataTransfer.setData("isFolder", this.isFolder);
 
-            // Timeout on hide class is necessary as it would also effect
-            // the drag preview otherwise
-            const target = evt.currentTarget;
-            target.classList.add("dragged");
-            setTimeout(() => target.classList.add("dragged-hide"), 0);
+            this.$store.commit("start/setDraggingState", true);
+
+            // Await the next tick, so that vue can process the state change and
+            // update the css classes properly.
+            // Otherwise, it will overwrite the manually set classes.
+            this.$nextTick(() => {
+                const target = evt.currentTarget;
+                target.classList.add("dragged");
+                // Timeout on hide class is necessary as it would also effect
+                // the drag preview otherwise
+                setTimeout(() => target.classList.add("dragged-hide"), 0);
+            });
         },
         /**
          * Event function when cancelling a drag operation
          */
         // eslint-disable-next-line
         endDrag(evt: any): void {
+            this.$store.commit("start/setDraggingState", false);
+
             evt.currentTarget.classList.remove("dragged-hide");
             evt.currentTarget.classList.remove("dragged");
         },
@@ -126,6 +135,12 @@ export default defineComponent({
     background: @secondary_color;
 }
 
+.enable-hovering {
+    &:hover {
+        background: @accent_color;
+    }
+}
+
 .diagram-item {
     margin-top: 16px;
     margin-right: 32px;
@@ -133,10 +148,6 @@ export default defineComponent({
     padding: 16px;
     overflow: hidden;
     width: 128px;
-
-    &:hover {
-        background: @accent_color;
-    }
 
     img {
         width: 100%;

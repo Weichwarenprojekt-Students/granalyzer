@@ -9,6 +9,7 @@ export class StartState {
     public diagrams = [] as Diagram[];
     public parent = new Folder();
     public loading = false;
+    public dragging = false;
 }
 
 export const start = {
@@ -16,12 +17,16 @@ export const start = {
     state: new StartState(),
     mutations: {
         /**
-         * De/Activate the loading state
-         * @param state
-         * @param loading
+         * (De-)activate the loading state
          */
         setLoadingState(state: StartState, loading: boolean): void {
             state.loading = loading;
+        },
+        /*+
+         * (De-)activate the dragging state
+         */
+        setDraggingState(state: StartState, dragging: boolean): void {
+            state.dragging = dragging;
         },
         /**
          * Sort the diagrams
