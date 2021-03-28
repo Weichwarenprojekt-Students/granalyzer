@@ -172,7 +172,7 @@ export class DiagramsService {
      * @param parentId
      * @param childId
      */
-    async addDiagramToFolder(parentId: number, childId: number): Promise<Diagram> {
+    async moveDiagramToFolder(parentId: number, childId: number): Promise<Diagram> {
         // Check whether id and child id belongs to a folder
         await this.utilsNode.checkElementForLabel(parentId, "Folder");
         await this.utilsNode.checkElementForLabel(childId, "Diagram");

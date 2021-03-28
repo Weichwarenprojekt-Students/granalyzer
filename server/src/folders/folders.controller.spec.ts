@@ -149,7 +149,7 @@ describe("FoldersController", () => {
 
             jest.spyOn(neo4jService, "write").mockImplementation(() => FoldersRepository.mockAddFolderToFolder());
 
-            expect(await controller.addFolderToFolder(5, 2)).toStrictEqual(FoldersRepository.resultAddFolderToFolder());
+            expect(await controller.moveFolderToFolder(5, 2)).toStrictEqual(FoldersRepository.resultAddFolderToFolder());
         });
     });
 
@@ -219,7 +219,7 @@ describe("FoldersController", () => {
 
             jest.spyOn(neo4jService, "write").mockImplementation(() => FoldersRepository.mockAddDiagramToFolder());
 
-            expect(await controller.addDiagramToFolder(5, 2)).toStrictEqual(
+            expect(await controller.moveDiagramToFolder(5, 2)).toStrictEqual(
                 FoldersRepository.resultAddDiagramToFolder(),
             );
         });

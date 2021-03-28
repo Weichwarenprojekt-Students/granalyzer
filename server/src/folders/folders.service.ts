@@ -167,7 +167,7 @@ export class FoldersService {
      * @param parentId
      * @param childId
      */
-    async addFolderToFolder(parentId: number, childId: number): Promise<Folder> {
+    async moveFolderToFolder(parentId: number, childId: number): Promise<Folder> {
         // Check whether id and child id belongs to a folder
         await this.utilsNode.checkElementForLabel(parentId, "Folder");
         await this.utilsNode.checkElementForLabel(childId, "Folder");
@@ -196,6 +196,19 @@ export class FoldersService {
 
         // Return child as promise
         return new Promise<Folder>((resolve) => resolve(child));
+    }
+
+    /**
+     * Adds a new folder inside of the folder with the given id
+     *
+     * @param parentId The id of the parent folder
+     * @param childName The name of the folder which is being created
+     */
+    async addFolderInFolder(parentId: number, childName: string): Promise<Folder> {
+        await this.utilsNode.checkElementForLabel(parentId, "Folder");
+        const folder = await this.addFolder(childName);
+
+        return this.moveFolderToFolder(parentId, folder["id"]);
     }
 
     /**

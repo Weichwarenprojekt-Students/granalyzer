@@ -147,6 +147,31 @@ export class FoldersController {
         return this.foldersService.getFoldersInFolder(id);
     }
 
+    @Post(":parentId/folders")
+    @ApiOperation({
+        description: "Adds a new folder inside of the folder with the given id",
+    })
+    @ApiOkResponse({
+        description: "Returns the folder which was created",
+        type: Folder,
+    })
+    @ApiNotAcceptableResponse({ description: "Requested resource is not a folder" })
+    @ApiNotFoundResponse({ description: "Requested resource does not exist" })
+    @ApiBody({
+        schema: {
+            type: "object",
+            properties: {
+                name: {
+                    type: "string",
+                    description: "The name of the new folder",
+                },
+            },
+        },
+    })
+    createFolderInFolder(@Body("name") name: string, @Param("parentId") parentId: number) {
+        return this.foldersService.addFolderInFolder(parentId, name);
+    }
+
     @Get(":id/folders/:childId")
     @ApiOperation({
         description: "Returns the specific child folder of the given folder",
@@ -191,8 +216,8 @@ export class FoldersController {
         type: "number",
         description: "The id of the child folder which should be added to the folder",
     })
-    addFolderToFolder(@Param("id") id: number, @Param("childId") childId: number) {
-        return this.foldersService.addFolderToFolder(id, childId);
+    moveFolderToFolder(@Param("id") id: number, @Param("childId") childId: number) {
+        return this.foldersService.moveFolderToFolder(id, childId);
     }
 
     @Delete(":id/folders/:childId")
@@ -277,8 +302,8 @@ export class FoldersController {
         type: "number",
         description: "The id of the diagram which should be added to the folder",
     })
-    addDiagramToFolder(@Param("id") id: number, @Param("childId") childId: number) {
-        return this.diagramsService.addDiagramToFolder(id, childId);
+    moveDiagramToFolder(@Param("id") id: number, @Param("childId") childId: number) {
+        return this.diagramsService.moveDiagramToFolder(id, childId);
     }
 
     @Delete(":id/diagrams/:childId")
