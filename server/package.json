@@ -18,7 +18,7 @@
     "test:database": "jest --group=db",
     "test:all": "jest",
     "test:watch": "jest --watch",
-    "test:docker": "docker-compose -f test/docker-compose.yml up --build --abort-on-container-exit && docker-compose -f test/docker-compose.yml down --volumes",
+    "test:docker": "docker-compose -f test/docker-compose.yml up --build --abort-on-container-exit && docker-compose -f test/docker-compose.yml down --volumes --rmi local",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
