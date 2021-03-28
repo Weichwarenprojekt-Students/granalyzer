@@ -1,4 +1,13 @@
 /**
+ * The route names of the three main modules
+ */
+export const routeNames = {
+    start: "/home",
+    editor: "/editor",
+    inventory: "/inventory",
+};
+
+/**
  * Determine whether an object is empty
  *
  * @param object The object to be checked

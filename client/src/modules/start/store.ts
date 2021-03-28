@@ -12,6 +12,7 @@ export class StartState {
 }
 
 export const start = {
+    namespaced: true,
     state: new StartState(),
     mutations: {
         /**
@@ -151,7 +152,7 @@ export const start = {
         ): Promise<void> {
             const res =
                 payload.parentId === undefined
-                    ? await DELETE("/api/folders/" + context.getters.parent.id + "/folders/" + payload.id)
+                    ? await DELETE("/api/folders/" + context.state.parent.id + "/folders/" + payload.id)
                     : await PUT(`/api/folders/${payload.parentId}/folders/${payload.id}`, "");
 
             if (res.status === 201) context.commit("moveFolder", payload.id);
@@ -218,31 +219,4 @@ export const start = {
             context.commit("setLoadingState", false);
         },
     },
-    getters: {
-        /**
-         * Fetches current root folders
-         */
-        folders(state: StartState): Folder[] {
-            return state.folders;
-        },
-        /**
-         * Fetches current root diagrams
-         */
-        diagrams(state: StartState): Diagram[] {
-            return state.diagrams;
-        },
-        /**
-         * Fetches the current active directory
-         */
-        parent(state: StartState): Folder {
-            return state.parent;
-        },
-        /**
-         * Fetches the current loading state
-         */
-        loading(state: StartState): boolean {
-            return state.loading;
-        },
-    },
-    modules: {},
 };

@@ -7,7 +7,7 @@
                 v-for="item in items"
                 :key="item"
                 :to="'/' + item"
-                :class="{ isSelected: $route.path.startsWith('/' + item) }"
+                :class="{ isSelected: $route.path.startsWith(routes[item]) }"
                 v-tooltip="sidebarMinimized ? $t('global.' + item) : ''"
             >
                 <img class="icon" :src="require('@/assets/img/' + item + '.svg')" :alt="item" />
@@ -19,6 +19,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { routeNames } from "@/utility";
 
 export default defineComponent({
     name: "Sidebar",
@@ -29,7 +30,10 @@ export default defineComponent({
     },
     computed: {
         sidebarMinimized(): boolean {
-            return this.$store.getters.sidebarMinimized || !this.$route.path.startsWith("/start");
+            return this.$store.getters.sidebarMinimized || !this.$route.path.startsWith(routeNames.start);
+        },
+        routes() {
+            return routeNames;
         },
     },
 });

@@ -28,6 +28,7 @@ import { defineComponent } from "vue";
 import { Diagram } from "@/modules/start/models/Diagram";
 import CreationCard from "./components/CreationCard.vue";
 import InputDialog from "@/components/InputDialog.vue";
+import { routeNames } from "@/utility";
 
 export default defineComponent({
     name: "CreationSection",
@@ -58,10 +59,10 @@ export default defineComponent({
             }
             this.dialogAddEmpty = false;
 
-            const response = await this.$store.dispatch("addDiagram", new Diagram(diagramName));
+            const response = await this.$store.dispatch("start/addDiagram", new Diagram(diagramName));
             if (response.status === 201) {
-                this.$store.dispatch("setDiagram", await response.json());
-                await this.$router.push("/editor");
+                this.$store.dispatch("editor/setDiagram", await response.json());
+                await this.$router.push(routeNames.editor);
             }
         },
     },

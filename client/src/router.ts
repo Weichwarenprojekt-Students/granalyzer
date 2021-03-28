@@ -2,24 +2,25 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import Start from "./modules/start/Start.vue";
 import Editor from "./modules/editor/Editor.vue";
 import Inventory from "./modules/inventory/Inventory.vue";
+import { routeNames } from "./utility";
 
 const routes: Array<RouteRecordRaw> = [
     {
         path: "/:catchAll(.*)",
-        redirect: "/start",
+        redirect: `${routeNames.start}`,
     },
     {
-        path: "/start/:id?",
+        path: `${routeNames.start}/:id?`,
         name: "Start",
         component: Start,
     },
     {
-        path: "/editor",
+        path: `${routeNames.editor}`,
         name: "Editor",
         component: Editor,
     },
     {
-        path: "/inventory",
+        path: `${routeNames.inventory}`,
         name: "Inventory",
         component: Inventory,
     },

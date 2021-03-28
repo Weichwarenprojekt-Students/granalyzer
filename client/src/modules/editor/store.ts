@@ -7,6 +7,7 @@ export class EditorState {
 }
 
 export const editor = {
+    namespaced: true,
     state: new EditorState(),
     mutations: {
         /**
@@ -22,14 +23,6 @@ export const editor = {
          */
         setDiagram(context: ActionContext<EditorState, RootState>, diagram: Diagram): void {
             context.commit("setDiagram", diagram);
-        },
-    },
-    getters: {
-        /**
-         * The currently active diagram
-         */
-        diagram(state: EditorState): Diagram {
-            return state.diagram;
         },
     },
 };
