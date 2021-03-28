@@ -8,11 +8,20 @@ export class StartState {
     public folders = [] as Folder[];
     public diagrams = [] as Diagram[];
     public parent = new Folder();
+    public loading = false;
 }
 
 export const start = {
     state: new StartState(),
     mutations: {
+        /**
+         * De/Activate the loading state
+         * @param state
+         * @param loading
+         */
+        setLoadingState(state: StartState, loading: boolean): void {
+            state.loading = loading;
+        },
         /**
          * Sort the diagrams
          */
@@ -126,7 +135,7 @@ export const start = {
             context: ActionContext<StartState, RootState>,
             payload: { parentID: number; id: number },
         ): Promise<void> {
-            const res = await POST(`/api/folders/${payload.parentID}/diagrams/${payload.id}`, "");
+            const res = await PUT(`/api/folders/${payload.parentID}/diagrams/${payload.id}`, "");
             if (res.status === 201) context.commit("moveDiagram", payload.id);
         },
         /**
@@ -136,7 +145,7 @@ export const start = {
             context: ActionContext<StartState, RootState>,
             payload: { parentID: number; id: number },
         ): Promise<void> {
-            const res = await POST(`/api/folders/${payload.parentID}/folders/${payload.id}`, "");
+            const res = await PUT(`/api/folders/${payload.parentID}/folders/${payload.id}`, "");
             if (res.status === 201) context.commit("moveFolder", payload.id);
         },
         /**
@@ -184,6 +193,7 @@ export const start = {
          */
         async loadItems(context: ActionContext<StartState, RootState>, routeId: number): Promise<void> {
             // Load the items
+            context.commit("setLoadingState", true);
             const resDiagrams = await GET(routeId ? `/api/folders/${routeId}/diagrams` : "/api/diagrams/root");
             const resFolders = await GET(routeId ? `/api/folders/${routeId}/folders` : "/api/folders/root");
             if (resDiagrams.status === 200 && resFolders.status === 200) {
@@ -197,6 +207,7 @@ export const start = {
             // Load the parent
             const resParent = await GET(`/api/folders/${routeId}`);
             context.commit("loadParent", resParent.status === 200 ? await resParent.json() : new Folder());
+            context.commit("setLoadingState", false);
         },
     },
     getters: {
@@ -217,6 +228,12 @@ export const start = {
          */
         parent(state: StartState): Folder {
             return state.parent;
+        },
+        /**
+         * Fetches the current loading state
+         */
+        loading(state: StartState): boolean {
+            return state.loading;
         },
     },
     modules: {},

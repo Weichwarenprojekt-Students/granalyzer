@@ -1,26 +1,26 @@
 <template>
+    <InputDialog
+        @input-confirm="addEmptyFolder"
+        @cancel="addFolderDialog = false"
+        :show="addFolderDialog"
+        :image-src="require('@/assets/img/circle-plus.svg')"
+        :title="$t('start.diagrams.addFolder')"
+    ></InputDialog>
+    <InputDialog
+        @input-confirm="renameItem"
+        @cancel="renameItemDialog = false"
+        :show="renameItemDialog"
+        :image-src="require('@/assets/img/editor-thin.svg')"
+        :title="$t('start.diagrams.renameItem', { item: selectedItemName })"
+    ></InputDialog>
+    <ConfirmDialog
+        @confirm="deleteItem"
+        @cancel="deleteItemDialog = false"
+        :show="deleteItemDialog"
+        :title="$t('start.diagrams.deleteItem.title', { item: selectedItemName })"
+        :description="$t('start.diagrams.deleteItem.description')"
+    ></ConfirmDialog>
     <div id="diagram-content">
-        <InputDialog
-            @input-confirm="addEmptyFolder"
-            @cancel="addFolderDialog = false"
-            :show="addFolderDialog"
-            :image-src="require('@/assets/img/circle-plus.svg')"
-            :title="$t('start.diagrams.addFolder')"
-        ></InputDialog>
-        <InputDialog
-            @input-confirm="renameItem"
-            @cancel="renameItemDialog = false"
-            :show="renameItemDialog"
-            :image-src="require('@/assets/img/editor-thin.svg')"
-            :title="$t('start.diagrams.renameItem', { item: selectedItemName })"
-        ></InputDialog>
-        <ConfirmDialog
-            @confirm="deleteItem"
-            @cancel="deleteItemDialog = false"
-            :show="deleteItemDialog"
-            :title="$t('start.diagrams.deleteItem.title', { item: selectedItemName })"
-            :description="$t('start.diagrams.deleteItem.description')"
-        ></ConfirmDialog>
         <h2 id="title">{{ $t("start.diagrams.title") }}</h2>
         <h2 v-show="$store.getters.parent.name" id="title-minus">&#8212;</h2>
         <h2 v-show="$store.getters.parent.name" id="title-folder">{{ $store.getters.parent.name }}</h2>
@@ -46,7 +46,8 @@
             @click="deleteItemDialog = true"
         />
     </div>
-    <div id="diagram-select">
+    <ProgressBar mode="indeterminate" id="loading" v-show="$store.getters.loading" />
+    <div v-show="!$store.getters.loading" id="diagram-select">
         <!-- The back item-->
         <ExplorerItem
             v-show="$route.params.id !== ''"
@@ -289,6 +290,11 @@ export default defineComponent({
 
 <style lang="less" scoped>
 @import "../../../../styles/global";
+
+#loading {
+    margin: 16px;
+    overflow: hidden;
+}
 
 #diagram-content {
     display: flex;

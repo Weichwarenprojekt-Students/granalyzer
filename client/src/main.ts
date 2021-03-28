@@ -9,6 +9,7 @@ import ToastService from "primevue/toastservice";
 import Dialog from "primevue/dialog";
 import Toast from "primevue/toast";
 import InputNumber from "primevue/inputnumber";
+import ProgressBar from "primevue/progressbar";
 
 // Load the prime vue styles
 import "primevue/resources/themes/saga-blue/theme.css";
@@ -23,6 +24,7 @@ app.use(PrimeVue);
 app.use(ToastService).component("Toast", Toast);
 app.component("Dialog", Dialog);
 app.component("InputNumber", InputNumber);
+app.component("ProgressBar", ProgressBar);
 app.directive("tooltip", Tooltip);
 
 // Mount the app
