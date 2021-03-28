@@ -11,8 +11,8 @@
       "description": "Generiere automatisch ein Diagram basierend auf einer bestimmten Node"
     },
     "empty": {
-      "title": "Diagramm nicht erstellt",
-      "description": "Namensfeld ist leer"
+      "title": "Name ist leer",
+      "description": "Bitte geben Sie einen Namen ein!"
     }
   },
   "diagrams": {
@@ -30,8 +30,8 @@
   },
   "newFolder": {
     "empty": {
-      "title": "Ordner nicht erstellt",
-      "description": "Namensfeld ist leer"
+      "title": "Name ist leer",
+      "description": "Bitte geben Sie einen Namen ein!"
     }
   }
 }

@@ -11,8 +11,8 @@
       "description": "Auto-generate diagram from a certain node"
     },
     "empty": {
-      "title": "Failed adding a diagram",
-      "description": "Diagram name is empty"
+      "title": "Name is empty",
+      "description": "Please specify a name!"
     }
   },
   "diagrams": {
@@ -30,8 +30,8 @@
   },
   "newFolder": {
     "empty": {
-      "title": "Failed adding a folder",
-      "description": "Folder name is empty"
+      "title": "Name is empty",
+      "description": "Please specify a name!"
     }
   }
 }

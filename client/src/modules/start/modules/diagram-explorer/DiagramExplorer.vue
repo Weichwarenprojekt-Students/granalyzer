@@ -20,34 +20,34 @@
         :title="$t('start.diagrams.deleteItem.title', { item: selectedItemName })"
         :description="$t('start.diagrams.deleteItem.description')"
     ></ConfirmDialog>
-    <div id="diagram-content">
-        <h2 id="title">{{ $t("start.diagrams.title") }}</h2>
+    <div id="explorer-header">
+        <h2 id="title" class="underlined-title">{{ $t("start.diagrams.title") }}</h2>
         <h2 v-show="$store.state.start.parent.name" id="title-minus">&#8212;</h2>
-        <h2 v-show="$store.state.start.parent.name" id="title-folder">{{ $store.state.start.parent.name }}</h2>
+        <h2 v-show="$store.state.start.parent.name">{{ $store.state.start.parent.name }}</h2>
         <img
             id="add-folder"
-            class="add-button"
+            class="explorer-button"
             src="../../../../assets/img/add-folder.svg"
             alt="Add Folder"
             @click="addFolderDialog = true"
         />
         <img
             v-show="isItemSelected"
-            class="add-button"
+            class="explorer-button"
             src="../../../../assets/img/editor.svg"
             alt="Editor"
             @click="renameItemDialog = true"
         />
         <img
             v-show="isItemSelected"
-            class="add-button"
+            class="explorer-button"
             src="../../../../assets/img/trash.svg"
             alt="Delete"
             @click="deleteItemDialog = true"
         />
     </div>
     <ProgressBar mode="indeterminate" id="loading" v-show="$store.state.start.loading" />
-    <div v-show="!$store.state.start.loading" id="diagram-select">
+    <div v-show="!$store.state.start.loading" id="explorer-content">
         <!-- The back item-->
         <ExplorerItem
             v-show="$route.params.id !== ''"
@@ -300,13 +300,8 @@ export default defineComponent({
 @import "../../../../styles/global";
 
 #loading {
-    margin: 16px;
+    margin: 16px 64px;
     overflow: hidden;
-}
-
-#diagram-content {
-    display: flex;
-    margin-left: 16px;
 }
 
 #add-folder {
@@ -317,23 +312,25 @@ export default defineComponent({
     margin: 0 12px;
 }
 
-#title-folder {
-    font-style: italic;
-}
-
-.add-button {
+.explorer-button {
     cursor: pointer;
     margin-left: 16px;
     border-bottom: 2px solid transparent;
     padding: 0 2px 2px 2px;
 
     &:hover {
-        border-bottom: 2px solid @secondary_color;
+        border-bottom: 2px solid @primary_color;
     }
 }
 
-#diagram-select {
+#explorer-header {
+    display: flex;
+    margin-left: 64px;
+}
+
+#explorer-content {
     display: flex;
     flex-wrap: wrap;
+    padding: 0 48px;
 }
 </style>

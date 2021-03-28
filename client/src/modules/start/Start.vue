@@ -1,7 +1,6 @@
 <template>
     <div :class="['content', sidebarMinimized ? 'sidebar-collapsed' : '']">
         <CreationSection></CreationSection>
-        <hr />
         <DiagramExplorer></DiagramExplorer>
     </div>
 </template>
@@ -36,11 +35,6 @@ export default defineComponent({
 .content {
     margin-left: @navbar_width;
     height: 100vh;
-    padding: 32px 48px;
-
-    hr {
-        margin: 64px 16px;
-    }
 }
 
 .sidebar-collapsed {

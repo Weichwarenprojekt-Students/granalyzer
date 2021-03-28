@@ -1,6 +1,6 @@
 <template>
     <div id="creation-card">
-        <div class="card-icon">
+        <div class="card-icon" @click="$emit('card-click')">
             <img :src="imagePath" :alt="title" />
         </div>
         <h3 class="title">{{ title }}</h3>
@@ -25,7 +25,7 @@ export default defineComponent({
 @import "../../../../../styles/global";
 
 #creation-card {
-    margin: 32px 32px 0 16px;
+    margin: 32px 32px 0 0;
     width: 280px;
     min-width: 280px;
 

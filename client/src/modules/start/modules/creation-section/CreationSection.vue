@@ -1,25 +1,27 @@
 <template>
-    <h2>{{ $t("start.newDiagram.title") }}</h2>
-    <div class="cards">
-        <CreationCard
-            :title="$t('start.newDiagram.blank.title')"
-            :description="$t('start.newDiagram.blank.description')"
-            :imagePath="require('@/assets/img/plus.svg')"
-            @click="dialogAddEmpty = true"
-        ></CreationCard>
-        <CreationCard
-            :title="$t('start.newDiagram.node.title')"
-            :description="$t('start.newDiagram.node.description')"
-            :imagePath="require('@/assets/img/editor-thin.svg')"
-            @click="dialogAddEmpty = true"
-        ></CreationCard>
-        <InputDialog
-            @input-confirm="addEmptyDiagram"
-            @cancel="dialogAddEmpty = false"
-            :show="dialogAddEmpty"
-            :image-src="require('@/assets/img/circle-plus.svg')"
-            title="Add Diagram"
-        ></InputDialog>
+    <InputDialog
+        @input-confirm="addEmptyDiagram"
+        @cancel="dialogAddEmpty = false"
+        :show="dialogAddEmpty"
+        :image-src="require('@/assets/img/circle-plus.svg')"
+        title="Add Diagram"
+    ></InputDialog>
+    <div id="creation-section">
+        <h2 class="underlined-title">{{ $t("start.newDiagram.title") }}</h2>
+        <div class="cards">
+            <CreationCard
+                :title="$t('start.newDiagram.blank.title')"
+                :description="$t('start.newDiagram.blank.description')"
+                :imagePath="require('@/assets/img/plus.svg')"
+                @card-click="dialogAddEmpty = true"
+            ></CreationCard>
+            <CreationCard
+                :title="$t('start.newDiagram.node.title')"
+                :description="$t('start.newDiagram.node.description')"
+                :imagePath="require('@/assets/img/editor-thin.svg')"
+                @card-click="dialogAddEmpty = true"
+            ></CreationCard>
+        </div>
     </div>
 </template>
 
@@ -70,8 +72,13 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-h2 {
-    margin-left: 16px;
+@import "../../../../styles/global";
+
+#creation-section {
+    background: @light_grey;
+    width: 100%;
+    padding: 32px 64px;
+    margin-bottom: 32px;
 }
 
 .cards {
