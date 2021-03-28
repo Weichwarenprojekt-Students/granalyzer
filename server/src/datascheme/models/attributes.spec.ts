@@ -1,3 +1,9 @@
+/**
+ * Attribute parsing tests
+ *
+ * @group unit/attributes
+ */
+
 import { Attribute, ColorAttribute, NumberAttribute, StringAttribute } from "./attributes";
 
 describe("Attribute", () => {

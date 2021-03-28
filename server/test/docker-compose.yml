@@ -1,0 +1,29 @@
+version: '3'
+services:
+  testdb_neo4j:
+    image: neo4j:4.2
+    restart: always
+    ports:
+      - 7474:7474
+      - 7687:7687
+    environment:
+      - NEO4J_AUTH=neo4j/neo
+    container_name: testdb_neo4j
+
+  testrunner:
+    build:
+      dockerfile: server/test/Dockerfile
+      context: ../../
+    depends_on:
+      - testdb_neo4j
+    environment:
+      - DB_HOST=testdb_neo4j
+      - DB_PORT=7678
+      - DB_USERNAME=neo4j
+      - DB_PASSWORD=neo
+      - DB_TOOL=tool
+      - DB_CUSTOMER=neo4j
+    working_dir: /src/server
+    command: bash -c "npm i && npm run test:all"
+
+

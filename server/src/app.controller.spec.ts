@@ -16,7 +16,11 @@ describe("AppController", () => {
 
     describe("root", () => {
         it("should return {}", () => {
-            expect(appController.getHello()).toEqual("{}");
+            expect(appController.getHello()).toEqual(
+                JSON.stringify({
+                    title: "Hello granalyzer!",
+                }),
+            );
         });
     });
 });

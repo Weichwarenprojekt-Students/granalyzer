@@ -4,7 +4,7 @@ import { Injectable } from "@nestjs/common";
 export class AppService {
     getHello(): string {
         const title = {
-            title: process.env.DB_USERNAME,
+            title: "Hello granalyzer!",
         };
         return JSON.stringify(title);
     }
