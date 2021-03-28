@@ -76,14 +76,18 @@ export default defineComponent({
             const dragId = evt.dataTransfer.getData("currentDragId");
             const isFolder = evt.dataTransfer.getData("isFolder") == "true";
 
-            // Remove the dragged element and the highlighting
+            // Remove the highlighting
             this.dragLeave(evt);
-            this.$store.commit("deleteDiagram", { id: dragId });
 
             // Check if the folder was dropped on itself
             if (dragId != this.itemID) {
-                if (isFolder) this.$emit("folder-drop", new ItemDragEvent(dragId, this.itemID));
-                else this.$emit("diagram-drop", new ItemDragEvent(dragId, this.itemID));
+                if (isFolder) {
+                    this.$store.commit("deleteFolder", { id: dragId });
+                    this.$emit("folder-drop", new ItemDragEvent(dragId, this.itemID));
+                } else {
+                    this.$store.commit("deleteDiagram", { id: dragId });
+                    this.$emit("diagram-drop", new ItemDragEvent(dragId, this.itemID));
+                }
             }
             return;
         },

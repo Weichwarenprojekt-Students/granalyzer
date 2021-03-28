@@ -59,7 +59,7 @@ export const start = {
          * Deletes a folder
          */
         deleteFolder(state: StartState, folder: Folder): void {
-            state.folders = state.folders.filter((item) => item.id !== folder.id);
+            state.folders = state.folders.filter((item) => item.id != folder.id);
         },
         /**
          * Edits a diagram and updates the name
@@ -125,13 +125,9 @@ export const start = {
         async moveDiagram(
             context: ActionContext<StartState, RootState>,
             payload: { parentID: number; id: number },
-        ): Promise<Response> {
+        ): Promise<void> {
             const res = await POST(`/api/folders/${payload.parentID}/diagrams/${payload.id}`, "");
-            const ret = res.clone();
-            if (res.status === 201) {
-                context.commit("moveDiagram", payload.id);
-            }
-            return ret;
+            if (res.status === 201) context.commit("moveDiagram", payload.id);
         },
         /**
          * Moves a folder into a folder
@@ -139,14 +135,9 @@ export const start = {
         async moveFolder(
             context: ActionContext<StartState, RootState>,
             payload: { parentID: number; id: number },
-        ): Promise<Response> {
+        ): Promise<void> {
             const res = await POST(`/api/folders/${payload.parentID}/folders/${payload.id}`, "");
-            const ret = res.json();
-
-            if (res.status === 201) {
-                context.commit("moveFolder", payload.id);
-            }
-            return ret;
+            if (res.status === 201) context.commit("moveFolder", payload.id);
         },
         /**
          * Deletes a diagram
