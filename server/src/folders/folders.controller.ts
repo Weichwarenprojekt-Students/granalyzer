@@ -171,7 +171,7 @@ export class FoldersController {
         return this.foldersService.getFolderInFolder(id, childId);
     }
 
-    @Post(":id/folders/:childId")
+    @Put(":id/folders/:childId")
     @ApiOperation({
         description: "Adds a folder with the child id as child of the specified folder",
     })
@@ -257,7 +257,7 @@ export class FoldersController {
         return this.diagramsService.getDiagramInFolder(id, childId);
     }
 
-    @Post(":id/diagrams/:childId")
+    @Put(":id/diagrams/:childId")
     @ApiOperation({
         description: "Adds a child diagram with the child id as child of the specified folder",
     })
