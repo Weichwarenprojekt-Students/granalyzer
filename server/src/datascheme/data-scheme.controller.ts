@@ -21,7 +21,7 @@ export class DataSchemeController {
     }
 
     @Get("relation")
-    getAllRealtions() {
+    getAllRelations() {
         return this.dataSchemeService.getAllRelations();
     }
 
