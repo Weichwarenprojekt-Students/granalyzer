@@ -24,15 +24,15 @@ export class Label {
     /**
      * Constructor
      *
-     * @param id
      * @param name name of the label
      * @param color color of the label
      * @param attributes attributes of the label
+     * @param id ID in the database
      */
-    constructor(id?: number, name?: string, color?: string, attributes?: Attribute[]) {
-        this.id = id;
+    constructor(name?: string, color?: string, attributes?: Attribute[], id?: number) {
         this.name = name || "";
         this.color = color || "#000";
         this.attributes = attributes || [];
+        if (id) this.id = id;
     }
 }

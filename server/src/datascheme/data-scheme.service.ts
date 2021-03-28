@@ -19,8 +19,7 @@ export class DataSchemeService {
      * Fetch all entries of the scheme
      */
     async getScheme() {
-        const scheme: Scheme = new Scheme(await this.getAllLabel(), await this.getAllRelations());
-        return scheme;
+        return new Scheme(await this.getAllLabel(), await this.getAllRelations());
     }
 
     /**
@@ -83,6 +82,11 @@ export class DataSchemeService {
         });
     }
 
+    /**
+     * Parses the record to labels
+     * @param record: record from the neo4j database
+     * @private
+     */
     private static parseLabel(record: Record<any, any>) {
         console.log(record);
         const l = {
@@ -94,6 +98,11 @@ export class DataSchemeService {
         return label;
     }
 
+    /**
+     * Parses the record to relationTypes
+     * @param record: record from the neo4j database
+     * @private
+     */
     private static parseRelation(record: Record<any, any>) {
         const l = {
             ...record.get("dataScheme").properties,
