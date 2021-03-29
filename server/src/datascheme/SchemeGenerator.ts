@@ -27,13 +27,25 @@ export class SchemeGenerator {
      * @private
      */
     private static getRandomColor(): string {
-        const randomChannelColor = () => {
-            return Math.floor(Math.random() * (255 + 1));
+        // Generates value between min and min + width
+        const randomRangeValue = () => {
+            const min = 50;
+            const width = 180;
+            return Math.floor(Math.random() * (width + 1) + min);
         };
 
-        const R = randomChannelColor();
-        const G = randomChannelColor();
-        const B = randomChannelColor();
+        const R = randomRangeValue();
+        let G = R + randomRangeValue();
+
+        if (G > 255) {
+            G = G - 255;
+        }
+
+        let B = G + randomRangeValue();
+
+        if (B > 255) {
+            B = B - 255;
+        }
 
         const toHex = (c: number) => {
             return c.toString(16).padStart(2, "0");
