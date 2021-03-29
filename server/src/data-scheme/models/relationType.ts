@@ -1,25 +1,38 @@
 import { Attribute } from "./attributes";
 import { Connection } from "./connection";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class RelationType {
-    /**
-     *ID of the relation
-     */
+    @ApiProperty({
+        required: false,
+        type: "number",
+        name: "id",
+        description: "Id of the relation type scheme",
+    })
     id?: number;
 
-    /**
-     * Name of the relation
-     */
+    @ApiProperty({
+        required: true,
+        type: "number",
+        name: "id",
+        description: "Id of the relation type scheme",
+    })
     name: string;
 
-    /**
-     * Array of all attributes of the relation
-     */
+    @ApiProperty({
+        required: true,
+        type: [Attribute],
+        name: "attributes",
+        description: "Array containing all attributes of the relation type scheme",
+    })
     attributes: Attribute[];
 
-    /**
-     * Array of all connections where the relation can be
-     */
+    @ApiProperty({
+        required: true,
+        type: [Connection],
+        name: "connections",
+        description: "Array containing all connections of the relation type scheme",
+    })
     connections: Connection[];
 
     /**

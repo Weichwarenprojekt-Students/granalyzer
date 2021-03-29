@@ -1,24 +1,37 @@
 import { Attribute } from "./attributes";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class Label {
-    /**
-     * ID of the label
-     */
-    id: number;
+    @ApiProperty({
+        required: false,
+        type: "number",
+        name: "id",
+        description: "Id of the label scheme",
+    })
+    id?: number;
 
-    /**
-     * Name of the label
-     */
+    @ApiProperty({
+        required: true,
+        type: "number",
+        name: "id",
+        description: "Id of the label scheme",
+    })
     name: string;
 
-    /**
-     * Color of the label
-     */
+    @ApiProperty({
+        required: true,
+        type: "string",
+        name: "color",
+        description: "Color of the label scheme",
+    })
     color: string;
 
-    /**
-     * Array with all attributes of the label
-     */
+    @ApiProperty({
+        required: true,
+        type: [Attribute],
+        name: "attributes",
+        description: "Array containing all attributes of the label scheme",
+    })
     attributes: Attribute[];
 
     /**
