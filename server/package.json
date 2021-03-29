@@ -23,7 +23,7 @@
     "test:cov": "jest --group=unit --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "scheme": "ts-node src/datascheme/scripts/scheme_generation.ts"
+    "scheme": "ts-node src/datascheme/generation_script/index.ts"
   },
   "dependencies": {
     "@nestjs/common": "^7.6.13",

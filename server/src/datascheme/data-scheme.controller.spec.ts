@@ -11,7 +11,7 @@ import { Label } from "./models/label";
 import { ColorAttribute, NumberAttribute, StringAttribute } from "./models/attributes";
 import { RelationType } from "./models/relationType";
 import { Connection } from "./models/connection";
-import { Scheme } from "./models/scheme";
+import { Scheme } from "./data-scheme.model";
 
 describe("DataSchemeController", () => {
     let module: TestingModule;

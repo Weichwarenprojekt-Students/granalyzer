@@ -4,7 +4,7 @@ import * as neo4j from "neo4j-driver";
 import { Attribute } from "./models/attributes";
 import { Label } from "./models/label";
 import { RelationType } from "./models/relationType";
-import { Scheme } from "./models/scheme";
+import { Scheme } from "./data-scheme.model";
 import { Connection } from "./models/connection";
 
 @Injectable()

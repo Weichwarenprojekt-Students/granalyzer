@@ -1,5 +1,5 @@
-import { Label } from "./label";
-import { RelationType } from "./relationType";
+import { Label } from "./models/label";
+import { RelationType } from "./models/relationType";
 
 export class Scheme {
     /**

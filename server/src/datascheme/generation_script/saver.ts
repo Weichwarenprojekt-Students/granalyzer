@@ -1,10 +1,10 @@
 import * as neo4j from "neo4j-driver";
 import { Driver, Session } from "neo4j-driver";
-import { Scheme } from "./models/scheme";
-import { Label } from "./models/label";
-import { RelationType } from "./models/relationType";
+import { Label } from "../models/label";
+import { RelationType } from "../models/relationType";
+import { Scheme } from "../data-scheme.model";
 
-export class Saver {
+export class SchemeSaver {
     /**
      * Save a data scheme in the tool db
      *

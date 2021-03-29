@@ -1,8 +1,5 @@
-import * as dotenv from "dotenv";
-import { Saver } from "../saver";
-import { SchemeGenerator } from "../SchemeGenerator";
-import * as neo4j from "neo4j-driver";
 import { Driver } from "neo4j-driver";
+import * as neo4j from "neo4j-driver";
 
 /**
  * Execute a function with an instance of the saver
@@ -11,7 +8,7 @@ import { Driver } from "neo4j-driver";
  *
  * @param fn The function to execute
  */
-async function doWithDriver(fn: (driver: Driver) => void) {
+export async function doWithDriver(fn: (driver: Driver) => void) {
     // Construct instance of this saver
     const driver = getDriver();
 
@@ -31,17 +28,3 @@ function getDriver() {
         neo4j.auth.basic(process.env.DB_USERNAME, process.env.DB_PASSWORD),
     );
 }
-
-// Load the .env config
-dotenv.config();
-
-// Save scheme
-doWithDriver(async (driver) => {
-    // Generate the data model scheme from the customer-database
-    const scheme = await SchemeGenerator.getDataScheme(driver);
-
-    // Write the scheme to the tool db
-    await Saver.writeScheme(scheme, driver);
-}).then(() => {
-    console.log("Scheme written successfully!");
-});
