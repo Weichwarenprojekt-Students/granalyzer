@@ -18,6 +18,7 @@
   "diagrams": {
     "title": "Ihre Diagramme",
     "addFolder": "Ordner hinzufügen",
+    "addDiagram": "Diagramm hinzufügen",
     "renameItem": "{item} umbenennen",
     "deleteItem": {
       "title": "{item} löschen",

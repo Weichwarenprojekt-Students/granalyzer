@@ -27,7 +27,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../../../../styles/global";
+@import "~@/styles/global";
 
 .creation-card {
     margin: 24px 32px 0 0;

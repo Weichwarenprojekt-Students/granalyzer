@@ -13,7 +13,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../styles/styles.less";
+@import "~@/styles/styles.less";
 
 .content {
     width: 100%;

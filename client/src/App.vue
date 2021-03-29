@@ -19,7 +19,7 @@ export default defineComponent({
 </script>
 
 <style lang="less">
-@import "styles/styles.less";
+@import "~@/styles/styles.less";
 
 .main-content {
     height: 100vh;

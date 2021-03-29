@@ -32,7 +32,7 @@
         <h2 v-show="$store.state.start.parent.name" class="title-minus">&#8212;</h2>
         <h2 v-show="$store.state.start.parent.name" class="title-folder">{{ $store.state.start.parent.name }}</h2>
         <svg class="add-folder explorer-button" @click="addFolderDialog = true">
-            <use xlink:href="../../../../assets/img/icons.svg#add-folder"></use>
+            <use xlink:href="~@/assets/img/icons.svg#add-folder"></use>
         </svg>
         <svg v-show="isItemSelected" class="explorer-button" @click="renameItemDialog = true">
             <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
@@ -203,11 +203,11 @@ export default defineComponent({
          */
         renameItem(newName: string) {
             if (!isEmpty(this.selectedFolder)) {
-                const copy = Folder.copy(this.selectedFolder);
+                const copy = this.selectedFolder.copy();
                 copy.name = newName;
                 this.$store.dispatch("start/editFolder", copy);
             } else if (!isEmpty(this.selectedDiagram)) {
-                const copy = Diagram.copy(this.selectedDiagram);
+                const copy = this.selectedDiagram.copy();
                 copy.name = newName;
                 this.$store.dispatch("start/editDiagram", copy);
             } else this.showSelectionError();
@@ -304,7 +304,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../../../styles/global";
+@import "~@/styles/global";
 
 .loading {
     margin: 16px 64px;

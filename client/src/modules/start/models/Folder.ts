@@ -8,12 +8,9 @@ export class Folder {
     constructor(public name: string = "", public id: number = -1) {}
 
     /**
-     * Copy a folder
-     *
-     * @param folder The folder to be copied
-     * @return The copy
+     * Copy the folder
      */
-    public static copy(folder: Folder): Folder {
-        return new Folder(folder.name, folder.id);
+    public copy(): Folder {
+        return new Folder(this.name, this.id);
     }
 }

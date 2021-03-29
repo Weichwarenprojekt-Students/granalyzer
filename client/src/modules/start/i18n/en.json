@@ -18,6 +18,7 @@
   "diagrams": {
     "title": "Your Diagrams",
     "addFolder": "Add folder",
+    "addDiagram": "Add diagram",
     "renameItem": "Rename {item}",
     "deleteItem": {
       "title": "Delete {item}",

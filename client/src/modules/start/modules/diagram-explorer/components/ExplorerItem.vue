@@ -104,7 +104,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../../../../styles/global";
+@import "~@/styles/global";
 
 /**
  * This class will be set as soon as an element

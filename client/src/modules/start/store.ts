@@ -142,8 +142,8 @@ export const start = {
             context: ActionContext<StartState, RootState>,
             payload: { folder: Folder; folderId: number },
         ): Promise<void> {
-            const path = payload.folderId ? "folders/" + payload.folderId + "/folders" : "folders";
-            const res = await POST("/api/" + path, JSON.stringify(payload.folder));
+            const path = payload.folderId ? `folders/${payload.folderId}/folders` : "folders";
+            const res = await POST(`/api/${path}`, JSON.stringify(payload.folder));
             if (res.status === 201) {
                 context.commit("addFolder", await res.json());
                 context.commit("sortFolders");
@@ -158,7 +158,7 @@ export const start = {
         ): Promise<void> {
             const res =
                 payload.parentId === undefined
-                    ? await DELETE("/api/folders/" + context.getters.parent.id + "/diagrams/" + payload.id)
+                    ? await DELETE(`/api/folders/${context.getters.parent.id}/diagrams/${payload.id}`)
                     : await PUT(`/api/folders/${payload.parentId}/diagrams/${payload.id}`, "");
 
             if (res.status === 201) context.commit("moveDiagram", payload.id);
@@ -172,7 +172,7 @@ export const start = {
         ): Promise<void> {
             const res =
                 payload.parentId === undefined
-                    ? await DELETE("/api/folders/" + context.state.parent.id + "/folders/" + payload.id)
+                    ? await DELETE(`/api/folders/${context.state.parent.id}/folders/${payload.id}`)
                     : await PUT(`/api/folders/${payload.parentId}/folders/${payload.id}`, "");
 
             if (res.status === 201) context.commit("moveFolder", payload.id);
@@ -181,7 +181,7 @@ export const start = {
          * Delete a diagram
          */
         async deleteDiagram(context: ActionContext<StartState, RootState>, diagram: Diagram): Promise<void> {
-            const res = await DELETE("/api/diagrams/" + diagram.id);
+            const res = await DELETE(`/api/diagrams/${diagram.id}`);
             if (res.status === 200) {
                 context.commit("deleteDiagram", diagram);
                 context.commit("sortDiagrams");
@@ -191,7 +191,7 @@ export const start = {
          * Delete a folder
          */
         async deleteFolder(context: ActionContext<StartState, RootState>, folder: Folder): Promise<void> {
-            const res = await DELETE("/api/folders/" + folder.id);
+            const res = await DELETE(`/api/folders/${folder.id}`);
             if (res.status === 200) {
                 context.commit("deleteFolder", folder);
                 context.commit("sortFolders");
@@ -201,7 +201,7 @@ export const start = {
          * Change the name of a diagram
          */
         async editDiagram(context: ActionContext<StartState, RootState>, diagram: Diagram): Promise<void> {
-            const res = await PUT("/api/diagrams/" + diagram.id, JSON.stringify(diagram));
+            const res = await PUT(`/api/diagrams/${diagram.id}`, JSON.stringify(diagram));
             if (res.status === 200) {
                 context.commit("editDiagram", diagram);
                 context.commit("sortDiagrams");
@@ -211,7 +211,7 @@ export const start = {
          * Change the name of a folder
          */
         async editFolder(context: ActionContext<StartState, RootState>, folder: Folder): Promise<void> {
-            const res = await PUT("/api/folders/" + folder.id, JSON.stringify(folder));
+            const res = await PUT(`/api/folders/${folder.id}`, JSON.stringify(folder));
             if (res.status === 200) {
                 context.commit("editFolder", folder);
                 context.commit("sortFolders");

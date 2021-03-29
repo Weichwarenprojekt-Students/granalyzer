@@ -9,11 +9,8 @@ export class Diagram {
 
     /**
      * Copy a diagram
-     *
-     * @param diagram The diagram to be copied
-     * @return The copy
      */
-    public static copy(diagram: Diagram): Diagram {
-        return new Diagram(diagram.name, diagram.id);
+    public copy(): Diagram {
+        return new Diagram(this.name, this.id);
     }
 }

@@ -1,8 +1,8 @@
 <template>
     <div :class="['sidebar', sidebarMinimized ? 'sidebar-collapsed' : '']">
         <!-- The different logo types -->
-        <img v-show="!sidebarMinimized" class="logo" src="../assets/img/logo.svg" alt="GranalyzerLogo" />
-        <img v-show="sidebarMinimized" class="logo" src="../assets/img/logo-minimized.svg" alt="GranalyzerLogo" />
+        <img v-show="!sidebarMinimized" class="logo" src="~@/assets/img/logo.svg" alt="GranalyzerLogo" />
+        <img v-show="sidebarMinimized" class="logo" src="~@/assets/img/logo-minimized.svg" alt="GranalyzerLogo" />
 
         <!-- The links -->
         <nav>
@@ -78,7 +78,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../styles/global.less";
+@import "~@/styles/global.less";
 
 @padding: 16px;
 @icon_size: 28px;

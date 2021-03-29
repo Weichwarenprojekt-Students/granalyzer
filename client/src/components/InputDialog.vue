@@ -44,7 +44,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../styles/global";
+@import "~@/styles/global";
 
 .mid-section {
     position: relative;

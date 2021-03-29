@@ -4,7 +4,7 @@
         @cancel="dialogAddEmpty = false"
         :show="dialogAddEmpty"
         :image-src="require('@/assets/img/icons.svg') + '#circle-plus'"
-        title="Add Diagram"
+        :title="$t('start.diagrams.addDiagram')"
     ></InputDialog>
     <div class="creation-section">
         <h2>{{ $t("start.newDiagram.title") }}</h2>
@@ -73,7 +73,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../../../styles/global";
+@import "~@/styles/global";
 
 .creation-section {
     background: @light_grey;
