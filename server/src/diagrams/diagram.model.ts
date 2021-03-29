@@ -1,9 +1,27 @@
+import { ApiProperty } from "@nestjs/swagger";
+
 export class Diagram {
-    /**
-     * Diagram Model
-     *
-     * @param id Identifier
-     * @param name Name of the specific diagram
-     */
-    constructor(public id: number, public name: string) {}
+    @ApiProperty({
+        required: true,
+        type: "number",
+        name: "id",
+        description: "The id of the diagram",
+    })
+    id: number;
+
+    @ApiProperty({
+        required: true,
+        type: "string",
+        name: "name",
+        description: "The name of the diagram",
+    })
+    name: string;
+
+    @ApiProperty({
+        required: false,
+        type: "number",
+        name: "parentId",
+        description: "The id of the parent folder",
+    })
+    parentId?: number;
 }

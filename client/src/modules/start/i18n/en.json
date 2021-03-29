@@ -1,3 +1,38 @@
 {
-  "title": "This is the start!"
+  "title": "This is the start!",
+  "newDiagram": {
+    "title": "New Diagram",
+    "blank": {
+      "title": "Empty Diagram",
+      "description": "Start a diagram from scratch"
+    },
+    "node": {
+      "title": "From Node",
+      "description": "Auto-generate diagram from a certain node"
+    },
+    "empty": {
+      "title": "Name is empty",
+      "description": "Please specify a name!"
+    }
+  },
+  "diagrams": {
+    "title": "Your Diagrams",
+    "addFolder": "Add folder",
+    "addDiagram": "Add diagram",
+    "renameItem": "Rename {item}",
+    "deleteItem": {
+      "title": "Delete {item}",
+      "description": "Are you sure you want to delete the selected item?"
+    },
+    "noSelection": {
+      "title": "No item selected",
+      "description": "You have to select an item to edit it!"
+    }
+  },
+  "newFolder": {
+    "empty": {
+      "title": "Name is empty",
+      "description": "Please specify a name!"
+    }
+  }
 }

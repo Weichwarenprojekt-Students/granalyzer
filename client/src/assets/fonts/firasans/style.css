@@ -1,0 +1,30 @@
+/**
+ * Load the font
+ */
+@font-face {
+    font-family: "Fira Sans";
+    font-style: normal;
+    font-weight: 300;
+    src: url("FiraSans-Light.ttf");
+}
+
+@font-face {
+    font-family: "Fira Sans";
+    font-style: normal;
+    font-weight: 400;
+    src: url("FiraSans-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Fira Sans";
+    font-style: normal;
+    font-weight: 500;
+    src: url("FiraSans-Medium.ttf");
+}
+
+@font-face {
+    font-family: "Fira Sans";
+    font-style: normal;
+    font-weight: 700;
+    src: url("FiraSans-Bold.ttf");
+}
