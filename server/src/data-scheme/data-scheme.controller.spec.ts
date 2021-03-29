@@ -166,7 +166,7 @@ describe("DataSchemeController", () => {
 
     describe("getAllLabels", () => {
         it("should return all Labels", async () => {
-            expect(await controller.getAllLabels()).toEqual([movieLabel, personLabel]);
+            expect((await controller.getAllLabels()).sort()).toEqual([movieLabel, personLabel].sort());
         });
     });
 
@@ -188,7 +188,7 @@ describe("DataSchemeController", () => {
 
     describe("getAllRelations", () => {
         it("should return all relations", async () => {
-            expect(await controller.getAllRelations()).toEqual([actedInRelation, followsRelation]);
+            expect((await controller.getAllRelations()).sort()).toEqual([actedInRelation, followsRelation].sort());
         });
     });
 
