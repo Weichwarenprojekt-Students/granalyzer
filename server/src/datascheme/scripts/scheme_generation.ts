@@ -11,7 +11,7 @@ import { Driver } from "neo4j-driver";
  *
  * @param fn The function to execute
  */
-async function doWithDriver(fn: (driver: Driver) => void) {
+export async function doWithDriver(fn: (driver: Driver) => void) {
     // Construct instance of this saver
     const driver = getDriver();
 
