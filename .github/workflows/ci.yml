@@ -33,4 +33,4 @@ jobs:
         working-directory: './server'
         run: |
           npm i
-          npm run test:docker
+          npm run test:docker:linux
