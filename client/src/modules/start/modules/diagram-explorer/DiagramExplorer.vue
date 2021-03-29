@@ -1,4 +1,5 @@
 <template>
+    <!-- The dialog for adding a folder -->
     <InputDialog
         @input-confirm="addEmptyFolder"
         @cancel="addFolderDialog = false"
@@ -6,6 +7,8 @@
         :image-src="require('@/assets/img/circle-plus.svg')"
         :title="$t('start.diagrams.addFolder')"
     ></InputDialog>
+
+    <!-- The dialog for renaming a folder -->
     <InputDialog
         @input-confirm="renameItem"
         @cancel="renameItemDialog = false"
@@ -13,6 +16,8 @@
         :image-src="require('@/assets/img/editor-thin.svg')"
         :title="$t('start.diagrams.renameItem', { item: selectedItemName })"
     ></InputDialog>
+
+    <!-- The dialog for adding a folder -->
     <ConfirmDialog
         @confirm="deleteItem"
         @cancel="deleteItemDialog = false"
@@ -20,13 +25,14 @@
         :title="$t('start.diagrams.deleteItem.title', { item: selectedItemName })"
         :description="$t('start.diagrams.deleteItem.description')"
     ></ConfirmDialog>
-    <div id="explorer-header">
-        <h2 id="title">{{ $t("start.diagrams.title") }}</h2>
-        <h2 v-show="$store.state.start.parent.name" id="title-minus">&#8212;</h2>
-        <h2 v-show="$store.state.start.parent.name" id="title-folder">{{ $store.state.start.parent.name }}</h2>
+
+    <!-- The explorer toolbar -->
+    <div class="explorer-header">
+        <h2 class="title">{{ $t("start.diagrams.title") }}</h2>
+        <h2 v-show="$store.state.start.parent.name" class="title-minus">&#8212;</h2>
+        <h2 v-show="$store.state.start.parent.name" class="title-folder">{{ $store.state.start.parent.name }}</h2>
         <img
-            id="add-folder"
-            class="explorer-button"
+            class="add-folder explorer-button"
             src="../../../../assets/img/add-folder.svg"
             alt="Add Folder"
             @click="addFolderDialog = true"
@@ -46,9 +52,11 @@
             @click="deleteItemDialog = true"
         />
     </div>
-    <ProgressBar mode="indeterminate" id="loading" v-show="$store.state.start.loading" />
-    <div v-show="!$store.state.start.loading" id="explorer-content">
-        <!-- The back item-->
+
+    <!-- The explorer content -->
+    <ProgressBar mode="indeterminate" class="loading" v-show="$store.state.start.loading" />
+    <div v-show="!$store.state.start.loading" class="explorer-content">
+        <!-- The ".." folder -->
         <ExplorerItem
             v-show="$route.params.id !== ''"
             @dblclick="doubleClickedBack"
@@ -62,6 +70,7 @@
             @folder-drop="moveFolder"
             @diagram-drop="moveDiagram"
         />
+
         <!-- The folders -->
         <ExplorerItem
             v-for="folder in $store.state.start.folders"
@@ -78,6 +87,7 @@
             @folder-drop="moveFolder"
             @diagram-drop="moveDiagram"
         />
+
         <!-- The diagrams -->
         <ExplorerItem
             v-for="diagram in $store.state.start.diagrams"
@@ -112,18 +122,22 @@ export default defineComponent({
     },
     data() {
         return {
+            // True if the add folder dialog should be shown
             addFolderDialog: false,
+            // True if the rename dialog should be shown
             renameItemDialog: false,
+            // True if the delete dialog should be shown
             deleteItemDialog: false,
+            // The selected folder (empty if no folder is selected)
             selectedFolder: {} as Folder,
+            // The selected diagram (empty if no diagram is selected)
             selectedDiagram: {} as Diagram,
         };
     },
-    /**
-     * Load the folders
-     */
     created() {
+        // Load the items
         this.loadItems();
+        // Handle shortcuts
         window.addEventListener("keyup", this.onKeyUp);
     },
     unmounted() {
@@ -131,6 +145,7 @@ export default defineComponent({
     },
     watch: {
         $route(to) {
+            // Check if the items have to be reloaded
             if (to.path.startsWith(routeNames.start)) this.loadItems();
         },
     },
@@ -147,6 +162,9 @@ export default defineComponent({
         selectedItemName(): string {
             const folders = this.$store.state.start.folders;
             const diagrams = this.$store.state.start.diagrams;
+
+            // Search for the name (name has to be searched because the name
+            // of the selected folder can be outdated due to a rename event)
             for (let i = 0; i < folders.length; i++)
                 if (folders[i].id == this.selectedFolder.id) return folders[i].name;
             for (let i = 0; i < diagrams.length; i++)
@@ -299,20 +317,20 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "../../../../styles/global";
 
-#loading {
+.loading {
     margin: 16px 64px;
     overflow: hidden;
 }
 
-#add-folder {
+.add-folder {
     margin-left: 32px;
 }
 
-#title-minus {
+.title-minus {
     margin: 0 12px;
 }
 
-#title-folder {
+.title-folder {
     font-style: italic;
 }
 
@@ -327,14 +345,14 @@ export default defineComponent({
     }
 }
 
-#explorer-header {
+.explorer-header {
     display: flex;
     margin-left: 64px;
 }
 
-#explorer-content {
+.explorer-content {
     display: flex;
     flex-wrap: wrap;
-    padding: 0 48px;
+    padding: 0 48px 64px 48px;
 }
 </style>

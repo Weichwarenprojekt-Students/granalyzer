@@ -24,6 +24,7 @@ export default defineComponent({
 .main-content {
     height: 100vh;
     transition: margin 400ms;
+    overflow: auto;
 }
 
 .main-content-expanded {

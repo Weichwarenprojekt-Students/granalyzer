@@ -1,6 +1,7 @@
 <template>
-    <BaseDialog :input="true" :show="show" @confirm="$emit('input-confirm', name)">
-        <div id="mid-section">
+    <!-- Expand the base dialog -->
+    <BaseDialog :show="show" @confirm="$emit('input-confirm', name)">
+        <div class="mid-section">
             <img :src="imageSrc" alt="Add" />
             <div class="input-wrap">
                 <label for="name-input">{{ title }}</label>
@@ -20,16 +21,21 @@ export default defineComponent({
         BaseDialog,
     },
     props: {
-        title: String,
+        // True if the dialog should be shown
         show: Boolean,
+        // The title of the dialog
+        title: String,
+        // The image source
         imageSrc: String,
     },
     data() {
         return {
+            // The value of the input field
             name: "",
         };
     },
     updated() {
+        // Auto focus the input field
         this.$nextTick().then(() => document.getElementById("name-input")?.focus());
     },
 });
@@ -38,7 +44,7 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "../styles/global";
 
-#mid-section {
+.mid-section {
     position: relative;
     padding: 32px;
     border-top: 8px solid @primary_color;

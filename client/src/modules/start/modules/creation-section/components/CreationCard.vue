@@ -1,5 +1,5 @@
 <template>
-    <div id="creation-card">
+    <div class="creation-card">
         <div class="card-icon" @click="$emit('card-click')">
             <img :src="imagePath" :alt="title" />
         </div>
@@ -14,8 +14,11 @@ import { defineComponent } from "vue";
 export default defineComponent({
     name: "CreationCard",
     props: {
+        // The shown image
         imagePath: String,
+        // The title of the card
         title: String,
+        // The description of the card
         description: String,
     },
 });
@@ -24,7 +27,7 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "../../../../../styles/global";
 
-#creation-card {
+.creation-card {
     margin: 24px 32px 0 0;
     width: 280px;
     min-width: 280px;

@@ -6,7 +6,7 @@
         :image-src="require('@/assets/img/circle-plus.svg')"
         title="Add Diagram"
     ></InputDialog>
-    <div id="creation-section">
+    <div class="creation-section">
         <h2>{{ $t("start.newDiagram.title") }}</h2>
         <div class="cards">
             <CreationCard
@@ -40,6 +40,7 @@ export default defineComponent({
     },
     data() {
         return {
+            // True if the dialog should be shown
             dialogAddEmpty: false,
         };
     },
@@ -74,7 +75,7 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "../../../../styles/global";
 
-#creation-section {
+.creation-section {
     background: @light_grey;
     width: 100%;
     padding: 32px 64px;

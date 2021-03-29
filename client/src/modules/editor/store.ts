@@ -3,6 +3,9 @@ import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 
 export class EditorState {
+    /**
+     * The currently edited diagram
+     */
     public diagram = {} as Diagram;
 }
 

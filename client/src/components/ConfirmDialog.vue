@@ -1,6 +1,7 @@
 <template>
-    <BaseDialog :input="false" :show="show">
-        <div id="mid-section">
+    <!-- Expand the base dialog -->
+    <BaseDialog :show="show">
+        <div class="mid-section">
             <img src="@/assets/img/warning.svg" alt="Warning" />
             <div>
                 <h1>{{ title }}</h1>
@@ -20,8 +21,11 @@ export default defineComponent({
         BaseDialog,
     },
     props: {
+        // True if the dialog should be shown
         show: Boolean,
+        // The title of the confirm dialog
         title: String,
+        // The description
         description: String,
     },
 });
@@ -30,7 +34,7 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "../styles/global";
 
-#mid-section {
+.mid-section {
     position: relative;
     padding: 32px;
     border-top: 8px solid @primary_color;

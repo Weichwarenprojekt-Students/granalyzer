@@ -1,7 +1,10 @@
 <template>
     <div :class="['sidebar', sidebarMinimized ? 'sidebar-collapsed' : '']">
+        <!-- The different logo types -->
         <img v-show="!sidebarMinimized" class="logo" src="../assets/img/logo.svg" alt="GranalyzerLogo" />
         <img v-show="sidebarMinimized" class="logo" src="../assets/img/logo-minimized.svg" alt="GranalyzerLogo" />
+
+        <!-- The links -->
         <nav>
             <router-link
                 v-for="item in items"
@@ -25,33 +28,48 @@ export default defineComponent({
     name: "Sidebar",
     data() {
         return {
+            // The link items
             items: ["start", "editor", "inventory"],
         };
     },
     watch: {
+        /**
+         * Check for route updates (to trigger sidebar updates)
+         */
         $route() {
             this.updateSidebar();
         },
     },
     created() {
+        // Add the resize listener
         window.addEventListener("resize", this.updateSidebar);
         this.updateSidebar();
     },
     unmounted() {
+        // Remove the resize listener
         window.removeEventListener("resize", this.updateSidebar);
     },
     computed: {
+        /**
+         * Forward the route names of the utility class
+         */
         routes() {
             return routeNames;
         },
+        /**
+         * Forward the sidebar state
+         */
         sidebarMinimized() {
             return this.$store.state.sidebarMinimized;
         },
     },
     methods: {
+        /**
+         * Update the sidebar state
+         */
         updateSidebar(): void {
             const expand = this.$route.path.startsWith(routeNames.start) && window.innerWidth >= 1080;
-            this.$store.dispatch("minimizeSidebar", !expand);
+            this.$store.commit("minimizeSidebar", !expand);
         },
     },
 });
