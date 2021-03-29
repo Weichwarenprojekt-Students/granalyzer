@@ -3,7 +3,7 @@
         @input-confirm="addEmptyDiagram"
         @cancel="dialogAddEmpty = false"
         :show="dialogAddEmpty"
-        :image-src="require('@/assets/img/circle-plus.svg')"
+        :image-src="require('@/assets/img/icons.svg') + '#circle-plus'"
         title="Add Diagram"
     ></InputDialog>
     <div class="creation-section">
@@ -12,13 +12,13 @@
             <CreationCard
                 :title="$t('start.newDiagram.blank.title')"
                 :description="$t('start.newDiagram.blank.description')"
-                :imagePath="require('@/assets/img/plus-orange.svg')"
+                :icon-id="'plus-orange'"
                 @card-click="dialogAddEmpty = true"
             ></CreationCard>
             <CreationCard
                 :title="$t('start.newDiagram.node.title')"
                 :description="$t('start.newDiagram.node.description')"
-                :imagePath="require('@/assets/img/diagram.png')"
+                :icon-id="'from-diagram'"
                 @card-click="dialogAddEmpty = true"
             ></CreationCard>
         </div>

@@ -4,7 +4,7 @@
         @input-confirm="addEmptyFolder"
         @cancel="addFolderDialog = false"
         :show="addFolderDialog"
-        :image-src="require('@/assets/img/circle-plus.svg')"
+        :image-src="`${require('@/assets/img/icons.svg')}#circle-plus`"
         :title="$t('start.diagrams.addFolder')"
     ></InputDialog>
 
@@ -13,7 +13,7 @@
         @input-confirm="renameItem"
         @cancel="renameItemDialog = false"
         :show="renameItemDialog"
-        :image-src="require('@/assets/img/editor-thin.svg')"
+        :image-src="require('@/assets/img/icons.svg') + '#editor-thin'"
         :title="$t('start.diagrams.renameItem', { item: selectedItemName })"
     ></InputDialog>
 
@@ -31,26 +31,15 @@
         <h2 class="title">{{ $t("start.diagrams.title") }}</h2>
         <h2 v-show="$store.state.start.parent.name" class="title-minus">&#8212;</h2>
         <h2 v-show="$store.state.start.parent.name" class="title-folder">{{ $store.state.start.parent.name }}</h2>
-        <img
-            class="add-folder explorer-button"
-            src="../../../../assets/img/add-folder.svg"
-            alt="Add Folder"
-            @click="addFolderDialog = true"
-        />
-        <img
-            v-show="isItemSelected"
-            class="explorer-button"
-            src="../../../../assets/img/editor.svg"
-            alt="Editor"
-            @click="renameItemDialog = true"
-        />
-        <img
-            v-show="isItemSelected"
-            class="explorer-button"
-            src="../../../../assets/img/trash.svg"
-            alt="Delete"
-            @click="deleteItemDialog = true"
-        />
+        <svg class="add-folder explorer-button" @click="addFolderDialog = true">
+            <use xlink:href="../../../../assets/img/icons.svg#add-folder"></use>
+        </svg>
+        <svg v-show="isItemSelected" class="explorer-button" @click="renameItemDialog = true">
+            <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
+        </svg>
+        <svg v-show="isItemSelected" class="explorer-button" @click="deleteItemDialog = true">
+            <use :xlink:href="`${require('@/assets/img/icons.svg')}#trash`"></use>
+        </svg>
     </div>
 
     <!-- The explorer content -->
@@ -62,7 +51,7 @@
             @dblclick="doubleClickedBack"
             :is-selected="false"
             title=".."
-            :image-src="require('@/assets/img/folder-light.svg')"
+            :icon-id="'folder-light'"
             :is-folder="true"
             :itemId="$store.state.start.parent.parentId"
             draggable="false"
@@ -77,7 +66,7 @@
             :key="folder.id"
             @mousedown="selectFolder(folder)"
             v-on:dblclick="doubleClickedFolder"
-            :image-src="require('@/assets/img/folder.svg')"
+            :icon-id="'folder'"
             :title="folder.name"
             :is-selected="folder.id === selectedFolder.id"
             :is-folder="true"
@@ -94,7 +83,7 @@
             :key="diagram.id"
             @mousedown="selectDiagram(diagram)"
             v-on:dblclick="doubleClickedDiagram"
-            :image-src="require('@/assets/img/diagram.svg')"
+            :icon-id="'diagram'"
             :title="diagram.name"
             :is-selected="diagram.id === selectedDiagram.id"
             :is-folder="false"
@@ -339,6 +328,9 @@ export default defineComponent({
     margin-left: 16px;
     border-bottom: 2px solid transparent;
     padding: 0 2px 2px 2px;
+    height: 24px;
+    width: 24px;
+    fill: #333;
 
     &:hover {
         border-bottom: 2px solid @primary_color;

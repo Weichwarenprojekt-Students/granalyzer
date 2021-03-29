@@ -8,7 +8,9 @@
         @dragleave="dragLeave"
         @drop="drop"
     >
-        <img :src="imageSrc" alt="Explorer Item" draggable="false" />
+        <svg draggable="false">
+            <use :xlink:href="`${require('@/assets/img/icons.svg')}#${iconId}`"></use>
+        </svg>
         <p>{{ title }}</p>
     </div>
 </template>
@@ -20,7 +22,7 @@ import { ItemDragEvent } from "../models/ItemDragEvent";
 export default defineComponent({
     name: "ExplorerItem",
     props: {
-        imageSrc: String,
+        iconId: String,
         title: String,
         isSelected: Boolean,
         isFolder: Boolean,
@@ -122,7 +124,7 @@ export default defineComponent({
     transition-duration: 400ms;
 
     p,
-    img {
+    svg {
         display: none;
     }
 }
@@ -149,8 +151,10 @@ export default defineComponent({
     overflow: hidden;
     width: 128px;
 
-    img {
-        width: 100%;
+    svg {
+        fill: #333;
+        width: 96px;
+        height: 96px;
         pointer-events: none;
     }
 

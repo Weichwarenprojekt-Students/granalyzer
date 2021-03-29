@@ -1,7 +1,9 @@
 <template>
     <div class="creation-card">
         <div class="card-icon" @click="$emit('card-click')">
-            <img :src="imagePath" :alt="title" />
+            <svg>
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#${iconId}`"></use>
+            </svg>
         </div>
         <h3 class="title">{{ title }}</h3>
         <p>{{ description }}</p>
@@ -15,7 +17,7 @@ export default defineComponent({
     name: "CreationCard",
     props: {
         // The shown image
-        imagePath: String,
+        iconId: String,
         // The title of the card
         title: String,
         // The description of the card
@@ -42,7 +44,7 @@ export default defineComponent({
         margin-bottom: 16px;
         cursor: pointer;
 
-        img {
+        svg {
             height: 100px;
         }
 

@@ -13,7 +13,9 @@
                 :class="{ isSelected: $route.path.startsWith(routes[item]) }"
                 v-tooltip="sidebarMinimized ? $t('global.' + item) : ''"
             >
-                <img class="icon" :src="require('@/assets/img/' + item + '.svg')" :alt="item" />
+                <svg class="icon">
+                    <use :xlink:href="require('@/assets/img/icons.svg') + '#' + item"></use>
+                </svg>
                 <p v-show="!sidebarMinimized">{{ $t("global." + item) }}</p>
             </router-link>
         </nav>
@@ -102,8 +104,10 @@ export default defineComponent({
 }
 
 .icon {
+    width: @icon_size;
     margin: @padding;
     height: @icon_size;
+    color: #333;
 }
 
 nav {

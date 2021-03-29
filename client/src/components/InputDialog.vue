@@ -2,7 +2,9 @@
     <!-- Expand the base dialog -->
     <BaseDialog :show="show" @confirm="$emit('input-confirm', name)">
         <div class="mid-section">
-            <img :src="imageSrc" alt="Add" />
+            <svg>
+                <use :xlink:href="imageSrc"></use>
+            </svg>
             <div class="input-wrap">
                 <label for="name-input">{{ title }}</label>
                 <input tabindex="0" class="input-large" v-model="name" type="text" id="name-input" placeholder="Name" />
@@ -52,8 +54,9 @@ export default defineComponent({
     align-items: center;
     width: 500px;
 
-    img {
+    svg {
         height: 96px;
+        width: 96px;
         margin-right: 32px;
     }
 

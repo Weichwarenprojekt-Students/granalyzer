@@ -2,7 +2,9 @@
     <!-- Expand the base dialog -->
     <BaseDialog :show="show">
         <div class="mid-section">
-            <img src="@/assets/img/warning.svg" alt="Warning" />
+            <svg>
+                <use xlink:href="@/assets/img/icons.svg#warning"></use>
+            </svg>
             <div>
                 <h1>{{ title }}</h1>
                 <h3>{{ description }}</h3>
