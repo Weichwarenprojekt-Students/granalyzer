@@ -1,5 +1,5 @@
 <template>
-    <div :class="['sidebar', !sidebarMinimized ? '' : 'sidebar-collapsed']">
+    <div :class="['sidebar', sidebarMinimized ? 'sidebar-collapsed' : '']">
         <img v-show="!sidebarMinimized" class="logo" src="../assets/img/logo.svg" alt="GranalyzerLogo" />
         <img v-show="sidebarMinimized" class="logo" src="../assets/img/logo-minimized.svg" alt="GranalyzerLogo" />
         <nav>
@@ -28,12 +28,30 @@ export default defineComponent({
             items: ["start", "editor", "inventory"],
         };
     },
-    computed: {
-        sidebarMinimized(): boolean {
-            return this.$store.getters.sidebarMinimized || !this.$route.path.startsWith(routeNames.start);
+    watch: {
+        $route() {
+            this.updateSidebar();
         },
+    },
+    created() {
+        window.addEventListener("resize", this.updateSidebar);
+        this.updateSidebar();
+    },
+    unmounted() {
+        window.removeEventListener("resize", this.updateSidebar);
+    },
+    computed: {
         routes() {
             return routeNames;
+        },
+        sidebarMinimized() {
+            return this.$store.state.sidebarMinimized;
+        },
+    },
+    methods: {
+        updateSidebar(): void {
+            const expand = this.$route.path.startsWith(routeNames.start) && window.innerWidth >= 1080;
+            this.$store.dispatch("minimizeSidebar", !expand);
         },
     },
 });

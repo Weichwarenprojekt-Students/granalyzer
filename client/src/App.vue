@@ -1,6 +1,8 @@
 <template>
     <Sidebar />
-    <router-view />
+    <div :class="['main-content', $store.state.sidebarMinimized ? 'main-content-minimized' : 'main-content-expanded']">
+        <router-view />
+    </div>
     <Toast />
 </template>
 
@@ -13,21 +15,22 @@ export default defineComponent({
     components: {
         Sidebar,
     },
-    created() {
-        window.addEventListener("resize", this.windowResized);
-        this.windowResized();
-    },
-    unmounted() {
-        window.removeEventListener("resize", this.windowResized);
-    },
-    methods: {
-        windowResized(): void {
-            this.$store.dispatch("minimizeSidebar", window.innerWidth < 1080);
-        },
-    },
 });
 </script>
 
 <style lang="less">
 @import "styles/styles.less";
+
+.main-content {
+    height: 100vh;
+    transition: margin 400ms;
+}
+
+.main-content-expanded {
+    margin-left: @navbar_width;
+}
+
+.main-content-minimized {
+    margin-left: @navbar_width_collapsed;
+}
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <div id="content">
+    <div class="content">
         <h1>{{ title }}</h1>
     </div>
 </template>
@@ -21,12 +21,12 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "../../styles/global.less";
+@import "../../styles/styles.less";
 
-#content {
-    padding: 32px;
-    margin-left: @navbar_width_collapsed;
-    height: 100vh;
+.content {
+    width: 100%;
+    height: 100%;
     background: @light_grey;
+    padding: 32px;
 }
 </style>

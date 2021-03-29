@@ -27,11 +27,6 @@ export default createStore({
             context.commit("minimizeSidebar", value);
         },
     },
-    getters: {
-        sidebarMinimized(state): boolean {
-            return state.sidebarMinimized;
-        },
-    },
     modules: {
         start,
         editor,

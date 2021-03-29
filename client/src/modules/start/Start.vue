@@ -1,8 +1,6 @@
 <template>
-    <div :class="['content', sidebarMinimized ? 'sidebar-collapsed' : '']">
-        <CreationSection></CreationSection>
-        <DiagramExplorer></DiagramExplorer>
-    </div>
+    <CreationSection></CreationSection>
+    <DiagramExplorer></DiagramExplorer>
 </template>
 
 <script lang="ts">
@@ -16,28 +14,5 @@ export default defineComponent({
         CreationSection,
         DiagramExplorer,
     },
-    methods: {
-        setLang(lang: string) {
-            this.$store.commit("setLocale", { lang, i18n: this.$i18n });
-        },
-    },
-    computed: {
-        sidebarMinimized(): boolean {
-            return this.$store.getters.sidebarMinimized;
-        },
-    },
 });
 </script>
-
-<style lang="less" scoped>
-@import "../../styles/global.less";
-
-.content {
-    margin-left: @navbar_width;
-    height: 100vh;
-}
-
-.sidebar-collapsed {
-    margin-left: @navbar_width_collapsed;
-}
-</style>
