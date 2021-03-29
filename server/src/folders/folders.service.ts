@@ -111,7 +111,7 @@ export class FoldersService {
 
         // language=Cypher
         const cypher =
-            "MATCH (f:Folder) WHERE id(f) = $id SET f.name = $name OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder) RETURN f AS folder, id(p) AS parentId";
+            "MATCH (f:Folder) WHERE id(f) = $id OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder) SET f.name = $name RETURN f AS folder, id(p) AS parentId";
         const params = {
             id: this.neo4jService.int(id),
             name,

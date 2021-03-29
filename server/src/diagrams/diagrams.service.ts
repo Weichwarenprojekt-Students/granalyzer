@@ -96,7 +96,7 @@ export class DiagramsService {
 
         // language=Cypher
         const cypher =
-            "MATCH (d:Diagram) WHERE id(d) = $id SET d = {name: $name} OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder) RETURN d AS diagram, id(f) AS parentId";
+            "MATCH (d:Diagram) WHERE id(d) = $id OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder) SET d = {name: $name} RETURN d AS diagram, id(f) AS parentId";
         const params = {
             id: neo4j.int(id),
             name,
