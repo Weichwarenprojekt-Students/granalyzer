@@ -5,6 +5,7 @@ import { Attribute } from "./models/attributes";
 import { Label } from "./models/label";
 import { RelationType } from "./models/relationType";
 import { Scheme } from "./models/scheme";
+import { Connection } from "./models/connection";
 
 @Injectable()
 export class DataSchemeService {
@@ -88,7 +89,6 @@ export class DataSchemeService {
      * @private
      */
     private static parseLabel(record: Record<any, any>) {
-        console.log(record);
         const l = {
             ...record.get("dataScheme").properties,
             id: record.get("dataScheme").identity.toNumber(),
@@ -109,6 +109,8 @@ export class DataSchemeService {
             id: record.get("dataScheme").identity.toNumber(),
         };
         l.attributes = JSON.parse(l.attributes, Attribute.reviver);
+        l.connections = JSON.parse(l.connections).map((conn) => Object.assign(new Connection(), conn));
+
         const relationType: RelationType = Object.assign(new RelationType(), l);
         return relationType;
     }

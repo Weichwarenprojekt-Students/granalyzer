@@ -11,6 +11,7 @@ import { Label } from "./models/label";
 import { ColorAttribute, NumberAttribute, StringAttribute } from "./models/attributes";
 import { RelationType } from "./models/relationType";
 import { Connection } from "./models/connection";
+import { Scheme } from "./models/scheme";
 
 describe("DataSchemeController", () => {
     let module: TestingModule;
@@ -18,6 +19,11 @@ describe("DataSchemeController", () => {
     let service: DataSchemeService;
     let neo4jService: Neo4jService;
     let controller: DataSchemeController;
+
+    let movieLabel: Label;
+    let personLabel: Label;
+    let actedInRelation: RelationType;
+    let followsRelation: RelationType;
 
     let movieLabelId: number;
     let personLabelId: number;
@@ -61,66 +67,74 @@ describe("DataSchemeController", () => {
 
     beforeEach(async () => {
         function writeLabel(l): Promise<number> {
-            // language=cypher
-            return neo4jService
-                .write(
-                    `
-                      MERGE (l:LabelScheme {name: $labelName})
-                      SET l.color = $color, l.attributes = $attribs
-                      RETURN l AS label`,
-                    {
-                        labelName: l.name,
-                        color: l.color,
-                        attribs: JSON.stringify(l.attributes),
-                    },
-                    process.env.DB_TOOL,
-                )
-                .then((res) => res.records[0].get("label").identity.toNumber());
+            return (
+                neo4jService
+                    // language=Cypher
+                    .write(
+                        `
+                          MERGE (l:LabelScheme {name: $labelName})
+                          SET l.color = $color, l.attributes = $attribs
+                          RETURN l AS label`,
+                        {
+                            labelName: l.name,
+                            color: l.color,
+                            attribs: JSON.stringify(l.attributes),
+                        },
+                        process.env.DB_TOOL,
+                    )
+                    .then((res) => res.records[0].get("label").identity.toNumber())
+            );
         }
 
         function writeRelation(r): Promise<number> {
-            // language=cypher
-            return neo4jService
-                .write(
-                    `
-                      MERGE (r:RelationType {name: $labelName})
-                      SET r.attributes = $attribs, r.connections = $connects
-                      RETURN r AS relation`,
-                    {
-                        labelName: r.name,
-                        attribs: JSON.stringify(r.attributes),
-                        connects: JSON.stringify(r.connections),
-                    },
-                    process.env.DB_TOOL,
-                )
-                .then((res) => res.records[0].get("relation").identity.toNumber());
+            return (
+                neo4jService
+                    // language=cypher
+                    .write(
+                        `
+                          MERGE (r:RelationType {name: $labelName})
+                          SET r.attributes = $attribs, r.connections = $connects
+                          RETURN r AS relation`,
+                        {
+                            labelName: r.name,
+                            attribs: JSON.stringify(r.attributes),
+                            connects: JSON.stringify(r.connections),
+                        },
+                        process.env.DB_TOOL,
+                    )
+                    .then((res) => res.records[0].get("relation").identity.toNumber())
+            );
         }
 
-        const movieLabel = new Label("Movie", "#666", [
+        movieLabel = new Label("Movie", "#666", [
             new StringAttribute("title", true, "unknown"),
             new NumberAttribute("released"),
         ]);
 
         movieLabelId = await writeLabel(movieLabel);
+        movieLabel.id = movieLabelId;
 
-        const personLabel = new Label("Person", "#420", [
+        personLabel = new Label("Person", "#420", [
             new StringAttribute("name", true, "Done Default"),
             new ColorAttribute("haircolor"),
         ]);
 
         personLabelId = await writeLabel(personLabel);
+        personLabel.id = personLabelId;
 
-        const actedInRelation = new RelationType(
+        actedInRelation = new RelationType(
             "ACTED_IN",
             [new StringAttribute("role")],
             [new Connection("Person", "Movie")],
         );
 
         actedInRelationId = await writeRelation(actedInRelation);
+        actedInRelation.id = actedInRelationId;
 
-        const followsRelation = new RelationType("FOLLOWS", [], [new Connection("Person", "Person")]);
+        followsRelation = new RelationType("FOLLOWS", [], [new Connection("Person", "Person")]);
 
         followsRelationId = await writeRelation(followsRelation);
+        followsRelation.id = followsRelationId;
     });
 
     afterEach(async () => {
@@ -141,61 +155,44 @@ describe("DataSchemeController", () => {
         expect(controller).toBeDefined();
     });
 
-    // describe("getScheme", () => {
-    //     it("should return the scheme", async () => {
-    //         expect(await controller.getScheme()).toStrictEqual();
-    //     });
-    // });
-    //
-    // describe("getAllLabels", () => {
-    //     it("should return all Labels", async () => {
-    //         jest.spyOn(neo4jService, "read").mockImplementation(() => DataSchemeRepository.mockGetAllLabels());
-    //
-    //         expect(await controller.getAllLabels()).toStrictEqual(DataSchemeRepository.resultGetAllLabels());
-    //     });
-    // });
+    describe("getScheme", () => {
+        it("should return the scheme", async () => {
+            expect(await controller.getScheme()).toEqual(
+                new Scheme([movieLabel, personLabel], [actedInRelation, followsRelation]),
+            );
+        });
+    });
+
+    describe("getAllLabels", () => {
+        it("should return all Labels", async () => {
+            expect(await controller.getAllLabels()).toEqual([movieLabel, personLabel]);
+        });
+    });
 
     describe("getLabel", () => {
-        // it("should return one label", async () => {
-        //     expect(await controller.getLabel(movieLabelId)).toEqual({
-        //         id: movieLabelId,
-        //         name: "Movie",
-        //         color: "#666",
-        //         attributes: [
-        //             {
-        //                 name: "title",
-        //                 mandatory: true,
-        //                 defaultValue: "unknown",
-        //             },
-        //             {
-        //                 name: "released",
-        //             },
-        //         ],
-        //     });
-        // });
+        it("should return one label", async () => {
+            expect(await controller.getLabel(movieLabelId)).toEqual(movieLabel);
+        });
 
         it("should return not found exception", async () => {
             await expect(controller.getLabel(movieLabelId + personLabelId)).rejects.toThrowError(NotFoundException);
         });
     });
 
-    // describe("getAllRelations", () => {
-    //     it("should return all relations", async () => {
-    //         jest.spyOn(neo4jService, "read").mockImplementation(() => DataSchemeRepository.mockGetAllRelations());
-    //
-    //         expect(await controller.getAllRelations()).toStrictEqual(DataSchemeRepository.resultGetAllRelations());
-    //     });
-    // });
-    // describe("getRelation", () => {
-    //     it("should return one relation", async () => {
-    //         jest.spyOn(neo4jService, "read").mockImplementation(() => DataSchemeRepository.mockGetRelation());
-    //
-    //         expect(await controller.getRelation(0)).toStrictEqual(DataSchemeRepository.resultGetRelation());
-    //     });
-    //     it("should return not found exception", async () => {
-    //         jest.spyOn(neo4jService, "read").mockImplementation(() => DataSchemeRepository.mockEmptyResponse());
-    //
-    //         await expect(controller.getRelation(10)).rejects.toThrowError(NotFoundException);
-    //     });
-    // });
+    describe("getAllRelations", () => {
+        it("should return all relations", async () => {
+            expect(await controller.getAllRelations()).toEqual([actedInRelation, followsRelation]);
+        });
+    });
+
+    describe("getRelation", () => {
+        it("should return one relation", async () => {
+            expect(await controller.getRelation(actedInRelationId)).toEqual(actedInRelation);
+        });
+        it("should return not found exception", async () => {
+            await expect(controller.getRelation(actedInRelationId + followsRelationId)).rejects.toThrowError(
+                NotFoundException,
+            );
+        });
+    });
 });

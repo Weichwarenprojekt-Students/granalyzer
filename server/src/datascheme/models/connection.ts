@@ -27,9 +27,9 @@ export class Connection {
      * @param incoming Cardinality of incoming relations
      * @param outgoing Cardinality of outgoing relations
      */
-    constructor(from: string, to: string, incoming?: Cardinality | null, outgoing?: Cardinality | null) {
-        this.from = from;
-        this.to = to;
+    constructor(from?: string, to?: string, incoming?: Cardinality | null, outgoing?: Cardinality | null) {
+        this.from = from || "";
+        this.to = to || "";
         if (incoming) {
             this.incoming = incoming;
         }
