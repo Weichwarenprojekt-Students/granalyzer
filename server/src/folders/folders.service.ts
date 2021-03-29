@@ -89,7 +89,7 @@ export class FoldersService {
 
         // language=Cypher
         const cypher =
-            "MATCH (f:Folder) WHERE id(f) = $id OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder) DETACH DELETE f RETURN f AS folder, id(p) AS parentId";
+            "MATCH (f:Folder)<-[:IS_CHILD*0..]-(c) WHERE id(f) = $id OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder) DETACH DELETE c RETURN f AS folder, id(p) AS parentId";
         const params = {
             id: this.neo4jService.int(id),
         };
@@ -264,7 +264,7 @@ export class FoldersService {
 
         // Append parentId if available
         if (record.keys.indexOf("parentId") > -1) {
-            folder.parentId = record.get("parentId").toNumber();
+            folder.parentId = record.get("parentId")?.toNumber();
         }
 
         return folder;
