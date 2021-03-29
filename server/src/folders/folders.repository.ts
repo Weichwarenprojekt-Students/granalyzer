@@ -14,6 +14,7 @@ export class FoldersRepository {
                         name: "folder 1",
                     },
                 },
+                parentId: neo4j.int(2),
             },
             {
                 folder: {
@@ -34,6 +35,7 @@ export class FoldersRepository {
             {
                 id: 0,
                 name: "folder 1",
+                parentId: 2,
             },
             {
                 id: 1,
@@ -66,13 +68,6 @@ export class FoldersRepository {
             id: 0,
             name: "folder 1",
         };
-    }
-
-    /**
-     * Return an empty response
-     */
-    static mockEmptyResponse() {
-        return TestUtils.mockDbResult([]);
     }
 
     /**
@@ -150,6 +145,294 @@ export class FoldersRepository {
         return {
             id: 0,
             name: "deleted folder",
+        };
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockGetFoldersInFolder() {
+        return TestUtils.mockDbResult([
+            {
+                folder: {
+                    identity: neo4j.int(2),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "inner folder",
+                    },
+                },
+            },
+            {
+                folder: {
+                    identity: neo4j.int(3),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "inner folder",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from getFoldersInFolder
+     */
+    static resultGetFoldersInFolder() {
+        return [
+            {
+                id: 2,
+                name: "inner folder",
+            },
+            {
+                id: 3,
+                name: "inner folder",
+            },
+        ];
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockGetFolderInFolder() {
+        return TestUtils.mockDbResult([
+            {
+                folder: {
+                    identity: neo4j.int(2),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "child folder",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from getFolderInFolder
+     */
+    static resultGetFolderInFolder() {
+        return {
+            id: 2,
+            name: "child folder",
+        };
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockAddFolderToFolder() {
+        return TestUtils.mockDbResult([
+            {
+                folder: {
+                    identity: neo4j.int(2),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "folder 3",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from addFolderToFolder
+     */
+    static resultAddFolderToFolder() {
+        return {
+            id: 2,
+            name: "folder 3",
+        };
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockRemoveFolderFromFolder() {
+        return TestUtils.mockDbResult([
+            {
+                folder: {
+                    identity: neo4j.int(2),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "removed folder",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from removeFolderFromFolder
+     */
+    static resultRemoveFolderFromFolder() {
+        return {
+            id: 2,
+            name: "removed folder",
+        };
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockGetAllRootFolders() {
+        return TestUtils.mockDbResult([
+            {
+                folder: {
+                    identity: neo4j.int(0),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "folder 1",
+                    },
+                },
+            },
+            {
+                folder: {
+                    identity: neo4j.int(1),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "folder 2",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from getAllRootFolders
+     */
+    static resultGetAllRootFolders() {
+        return [
+            {
+                id: 0,
+                name: "folder 1",
+            },
+            {
+                id: 1,
+                name: "folder 2",
+            },
+        ];
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockGetDiagramsInFolder() {
+        return TestUtils.mockDbResult([
+            {
+                diagram: {
+                    identity: neo4j.int(2),
+                    labels: ["Folder"],
+                    properties: {
+                        name: "inner diagram",
+                    },
+                },
+            },
+            {
+                diagram: {
+                    identity: neo4j.int(3),
+                    labels: ["Diagram"],
+                    properties: {
+                        name: "inner diagram",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from getDiagramsInFolder
+     */
+    static resultGetDiagramsInFolder() {
+        return [
+            {
+                id: 2,
+                name: "inner diagram",
+            },
+            {
+                id: 3,
+                name: "inner diagram",
+            },
+        ];
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockGetDiagramInFolder() {
+        return TestUtils.mockDbResult([
+            {
+                diagram: {
+                    identity: neo4j.int(2),
+                    labels: ["Diagram"],
+                    properties: {
+                        name: "child diagram",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from getDiagramInFolder
+     */
+    static resultGetDiagramInFolder() {
+        return {
+            id: 2,
+            name: "child diagram",
+        };
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockAddDiagramToFolder() {
+        return TestUtils.mockDbResult([
+            {
+                diagram: {
+                    identity: neo4j.int(2),
+                    labels: ["Diagram"],
+                    properties: {
+                        name: "diagram 3",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from addDiagramToFolder
+     */
+    static resultAddDiagramToFolder() {
+        return {
+            id: 2,
+            name: "diagram 3",
+        };
+    }
+
+    /**
+     * Returns mocked DB data
+     */
+    static mockRemoveDiagramFromFolder() {
+        return TestUtils.mockDbResult([
+            {
+                diagram: {
+                    identity: neo4j.int(2),
+                    labels: ["Diagram"],
+                    properties: {
+                        name: "removed diagram",
+                    },
+                },
+            },
+        ]);
+    }
+
+    /**
+     * Predicted response from removeDiagramFromFolder
+     */
+    static resultRemoveDiagramFromFolder() {
+        return {
+            id: 2,
+            name: "removed diagram",
         };
     }
 }

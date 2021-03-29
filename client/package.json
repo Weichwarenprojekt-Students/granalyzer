@@ -12,6 +12,8 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "prettier": "^2.2.1",
+    "primeicons": "^4.1.0",
+    "primevue": "^3.3.5",
     "vue": "^3.0.0",
     "vue-i18n": "^9.0.0",
     "vue-router": "^4.0.0-0",
@@ -19,8 +21,8 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.19",
-    "@typescript-eslint/eslint-plugin": "^4.18.0",
-    "@typescript-eslint/parser": "^4.18.0",
+    "@typescript-eslint/eslint-plugin": "^4.19.0",
+    "@typescript-eslint/parser": "^4.19.0",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-e2e-nightwatch": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",

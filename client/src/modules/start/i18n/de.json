@@ -1,3 +1,38 @@
 {
-  "title": "Das ist der Anfang!"
+  "title": "Das ist der Anfang!",
+  "newDiagram": {
+    "title": "Neues Diagramm",
+    "blank": {
+      "title": "Leeres Diagramm",
+      "description": "Starte mit einem komplett neuen Diagramm"
+    },
+    "node": {
+      "title": "Basierend auf einer Node",
+      "description": "Generiere automatisch ein Diagram basierend auf einer bestimmten Node"
+    },
+    "empty": {
+      "title": "Name ist leer",
+      "description": "Bitte geben Sie einen Namen ein!"
+    }
+  },
+  "diagrams": {
+    "title": "Ihre Diagramme",
+    "addFolder": "Ordner hinzufügen",
+    "addDiagram": "Diagramm hinzufügen",
+    "renameItem": "{item} umbenennen",
+    "deleteItem": {
+      "title": "{item} löschen",
+      "description": "Wollen Sie das ausgewählte Element löschen?"
+    },
+    "noSelection": {
+      "title": "Kein Element ausgewählt",
+      "description": "Sie müssen ein Element auswählen um es zu editieren!"
+    }
+  },
+  "newFolder": {
+    "empty": {
+      "title": "Name ist leer",
+      "description": "Bitte geben Sie einen Namen ein!"
+    }
+  }
 }

@@ -3,21 +3,38 @@ import { start } from "@/modules/start/store";
 import { editor } from "@/modules/editor/store";
 import { inventory } from "@/modules/inventory/store";
 import { Locales } from "@/i18n";
+import { VueI18n } from "vue-i18n";
+
+export class RootState {
+    /**
+     * The short form of the currently set language
+     */
+    public locale: string = navigator.language.split("-")[0];
+    /**
+     * True if the sidebar is minimized
+     */
+    public sidebarMinimized = false;
+}
 
 export default createStore({
-    state: {
-        locale: navigator.language.split("-")[0],
-    },
+    state: new RootState(),
     mutations: {
-        setLocale(state, payload) {
+        /**
+         * Dynamically set the active language
+         */
+        setLocale(state, payload: { i18n: VueI18n; lang: Locales }): void {
             if (Object.values(Locales).includes(payload.lang)) {
                 state.locale = payload.lang;
                 payload.i18n.locale = payload.lang;
             }
         },
+        /**
+         * Change the state of the sidebar
+         */
+        minimizeSidebar(state, value): void {
+            state.sidebarMinimized = value;
+        },
     },
-    actions: {},
-    getters: {},
     modules: {
         start,
         editor,

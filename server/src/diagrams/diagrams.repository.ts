@@ -14,6 +14,7 @@ export class DiagramsRepository {
                         name: "diagram 1",
                     },
                 },
+                parentId: neo4j.int(2),
             },
             {
                 diagram: {
@@ -34,6 +35,7 @@ export class DiagramsRepository {
             {
                 id: 0,
                 name: "diagram 1",
+                parentId: 2,
             },
             {
                 id: 1,
@@ -66,13 +68,6 @@ export class DiagramsRepository {
             id: 0,
             name: "diagram 1",
         };
-    }
-
-    /**
-     * Return an empty response
-     */
-    static mockEmptyResponse() {
-        return TestUtils.mockDbResult([]);
     }
 
     /**

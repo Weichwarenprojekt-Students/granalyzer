@@ -1,5 +1,9 @@
 {
-  "start": "Start",
+  "start": "Home",
   "editor": "Editor",
-  "inventory": "Inventory"
+  "inventory": "Inventory",
+  "dialog": {
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  }
 }
