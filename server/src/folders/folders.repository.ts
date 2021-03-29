@@ -12,9 +12,9 @@ export class FoldersRepository {
                     identity: neo4j.int(0),
                     properties: {
                         name: "folder 1",
-                        parentId: neo4j.int(2),
                     },
                 },
+                parentId: neo4j.int(2),
             },
             {
                 folder: {
@@ -292,7 +292,6 @@ export class FoldersRepository {
                     labels: ["Folder"],
                     properties: {
                         name: "folder 1",
-                        parentId: undefined,
                     },
                 },
             },
@@ -302,7 +301,6 @@ export class FoldersRepository {
                     labels: ["Folder"],
                     properties: {
                         name: "folder 2",
-                        parentId: undefined,
                     },
                 },
             },

@@ -12,9 +12,9 @@ export class DiagramsRepository {
                     identity: neo4j.int(0),
                     properties: {
                         name: "diagram 1",
-                        parentId: neo4j.int(2),
                     },
                 },
+                parentId: neo4j.int(2),
             },
             {
                 diagram: {

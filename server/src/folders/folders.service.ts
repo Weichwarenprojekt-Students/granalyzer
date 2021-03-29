@@ -19,7 +19,8 @@ export class FoldersService {
      */
     async getAllFolders(): Promise<Folder[]> {
         // language=Cypher
-        const cypher = "MATCH (f:Folder) RETURN f AS folder";
+        const cypher =
+            "MATCH (f:Folder) OPTIONAL MATCH (f:Folder)-[:IS_CHILD]->(p:Folder) RETURN f AS folder, id(p) AS parentId";
         const params = {};
 
         return this.neo4jService
@@ -50,7 +51,8 @@ export class FoldersService {
         await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
-        const cypher = "MATCH (f:Folder) WHERE id(f) = $id RETURN f AS folder";
+        const cypher =
+            "MATCH (f:Folder) WHERE id(f) = $id OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder) RETURN f AS folder, id(p) AS parentId";
         const param = {
             id: this.neo4jService.int(id),
         };
@@ -86,7 +88,8 @@ export class FoldersService {
         await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
-        const cypher = "MATCH (f:Folder) WHERE id(f) = $id DETACH DELETE f RETURN f AS folder";
+        const cypher =
+            "MATCH (f:Folder) WHERE id(f) = $id OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder) DETACH DELETE f RETURN f AS folder, id(p) AS parentId";
         const params = {
             id: this.neo4jService.int(id),
         };
@@ -107,7 +110,8 @@ export class FoldersService {
         await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
-        const cypher = "MATCH (f:Folder) WHERE id(f) = $id SET f.name = $name RETURN f AS folder";
+        const cypher =
+            "MATCH (f:Folder) WHERE id(f) = $id SET f.name = $name OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder) RETURN f AS folder, id(p) AS parentId";
         const params = {
             id: this.neo4jService.int(id),
             name,
@@ -128,7 +132,8 @@ export class FoldersService {
         await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
-        const cypher = "MATCH (cf:Folder)-[r:IS_CHILD]->(pf:Folder) WHERE id(pf) = $id RETURN cf AS folder";
+        const cypher =
+            "MATCH (cf:Folder)-[r:IS_CHILD]->(pf:Folder) WHERE id(pf) = $id RETURN cf AS folder, id(pf) AS parentId";
         const params = {
             id: this.neo4jService.int(id),
         };
@@ -151,7 +156,7 @@ export class FoldersService {
 
         // language=Cypher
         const cypher =
-            "MATCH (cf:Folder)-[r:IS_CHILD]->(pf:Folder) WHERE id(pf) = $parentId AND id(cf) = $childId RETURN cf AS folder";
+            "MATCH (cf:Folder)-[r:IS_CHILD]->(pf:Folder) WHERE id(pf) = $parentId AND id(cf) = $childId RETURN cf AS folder, id(pf) AS parentId";
         const params = {
             parentId: this.neo4jService.int(parentId),
             childId: this.neo4jService.int(childId),
@@ -181,8 +186,7 @@ export class FoldersService {
         //language=Cypher
         const cypher =
             "MATCH (p:Folder), (c:Folder) WHERE id(p) = $parentId AND id(c) = $childId " +
-            "SET c.parentId = id(p)" +
-            "CREATE (c)-[r:IS_CHILD]->(p) RETURN c AS folder";
+            "CREATE (c)-[r:IS_CHILD]->(p) RETURN c AS folder, id(p) AS parentId";
         const params = {
             parentId: this.neo4jService.int(parentId),
             childId: this.neo4jService.int(childId),
@@ -239,7 +243,7 @@ export class FoldersService {
     deleteIsChildRelation(childId: number, databaseOrTransaction?: string | Transaction): Result {
         //language=Cypher
         const cypher =
-            "MATCH (c: Folder)-[r:IS_CHILD]->() WHERE id(c) = $childId DELETE r REMOVE c.parentId RETURN c AS folder";
+            "MATCH (c: Folder)-[r:IS_CHILD]->(p:Folder) WHERE id(c) = $childId DELETE r REMOVE c.parentId RETURN c AS folder, id(p) AS parentId";
         const params = {
             childId: this.neo4jService.int(childId),
         };
@@ -253,12 +257,10 @@ export class FoldersService {
      * @private
      */
     static parseFolder(record: Record<any, any>): Folder {
-        const folder = record.get("folder");
-
         return {
-            name: folder.properties["name"],
-            parentId: folder.properties["parentId"]?.toNumber(),
-            id: folder.identity.toNumber(),
+            name: record.get("folder").properties["name"],
+            parentId: record.get("parentId")?.toNumber(),
+            id: record.get("folder").identity.toNumber(),
         } as Folder;
     }
 }

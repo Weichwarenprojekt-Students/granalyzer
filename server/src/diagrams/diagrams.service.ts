@@ -25,7 +25,8 @@ export class DiagramsService {
      */
     async getDiagrams(): Promise<Diagram[]> {
         // language=Cypher
-        const cypher = "MATCH (d:Diagram) RETURN d AS diagram";
+        const cypher =
+            "MATCH (d:Diagram) OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder) RETURN d AS diagram, id(f) AS parentId";
         const params = {};
 
         return this.neo4jService
@@ -56,7 +57,8 @@ export class DiagramsService {
         await this.utilsNode.checkElementForLabel(id, "Diagram");
 
         // language=Cypher
-        const cypher = "MATCH (d:Diagram) WHERE id(d) = $id RETURN d AS diagram";
+        const cypher =
+            "MATCH (d:Diagram) WHERE id(d) = $id OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder) RETURN d AS diagram, id(f) AS parentId";
         const params = {
             id: neo4j.int(id),
         };
@@ -93,7 +95,8 @@ export class DiagramsService {
         await this.utilsNode.checkElementForLabel(id, "Diagram");
 
         // language=Cypher
-        const cypher = "MATCH (d:Diagram) WHERE id(d) = $id SET d = {name: $name} RETURN d AS diagram";
+        const cypher =
+            "MATCH (d:Diagram) WHERE id(d) = $id SET d = {name: $name} OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder) RETURN d AS diagram, id(f) AS parentId";
         const params = {
             id: neo4j.int(id),
             name,
@@ -113,7 +116,8 @@ export class DiagramsService {
         await this.utilsNode.checkElementForLabel(id, "Diagram");
 
         // language=Cypher
-        const cypher = "MATCH (d:Diagram) WHERE id(d) = $id DETACH DELETE d RETURN d AS diagram";
+        const cypher =
+            "MATCH (d:Diagram) WHERE id(d) = $id DETACH DELETE d OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder) RETURN d AS diagram, id(f) AS folder";
         const params = {
             id: neo4j.int(id),
         };
@@ -133,7 +137,8 @@ export class DiagramsService {
         await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
-        const cypher = "MATCH (c:Diagram)-[r:IS_CHILD]->(p:Folder) WHERE id(p) = $id RETURN c AS diagram";
+        const cypher =
+            "MATCH (c:Diagram)-[r:IS_CHILD]->(p:Folder) WHERE id(p) = $id RETURN c AS diagram, $id AS parentId";
         const params = {
             id: this.neo4jService.int(id),
         };
@@ -156,7 +161,7 @@ export class DiagramsService {
 
         // language=Cypher
         const cypher =
-            "MATCH (d:Diagram)-[r:IS_CHILD]->(f:Folder) WHERE id(f) = $parentId AND id(d) = $childId RETURN d AS diagram";
+            "MATCH (d:Diagram)-[r:IS_CHILD]->(f:Folder) WHERE id(f) = $parentId AND id(d) = $childId RETURN d AS diagram, id(f) AS parentId";
         const params = {
             parentId: this.neo4jService.int(parentId),
             childId: this.neo4jService.int(childId),
@@ -186,8 +191,7 @@ export class DiagramsService {
         //language=Cypher
         const cypher =
             "MATCH (p:Folder), (c:Diagram) WHERE id(p) = $parentId AND id(c) = $childId " +
-            "SET c.parentId = id(p)" +
-            "CREATE (c)-[r:IS_CHILD]->(p) RETURN c AS diagram";
+            "CREATE (c)-[r:IS_CHILD]->(p) RETURN c AS diagram, id(p) AS parentId";
         const params = {
             parentId: this.neo4jService.int(parentId),
             childId: this.neo4jService.int(childId),
@@ -231,7 +235,7 @@ export class DiagramsService {
     deleteIsChildRelation(childId: number, databaseOrTransaction?: string | Transaction): Result {
         //language=Cypher
         const cypher =
-            "MATCH (c:Diagram)-[r:IS_CHILD]->() WHERE id(c) = $childId DELETE r REMOVE c.parentId RETURN c AS diagram";
+            "MATCH (c:Diagram)-[r:IS_CHILD]->(f:Folder) WHERE id(c) = $childId DELETE r RETURN c AS diagram, id(f) AS parentId";
         const params = {
             childId: this.neo4jService.int(childId),
         };
@@ -245,12 +249,10 @@ export class DiagramsService {
      * @private
      */
     static parseDiagram(record: Record<any, any>): Diagram {
-        const diagram = record.get("diagram");
-
         return {
-            name: diagram.properties["name"],
-            parentId: diagram.properties["parentId"]?.toNumber(),
-            id: diagram.identity.toNumber(),
+            name: record.get("diagram").properties["name"],
+            parentId: record.get("parentId")?.toNumber(),
+            id: record.get("diagram").identity.toNumber(),
         } as Diagram;
     }
 }
