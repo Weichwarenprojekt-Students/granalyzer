@@ -1,8 +1,10 @@
 <template>
     <div :class="['sidebar', sidebarMinimized ? 'sidebar-collapsed' : '']">
         <!-- The different logo types -->
-        <img v-show="!sidebarMinimized" class="logo" src="~@/assets/img/logo.svg" alt="GranalyzerLogo" />
-        <img v-show="sidebarMinimized" class="logo" src="~@/assets/img/logo-minimized.svg" alt="GranalyzerLogo" />
+        <div class="logo">
+            <img v-show="!sidebarMinimized" src="~@/assets/img/logo.svg" alt="GranalyzerLogo" />
+            <img v-show="sidebarMinimized" src="~@/assets/img/logo-minimized.svg" alt="GranalyzerLogo" />
+        </div>
 
         <!-- The links -->
         <nav>
@@ -88,19 +90,27 @@ export default defineComponent({
     width: @navbar_width;
     height: 100vh;
     background: white;
-    transition: width 400ms;
+    transition: width @navbar_animation_time;
     overflow: hidden;
     border-right: 1px solid @grey;
 }
 
 .sidebar-collapsed {
     width: @navbar_width_collapsed;
+
+    .logo {
+        margin: 16px 12px 32px 12px;
+    }
 }
 
 .logo {
+    transition: @navbar_animation_time;
     display: block;
     margin: 32px (@padding - 4px);
-    height: @icon_size + 8px;
+
+    img {
+        height: @icon_size + 8px;
+    }
 }
 
 .icon {
