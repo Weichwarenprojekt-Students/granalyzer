@@ -1,7 +1,7 @@
 /**
  * Attribute parsing tests
  *
- * @group unit/attributes
+ * @group unit/data-scheme/attributes
  */
 
 import { Attribute, ColorAttribute, NumberAttribute, StringAttribute } from "./attributes";

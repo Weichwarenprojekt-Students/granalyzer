@@ -1,3 +1,7 @@
+/**
+ * @group unit/folders/controller
+ */
+
 import { Test, TestingModule } from "@nestjs/testing";
 import { FoldersService } from "./folders.service";
 import { Neo4jService } from "nest-neo4j/dist";

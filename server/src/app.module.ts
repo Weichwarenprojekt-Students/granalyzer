@@ -2,7 +2,7 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
 import { DiagramsModule } from "./diagrams/diagrams.module";
-import { DataSchemeModule } from "./datascheme/data-scheme.module";
+import { DataSchemeModule } from "./data-scheme/data-scheme.module";
 import { FoldersModule } from "./folders/folders.module";
 
 @Module({

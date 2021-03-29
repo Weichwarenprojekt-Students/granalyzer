@@ -174,8 +174,14 @@ describe("DataSchemeController", () => {
             expect(await controller.getLabel(movieLabelId)).toEqual(movieLabel);
         });
 
-        it("should return not found exception", async () => {
-            await expect(controller.getLabel(movieLabelId + personLabelId)).rejects.toThrowError(NotFoundException);
+        it("non-existing id should return not found exception", async () => {
+            await expect(controller.getLabel(movieLabelId + personLabelId + 100)).rejects.toThrowError(
+                NotFoundException,
+            );
+        });
+
+        it("id of relation should return not found exception", async () => {
+            await expect(controller.getLabel(followsRelationId)).rejects.toThrowError(NotFoundException);
         });
     });
 
@@ -189,10 +195,15 @@ describe("DataSchemeController", () => {
         it("should return one relation", async () => {
             expect(await controller.getRelation(actedInRelationId)).toEqual(actedInRelation);
         });
-        it("should return not found exception", async () => {
-            await expect(controller.getRelation(actedInRelationId + followsRelationId)).rejects.toThrowError(
+
+        it("non-existing id should return not found exception", async () => {
+            await expect(controller.getRelation(actedInRelationId + followsRelationId + 100)).rejects.toThrowError(
                 NotFoundException,
             );
+        });
+
+        it("id of label should return not found exception", async () => {
+            await expect(controller.getRelation(movieLabelId)).rejects.toThrowError(NotFoundException);
         });
     });
 });

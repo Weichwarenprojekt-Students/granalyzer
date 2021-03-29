@@ -1,3 +1,7 @@
+/**
+ * @group unit/diagrams/controller
+ */
+
 import { Test, TestingModule } from "@nestjs/testing";
 import { DiagramsController } from "./diagrams.controller";
 import { DiagramsService } from "./diagrams.service";

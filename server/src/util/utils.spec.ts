@@ -1,3 +1,7 @@
+/**
+ * @group unit/utils
+ */
+
 import { UtilsNode } from "./utils.node";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Neo4jService } from "nest-neo4j/dist";
