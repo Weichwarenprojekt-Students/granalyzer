@@ -6,12 +6,13 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { DataSchemeController } from "./data-scheme.controller";
 import { DataSchemeService } from "./data-scheme.service";
 import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
-import { NotFoundException } from "@nestjs/common";
+import { NotAcceptableException, NotFoundException } from "@nestjs/common";
 import { Label } from "./models/label";
 import { ColorAttribute, NumberAttribute, StringAttribute } from "./models/attributes";
 import { RelationType } from "./models/relationType";
 import { Connection } from "./models/connection";
 import { Scheme } from "./data-scheme.model";
+import { UtilsNode } from "../util/utils.node";
 
 describe("DataSchemeController", () => {
     let module: TestingModule;
@@ -42,7 +43,7 @@ describe("DataSchemeController", () => {
                 }),
             ],
             controllers: [DataSchemeController],
-            providers: [DataSchemeService],
+            providers: [DataSchemeService, UtilsNode],
         }).compile();
 
         neo4jService = module.get<Neo4jService>(Neo4jService);
@@ -181,7 +182,7 @@ describe("DataSchemeController", () => {
         });
 
         it("id of relation should return not found exception", async () => {
-            await expect(controller.getLabel(followsRelationId)).rejects.toThrowError(NotFoundException);
+            await expect(controller.getLabel(followsRelationId)).rejects.toThrowError(NotAcceptableException);
         });
     });
 
@@ -203,7 +204,7 @@ describe("DataSchemeController", () => {
         });
 
         it("id of label should return not found exception", async () => {
-            await expect(controller.getRelation(movieLabelId)).rejects.toThrowError(NotFoundException);
+            await expect(controller.getRelation(movieLabelId)).rejects.toThrowError(NotAcceptableException);
         });
     });
 });
