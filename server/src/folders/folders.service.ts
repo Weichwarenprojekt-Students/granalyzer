@@ -257,10 +257,16 @@ export class FoldersService {
      * @private
      */
     static parseFolder(record: Record<any, any>): Folder {
-        return {
-            name: record.get("folder").properties["name"],
-            parentId: record.get("parentId")?.toNumber(),
+        const folder: Folder = {
+            ...record.get("folder").properties,
             id: record.get("folder").identity.toNumber(),
-        } as Folder;
+        };
+
+        // Append parentId if available
+        if (record.keys.indexOf("parentId") > -1) {
+            folder.parentId = record.get("parentId").toNumber();
+        }
+
+        return folder;
     }
 }

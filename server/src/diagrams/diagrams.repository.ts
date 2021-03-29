@@ -40,7 +40,6 @@ export class DiagramsRepository {
             {
                 id: 1,
                 name: "diagram 2",
-                parentId: undefined,
             },
         ];
     }
@@ -68,7 +67,6 @@ export class DiagramsRepository {
         return {
             id: 0,
             name: "diagram 1",
-            parentId: undefined,
         };
     }
 
@@ -95,7 +93,6 @@ export class DiagramsRepository {
         return {
             id: 0,
             name: "added diagram",
-            parentId: undefined,
         };
     }
 
@@ -122,7 +119,6 @@ export class DiagramsRepository {
         return {
             id: 0,
             name: "update diagram",
-            parentId: undefined,
         };
     }
 
@@ -149,7 +145,6 @@ export class DiagramsRepository {
         return {
             id: 0,
             name: "delete diagram",
-            parentId: undefined,
         };
     }
 }

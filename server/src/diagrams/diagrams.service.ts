@@ -249,10 +249,16 @@ export class DiagramsService {
      * @private
      */
     static parseDiagram(record: Record<any, any>): Diagram {
-        return {
-            name: record.get("diagram").properties["name"],
-            parentId: record.get("parentId")?.toNumber(),
+        const diagram: Diagram = {
+            ...record.get("diagram").properties,
             id: record.get("diagram").identity.toNumber(),
-        } as Diagram;
+        };
+
+        // Append parentId if available
+        if (record.keys.indexOf("parentId") > -1) {
+            diagram.parentId = record.get("parentId").toNumber();
+        }
+
+        return diagram;
     }
 }
