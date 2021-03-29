@@ -47,7 +47,7 @@ export default defineComponent({
     width: 500px;
 
     img {
-        height: 92px;
+        height: 96px;
         margin-right: 32px;
     }
 
@@ -55,10 +55,14 @@ export default defineComponent({
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        width: calc(100% - 128px);
 
         label {
             font-size: @h1;
             margin-bottom: 8px;
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 }

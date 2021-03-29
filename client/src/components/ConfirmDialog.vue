@@ -3,7 +3,7 @@
         <div id="mid-section">
             <img src="@/assets/img/warning.svg" alt="Warning" />
             <div>
-                <h1 class="title">{{ title }}</h1>
+                <h1>{{ title }}</h1>
                 <h3>{{ description }}</h3>
             </div>
         </div>
@@ -39,12 +39,20 @@ export default defineComponent({
     width: 500px;
 
     img {
-        height: 92px;
+        height: 96px;
         margin-right: 32px;
     }
 
-    .title {
-        margin-bottom: 12px;
+    div {
+        width: calc(100% - 128px);
+
+        h1 {
+            margin-bottom: 12px;
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+        }
     }
 }
 </style>
