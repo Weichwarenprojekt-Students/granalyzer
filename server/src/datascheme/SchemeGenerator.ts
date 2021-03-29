@@ -163,34 +163,22 @@ export class SchemeGenerator {
     private static async getConnections(relationName: string, session: Session): Promise<Connection[]> {
         const connections: Connection[] = [];
 
-        // Get all 'from' labels for this relation
         // language=cypher
-        let query = `
-          MATCH(startNode)-[relation]->(endNode)
+        const query = `MATCH(startNode)-[relation]->(endNode)
             WHERE type(relation) = $relationName
           UNWIND labels(startNode) AS froms
-          RETURN DISTINCT froms;`;
+          UNWIND labels(endNode) AS tos
+          RETURN DISTINCT froms, tos`;
 
-        const froms = await this.fetchData(query, { relationName }, "froms", session);
+        const result = await session.run(query, { relationName });
+        const records = result.records;
 
-        for (const from of froms) {
-            // Get all "to" labels for this relation
-            // language=cypher
-            query = `
-              MATCH(startNode)-[relation]->(endNode)
-                WHERE $startLabel IN labels(startNode)
-                AND type(relation) = $relationName
-              UNWIND labels(endNode) AS tos
-              RETURN DISTINCT tos`;
+        records.forEach((record) => {
+            // By default, connections always have M:N cardinalities
+            const newConnection = new Connection(record.get("froms"), record.get("tos"));
+            connections.push(newConnection);
+        });
 
-            const tos = await this.fetchData(query, { startLabel: from, relationName }, "tos", session);
-
-            tos.forEach((to) => {
-                // By default, connections always have M:N cardinalities
-                const connection = new Connection(from, to);
-                connections.push(connection);
-            });
-        }
         return connections;
     }
 }
