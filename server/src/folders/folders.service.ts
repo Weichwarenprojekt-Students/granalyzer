@@ -7,20 +7,40 @@ import { UtilsNode } from "../util/utils.node";
 
 @Injectable()
 export class FoldersService {
+    /**
+     * Configures the default database
+     */
+    private readonly database = process.env.DB_TOOL;
+
     constructor(private readonly neo4jService: Neo4jService, private readonly utilsNode: UtilsNode) {}
 
     /**
-     * @private Configures the default database
+     * Restructure the response of the db
      */
-    private readonly database = process.env.DB_TOOL;
+    static parseFolder(record: Record<any, any>): Folder {
+        const folder: Folder = {
+            ...record.get("folder").properties,
+            id: record.get("folder").identity.toNumber(),
+        };
+
+        // Append parentId if available
+        if (record.keys.indexOf("parentId") > -1) {
+            folder.parentId = record.get("parentId")?.toNumber();
+        }
+
+        return folder;
+    }
 
     /**
      * Return all folders
      */
     async getAllFolders(): Promise<Folder[]> {
         // language=Cypher
-        const cypher =
-            "MATCH (f:Folder) OPTIONAL MATCH (f:Folder)-[:IS_CHILD]->(p:Folder) RETURN f AS folder, id(p) AS parentId";
+        const cypher = `
+          MATCH (f:Folder)
+          OPTIONAL MATCH (f:Folder)-[:IS_CHILD]->(p:Folder)
+          RETURN f AS folder, id(p) AS parentId`;
+
         const params = {};
 
         return this.neo4jService
@@ -33,7 +53,11 @@ export class FoldersService {
      */
     async getAllRootFolders(): Promise<Folder[]> {
         // language=Cypher
-        const cypher = "MATCH (f:Folder) WHERE NOT (f)-[:IS_CHILD]->() RETURN f AS folder";
+        const cypher = `
+          MATCH (f:Folder)
+            WHERE NOT (f)-[:IS_CHILD]->()
+          RETURN f AS folder`;
+
         const params = {};
 
         return this.neo4jService
@@ -43,16 +67,18 @@ export class FoldersService {
 
     /**
      * Return a specific folder by id
-     *
-     * @param id
      */
     async getFolder(id: number): Promise<Folder> {
         // Check whether id belongs to a folder
         await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
-        const cypher =
-            "MATCH (f:Folder) WHERE id(f) = $id OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder) RETURN f AS folder, id(p) AS parentId";
+        const cypher = `
+          MATCH (f:Folder)
+            WHERE id(f) = $id
+          OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
+          RETURN f AS folder, id(p) AS parentId`;
+
         const param = {
             id: this.neo4jService.int(id),
         };
@@ -64,12 +90,13 @@ export class FoldersService {
 
     /**
      * Add a new folder
-     *
-     * @param name
      */
     async addFolder(name: string): Promise<Folder> {
         // language=Cypher
-        const cypher = "CREATE (f:Folder {name: $name}) RETURN f AS folder";
+        const cypher = `
+          CREATE (f:Folder {name: $name})
+          RETURN f AS folder`;
+
         const params = {
             name,
         };
@@ -81,15 +108,20 @@ export class FoldersService {
 
     /**
      * Delete an existing folder
-     * @param id
      */
     async deleteFolder(id: number): Promise<Folder> {
         // Check whether id belongs to a folder
         await this.utilsNode.checkElementForLabel(id, "Folder");
 
+        // Deletes the folder and all contained children (recursively)
         // language=Cypher
-        const cypher =
-            "MATCH (f:Folder)<-[:IS_CHILD*0..]-(c) WHERE id(f) = $id OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder) DETACH DELETE c RETURN f AS folder, id(p) AS parentId";
+        const cypher = `
+          MATCH (f:Folder)<-[:IS_CHILD*0..]-(c)
+            WHERE id(f) = $id
+          OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
+          DETACH DELETE c
+          RETURN f AS folder, id(p) AS parentId`;
+
         const params = {
             id: this.neo4jService.int(id),
         };
@@ -101,17 +133,19 @@ export class FoldersService {
 
     /**
      * Update an existing folder
-     *
-     * @param id
-     * @param name
      */
     async updateFolder(id: number, name: string): Promise<Folder> {
         // Check whether id belongs to a folder
         await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
-        const cypher =
-            "MATCH (f:Folder) WHERE id(f) = $id OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder) SET f.name = $name RETURN f AS folder, id(p) AS parentId";
+        const cypher = `
+          MATCH (f:Folder)
+            WHERE id(f) = $id
+          OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
+          SET f.name = $name
+          RETURN f AS folder, id(p) AS parentId`;
+
         const params = {
             id: this.neo4jService.int(id),
             name,
@@ -124,16 +158,17 @@ export class FoldersService {
 
     /**
      * Returns all folders which are assign to the folder as a IS_CHILD relation
-     *
-     * @param id
      */
     async getFoldersInFolder(id: number): Promise<Folder[]> {
         // Check whether id belongs to a folder
         await this.utilsNode.checkElementForLabel(id, "Folder");
 
         // language=Cypher
-        const cypher =
-            "MATCH (cf:Folder)-[r:IS_CHILD]->(pf:Folder) WHERE id(pf) = $id RETURN cf AS folder, id(pf) AS parentId";
+        const cypher = `
+          MATCH (cf:Folder)-[r:IS_CHILD]->(pf:Folder)
+            WHERE id(pf) = $id
+          RETURN cf AS folder, id(pf) AS parentId`;
+
         const params = {
             id: this.neo4jService.int(id),
         };
@@ -145,9 +180,6 @@ export class FoldersService {
 
     /**
      * Returns a specific child of a given folder
-     *
-     * @param parentId
-     * @param childId
      */
     async getFolderInFolder(parentId: number, childId: number): Promise<Folder> {
         // Check whether id belongs to a folder
@@ -155,12 +187,16 @@ export class FoldersService {
         await this.utilsNode.checkElementForLabel(childId, "Folder");
 
         // language=Cypher
-        const cypher =
-            "MATCH (cf:Folder)-[r:IS_CHILD]->(pf:Folder) WHERE id(pf) = $parentId AND id(cf) = $childId RETURN cf AS folder, id(pf) AS parentId";
+        const cypher = `
+          MATCH (cf:Folder)-[r:IS_CHILD]->(pf:Folder)
+            WHERE id(pf) = $parentId AND id(cf) = $childId
+          RETURN cf AS folder, id(pf) AS parentId`;
+
         const params = {
             parentId: this.neo4jService.int(parentId),
             childId: this.neo4jService.int(childId),
         };
+
         return this.neo4jService.read(cypher, params, this.database).then((res) => {
             return FoldersService.parseFolder(res.records[0]);
         });
@@ -168,9 +204,6 @@ export class FoldersService {
 
     /**
      * Creates a IS_CHILD relation child-IS_CHILD->parent
-     *
-     * @param parentId
-     * @param childId
      */
     async moveFolderToFolder(parentId: number, childId: number): Promise<Folder> {
         // Check whether id and child id belongs to a folder
@@ -184,9 +217,12 @@ export class FoldersService {
         await this.deleteIsChildRelation(childId, transaction);
 
         //language=Cypher
-        const cypher =
-            "MATCH (p:Folder), (c:Folder) WHERE id(p) = $parentId AND id(c) = $childId " +
-            "CREATE (c)-[r:IS_CHILD]->(p) RETURN c AS folder, id(p) AS parentId";
+        const cypher = `
+          MATCH (p:Folder), (c:Folder)
+            WHERE id(p) = $parentId AND id(c) = $childId
+          CREATE (c)-[r:IS_CHILD]->(p)
+          RETURN c AS folder, id(p) AS parentId`;
+
         const params = {
             parentId: this.neo4jService.int(parentId),
             childId: this.neo4jService.int(childId),
@@ -203,10 +239,7 @@ export class FoldersService {
     }
 
     /**
-     * Adds a new folder inside of the folder with the given id
-     *
-     * @param parentId The id of the parent folder
-     * @param childName The name of the folder which is being created
+     * Adds a new folder inside of the folder with the given parent id
      */
     async addFolderInFolder(parentId: number, childName: string): Promise<Folder> {
         await this.utilsNode.checkElementForLabel(parentId, "Folder");
@@ -217,9 +250,6 @@ export class FoldersService {
 
     /**
      * Deletes the IS_CHILD relation between the given parent and child
-     *
-     * @param parentId
-     * @param childId
      */
     async removeFolderFromFolder(parentId: number, childId: number): Promise<Folder> {
         // Check whether id belongs to a folder
@@ -238,35 +268,20 @@ export class FoldersService {
      *
      * @param childId Id of the node whose relations should be deleted
      * @param databaseOrTransaction The current database or a neo4j transaction
-     * @private
      */
     deleteIsChildRelation(childId: number, databaseOrTransaction?: string | Transaction): Result {
         //language=Cypher
-        const cypher =
-            "MATCH (c: Folder)-[r:IS_CHILD]->(p:Folder) WHERE id(c) = $childId DELETE r REMOVE c.parentId RETURN c AS folder, id(p) AS parentId";
+        const cypher = `
+          MATCH (c:Folder)-[r:IS_CHILD]->(p:Folder)
+            WHERE id(c) = $childId
+          DELETE r
+          REMOVE c.parentId
+          RETURN c AS folder, id(p) AS parentId`;
+
         const params = {
             childId: this.neo4jService.int(childId),
         };
+
         return this.neo4jService.write(cypher, params, databaseOrTransaction);
-    }
-
-    /**
-     * Restructure the response of the db
-     *
-     * @param record
-     * @private
-     */
-    static parseFolder(record: Record<any, any>): Folder {
-        const folder: Folder = {
-            ...record.get("folder").properties,
-            id: record.get("folder").identity.toNumber(),
-        };
-
-        // Append parentId if available
-        if (record.keys.indexOf("parentId") > -1) {
-            folder.parentId = record.get("parentId")?.toNumber();
-        }
-
-        return folder;
     }
 }

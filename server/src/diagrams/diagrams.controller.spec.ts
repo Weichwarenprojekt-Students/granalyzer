@@ -7,7 +7,6 @@ import MockNeo4jService from "../../test/mock-neo4j.service";
 import { UtilsRepository } from "../util/utils.repository";
 import { UtilsNode } from "../util/utils.node";
 import { FoldersService } from "../folders/folders.service";
-import { DiagramsModule } from "./diagrams.module";
 
 describe("DiagramsController", () => {
     let service: DiagramsService;

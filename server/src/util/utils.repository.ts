@@ -1,5 +1,4 @@
 import { TestUtils } from "../../test/test-utils";
-import * as neo4j from "neo4j-driver";
 
 export class UtilsRepository {
     /**

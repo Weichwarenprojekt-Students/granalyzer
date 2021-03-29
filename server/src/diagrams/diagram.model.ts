@@ -5,7 +5,7 @@ export class Diagram {
         required: true,
         type: "number",
         name: "id",
-        description: "Id of the diagram",
+        description: "The id of the diagram",
     })
     id: number;
 
@@ -13,7 +13,7 @@ export class Diagram {
         required: true,
         type: "string",
         name: "name",
-        description: "Name of the diagram",
+        description: "The name of the diagram",
     })
     name: string;
 
@@ -21,7 +21,7 @@ export class Diagram {
         required: false,
         type: "number",
         name: "parentId",
-        description: "The Id of the parent folder",
+        description: "The id of the parent folder",
     })
     parentId?: number;
 }

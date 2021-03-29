@@ -6,7 +6,7 @@ export class UtilsNode {
     constructor(private readonly neo4jService: Neo4jService) {}
 
     /**
-     * @private For node specific utility the tool DB should be used
+     * For node specific utility the tool DB should be used
      */
     private readonly database = process.env.DB_TOOL;
 
@@ -20,7 +20,11 @@ export class UtilsNode {
      */
     async checkElementForLabel(id: number, label: string) {
         // language=Cypher
-        const cypher = "MATCH (f) WHERE id(f) = $id RETURN labels(f) AS label";
+        const cypher = `
+          MATCH (f)
+            WHERE id(f) = $id
+          RETURN labels(f) AS label`;
+
         const params = {
             id: this.neo4jService.int(id),
         };
