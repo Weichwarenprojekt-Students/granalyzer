@@ -10,7 +10,7 @@ export class Diagram {
     /**
      * Copy a diagram
      */
-    public copy(): Diagram {
-        return new Diagram(this.name, this.id);
+    public static copy(diagram: Diagram): Diagram {
+        return new Diagram(diagram.name, diagram.id);
     }
 }
