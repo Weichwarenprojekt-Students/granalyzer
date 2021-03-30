@@ -24,13 +24,11 @@ export default defineComponent({
 .node {
     height: 64px;
     padding-left: 16px;
-
     display: flex;
     align-items: center;
-
-    font-size: @h2;
-
+    font-size: @h3;
     border-bottom: 1px solid @grey;
+    cursor: pointer;
 
     &:hover {
         background: @accent_color;
