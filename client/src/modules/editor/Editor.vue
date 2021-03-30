@@ -2,18 +2,21 @@
     <div class="content">
         <EditorHeader class="header"></EditorHeader>
         <OverviewList class="overview"></OverviewList>
+        <GraphEditor class="editor"></GraphEditor>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { isEmpty } from "@/utility";
-import EditorHeader from "@/modules/editor/modules/EditorHeader.vue";
-import OverviewList from "@/modules/editor/modules/OverviewList.vue";
+import EditorHeader from "@/modules/editor/modules/editor-header/EditorHeader.vue";
+import OverviewList from "@/modules/editor/modules/overview-list/OverviewList.vue";
+import GraphEditor from "@/modules/editor/modules/graph-editor/GraphEditor.vue";
 
 export default defineComponent({
     name: "Editor",
     components: {
+        GraphEditor,
         EditorHeader,
         OverviewList,
     },
@@ -30,6 +33,8 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/styles.less";
 
+@header-height: 64px;
+
 .content {
     width: 100%;
     height: 100%;
@@ -37,7 +42,7 @@ export default defineComponent({
 
     .header {
         width: 100%;
-        height: 64px;
+        height: @header-height;
         background: white;
     }
 
@@ -50,6 +55,14 @@ export default defineComponent({
         top: 0;
 
         background: white;
+    }
+
+    .editor {
+        position: absolute;
+        left: @navbar_width_collapsed + @inventory_width;
+        right: 0;
+        bottom: 0;
+        top: @header-height;
     }
 }
 </style>

@@ -73,7 +73,8 @@ export default defineComponent({
             ghostElement.classList.add("dragged");
 
             // Set color to label color
-            ghostElement.style.background = this.content.color;
+            if (this.content && ghostElement) ghostElement.style.background = this.content.color;
+
             document.body.appendChild(ghostElement);
 
             // Set ghost image for dragging

@@ -13,7 +13,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import OverviewItem from "@/modules/editor/modules/components/OverviewItem.vue";
+import OverviewItem from "@/modules/editor/modules/overview-list/components/OverviewItem.vue";
 
 export default defineComponent({
     name: "OverviewList",
