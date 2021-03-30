@@ -1,8 +1,10 @@
-export class Node {
+import { NodeConfig } from "@antv/g6";
+
+export class Node implements NodeConfig {
     /**
      * The id of the node
      */
-    public id = 0;
+    public id = "0";
     /**
      * The UUID that links this node to the actual node in
      * the customer DB
@@ -20,4 +22,9 @@ export class Node {
      * The y-position
      */
     public y = 0;
+
+    /**
+     * Index signature
+     */
+    [key: string]: unknown;
 }

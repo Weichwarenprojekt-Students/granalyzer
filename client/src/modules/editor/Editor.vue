@@ -1,7 +1,7 @@
 <template>
     <div class="content">
-        <EditorHeader class="header"></EditorHeader>
         <OverviewList class="overview"></OverviewList>
+        <EditorHeader class="header"></EditorHeader>
         <GraphEditor class="editor"></GraphEditor>
     </div>
 </template>
@@ -39,27 +39,28 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     background: @light_grey;
+    position: relative;
 
     .header {
         width: 100%;
         height: @header-height;
         background: white;
+        position: absolute;
+        top: 0;
+        left: 0;
     }
 
     .overview {
         width: @inventory_width;
         height: 100vh;
-
-        position: absolute;
-        left: @navbar_width_collapsed;
-        top: 0;
-
+        position: relative;
+        z-index: 4000;
         background: white;
     }
 
     .editor {
         position: absolute;
-        left: @navbar_width_collapsed + @inventory_width;
+        left: 0;
         right: 0;
         bottom: 0;
         top: @header-height;

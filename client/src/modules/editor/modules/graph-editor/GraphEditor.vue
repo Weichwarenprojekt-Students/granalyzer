@@ -1,31 +1,35 @@
 <template>
     <div id="graphCanvas">
-        <button @click="onClick()">Add new test node</button>
+        <button @click="onClick" class="button btn btn-normal">Add Node</button>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Graph, GraphData } from "@antv/g6";
+import { Graph } from "@antv/g6";
+import { Diagram } from "@/modules/editor/modules/graph-editor/models/Diagram";
+import { GET } from "@/utility";
 
 export default defineComponent({
     name: "GraphEditor",
     data() {
         return {
             graph: {} as Graph,
-            diagData: {} as GraphData,
+            diagData: {} as Diagram,
         };
     },
     async mounted(): Promise<void> {
-        const result = await fetch(
+        // Get the mock data
+        const result = await GET(
             "https://gw.alipayobjects.com/os/basement_prod/6cae02ab-4c29-44b2-b1fd-4005688febcb.json",
         );
-        const remoteData = await result.json();
+        this.diagData = await result.json();
 
+        // Initialize the graph
         this.initGraph();
-        this.loadDiagram(remoteData);
         this.resizeGraph();
-        this.drawGraph();
+        this.graph.data(this.diagData);
+        this.graph.render();
 
         window.addEventListener("resize", this.resizeGraph);
     },
@@ -50,7 +54,7 @@ export default defineComponent({
                 type: "rect",
 
                 style: {
-                    radius: 5,
+                    radius: 4,
                     fill: "#FFA726",
                 },
 
@@ -112,7 +116,7 @@ export default defineComponent({
                 width: 0,
                 height: 0,
                 fitView: true,
-                fitViewPadding: [20, 40, 50, 20],
+                fitViewPadding: [64, 64, 64, 64],
             };
 
             this.graph = new Graph(graphConf);
@@ -122,8 +126,6 @@ export default defineComponent({
 
         /**
          * Generates value between min and min + width
-         *
-         * @private
          */
         randomRangeValue(width: number, min: number): number {
             return Math.floor(Math.random() * (width + 1) + min);
@@ -139,6 +141,9 @@ export default defineComponent({
             });
         },
 
+        /**
+         * Add a node to the diagram
+         */
         addNode(uuid: string, label: string, displayName: string, color: string, xPos: number, yPos: number): void {
             const newNode = {
                 x: xPos,
@@ -168,15 +173,9 @@ export default defineComponent({
             this.graph.addItem("node", newNode);
         },
 
-        loadDiagram(diagData: GraphData): void {
-            this.diagData = diagData;
-            this.graph.data(this.diagData);
-        },
-
-        drawGraph(): void {
-            this.graph.render();
-        },
-
+        /**
+         * Add node on click
+         */
         onClick(): void {
             this.addNode(
                 Math.floor(Math.random() * Math.floor(10000)).toString(),
@@ -191,4 +190,10 @@ export default defineComponent({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.button {
+    position: absolute;
+    top: 32px;
+    right: 32px;
+}
+</style>
