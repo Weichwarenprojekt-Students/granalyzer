@@ -203,11 +203,11 @@ export default defineComponent({
          */
         renameItem(newName: string) {
             if (!isEmpty(this.selectedFolder)) {
-                const copy = this.selectedFolder.copy();
+                const copy = Folder.copy(this.selectedFolder);
                 copy.name = newName;
                 this.$store.dispatch("start/editFolder", copy);
             } else if (!isEmpty(this.selectedDiagram)) {
-                const copy = this.selectedDiagram.copy();
+                const copy = Diagram.copy(this.selectedDiagram);
                 copy.name = newName;
                 this.$store.dispatch("start/editDiagram", copy);
             } else this.showSelectionError();

@@ -10,7 +10,7 @@ export class Folder {
     /**
      * Copy the folder
      */
-    public copy(): Folder {
-        return new Folder(this.name, this.id);
+    public static copy(folder: Folder): Folder {
+        return new Folder(folder.name, folder.id);
     }
 }
