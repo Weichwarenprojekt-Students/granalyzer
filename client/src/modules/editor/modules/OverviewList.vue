@@ -1,28 +1,23 @@
 <template>
     <div class="content">
-        <div class="title">Inventory</div>
+        <div class="title">Node Overview</div>
         <label class="searchbar">
             <input type="text" placeholder="Search..." />
         </label>
         <ScrollPanel class="scroll-panel">
-            <OverviewItem v-for="node in mockNodes" :key="node" :label="node"></OverviewItem>
+            <OverviewItem v-for="content in $store.state.editor.mockContent" :key="content" :content="content" />
         </ScrollPanel>
         <!--<div class="button">Add Node</div>-->
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
-import OverviewItem from "@/modules/editor/modules/components/OverviewItem";
+import OverviewItem from "@/modules/editor/modules/components/OverviewItem.vue";
 
 export default defineComponent({
-    name: "Overview",
+    name: "OverviewList",
     components: { OverviewItem },
-    data() {
-        return {
-            mockNodes: ["Node1", "Node2", "Node3"],
-        };
-    },
 });
 </script>
 
@@ -31,7 +26,7 @@ export default defineComponent({
 
 .content {
     height: 100%;
-    border-left: 1px solid @grey;
+    border-right: 1px solid @grey;
     padding: 0 16px;
 
     display: flex;
@@ -45,7 +40,6 @@ export default defineComponent({
     display: flex;
     align-items: center;
     border-bottom: 2px solid @primary_color;
-    padding: 0 8px;
 
     height: 64px;
 }
@@ -56,7 +50,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
     padding: 0 16px;
-    margin-top: 8px;
+    margin-top: 16px;
     background: @light_grey;
     height: 48px;
 
@@ -69,7 +63,7 @@ export default defineComponent({
 }
 
 .scroll-panel {
-    margin-top: 8px !important;
+    margin-top: 20px !important;
     overflow: hidden !important;
     flex: 1 1 auto !important;
 }

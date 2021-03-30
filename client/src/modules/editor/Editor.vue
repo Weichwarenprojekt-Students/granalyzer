@@ -1,7 +1,7 @@
 <template>
     <div class="content">
         <EditorHeader class="header"></EditorHeader>
-        <Overview class="overview"></Overview>
+        <OverviewList class="overview"></OverviewList>
     </div>
 </template>
 
@@ -9,13 +9,13 @@
 import { defineComponent } from "vue";
 import { isEmpty } from "@/utility";
 import EditorHeader from "@/modules/editor/modules/EditorHeader.vue";
-import Overview from "@/modules/editor/modules/Overview.vue";
+import OverviewList from "@/modules/editor/modules/OverviewList.vue";
 
 export default defineComponent({
     name: "Editor",
     components: {
         EditorHeader,
-        Overview,
+        OverviewList,
     },
     computed: {
         title(): string {
@@ -46,7 +46,7 @@ export default defineComponent({
         height: 100vh;
 
         position: absolute;
-        right: 0;
+        left: @navbar_width_collapsed;
         top: 0;
 
         background: white;
