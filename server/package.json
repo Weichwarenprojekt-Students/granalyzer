@@ -16,7 +16,7 @@
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest --group=unit",
     "test:database": "jest --group=db",
-    "test:all": "jest",
+    "test:all": "jest --forceExit",
     "test:watch": "jest --group=unit --watch",
     "test:docker:win": "docker-compose -f test/docker-compose.yml up --build --abort-on-container-exit & docker-compose -f test/docker-compose.yml down --volumes --rmi local",
     "test:docker:linux": "docker-compose -f test/docker-compose.yml up --build --abort-on-container-exit; docker-compose -f test/docker-compose.yml down --volumes --rmi local",
