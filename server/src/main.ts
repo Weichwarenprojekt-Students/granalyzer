@@ -13,6 +13,7 @@ async function bootstrap() {
         .addTag("diagrams")
         .addTag("folders")
         .addTag("data-scheme")
+        .addTag("nodes")
         .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup(process.env.SWAGGER_PREFIX, app, document);
