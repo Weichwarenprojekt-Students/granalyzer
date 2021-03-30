@@ -60,6 +60,7 @@ export class DataSchemeService {
      * Fetch all labels of the scheme
      */
     async getAllLabel() {
+        // language=cypher
         const cypher = "MATCH (ls:LabelScheme) RETURN ls AS dataScheme";
         const params = {};
 
@@ -75,6 +76,7 @@ export class DataSchemeService {
     async getLabel(id: number) {
         await this.utilsNode.checkElementForLabel(id, "LabelScheme");
 
+        // language=cypher
         const cypher = "MATCH (ls:LabelScheme) WHERE id(ls) = $id RETURN ls AS dataScheme";
         const params = {
             id: neo4j.int(id),
@@ -92,6 +94,7 @@ export class DataSchemeService {
      * Fetch all relations
      */
     async getAllRelations() {
+        // language=cypher
         const cypher = "MATCH (rt:RelationType) RETURN rt AS dataScheme";
         const params = {};
 
@@ -107,6 +110,7 @@ export class DataSchemeService {
     async getRelation(id: number) {
         await this.utilsNode.checkElementForLabel(id, "RelationType");
 
+        // language=cypher
         const cypher = "MATCH (rt:RelationType) WHERE id(rt) = $id RETURN rt AS dataScheme";
         const params = {
             id: neo4j.int(id),

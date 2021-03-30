@@ -59,55 +59,43 @@ describe("DataSchemeController", () => {
         await neo4jService.write(`CREATE DATABASE ${process.env.DB_CUSTOMER} IF NOT exists`).catch(console.error);
 
         // language=cypher
-        await neo4jService.write(
-            `
-              MATCH (a)
-              DETACH DELETE a
-              RETURN a`,
-            {},
-            process.env.DB_TOOL,
-        );
+        await neo4jService.write("MATCH (a) DETACH DELETE a RETURN a", {}, process.env.DB_TOOL);
     });
 
     beforeEach(async () => {
         function writeLabel(l): Promise<number> {
-            return (
-                neo4jService
-                    // language=Cypher
-                    .write(
-                        `
-                          MERGE (l:LabelScheme {name: $labelName})
-                          SET l.color = $color, l.attributes = $attribs
-                          RETURN l AS label`,
-                        {
-                            labelName: l.name,
-                            color: l.color,
-                            attribs: JSON.stringify(l.attributes),
-                        },
-                        process.env.DB_TOOL,
-                    )
-                    .then((res) => res.records[0].get("label").identity.toNumber())
-            );
+            // language=cypher
+            const cypher = `
+              MERGE (l:LabelScheme {name: $labelName})
+              SET l.color = $color, l.attributes = $attribs
+              RETURN l AS label`;
+
+            const params = {
+                labelName: l.name,
+                color: l.color,
+                attribs: JSON.stringify(l.attributes),
+            };
+            return neo4jService
+                .write(cypher, params, process.env.DB_TOOL)
+                .then((res) => res.records[0].get("label").identity.toNumber());
         }
 
         function writeRelation(r): Promise<number> {
-            return (
-                neo4jService
-                    // language=cypher
-                    .write(
-                        `
-                          MERGE (r:RelationType {name: $labelName})
-                          SET r.attributes = $attribs, r.connections = $connects
-                          RETURN r AS relation`,
-                        {
-                            labelName: r.name,
-                            attribs: JSON.stringify(r.attributes),
-                            connects: JSON.stringify(r.connections),
-                        },
-                        process.env.DB_TOOL,
-                    )
-                    .then((res) => res.records[0].get("relation").identity.toNumber())
-            );
+            // language=cypher
+            const cypher = `
+              MERGE (r:RelationType {name: $labelName})
+              SET r.attributes = $attribs, r.connections = $connects
+              RETURN r AS relation`;
+
+            const params = {
+                labelName: r.name,
+                attribs: JSON.stringify(r.attributes),
+                connects: JSON.stringify(r.connections),
+            };
+
+            return neo4jService
+                .write(cypher, params, process.env.DB_TOOL)
+                .then((res) => res.records[0].get("relation").identity.toNumber());
         }
 
         movieLabel = new Label("Movie", "#666", [
@@ -143,14 +131,10 @@ describe("DataSchemeController", () => {
 
     afterEach(async () => {
         // language=cypher
-        await neo4jService.write(
-            `
-              MATCH (a)
-              DETACH DELETE a
-              RETURN a`,
-            {},
-            process.env.DB_TOOL,
-        );
+        const cypher = "MATCH (a) DETACH DELETE a RETURN a";
+        const params = {};
+
+        await neo4jService.write(cypher, params, process.env.DB_TOOL);
     });
 
     it("should be defined", () => {
