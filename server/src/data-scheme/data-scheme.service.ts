@@ -22,14 +22,13 @@ export class DataSchemeService {
      * @param record: record from the neo4j database
      * @private
      */
-    private static parseLabel(record: Record<any, any>) {
+    private static parseLabel(record: Record<any, any>): Label {
         const l = {
             ...record.get("dataScheme").properties,
             id: record.get("dataScheme").identity.toNumber(),
         };
         l.attributes = JSON.parse(l.attributes, Attribute.reviver);
-        const label: Label = Object.assign(new Label(), l);
-        return label;
+        return Object.assign(new Label(), l);
     }
 
     /**
@@ -37,7 +36,7 @@ export class DataSchemeService {
      * @param record: record from the neo4j database
      * @private
      */
-    private static parseRelation(record: Record<any, any>) {
+    private static parseRelation(record: Record<any, any>): RelationType {
         const l = {
             ...record.get("dataScheme").properties,
             id: record.get("dataScheme").identity.toNumber(),
@@ -45,8 +44,7 @@ export class DataSchemeService {
         l.attributes = JSON.parse(l.attributes, Attribute.reviver);
         l.connections = JSON.parse(l.connections).map((conn) => Object.assign(new Connection(), conn));
 
-        const relationType: RelationType = Object.assign(new RelationType(), l);
-        return relationType;
+        return Object.assign(new RelationType(), l);
     }
 
     /**

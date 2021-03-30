@@ -27,31 +27,34 @@ export class SchemeGenerator {
      * @private
      */
     private static getRandomColor(): string {
-        // Generates value between min and min + width
-        const randomRangeValue = () => {
-            const min = 50;
-            const width = 180;
-            return Math.floor(Math.random() * (width + 1) + min);
-        };
+        // Define constants for range calculation
+        const min = 50;
+        const width = 180;
 
-        const R = randomRangeValue();
-        let G = R + randomRangeValue();
+        // Generate color values and check for bigger than the allowed 255
+        const R = SchemeGenerator.randomRangeValue(width, min);
+        const G = (R + SchemeGenerator.randomRangeValue(width, min)) % 255;
+        const B = (G + SchemeGenerator.randomRangeValue(width, min)) % 255;
 
-        if (G > 255) {
-            G = G - 255;
-        }
+        // Convert the three int values to a concatenated hex color value
+        return "#" + SchemeGenerator.toHex(R) + SchemeGenerator.toHex(G) + SchemeGenerator.toHex(B);
+    }
 
-        let B = G + randomRangeValue();
+    /**
+     * Convert number to hex
+     * @private
+     */
+    private static toHex(c: number) {
+        return c.toString(16).padStart(2, "0");
+    }
 
-        if (B > 255) {
-            B = B - 255;
-        }
-
-        const toHex = (c: number) => {
-            return c.toString(16).padStart(2, "0");
-        };
-
-        return "#" + toHex(R) + toHex(G) + toHex(B);
+    /**
+     * Generates value between min and min + width
+     *
+     * @private
+     */
+    private static randomRangeValue(width: number, min: number): number {
+        return Math.floor(Math.random() * (width + 1) + min);
     }
 
     /**
@@ -64,17 +67,10 @@ export class SchemeGenerator {
      * @private
      */
     private static async fetchData(query: string, args: any, key: string, session: Session): Promise<string[]> {
-        const data: string[] = [];
-
         const result = await session.run(query, args);
-        const records = result.records;
 
-        records.forEach((record) => {
-            // Add current row value from column, specified by 'key'
-            data.push(record.get(key));
-        });
-
-        return data;
+        // Add current row value from column, specified by 'key'
+        return result.records.map((record) => record.get(key));
     }
 
     /**
@@ -110,11 +106,8 @@ export class SchemeGenerator {
 
             const labelAttributes = await this.fetchData(query, { nodeName: labelName }, "keys", session);
 
-            labelAttributes.forEach((attr) => {
-                // Generate a new string attribute key and add the current attribute key to the current label
-                const newAttribute = new StringAttribute(attr);
-                newLabel.attributes.push(newAttribute);
-            });
+            // Generate a new string attribute key and add the current attribute key to the current label
+            newLabel.attributes = labelAttributes.map((attr) => new StringAttribute(attr));
 
             labels.push(newLabel);
         }
@@ -152,11 +145,8 @@ export class SchemeGenerator {
 
             const relationAttributes = await this.fetchData(query, { relType: relationName }, "keys", session);
 
-            relationAttributes.forEach((attr) => {
-                // Generate a new string attribute and add the current attribute key to the current relation
-                const newAttribute = new StringAttribute(attr);
-                newType.attributes.push(newAttribute);
-            });
+            // Generate a new string attribute and add the current attribute key to the current relation
+            newType.attributes = relationAttributes.map((attr) => new StringAttribute(attr));
 
             // Get all connections for the current relation
             newType.connections = await this.getConnections(relationName, session);
@@ -173,8 +163,6 @@ export class SchemeGenerator {
      * @private
      */
     private static async getConnections(relationName: string, session: Session): Promise<Connection[]> {
-        const connections: Connection[] = [];
-
         // language=cypher
         const query = `MATCH(startNode)-[relation]->(endNode)
             WHERE type(relation) = $relationName
@@ -183,14 +171,8 @@ export class SchemeGenerator {
           RETURN DISTINCT froms, tos`;
 
         const result = await session.run(query, { relationName });
-        const records = result.records;
 
-        records.forEach((record) => {
-            // By default, connections always have M:N cardinalities
-            const newConnection = new Connection(record.get("froms"), record.get("tos"));
-            connections.push(newConnection);
-        });
-
-        return connections;
+        // By default, connections always have M:N cardinalities
+        return result.records.map((record) => new Connection(record.get("froms"), record.get("tos")));
     }
 }

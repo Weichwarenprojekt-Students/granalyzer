@@ -44,9 +44,9 @@ export class RelationType {
      * @param id ID in the database
      */
     constructor(name?: string, attributes?: Attribute[], connections?: Connection[], id?: number) {
-        this.name = name || "";
-        this.attributes = attributes || [];
-        this.connections = connections || [];
+        this.name = name ?? "";
+        this.attributes = attributes ?? [];
+        this.connections = connections ?? [];
         if (id) this.id = id;
     }
 }

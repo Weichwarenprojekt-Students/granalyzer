@@ -75,9 +75,9 @@ export class StringAttribute extends Attribute {
      */
     constructor(name?: string, mandatory?: boolean, defaultValue?: string) {
         super();
-        this.name = name || "";
-        this.mandatory = mandatory || false;
-        this.defaultValue = defaultValue || "";
+        this.name = name ?? "";
+        this.mandatory = mandatory ?? false;
+        this.defaultValue = defaultValue ?? "";
     }
 }
 
@@ -102,9 +102,9 @@ export class NumberAttribute extends Attribute {
      */
     constructor(name?: string, mandatory?: boolean, defaultValue?: number) {
         super();
-        this.name = name || "";
-        this.mandatory = mandatory || false;
-        this.defaultValue = defaultValue || 0;
+        this.name = name ?? "";
+        this.mandatory = mandatory ?? false;
+        this.defaultValue = defaultValue ?? 0;
     }
 }
 
@@ -132,8 +132,8 @@ export class ColorAttribute extends Attribute {
      */
     constructor(name?: string, mandatory?: boolean, defaultValue?: string) {
         super();
-        this.name = name || "";
-        this.mandatory = mandatory || false;
-        this.defaultValue = defaultValue || "#000";
+        this.name = name ?? "";
+        this.mandatory = mandatory ?? false;
+        this.defaultValue = defaultValue ?? "#000";
     }
 }

@@ -35,19 +35,19 @@ export class SchemeSaver {
      * @private
      */
     private static async writeLabel(l: Label, sess: Session) {
-        await sess
-            // language=cypher
-            .run(
-                "MERGE (l:LabelScheme {name: $labelName}) SET l.color = $color, l.attributes = $attribs RETURN l AS label",
-                {
-                    labelName: l.name,
-                    color: l.color,
-                    attribs: JSON.stringify(l.attributes),
-                },
-            )
-            .catch((err) => {
-                console.error(err);
-            });
+        // language=Cypher
+        const query = `
+          MERGE (l:LabelScheme {name: $labelName})
+          SET l.color = $color, l.attributes = $attribs
+          RETURN l AS label`;
+
+        const params = {
+            labelName: l.name,
+            color: l.color,
+            attribs: JSON.stringify(l.attributes),
+        };
+
+        return sess.run(query, params).catch(console.error);
     }
 
     /**
@@ -58,18 +58,18 @@ export class SchemeSaver {
      * @private
      */
     private static async writeRelationType(r: RelationType, sess: Session) {
-        await sess
-            // language=cypher
-            .run(
-                "MERGE (r:RelationType {name: $labelName}) SET r.attributes = $attribs, r.connections = $connects RETURN r AS relation",
-                {
-                    labelName: r.name,
-                    attribs: JSON.stringify(r.attributes),
-                    connects: JSON.stringify(r.connections),
-                },
-            )
-            .catch((err) => {
-                console.error(err);
-            });
+        // language=Cypher
+        const query = `
+          MERGE (r:RelationType {name: $labelName})
+          SET r.attributes = $attribs, r.connections = $connects
+          RETURN r AS relation`;
+
+        const params = {
+            labelName: r.name,
+            attribs: JSON.stringify(r.attributes),
+            connects: JSON.stringify(r.connections),
+        };
+
+        return sess.run(query, params).catch(console.error);
     }
 }

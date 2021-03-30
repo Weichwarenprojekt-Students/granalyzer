@@ -43,9 +43,9 @@ export class Label {
      * @param id ID in the database
      */
     constructor(name?: string, color?: string, attributes?: Attribute[], id?: number) {
-        this.name = name || "";
-        this.color = color || "#000";
-        this.attributes = attributes || [];
+        this.name = name ?? "";
+        this.color = color ?? "#000";
+        this.attributes = attributes ?? [];
         if (id) this.id = id;
     }
 }
