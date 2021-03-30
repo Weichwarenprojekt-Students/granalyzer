@@ -13,6 +13,7 @@ import { RelationType } from "./models/relationType";
 import { Connection } from "./models/connection";
 import { Scheme } from "./data-scheme.model";
 import { UtilsNode } from "../util/utils.node";
+import * as dotenv from "dotenv";
 
 describe("DataSchemeController", () => {
     let module: TestingModule;
@@ -32,6 +33,8 @@ describe("DataSchemeController", () => {
     let followsRelationId: number;
 
     beforeAll(async () => {
+        dotenv.config();
+
         module = await Test.createTestingModule({
             imports: [
                 Neo4jModule.forRoot({
