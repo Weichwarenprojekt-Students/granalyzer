@@ -11,6 +11,7 @@ export class EditorState {
     public mockContent = [
         {
             label: "Label1",
+            color: "#6fcf97",
             nodes: [
                 { name: "Node1", id: "1" },
                 { name: "Node2", id: "2" },
@@ -19,6 +20,7 @@ export class EditorState {
         },
         {
             label: "Label2",
+            color: "#008DDD",
             nodes: [
                 { name: "Node4", id: "4" },
                 { name: "Node5", id: "5" },
@@ -27,6 +29,7 @@ export class EditorState {
         },
         {
             label: "Label3",
+            color: "#FFA726",
             nodes: [
                 { name: "Node7", id: "7" },
                 { name: "Node8", id: "8" },
@@ -35,6 +38,7 @@ export class EditorState {
         },
         {
             label: "Label4",
+            color: "#FF4D26",
             nodes: [
                 { name: "Node10", id: "10" },
                 { name: "Node11", id: "11" },
