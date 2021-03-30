@@ -46,24 +46,11 @@ export default defineComponent({
 
 .searchbar {
     flex: 0 0 auto;
-
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    margin-top: 16px;
-    background: @light_grey;
-    height: 48px;
-
-    input[type="text"] {
-        width: 100%;
-        font-size: @h3;
-        background: transparent;
-        border: none;
-    }
+    margin-top: 8px;
 }
 
 .scroll-panel {
-    margin-top: 20px !important;
+    margin-top: 8px !important;
     overflow: hidden !important;
     flex: 1 1 auto !important;
 }
