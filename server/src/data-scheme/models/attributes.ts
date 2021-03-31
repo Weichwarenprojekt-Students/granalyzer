@@ -1,5 +1,8 @@
 // Deserialization of JSON objects with inheritance:
 // https://stackoverflow.com/questions/54427218/parsing-complex-json-objects-with-inheritance
+import * as neo4j from "neo4j-driver";
+import MandatoryAttributeMissingException from "../../util/exceptions/MandatoryAttributeMissing.exception";
+
 type SerializableAttribute = new () => { readonly datatype: string };
 
 export abstract class Attribute {
@@ -52,6 +55,28 @@ export abstract class Attribute {
         typeof v === "object" && "datatype" in v && v.datatype in Attribute.typeRegistry
             ? Object.assign(new Attribute.typeRegistry[v.datatype](), v)
             : v;
+
+    /**
+     * Converts an element by the definition of a given attribute scheme
+     */
+    static applyOnElement(attribute: Attribute, element: any) {
+        // Check for mandatory attributes
+        if (attribute.mandatory && !element) {
+            throw new MandatoryAttributeMissingException("Mandatory attribute is missing on requested node");
+        }
+
+        // Convert Attributes by datatype
+        switch (attribute.datatype) {
+            case "number":
+                element = neo4j.integer.toNumber(element);
+                break;
+            case "string":
+            default:
+                element = neo4j.integer.toString(element);
+        }
+
+        return element;
+    }
 }
 
 @Attribute.serializable

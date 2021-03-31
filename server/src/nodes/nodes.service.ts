@@ -1,12 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import Node from "./node.model";
+import { DataSchemeUtil } from "../util/data-scheme.util";
 
 @Injectable()
 export class NodesService {
     private database = process.env.DB_CUSTOMER;
 
-    constructor(private readonly neo4jService: Neo4jService) {}
+    constructor(private readonly neo4jService: Neo4jService, private readonly dataSchemeUtil: DataSchemeUtil) {}
 
     /**
      * Return all nodes with limit and offset (pagination) from the neo4j db
@@ -20,26 +21,54 @@ export class NodesService {
             limit: this.neo4jService.int(limit),
             offset: this.neo4jService.int(offset),
         };
-        return this.neo4jService
-            .read(query, params, this.database)
-            .then((res) => res.records.map(NodesService.parseNode));
+        const result = await this.neo4jService.read(query, params, this.database);
+        return Promise.all(result.records.map((el) => this.parseNode.call(this, el)));
+    }
+
+    /**
+     * Returns the node where name is like name
+     * @param name
+     */
+    async getNode(name: string): Promise<Node> {
+        // language=Cypher
+        const query = "MATCH (n) WHERE n.name = $name RETURN n";
+        const params = {
+            name,
+        };
+        const result = await this.neo4jService.read(query, params, this.database);
+        return this.parseNode.call(this, result.records[0]);
+    }
+
+    /**
+     * Returns all nodes with the name like name
+     * @param needle
+     */
+    async searchNode(needle: string): Promise<Node[]> {
+        // language=Cypher
+        const query = "MATCH(n) WHERE toLower(n.name) CONTAINS toLower($needle) RETURN n";
+        const params = {
+            needle,
+        };
+
+        const result = await this.neo4jService.read(query, params, this.database);
+        return Promise.all(result.records.map((el) => this.parseNode.call(this, el)));
     }
 
     /**
      * Parse the db response into a Node
-     *
      * @param record single record response from db
      * @private
      */
-    private static parseNode(record) {
+    private async parseNode(record): Promise<Node> {
         const attributes = record.get("n").properties;
-        delete attributes.name;
 
-        return {
+        const node = {
             id: record.get("n").identity.toNumber(),
             name: record.get("n").properties.name,
-            label: record.get("n").label,
+            label: record.get("n").labels[0],
             attributes: attributes,
         } as Node;
+
+        return this.dataSchemeUtil.parseRecordByLabel(node);
     }
 }

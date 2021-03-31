@@ -12,9 +12,9 @@ export class Label {
 
     @ApiProperty({
         required: true,
-        type: "number",
-        name: "id",
-        description: "Id of the label scheme",
+        type: "string",
+        name: "name",
+        description: "name of the label scheme",
     })
     name: string;
 

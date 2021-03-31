@@ -89,6 +89,25 @@ export class DataSchemeService {
     }
 
     /**
+     * Returns the label with the name name
+     * @param name
+     */
+    async getLabelByName(name: string): Promise<Label> {
+        // language=cypher
+        const cypher = "MATCH (ls:LabelScheme) WHERE ls.name = $name RETURN ls AS dataScheme";
+        const params = {
+            name,
+        };
+
+        return this.neo4jService.read(cypher, params, this.database).then((res) => {
+            if (!res.records.length) {
+                throw new NotFoundException("Label with name: " + name + " not found");
+            }
+            return DataSchemeService.parseLabel(res.records[0]);
+        });
+    }
+
+    /**
      * Fetch all relations
      */
     async getAllRelations() {
