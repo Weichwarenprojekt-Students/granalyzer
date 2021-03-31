@@ -13,8 +13,7 @@
         @click="onClick($event)"
         @dblclick="onDblClick($event)"
         draggable="true"
-        @dragstart="startDrag"
-        @dragend="endDrag"
+        @dragstart="startDrag($event, node)"
     >
         {{ node.name }}
     </div>
@@ -64,9 +63,19 @@ export default defineComponent({
          * Event function to start dragging elements
          */
         // eslint-disable-next-line
-        startDrag(evt: any): void {
+        startDrag(evt: any, node: any): void {
             // Set drag-id from overview
-            evt.dataTransfer.setData("overview-drag", evt.currentTarget.id);
+            evt.dataTransfer.setData("overview-drag", node.id);
+
+            // Store currently dragged item, so it can be replicated in the diagram
+            this.$store.commit("editor/setLastDragged", {
+                label: this.content?.label,
+                name: node.name,
+                id: node.id,
+                color: this.content?.color,
+            });
+            // Allow dragging into the diagram
+            this.$store.commit("editor/setDragIntoDiagram", true);
 
             // Create custom ghost-element
             const ghostElement = evt.currentTarget.cloneNode(true);
@@ -84,13 +93,6 @@ export default defineComponent({
             setTimeout(() => {
                 ghostElement.parentNode.removeChild(ghostElement);
             }, 100);
-        },
-        /**
-         * Event function when cancelling a drag operation
-         */
-        // eslint-disable-next-line
-        endDrag(evt: any): void {
-            console.log(evt);
         },
     },
 });

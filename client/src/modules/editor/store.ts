@@ -8,6 +8,24 @@ export class EditorState {
      */
     public diagram = {} as Diagram;
 
+    /**
+     * The id of the overview item that was selected last
+     */
+    public selectedItemId = "" as string;
+
+    /**
+     * If set, user is allowed to drag items into the diagram
+     */
+    public canDragIntoDiagram = false as boolean;
+
+    /**
+     * Replication of the overview item that is dragged into the diagram
+     */
+    public lastDraggedContent = {} as { label: string; name: string; id: number; color: string };
+
+    /**
+     * Mock customer-db content
+     */
     public mockContent = [
         {
             label: "Label1",
@@ -46,8 +64,6 @@ export class EditorState {
             ],
         },
     ];
-
-    public selectedItemId = "" as string;
 }
 
 export const editor = {
@@ -65,6 +81,18 @@ export const editor = {
          */
         setSelectedItem(state: EditorState, itemId: string): void {
             state.selectedItemId = itemId;
+        },
+        /**
+         * Set last dragged element
+         */
+        setLastDragged(state: EditorState, payload: { label: string; name: string; id: number; color: string }): void {
+            state.lastDraggedContent = payload;
+        },
+        /**
+         * Set flag to enable/disable dragging into the diagram
+         */
+        setDragIntoDiagram(state: EditorState, dragged: boolean): void {
+            state.canDragIntoDiagram = dragged;
         },
     },
     actions: {
