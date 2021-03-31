@@ -52,53 +52,11 @@ describe("NodesController", () => {
     });
 
     beforeEach(async () => {
-        function writeLabel(l): Promise<number> {
-            // language=cypher
-            const cypher = `
-              MERGE (l:LabelScheme {name: $labelName})
-              SET l.color = $color, l.attributes = $attribs
-              RETURN l AS label`;
-
-            const params = {
-                labelName: l.name,
-                color: l.color,
-                attribs: JSON.stringify(l.attributes),
-            };
-            return neo4jService
-                .write(cypher, params, process.env.DB_TOOL)
-                .then((res) => res.records[0].get("label").identity.toNumber());
-        }
-
-        function writeNode(node: Node): Promise<number> {
-            // language=cypher
-            const cypher = `
-              MERGE (m:${node.label} {name: $name})
-              SET m.attrOne = $attrOne, m.attrTwo = $attrTwo
-              RETURN m AS ${node.label}`;
-
-            const params = {
-                name: node.name,
-                label: node.label,
-                attrOne: node.attributes.attrOne,
-                attrTwo: node.attributes.attrTwo,
-            };
-            return neo4jService
-                .write(cypher, params, process.env.DB_CUSTOMER)
-                .then((res) => res.records[0].get(node.label).identity.toNumber());
-        }
-
         const movieLabel = new Label("Movie", "#EEE", [
             new NumberAttribute("attrOne", true, 1900),
             new StringAttribute("attrTwo", false, "empty"),
         ]);
         movieLabel.id = await writeLabel(movieLabel);
-
-        const threePropsLabel = new Label("ThreeProps", "#333", [
-            new NumberAttribute("attrOne", true, 1900),
-            new StringAttribute("attrTwo", true, "empty"),
-            new StringAttribute("attrThree", true, "empty"),
-        ]);
-        threePropsLabel.id = await writeLabel(threePropsLabel);
 
         const rightParseLabel = new Label("rightParse", "#222", [
             new NumberAttribute("attrOne", true, 1900),
@@ -108,9 +66,6 @@ describe("NodesController", () => {
 
         const movieNode = new Node("Avengers", "Movie", { attrOne: 1990, attrTwo: "GER" });
         movieNode.id = await writeNode(movieNode);
-
-        const missingAttributeNode = new Node("MissingNode", "ThreeProps", { attrOne: 1234, attrTwo: "Alfons" });
-        missingAttributeNode.id = await writeNode(missingAttributeNode);
 
         const rightParseNode = new Node("ParseNode", "rightParse", { attrOne: 1234, attrTwo: "HansPeter" });
         rightParseNode.id = await writeNode(rightParseNode);
@@ -130,12 +85,23 @@ describe("NodesController", () => {
         expect(neo4jService).toBeDefined();
     });
 
-    describe("get one node", () => {
+    describe("getNode", () => {
         it("should get one node", async () => {
             expect((await controller.getNode("Avengers")).name).toBe("Avengers");
         });
 
         it("should throw an exception", async () => {
+            // Create specific data which should cause the failure
+            const threePropsLabel = new Label("ThreeProps", "#333", [
+                new NumberAttribute("attrOne", true, 1900),
+                new StringAttribute("attrTwo", true, "empty"),
+                new StringAttribute("attrThree", true, "empty"),
+            ]);
+            threePropsLabel.id = await writeLabel(threePropsLabel);
+
+            const missingAttributeNode = new Node("MissingNode", "ThreeProps", { attrOne: 1234, attrTwo: "Alfons" });
+            missingAttributeNode.id = await writeNode(missingAttributeNode);
+
             await expect(controller.getNode("MissingNode")).rejects.toThrowError(InternalServerErrorException);
         });
 
@@ -146,4 +112,63 @@ describe("NodesController", () => {
             expect(typeof resultNode.attributes.attrTwo).toBe("string");
         });
     });
+
+    describe("searchNode", () => {
+        it("should return the searched node", async () => {
+            expect((await controller.searchNode("ave")).length).toEqual(1);
+        });
+
+        it("should return no node", async () => {
+            expect((await controller.searchNode("zxy")).length).toEqual(0);
+        });
+    });
+
+    describe("getAllNodes", () => {
+        it("should return more than one node", async () => {
+            expect((await controller.getAllNodes()).length).toBeGreaterThan(1);
+        });
+
+        it("should return one node", async () => {
+            expect((await controller.getAllNodes(1, 1)).length).toBe(1);
+        });
+    });
+
+    /**
+     * Helper functions
+     */
+
+    function writeLabel(l): Promise<number> {
+        // language=cypher
+        const cypher = `
+          MERGE (l:LabelScheme {name: $labelName})
+          SET l.color = $color, l.attributes = $attribs
+          RETURN l AS label`;
+
+        const params = {
+            labelName: l.name,
+            color: l.color,
+            attribs: JSON.stringify(l.attributes),
+        };
+        return neo4jService
+            .write(cypher, params, process.env.DB_TOOL)
+            .then((res) => res.records[0].get("label").identity.toNumber());
+    }
+
+    function writeNode(node: Node): Promise<number> {
+        // language=cypher
+        const cypher = `
+              MERGE (m:${node.label} {name: $name})
+              SET m.attrOne = $attrOne, m.attrTwo = $attrTwo
+              RETURN m AS ${node.label}`;
+
+        const params = {
+            name: node.name,
+            label: node.label,
+            attrOne: node.attributes.attrOne,
+            attrTwo: node.attributes.attrTwo,
+        };
+        return neo4jService
+            .write(cypher, params, process.env.DB_CUSTOMER)
+            .then((res) => res.records[0].get(node.label).identity.toNumber());
+    }
 });

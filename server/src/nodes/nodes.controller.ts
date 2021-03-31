@@ -13,7 +13,9 @@ export class NodesController {
     @ApiOperation({
         description: "Returns all the node from the customer db with applying a limit and offset",
     })
-    getAllNodes(@Query("limit") limit: number, @Query("offset") offset: number) {
+    getAllNodes(@Query("limit") limit?: number, @Query("offset") offset?: number) {
+        limit = limit ?? 20;
+        offset = offset ?? 0;
         return this.nodesService.getAllNodes(limit, offset);
     }
 

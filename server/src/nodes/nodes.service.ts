@@ -69,6 +69,8 @@ export class NodesService {
             attributes: attributes,
         } as Node;
 
+        console.log("node", node);
+
         return this.dataSchemeUtil.parseRecordByLabel(node);
     }
 }
