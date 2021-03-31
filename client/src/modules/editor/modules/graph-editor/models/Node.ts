@@ -1,23 +1,27 @@
-export class Node {
+import { NodeReference } from "@/modules/editor/modules/graph-editor/models/NodeReference";
+
+/**
+ * The data for a single node
+ */
+export interface Node {
     /**
-     * The id of the node
+     * The x position
      */
-    public id = "0";
+    x: number;
     /**
-     * The UUID that links this node to the actual node in
-     * the customer DB
+     * The y position
      */
-    public uuid = 0;
+    y: number;
     /**
-     * The shown node
+     * The node reference
      */
-    public label = "Node";
+    ref: NodeReference;
     /**
-     * The x-position
+     * The label of the node
      */
-    public x = 0;
+    label: string;
     /**
-     * The y-position
+     * The type
      */
-    public y = 0;
+    shape: string;
 }

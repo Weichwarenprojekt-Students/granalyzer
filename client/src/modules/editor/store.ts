@@ -11,12 +11,12 @@ export class EditorState {
     /**
      * The id of the overview item that was selected last
      */
-    public selectedItemId = "" as string;
+    public selectedItemId = "";
 
     /**
      * If set, user is allowed to drag items into the diagram
      */
-    public canDragIntoDiagram = false as boolean;
+    public canDragIntoDiagram = false;
 
     /**
      * Replication of the overview item that is dragged into the diagram
