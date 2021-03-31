@@ -1,6 +1,6 @@
 <template>
     <div id="graphContainer" @mousemove="mousemove">
-        <div id="joint" />
+        <div id="joint" @dragover.prevent @drop.stop.prevent />
     </div>
 </template>
 
@@ -112,7 +112,7 @@ export default defineComponent({
          * @param x The x coordinate of the mousewheel event
          * @param y The y coordinate of the mousewheel event
          */
-        zoom(delta: number, x: number, y: number) {
+        zoom(delta: number, x: number, y: number): void {
             const oldScale = this.paper.scale().sx;
             const nextScale = 1.1 ** delta * oldScale;
 
@@ -167,7 +167,7 @@ export default defineComponent({
         /**
          * Adds a link between two rectangles in the diagram
          */
-        addLinkInDiagram(rect1: GraphRectangle, rect2: GraphRectangle) {
+        addLinkInDiagram(rect1: GraphRectangle, rect2: GraphRectangle): void {
             const link = new shapes.standard.Link();
             link.source(rect1);
             link.attr({
