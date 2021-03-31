@@ -92,8 +92,6 @@ export default defineComponent({
                 // Add the node to the graph
                 this.addRectToDiagram(point.x, point.y, node.color, node.name);
             }
-            // Reset dragging event
-            this.$store.commit("editor/setDragIntoDiagram", false);
         });
     },
     methods: {

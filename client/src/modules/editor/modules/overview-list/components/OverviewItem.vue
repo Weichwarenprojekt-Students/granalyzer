@@ -14,6 +14,7 @@
         @dblclick="onDblClick($event)"
         draggable="true"
         @dragstart="startDrag($event, node)"
+        @dragend="endDrag"
     >
         {{ node.name }}
     </div>
@@ -93,6 +94,15 @@ export default defineComponent({
             setTimeout(() => {
                 ghostElement.parentNode.removeChild(ghostElement);
             }, 100);
+        },
+        /**
+         * Event function that handles the cancel of a drag
+         */
+        //  eslint-disable-next-line
+        endDrag(): void {
+            setTimeout(() => {
+                this.$store.commit("editor/setDragIntoDiagram", false);
+            }, 50);
         },
     },
 });
