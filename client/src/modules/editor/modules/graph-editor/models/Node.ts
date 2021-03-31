@@ -1,6 +1,4 @@
-import { NodeConfig } from "@antv/g6";
-
-export class Node implements NodeConfig {
+export class Node {
     /**
      * The id of the node
      */
@@ -22,9 +20,4 @@ export class Node implements NodeConfig {
      * The y-position
      */
     public y = 0;
-
-    /**
-     * Index signature
-     */
-    [key: string]: unknown;
 }

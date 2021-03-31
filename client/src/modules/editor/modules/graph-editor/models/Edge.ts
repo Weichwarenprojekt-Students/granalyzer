@@ -1,6 +1,4 @@
-import { EdgeConfig } from "@antv/g6";
-
-export class Edge implements EdgeConfig {
+export class Edge {
     /**
      * The source node this edge refers too
      */
@@ -13,9 +11,4 @@ export class Edge implements EdgeConfig {
      * The text for the relation
      */
     public label = "Relation";
-
-    /**
-     * Index signature
-     */
-    [key: string]: unknown;
 }
