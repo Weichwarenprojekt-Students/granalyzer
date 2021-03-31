@@ -67,6 +67,7 @@ export class GraphHandler {
                     index: value.ref.index,
                     uuid: value.ref.uuid,
                 },
+                color: value.color,
                 shape: value.shape,
                 x: key.attributes.position.x,
                 y: key.attributes.position.y,
@@ -103,7 +104,7 @@ export class GraphHandler {
         shape.resize(100, 60);
         shape.attr({
             body: {
-                fill: "#70FF87",
+                fill: node.color ? node.color : "#70FF87",
                 strokeWidth: 0,
                 rx: 4,
                 ry: 4,

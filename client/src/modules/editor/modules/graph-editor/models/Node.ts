@@ -24,4 +24,8 @@ export interface Node {
      * The type
      */
     shape: string;
+    /**
+     * The color value
+     */
+    color: string;
 }

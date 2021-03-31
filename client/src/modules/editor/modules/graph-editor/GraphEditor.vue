@@ -81,6 +81,29 @@ export default defineComponent({
             this.paper.on("blank:mousewheel", (evt, x, y, delta) => {
                 this.zoom(delta, x, y);
             });
+
+            // Mouse enter event for the paper
+            this.paper.on("paper:mouseenter", (evt) => {
+                // Check, if user is allowed to drag a node into the diagram
+                if (this.$store.state.editor.canDragIntoDiagram) {
+                    // Get the mouse position in the graph
+                    const point = this.paper.clientToLocalPoint({ x: evt.clientX, y: evt.clientY });
+                    // Get the node that was dragged into the graph
+                    const node = this.$store.state.editor.lastDraggedContent;
+                    // Add the node to the graph
+                    this.graphHandler.addNode({
+                        x: point.x,
+                        y: point.y,
+                        shape: "rectangle",
+                        color: node.color,
+                        label: node.name,
+                        ref: {
+                            uuid: "0",
+                            index: 0,
+                        },
+                    });
+                }
+            });
         },
         /**
          * Move the diagram paper
@@ -123,47 +146,6 @@ export default defineComponent({
 
                 this.paper.matrix(ctm);
             }
-        },
-        /**
-         * Adds a rectangle to the diagram
-         */
-        addRectToDiagram(x: number, y: number, color: string, text: string): GraphRectangle {
-            const rect = new GraphRectangle();
-
-            rect.position(x, y);
-            rect.resize(100, 60);
-            rect.attr({
-                body: {
-                    fill: color,
-                    strokeWidth: 0,
-                    rx: 4,
-                    ry: 4,
-                    cursor: "pointer",
-                    class: "node",
-                },
-                label: {
-                    text: text,
-                    cursor: "pointer",
-                },
-            });
-            this.graph.addCell(rect);
-            return rect;
-        },
-        /**
-         * Adds a link between two rectangles in the diagram
-         */
-        addLinkInDiagram(rect1: GraphRectangle, rect2: GraphRectangle): void {
-            const link = new shapes.standard.Link();
-            link.source(rect1);
-            link.attr({
-                line: {
-                    strokeWidth: 4,
-                },
-            });
-            link.target(rect2);
-            link.addTo(this.graph);
-            link.router("manhattan");
-            link.connector("rounded");
         },
     },
 });
