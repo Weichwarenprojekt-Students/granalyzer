@@ -1,5 +1,5 @@
 <template>
-    <div id="graphContainer">
+    <div id="graphContainer" @mousemove="mousemove">
         <div id="joint" />
     </div>
 </template>
@@ -27,6 +27,9 @@ export default defineComponent({
             graph: {} as dia.Graph,
             paper: {} as dia.Paper,
             data: {} as Diagram,
+            panning: false,
+            // eslint-disable-next-line
+            event_data: {} as any,
         };
     },
     async mounted(): Promise<void> {
@@ -82,6 +85,73 @@ export default defineComponent({
             }
             previousRect = rect;
         }
+
+        // Start panning the diagram
+        this.paper.on("blank:pointerdown", (evt) => {
+            const offset = this.paper.translate();
+            this.event_data = { x: evt.offsetX, y: evt.offsetY, px: offset.tx, py: offset.ty };
+            this.panning = true;
+        });
+
+        // Stop panning the diagram
+        this.paper.on("blank:pointerup", () => {
+            this.event_data = {};
+            this.panning = false;
+        });
+
+        // Zoom the paper while over any element
+        this.paper.on("element:mousewheel link:mousewheel cell:mousewheel", (cellView, evt, x, y, delta) => {
+            this.zoom(delta, x, y);
+        });
+
+        // Zoom the paper while over blank space
+        this.paper.on("blank:mousewheel", (evt, x, y, delta) => {
+            this.zoom(delta, x, y);
+        });
+    },
+    methods: {
+        /**
+         * Move the diagram paper
+         */
+        // eslint-disable-next-line
+        mousemove(event: any): void {
+            let tx = event.offsetX - this.event_data.x;
+            let ty = event.offsetY - this.event_data.y;
+            if (this.panning) this.paper.translate(tx + this.event_data.px, ty + this.event_data.py);
+        },
+        /**
+         * Zoom the diagram paper
+         * @param delta The amount the mousewheel has changed
+         * @param x The x coordinate of the mousewheel event
+         * @param y The y coordinate of the mousewheel event
+         */
+        zoom(delta: number, x: number, y: number) {
+            const oldScale = this.paper.scale().sx;
+            const nextScale = 1.5 ** delta * oldScale;
+
+            if (nextScale >= 0.1 && nextScale <= 10) {
+                const currentScale = this.paper.scale().sx;
+
+                const beta = currentScale / nextScale;
+
+                const ax = x - x * beta;
+                const ay = y - y * beta;
+
+                const translate = this.paper.translate();
+
+                const nextTx = translate.tx - ax * nextScale;
+                const nextTy = translate.ty - ay * nextScale;
+
+                this.paper.translate(nextTx, nextTy);
+
+                const ctm = this.paper.matrix();
+
+                ctm.a = nextScale;
+                ctm.d = nextScale;
+
+                this.paper.matrix(ctm);
+            }
+        },
     },
 });
 </script>
