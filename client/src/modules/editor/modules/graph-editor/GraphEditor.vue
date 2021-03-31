@@ -49,24 +49,31 @@ export default defineComponent({
         let previousRect = undefined;
         for (let node of this.data.nodes) {
             const rect = new GraphRectangle();
-            rect.uuid = "test";
             rect.position(node.x, node.y);
-            rect.resize(100, 40);
+            rect.resize(100, 60);
             rect.attr({
                 body: {
                     fill: "#70FF87",
-                    border: "0",
+                    strokeWidth: 0,
+                    rx: 4,
+                    ry: 4,
+                    cursor: "pointer",
+                    class: "node",
                 },
                 label: {
                     text: node.label,
-                    fill: "white",
+                    cursor: "pointer",
                 },
             });
             rect.addTo(this.graph);
-            console.log(rect.id);
             if (previousRect) {
                 const link = new shapes.standard.Link();
                 link.source(rect);
+                link.attr({
+                    line: {
+                        strokeWidth: 4,
+                    },
+                });
                 // link.source({ id: rect.id });
                 link.target(previousRect);
                 link.addTo(this.graph);
@@ -79,4 +86,12 @@ export default defineComponent({
 });
 </script>
 
-<style lang="less"></style>
+<style lang="less">
+.node + text {
+    color: grey;
+    tspan {
+        font-size: 20px;
+        font-weight: bold;
+    }
+}
+</style>
