@@ -1,7 +1,7 @@
 import { dia, shapes } from "jointjs";
-import { Relation } from "./Relation";
-import { Node } from "./Node";
-import { NodeShapes } from "./NodeShapes";
+import { Relation } from "./models/Relation";
+import { Node } from "./models/Node";
+import { NodeShapes } from "./models/NodeShapes";
 import { SerializableGraph } from "@/modules/editor/modules/graph-editor/models/SerializableGraph";
 
 export class GraphHandler {

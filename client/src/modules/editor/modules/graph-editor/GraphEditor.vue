@@ -7,7 +7,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { dia, shapes } from "jointjs";
-import { GraphHandler } from "./models/GraphHandler";
+import { GraphHandler } from "./GraphHandler";
 import { Diagram } from "@/modules/start/models/Diagram";
 
 export class GraphOptions implements dia.Paper.Options {

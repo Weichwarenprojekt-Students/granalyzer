@@ -139,11 +139,13 @@ export default defineComponent({
 }
 
 .dragged {
-    border: 1px solid @grey;
-    border-radius: 5px;
-    padding: 0;
-    width: 128px;
+    border-radius: @border-radius;
+    width: 100px;
+    height: 60px;
+    font-size: 20px;
+    font-weight: bold;
     display: flex;
+    padding: 0;
     justify-content: center;
 }
 </style>
