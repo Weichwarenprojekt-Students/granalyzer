@@ -328,8 +328,8 @@ export default defineComponent({
     margin-left: 16px;
     border-bottom: 2px solid transparent;
     padding: 0 2px 2px 2px;
-    height: 24px;
-    width: 24px;
+    height: 28px;
+    width: 28px;
     fill: #333;
 
     &:hover {
