@@ -76,9 +76,12 @@ describe("DiagramsController", () => {
         it("should return the added diagram", async () => {
             jest.spyOn(neo4jService, "write").mockImplementation(() => DiagramsRepository.mockAddDiagram());
 
-            expect(await controller.addDiagram("added diagram", "serialized string")).toStrictEqual(
-                DiagramsRepository.resultAddDiagram(),
-            );
+            const bodyObject = {
+                name: "my name",
+                serialized: "string",
+            };
+
+            expect(await controller.addDiagram(bodyObject)).toStrictEqual(DiagramsRepository.resultAddDiagram());
         });
     });
 
