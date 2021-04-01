@@ -26,14 +26,13 @@ export class NodesService {
     }
 
     /**
-     * Returns the node where name is like name
-     * @param name
+     * Returns a specific node by id
      */
-    async getNode(name: string): Promise<Node> {
+    async getNode(id: number): Promise<Node> {
         // language=Cypher
-        const query = "MATCH (n) WHERE n.name = $name RETURN n";
+        const query = "MATCH (n) WHERE id(n) = $id RETURN n";
         const params = {
-            name,
+            id: this.neo4jService.int(id),
         };
         const result = await this.neo4jService.read(query, params, this.database);
         return this.parseNode.call(this, result.records[0]);
@@ -68,8 +67,6 @@ export class NodesService {
             label: record.get("n").labels[0],
             attributes: attributes,
         } as Node;
-
-        console.log("node", node);
 
         return this.dataSchemeUtil.parseRecordByLabel(node);
     }

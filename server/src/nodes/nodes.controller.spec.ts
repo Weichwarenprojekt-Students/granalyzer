@@ -1,3 +1,7 @@
+/**
+ * @group db/nodes/controller
+ */
+
 import { Test, TestingModule } from "@nestjs/testing";
 import { NodesController } from "./nodes.controller";
 import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
@@ -15,6 +19,9 @@ describe("NodesController", () => {
     let service: NodesService;
     let neo4jService: Neo4jService;
     let controller: NodesController;
+
+    let movieNodeId;
+    let validNodeId;
 
     beforeAll(async () => {
         // Get .env variables
@@ -58,17 +65,19 @@ describe("NodesController", () => {
         ]);
         movieLabel.id = await writeLabel(movieLabel);
 
-        const rightParseLabel = new Label("rightParse", "#222", [
+        const validLabel = new Label("validLabel", "#222", [
             new NumberAttribute("attrOne", true, 1900),
             new StringAttribute("attrTwo", true, "empty"),
         ]);
-        rightParseLabel.id = await writeLabel(rightParseLabel);
+        validLabel.id = await writeLabel(validLabel);
 
         const movieNode = new Node("Avengers", "Movie", { attrOne: 1990, attrTwo: "GER" });
         movieNode.id = await writeNode(movieNode);
+        movieNodeId = movieNode.id;
 
-        const rightParseNode = new Node("ParseNode", "rightParse", { attrOne: 1234, attrTwo: "HansPeter" });
-        rightParseNode.id = await writeNode(rightParseNode);
+        const validNode = new Node("ValidNode", "validLabel", { attrOne: 1234, attrTwo: "HansPeter" });
+        validNode.id = await writeNode(validNode);
+        validNodeId = validNode.id;
     });
 
     afterEach(async () => {
@@ -87,7 +96,7 @@ describe("NodesController", () => {
 
     describe("getNode", () => {
         it("should get one node", async () => {
-            expect((await controller.getNode("Avengers")).name).toBe("Avengers");
+            expect((await controller.getNode(movieNodeId)).name).toBe("Avengers");
         });
 
         it("should throw an exception", async () => {
@@ -102,11 +111,13 @@ describe("NodesController", () => {
             const missingAttributeNode = new Node("MissingNode", "ThreeProps", { attrOne: 1234, attrTwo: "Alfons" });
             missingAttributeNode.id = await writeNode(missingAttributeNode);
 
-            await expect(controller.getNode("MissingNode")).rejects.toThrowError(InternalServerErrorException);
+            await expect(controller.getNode(missingAttributeNode.id)).rejects.toThrowError(
+                InternalServerErrorException,
+            );
         });
 
         it("should return the attribute the right datatypes", async () => {
-            const resultNode = await controller.getNode("ParseNode");
+            const resultNode = await controller.getNode(validNodeId);
 
             expect(typeof resultNode.attributes.attrOne).toBe("number");
             expect(typeof resultNode.attributes.attrTwo).toBe("string");
