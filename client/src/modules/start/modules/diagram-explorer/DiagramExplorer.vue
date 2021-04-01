@@ -250,7 +250,7 @@ export default defineComponent({
          * Handle double click on diagram
          */
         doubleClickedDiagram(): void {
-            this.$store.dispatch("editor/setDiagram", this.selectedDiagram);
+            this.$store.commit("editor/setDiagram", this.selectedDiagram);
             this.$router.push(routeNames.editor);
         },
         /**

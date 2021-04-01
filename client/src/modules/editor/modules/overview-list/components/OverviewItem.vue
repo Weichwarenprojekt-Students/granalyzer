@@ -1,33 +1,30 @@
 <template>
-    <!-- Labels -->
-    <div class="label" :id="content.label" @click="onClick($event)" @dblclick="onDblClick($event)">
-        {{ content.label }}
-    </div>
-
     <!-- Nodes related to the label -->
     <div
-        class="label node"
-        :id="node.id"
-        v-for="node in content.nodes"
-        :key="node"
+        class="node"
+        :id="nodeId"
         @click="onClick($event)"
         @dblclick="onDblClick($event)"
         draggable="true"
-        @dragstart="startDrag($event, node)"
+        @dragstart="startDrag($event)"
         @dragend="endDrag"
     >
-        {{ node.name }}
+        {{ name }}
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+// import Node from "@/modules/editor/models/Node";
 
 export default defineComponent({
     name: "OverviewItem",
     props: {
         // Labels and nodes of the customer db
-        content: Object,
+        name: String,
+        label: String,
+        attributes: Array,
+        nodeId: Number,
     },
     methods: {
         /**
@@ -64,16 +61,16 @@ export default defineComponent({
          * Event function to start dragging elements
          */
         // eslint-disable-next-line
-        startDrag(evt: any, node: any): void {
+        startDrag(evt: any): void {
             // Set drag-id from overview
-            evt.dataTransfer.setData("overview-drag", node.id);
+            evt.dataTransfer.setData("overview-drag", this.id);
 
             // Store currently dragged item, so it can be replicated in the diagram
             this.$store.commit("editor/setLastDragged", {
                 label: this.content?.label,
-                name: node.name,
-                id: node.id,
-                color: this.content?.color,
+                name: this.name,
+                id: this.id,
+                color: "#6fcf97",
             });
             // Allow dragging into the diagram
             this.$store.commit("editor/setDragIntoDiagram", true);
@@ -83,7 +80,7 @@ export default defineComponent({
             ghostElement.classList.add("dragged");
 
             // Set color to label color
-            if (this.content && ghostElement) ghostElement.style.background = this.content.color;
+            if (ghostElement) ghostElement.style.background = "#6fcf97";
 
             document.body.appendChild(ghostElement);
 
@@ -111,7 +108,7 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/styles.less";
 
-.label {
+.node {
     height: 60px;
     padding-left: 16px;
     display: flex;
@@ -125,11 +122,6 @@ export default defineComponent({
     }
 }
 
-.node {
-    font-size: @h3 - 2px;
-    padding-left: 32px;
-}
-
 .selected {
     background: @secondary_color;
 
@@ -140,12 +132,14 @@ export default defineComponent({
 
 .dragged {
     border-radius: @border-radius;
-    width: 100px;
+    width: fit-content;
     height: 60px;
-    font-size: 20px;
+    font-size: @h3;
     font-weight: bold;
+    padding: 0 16px;
+
     display: flex;
-    padding: 0;
+    flex-direction: row;
     justify-content: center;
 }
 </style>

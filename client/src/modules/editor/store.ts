@@ -1,6 +1,7 @@
 import { Diagram } from "@/modules/start/models/Diagram";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
+import { GET } from "@/utility";
 
 export class EditorState {
     /**
@@ -23,46 +24,23 @@ export class EditorState {
      */
     public lastDraggedContent = {} as { label: string; name: string; id: number; color: string };
 
+    public nodes = [] as Node[];
     /**
      * Mock customer-db content
      */
     public mockContent = [
-        {
-            label: "Label1",
-            color: "#6fcf97",
-            nodes: [
-                { name: "Node1", id: "1" },
-                { name: "Node2", id: "2" },
-                { name: "Node3", id: "3" },
-            ],
-        },
-        {
-            label: "Label2",
-            color: "#008DDD",
-            nodes: [
-                { name: "Node4", id: "4" },
-                { name: "Node5", id: "5" },
-                { name: "Node6", id: "6" },
-            ],
-        },
-        {
-            label: "Label3",
-            color: "#FFA726",
-            nodes: [
-                { name: "Node7", id: "7" },
-                { name: "Node8", id: "8" },
-                { name: "Node9", id: "9" },
-            ],
-        },
-        {
-            label: "Label4",
-            color: "#FF4D26",
-            nodes: [
-                { name: "Node10", id: "10" },
-                { name: "Node11", id: "11" },
-                { name: "Node12", id: "12" },
-            ],
-        },
+        { name: "Node1", label: "label1", attributes: [], id: 1 },
+        { name: "Node2", label: "label1", attributes: [], id: 2 },
+        { name: "Node3", label: "label1", attributes: [], id: 3 },
+        { name: "Node4", label: "label1", attributes: [], id: 4 },
+        { name: "Node5", label: "label2", attributes: [], id: 5 },
+        { name: "Node6", label: "label2", attributes: [], id: 6 },
+        { name: "Node7", label: "label2", attributes: [], id: 7 },
+        { name: "Node8", label: "label2", attributes: [], id: 8 },
+        { name: "Node9", label: "label3", attributes: [], id: 9 },
+        { name: "Node10", label: "label3", attributes: [], id: 10 },
+        { name: "Node11", label: "label3", attributes: [], id: 11 },
+        { name: "Node12", label: "label3", attributes: [], id: 12 },
     ];
 }
 
@@ -94,13 +72,21 @@ export const editor = {
         setDragIntoDiagram(state: EditorState, dragged: boolean): void {
             state.canDragIntoDiagram = dragged;
         },
+        /**
+         * Stores the nodes
+         */
+        loadNodes(state: EditorState, nodes: Node[]): void {
+            console.log("loading " + nodes + " into " + state);
+        },
     },
     actions: {
         /**
-         * Change the active diagram
+         * Loads the nodes for the overview
          */
-        setDiagram(context: ActionContext<EditorState, RootState>, diagram: Diagram): void {
-            context.commit("setDiagram", diagram);
+        async loadNodes(context: ActionContext<EditorState, RootState>): Promise<void> {
+            const res = await GET("/api/nodes");
+
+            if (res.status === 200) context.commit("loadNodes", await res.json());
         },
     },
 };

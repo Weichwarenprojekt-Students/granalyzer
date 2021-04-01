@@ -5,7 +5,14 @@
             <input type="text" placeholder="Search..." />
         </label>
         <ScrollPanel class="scroll-panel">
-            <OverviewItem v-for="content in $store.state.editor.mockContent" :key="content" :content="content" />
+            <OverviewItem
+                v-for="content in $store.state.editor.mockContent"
+                :key="content.id"
+                :name="content.name"
+                :label="content.label"
+                :attribtues="content.attributes"
+                :nodeId="content.id"
+            />
         </ScrollPanel>
         <!--<div class="button">Add Node</div>-->
     </div>
