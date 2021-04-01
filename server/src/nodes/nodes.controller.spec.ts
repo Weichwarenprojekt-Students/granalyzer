@@ -1,3 +1,7 @@
+/**
+ * @group db/nodes/controller
+ */
+
 import { Test, TestingModule } from "@nestjs/testing";
 import { NodesController } from "./nodes.controller";
 import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
