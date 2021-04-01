@@ -29,18 +29,18 @@ export class EditorState {
      * Mock customer-db content
      */
     public mockContent = [
-        { name: "Node1", label: "label1", attributes: [], id: 1 },
-        { name: "Node2", label: "label1", attributes: [], id: 2 },
-        { name: "Node3", label: "label1", attributes: [], id: 3 },
-        { name: "Node4", label: "label1", attributes: [], id: 4 },
-        { name: "Node5", label: "label2", attributes: [], id: 5 },
-        { name: "Node6", label: "label2", attributes: [], id: 6 },
-        { name: "Node7", label: "label2", attributes: [], id: 7 },
-        { name: "Node8", label: "label2", attributes: [], id: 8 },
-        { name: "Node9", label: "label3", attributes: [], id: 9 },
-        { name: "Node10", label: "label3", attributes: [], id: 10 },
-        { name: "Node11", label: "label3", attributes: [], id: 11 },
-        { name: "Node12", label: "label3", attributes: [], id: 12 },
+        { name: "Node1", label: "Application", attributes: [], id: 1 },
+        { name: "Node2", label: "Application", attributes: [], id: 2 },
+        { name: "Node3", label: "Application", attributes: [], id: 3 },
+        { name: "Node5", label: "Network", attributes: [], id: 5 },
+        { name: "Node6", label: "Network", attributes: [], id: 6 },
+        { name: "Node7", label: "Network", attributes: [], id: 7 },
+        { name: "Node8", label: "Network", attributes: [], id: 8 },
+        { name: "Node4", label: "Application", attributes: [], id: 4 },
+        { name: "Node9", label: "Router", attributes: [], id: 9 },
+        { name: "Node10", label: "Router", attributes: [], id: 10 },
+        { name: "Node11", label: "Router", attributes: [], id: 11 },
+        { name: "Node12", label: "Router", attributes: [], id: 12 },
     ];
 }
 

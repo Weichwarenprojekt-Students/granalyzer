@@ -9,7 +9,10 @@
         @dragstart="startDrag($event)"
         @dragend="endDrag"
     >
-        {{ name }}
+        <h3>{{ name }}</h3>
+        <div class="label">
+            {{ label }}
+        </div>
     </div>
 </template>
 
@@ -63,13 +66,13 @@ export default defineComponent({
         // eslint-disable-next-line
         startDrag(evt: any): void {
             // Set drag-id from overview
-            evt.dataTransfer.setData("overview-drag", this.id);
+            evt.dataTransfer.setData("overview-drag", this.nodeId);
 
             // Store currently dragged item, so it can be replicated in the diagram
             this.$store.commit("editor/setLastDragged", {
-                label: this.content?.label,
+                label: this.label,
                 name: this.name,
-                id: this.id,
+                id: this.nodeId,
                 color: "#6fcf97",
             });
             // Allow dragging into the diagram
@@ -110,12 +113,18 @@ export default defineComponent({
 
 .node {
     height: 60px;
-    padding-left: 16px;
+    padding: 0 24px 0 16px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    font-size: @h3;
     border-bottom: 1px solid @grey;
     cursor: pointer;
+
+    .label {
+        padding: 4px 8px;
+        border: 1px solid @grey;
+        border-radius: 5px;
+    }
 
     &:hover {
         background: @accent_color;
@@ -133,13 +142,15 @@ export default defineComponent({
 .dragged {
     border-radius: @border-radius;
     width: fit-content;
-    height: 60px;
-    font-size: @h3;
-    font-weight: bold;
-    padding: 0 16px;
+    height: fit-content;
+    padding: 8px 16px;
 
     display: flex;
     flex-direction: row;
     justify-content: center;
+
+    .label {
+        display: none;
+    }
 }
 </style>
