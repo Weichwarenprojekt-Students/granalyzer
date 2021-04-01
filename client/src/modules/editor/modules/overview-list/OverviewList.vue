@@ -6,13 +6,14 @@
         </label>
         <ScrollPanel class="scroll-panel">
             <OverviewItem
-                v-for="content in $store.state.editor.mockContent"
+                v-for="content in $store.state.editor.nodes"
                 :key="content.id"
                 :name="content.name"
                 :label="content.label"
                 :attribtues="content.attributes"
                 :nodeId="content.id"
             />
+            <div class="space"></div>
         </ScrollPanel>
         <!--<div class="button">Add Node</div>-->
     </div>
@@ -25,6 +26,17 @@ import OverviewItem from "@/modules/editor/modules/overview-list/components/Over
 export default defineComponent({
     name: "OverviewList",
     components: { OverviewItem },
+    created() {
+        this.loadItems();
+    },
+    methods: {
+        /**
+         * Update the folders and diagrams based on the route
+         */
+        loadItems(): void {
+            this.$store.dispatch("editor/loadNodes");
+        },
+    },
 });
 </script>
 
@@ -60,6 +72,10 @@ export default defineComponent({
     margin-top: 8px !important;
     overflow: hidden !important;
     flex: 1 1 auto !important;
+
+    .space {
+        height: 20px;
+    }
 }
 
 .button {

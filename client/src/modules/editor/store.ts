@@ -2,6 +2,8 @@ import { Diagram } from "@/modules/start/models/Diagram";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
+import Label from "@/modules/editor/models/Label";
+import Node from "@/modules/editor/models/Node";
 
 export class EditorState {
     /**
@@ -22,26 +24,12 @@ export class EditorState {
     /**
      * Replication of the overview item that is dragged into the diagram
      */
-    public lastDraggedContent = {} as { label: string; name: string; id: number; color: string };
+    public lastDraggedContent = {} as Node;
 
-    public nodes = [] as Node[];
     /**
-     * Mock customer-db content
+     * Nodes in the customer db
      */
-    public mockContent = [
-        { name: "Node1", label: "Application", attributes: [], id: 1 },
-        { name: "Node2", label: "Application", attributes: [], id: 2 },
-        { name: "Node3", label: "Application", attributes: [], id: 3 },
-        { name: "Node5", label: "Network", attributes: [], id: 5 },
-        { name: "Node6", label: "Network", attributes: [], id: 6 },
-        { name: "Node7", label: "Network", attributes: [], id: 7 },
-        { name: "Node8", label: "Network", attributes: [], id: 8 },
-        { name: "Node4", label: "Application", attributes: [], id: 4 },
-        { name: "Node9", label: "Router", attributes: [], id: 9 },
-        { name: "Node10", label: "Router", attributes: [], id: 10 },
-        { name: "Node11", label: "Router", attributes: [], id: 11 },
-        { name: "Node12", label: "Router", attributes: [], id: 12 },
-    ];
+    public nodes = [] as Node[];
 }
 
 export const editor = {
@@ -63,8 +51,8 @@ export const editor = {
         /**
          * Set last dragged element
          */
-        setLastDragged(state: EditorState, payload: { label: string; name: string; id: number; color: string }): void {
-            state.lastDraggedContent = payload;
+        setLastDragged(state: EditorState, node: Node): void {
+            state.lastDraggedContent = node;
         },
         /**
          * Set flag to enable/disable dragging into the diagram
@@ -76,7 +64,7 @@ export const editor = {
          * Stores the nodes
          */
         loadNodes(state: EditorState, nodes: Node[]): void {
-            console.log("loading " + nodes + " into " + state);
+            state.nodes = nodes;
         },
     },
     actions: {
@@ -87,6 +75,21 @@ export const editor = {
             const res = await GET("/api/nodes");
 
             if (res.status === 200) context.commit("loadNodes", await res.json());
+        },
+        /**
+         * Get the color value for a specific node
+         */
+        async getNodeColor(context: ActionContext<EditorState, RootState>, label: string): Promise<string> {
+            const res = await GET("/api/data-scheme/label");
+            let color = "";
+
+            if (res.status === 200) {
+                const data = await res.json();
+                const element = data.find((element: Label) => element.name === label);
+                color = element.color;
+            }
+
+            return color;
         },
     },
 };

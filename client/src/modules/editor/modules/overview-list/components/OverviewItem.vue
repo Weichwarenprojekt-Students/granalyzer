@@ -18,10 +18,18 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-// import Node from "@/modules/editor/models/Node";
+import Node from "@/modules/editor/models/Node";
 
 export default defineComponent({
     name: "OverviewItem",
+    data() {
+        return {
+            color: "",
+        };
+    },
+    async created() {
+        this.color = await this.getColor();
+    },
     props: {
         // Labels and nodes of the customer db
         name: String,
@@ -69,12 +77,14 @@ export default defineComponent({
             evt.dataTransfer.setData("overview-drag", this.nodeId);
 
             // Store currently dragged item, so it can be replicated in the diagram
-            this.$store.commit("editor/setLastDragged", {
-                label: this.label,
-                name: this.name,
-                id: this.nodeId,
-                color: "#6fcf97",
-            });
+
+            if (this.name && this.label) {
+                this.$store.commit(
+                    "editor/setLastDragged",
+                    new Node(this.name, this.label, this.attributes, this.nodeId, this.color),
+                );
+            }
+
             // Allow dragging into the diagram
             this.$store.commit("editor/setDragIntoDiagram", true);
 
@@ -83,7 +93,7 @@ export default defineComponent({
             ghostElement.classList.add("dragged");
 
             // Set color to label color
-            if (ghostElement) ghostElement.style.background = "#6fcf97";
+            if (ghostElement) ghostElement.style.background = this.color;
 
             document.body.appendChild(ghostElement);
 
@@ -103,6 +113,12 @@ export default defineComponent({
             setTimeout(() => {
                 this.$store.commit("editor/setDragIntoDiagram", false);
             }, 50);
+        },
+        /**
+         * Assigns the color for the node depending on its label
+         */
+        async getColor(): Promise<string> {
+            return await this.$store.dispatch("editor/getNodeColor", this.label);
         },
     },
 });

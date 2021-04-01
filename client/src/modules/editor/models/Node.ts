@@ -6,7 +6,14 @@ export default class Node {
      * @param label Label the node is related to
      * @param attributes Additional attributes of the node
      * @param id Id of the node
+     * @param color Color of the label type
      */
-    // eslint-disable-next-line
-    constructor(public name: string, public label: string, public attributes: any, public id?: number) {}
+    constructor(
+        public name: string,
+        public label: string,
+        // eslint-disable-next-line
+        public attributes?: any,
+        public id?: number,
+        public color?: string,
+    ) {}
 }
