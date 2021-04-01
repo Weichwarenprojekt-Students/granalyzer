@@ -2,11 +2,15 @@ import { Controller, Get, Param, Query } from "@nestjs/common";
 import { NodesService } from "./nodes.service";
 import Node from "./node.model";
 import { ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { NodesRelationsService } from "./nodes-relations.service";
 
 @ApiTags("nodes")
 @Controller("nodes")
 export class NodesController {
-    constructor(private readonly nodesService: NodesService) {}
+    constructor(
+        private readonly nodesService: NodesService,
+        private readonly nodesRelationsService: NodesRelationsService,
+    ) {}
 
     @Get()
     @ApiQuery({ name: "limit", type: "number" })
@@ -49,5 +53,10 @@ export class NodesController {
     @ApiInternalServerErrorResponse()
     searchNode(@Param("needle") name: string) {
         return this.nodesService.searchNode(name);
+    }
+
+    @Get(":id/relations")
+    getRelationsOfNode(@Param("id") id: number) {
+        return this.nodesRelationsService.getRelationsOfNode(id);
     }
 }

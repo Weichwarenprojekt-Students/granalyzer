@@ -140,4 +140,24 @@ export class DataSchemeService {
             return DataSchemeService.parseRelation(res.records[0]);
         });
     }
+
+    /**
+     * Acquire the desired relation type
+     *
+     * @param name The name of the desired relation type
+     */
+    async getRelationTypeByName(name: string): Promise<RelationType> {
+        // language=cypher
+        const cypher = "MATCH (rt:RelationType) WHERE rt.name = $name RETURN rt AS dataScheme";
+        const params = {
+            name,
+        };
+
+        return this.neo4jService.read(cypher, params, this.database).then((res) => {
+            if (!res.records.length) {
+                throw new NotFoundException("Label with name: " + name + " not found");
+            }
+            return DataSchemeService.parseRelation(res.records[0]);
+        });
+    }
 }
