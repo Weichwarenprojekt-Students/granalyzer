@@ -182,14 +182,10 @@ export default defineComponent({
          */
         addEmptyFolder(folderName: string): void {
             if (!folderName) {
-                this.$toast.add({
-                    severity: "error",
-                    summary: this.$t("start.newFolder.empty.title"),
-                    detail: this.$t("start.newFolder.empty.description"),
-                    life: 3000,
-                });
+                this.displayEmptyNameError();
                 return;
             }
+
             this.addFolderDialog = false;
             this.$store.dispatch("start/addFolder", {
                 folder: new Folder(folderName),
@@ -202,6 +198,11 @@ export default defineComponent({
          * @param newName The new name of the item
          */
         renameItem(newName: string) {
+            if (!newName) {
+                this.displayEmptyNameError();
+                return;
+            }
+
             if (!isEmpty(this.selectedFolder)) {
                 const copy = this.selectedFolder.copy();
                 copy.name = newName;
@@ -298,6 +299,17 @@ export default defineComponent({
         clearSelection(): void {
             this.selectedDiagram = {} as Diagram;
             this.selectedFolder = {} as Folder;
+        },
+        /**
+         * Displays an error message for empty name input fields
+         */
+        displayEmptyNameError(): void {
+            this.$toast.add({
+                severity: "error",
+                summary: this.$t("start.newFolder.empty.title"),
+                detail: this.$t("start.newFolder.empty.description"),
+                life: 3000,
+            });
         },
     },
 });
