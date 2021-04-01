@@ -12,6 +12,7 @@
                 :label="content.label"
                 :attribtues="content.attributes"
                 :nodeId="content.id"
+                :color="getColorByLabel(content.label)"
             />
             <div class="space"></div>
         </ScrollPanel>
@@ -22,19 +23,21 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import OverviewItem from "@/modules/editor/modules/overview-list/components/OverviewItem.vue";
+import Label from "@/modules/editor/models/Label";
 
 export default defineComponent({
     name: "OverviewList",
     components: { OverviewItem },
     created() {
-        this.loadItems();
+        this.$store.dispatch("editor/loadNodes");
     },
     methods: {
         /**
-         * Update the folders and diagrams based on the route
+         * Gets the color that corresponds to a label
          */
-        loadItems(): void {
-            this.$store.dispatch("editor/loadNodes");
+        getColorByLabel(label: string): string {
+            const element = this.$store.state.editor.labels.find((element: Label) => element.name === label);
+            return element?.color ? element.color : "#FFFFFF";
         },
     },
 });

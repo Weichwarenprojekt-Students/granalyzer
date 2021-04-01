@@ -27,6 +27,9 @@ export default defineComponent({
             else return this.$t("editor.title");
         },
     },
+    mounted() {
+        this.$store.dispatch("editor/loadLabels");
+    },
 });
 </script>
 

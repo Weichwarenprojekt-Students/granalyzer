@@ -10,7 +10,7 @@
         @dragend="endDrag"
     >
         <h3>{{ name }}</h3>
-        <div class="label">
+        <div class="label" :style="{ background: color }">
             {{ label }}
         </div>
     </div>
@@ -22,20 +22,13 @@ import Node from "@/modules/editor/models/Node";
 
 export default defineComponent({
     name: "OverviewItem",
-    data() {
-        return {
-            color: "",
-        };
-    },
-    async created() {
-        this.color = await this.getColor();
-    },
     props: {
         // Labels and nodes of the customer db
         name: String,
         label: String,
         attributes: Array,
         nodeId: Number,
+        color: String,
     },
     methods: {
         /**
@@ -113,12 +106,6 @@ export default defineComponent({
             setTimeout(() => {
                 this.$store.commit("editor/setDragIntoDiagram", false);
             }, 50);
-        },
-        /**
-         * Assigns the color for the node depending on its label
-         */
-        async getColor(): Promise<string> {
-            return await this.$store.dispatch("editor/getNodeColor", this.label);
         },
     },
 });

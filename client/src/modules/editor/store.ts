@@ -30,6 +30,11 @@ export class EditorState {
      * Nodes in the customer db
      */
     public nodes = [] as Node[];
+
+    /**
+     * Labels in the customer db
+     */
+    public labels = [] as Label[];
 }
 
 export const editor = {
@@ -66,6 +71,12 @@ export const editor = {
         loadNodes(state: EditorState, nodes: Node[]): void {
             state.nodes = nodes;
         },
+        /**
+         * Stores the labels
+         */
+        loadLabels(state: EditorState, labels: Label[]): void {
+            state.labels = labels;
+        },
     },
     actions: {
         /**
@@ -79,17 +90,10 @@ export const editor = {
         /**
          * Get the color value for a specific node
          */
-        async getNodeColor(context: ActionContext<EditorState, RootState>, label: string): Promise<string> {
+        async loadLabels(context: ActionContext<EditorState, RootState>): Promise<void> {
             const res = await GET("/api/data-scheme/label");
-            let color = "";
 
-            if (res.status === 200) {
-                const data = await res.json();
-                const element = data.find((element: Label) => element.name === label);
-                color = element.color;
-            }
-
-            return color;
+            if (res.status === 200) context.commit("loadLabels", await res.json());
         },
     },
 };
