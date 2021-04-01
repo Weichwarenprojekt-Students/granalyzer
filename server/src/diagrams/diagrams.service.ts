@@ -121,7 +121,7 @@ export class DiagramsService {
     /**
      * Updates a specific diagram
      */
-    async updateDiagram(id: number, name: string): Promise<Diagram> {
+    async updateDiagram(id: number, name: string, serialized: string): Promise<Diagram> {
         // Check whether id belongs to a diagram
         await this.utilsNode.checkElementForLabel(id, "Diagram");
 
@@ -130,12 +130,13 @@ export class DiagramsService {
           MATCH (d:Diagram)
             WHERE id(d) = $id
           OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder)
-          SET d = {name: $name}
+          SET d = {name: $name, serialized: $serialized}
           RETURN d AS diagram, id(f) AS parentId`;
 
         const params = {
             id: neo4j.int(id),
             name,
+            serialized,
         };
 
         return this.neo4jService.write(cypher, params, this.database).then((res) => {

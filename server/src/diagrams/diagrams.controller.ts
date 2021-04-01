@@ -109,11 +109,15 @@ export class DiagramsController {
                     type: "string",
                     description: "New name",
                 },
+                serialized: {
+                    type: "string",
+                    description: "New serialized diagram",
+                },
             },
         },
     })
-    updateDiagram(@Param("id") id: number, @Body("name") name: string) {
-        return this.diagramsService.updateDiagram(id, name);
+    updateDiagram(@Param("id") id: number, @Body() body: Diagram) {
+        return this.diagramsService.updateDiagram(id, body.name, body.serialized);
     }
 
     @Delete(":id")
