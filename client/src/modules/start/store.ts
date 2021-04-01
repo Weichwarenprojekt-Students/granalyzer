@@ -158,7 +158,7 @@ export const start = {
         ): Promise<void> {
             const res =
                 payload.parentId === undefined
-                    ? await DELETE(`/api/folders/${context.getters.parent.id}/diagrams/${payload.id}`)
+                    ? await DELETE(`/api/folders/${context.state.parent.id}/diagrams/${payload.id}`)
                     : await PUT(`/api/folders/${payload.parentId}/diagrams/${payload.id}`, "");
 
             if (res.status === 201) context.commit("moveDiagram", payload.id);
