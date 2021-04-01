@@ -22,6 +22,7 @@ describe("NodesController", () => {
 
     let movieNodeId;
     let validNodeId;
+    let nmNodeID;
 
     beforeAll(async () => {
         // Get .env variables
@@ -71,6 +72,13 @@ describe("NodesController", () => {
         ]);
         validLabel.id = await writeLabel(validLabel);
 
+        const nmLabel = new Label("nmLabel", "#424", [
+            new NumberAttribute("attrOne", false, null),
+            new StringAttribute("attrTwo", false, null),
+            new StringAttribute("attrThree", false, null),
+        ]);
+        nmLabel.id = await writeLabel(nmLabel);
+
         const movieNode = new Node("Avengers", "Movie", { attrOne: 1990, attrTwo: "GER" });
         movieNode.id = await writeNode(movieNode);
         movieNodeId = movieNode.id;
@@ -78,6 +86,10 @@ describe("NodesController", () => {
         const validNode = new Node("ValidNode", "validLabel", { attrOne: 1234, attrTwo: "HansPeter" });
         validNode.id = await writeNode(validNode);
         validNodeId = validNode.id;
+
+        const nmNode = new Node("nmNode", "nmLabel", { attrOne: 42, attrTwo: "GER" });
+        nmNode.id = await writeNode(nmNode);
+        nmNodeID = nmNode.id;
     });
 
     afterEach(async () => {
@@ -121,6 +133,14 @@ describe("NodesController", () => {
 
             expect(typeof resultNode.attributes.attrOne).toBe("number");
             expect(typeof resultNode.attributes.attrTwo).toBe("string");
+        });
+
+        it("should return the node, that has no attributes", async () => {
+            const mandaNode = await controller.getNode(nmNodeID);
+
+            expect(mandaNode.attributes.attrOne).toEqual(42);
+            expect(mandaNode.attributes.attrTwo).toEqual("GER");
+            expect(mandaNode.attributes.attrThree).toBeUndefined();
         });
     });
 

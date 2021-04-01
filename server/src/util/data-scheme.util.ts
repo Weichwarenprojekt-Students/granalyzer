@@ -27,8 +27,13 @@ export class DataSchemeUtil {
             label.attributes.forEach((attribute) => {
                 const nodeAttribute = nodeAttributes[attribute.name];
 
-                // Add parsed and validated attribute to node
-                node.attributes[attribute.name] = Attribute.applyOnElement(attribute, nodeAttribute);
+                // Check for mandatory attributes
+                if (attribute.mandatory && !nodeAttribute) {
+                    throw new MandatoryAttributeMissingException("Mandatory attribute is missing on requested node");
+                } else if (nodeAttributes[attribute.name]) {
+                    // Add parsed and validated attribute to node
+                    node.attributes[attribute.name] = Attribute.applyOnElement(attribute, nodeAttribute);
+                }
             });
         } catch (e) {
             // Catch the Error if a Mandatory field is Empty
