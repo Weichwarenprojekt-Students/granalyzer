@@ -34,6 +34,11 @@ export class DiagramsService {
             diagram.parentId = record.get("parentId")?.toNumber();
         }
 
+        // Append serialized if available
+        if (record.keys.indexOf("serialized") > -1) {
+            diagram.serialized = record.get("serialized")?.toString();
+        }
+
         return diagram;
     }
 
@@ -97,14 +102,15 @@ export class DiagramsService {
     /**
      * Adds a new diagram to the db
      */
-    async addDiagram(name: string): Promise<Diagram> {
+    async addDiagram(name: string, serialized: string): Promise<Diagram> {
         // language=Cypher
         const cypher = `
-          CREATE (d:Diagram {name: $name})
+          CREATE (d:Diagram {name: $name, serialized: $serialized})
           RETURN d AS diagram`;
 
         const params = {
             name,
+            serialized,
         };
 
         return this.neo4jService
