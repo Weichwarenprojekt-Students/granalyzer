@@ -36,6 +36,11 @@ export class EditorState {
      * Labels in the customer db
      */
     public labels = [] as Label[];
+
+    /**
+     * Label/Color, FontColor Map
+     */
+    public labelColor = new Map() as Map<string, { color: string; fontColor: string }>;
 }
 
 export const editor = {
@@ -78,6 +83,35 @@ export const editor = {
         loadLabels(state: EditorState, labels: Label[]): void {
             state.labels = labels;
         },
+        /**
+         * Creates a map of labels, colors and the most fitting font color
+         */
+        loadLabelColors(state: EditorState, labels: Label[]): void {
+            labels.forEach((label) => {
+                let brightness = 0;
+
+                if (label.name && label.color) {
+                    // Remove "#" from hex-code
+                    const parsedHex = parseInt(label.color.substr(1), 16);
+                    if (parsedHex) {
+                        // Get R, G, B values from hex-code
+                        const R = (parsedHex >> 16) & 255;
+                        const G = (parsedHex >> 8) & 255;
+                        const B = parsedHex & 255;
+                        // Calculate color brightness from RGB-values
+                        brightness = R * 0.299 + G * 0.587 + B * 0.114;
+                    }
+
+                    // Black font color, if brightness is above 50%
+                    const font = brightness > 127.5 ? "#000000" : "#FFFFFF";
+
+                    state.labelColor.set(label.name, {
+                        color: label.color,
+                        fontColor: font,
+                    });
+                }
+            });
+        },
     },
     actions: {
         /**
@@ -94,7 +128,11 @@ export const editor = {
         async loadLabels(context: ActionContext<EditorState, RootState>): Promise<void> {
             const res = await GET("/api/data-scheme/label");
 
-            if (res.status === 200) context.commit("loadLabels", await res.json());
+            if (res.status === 200) {
+                const data = await res.json();
+                context.commit("loadLabelColors", data);
+                context.commit("loadLabels", data);
+            }
         },
     },
     modules: {

@@ -2,13 +2,17 @@
     <div class="content">
         <EditorHeader class="header"></EditorHeader>
         <GraphEditor class="editor"></GraphEditor>
-        <OverviewList class="overview"></OverviewList>
+        <OverviewList
+            v-if="nodesAndLabelsLoaded"
+            class="overview"
+            :nodes="$store.state.editor.nodes"
+            :labelColor="$store.state.editor.labelColor"
+        ></OverviewList>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { isEmpty } from "@/utility";
 import EditorHeader from "@/modules/editor/modules/editor-header/EditorHeader.vue";
 import OverviewList from "@/modules/editor/modules/overview-list/OverviewList.vue";
 import GraphEditor from "@/modules/editor/modules/graph-editor/GraphEditor.vue";
@@ -20,15 +24,17 @@ export default defineComponent({
         EditorHeader,
         OverviewList,
     },
-    computed: {
-        title(): string {
-            const diagram = this.$store.state.editor.diagram;
-            if (!isEmpty(diagram)) return diagram;
-            else return this.$t("editor.title");
-        },
-    },
     mounted() {
+        this.$store.dispatch("editor/loadNodes");
         this.$store.dispatch("editor/loadLabels");
+    },
+    computed: {
+        /**
+         * Make sure the state contains necessary data that needs to be provided to the overview list
+         */
+        nodesAndLabelsLoaded(): boolean {
+            return this.$store.state.editor.nodes.length > 0 && this.$store.state.editor.labels.length > 0;
+        },
     },
 });
 </script>

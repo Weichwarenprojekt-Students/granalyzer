@@ -10,7 +10,7 @@
         @dragend="endDrag"
     >
         <p>{{ name }}</p>
-        <div class="label" :style="{ background: color }">
+        <div class="label" :style="{ background: color, color: fontColor }">
             {{ label }}
         </div>
     </div>
@@ -29,6 +29,7 @@ export default defineComponent({
         attributes: Array,
         nodeId: Number,
         color: String,
+        fontColor: String,
     },
     methods: {
         /**
@@ -83,14 +84,15 @@ export default defineComponent({
 
             // Create custom ghost-element
             const ghostElement = evt.currentTarget.cloneNode(true);
-            ghostElement.classList.add("dragged");
 
             // Set color to label color
-            if (ghostElement) ghostElement.style.background = this.color;
-
-            document.body.appendChild(ghostElement);
+            if (ghostElement) {
+                ghostElement.style.background = this.color;
+                ghostElement.classList.add("dragged");
+            }
 
             // Set ghost image for dragging
+            document.body.appendChild(ghostElement);
             evt.dataTransfer.setDragImage(ghostElement, 0, 0);
 
             // Remove ghost-element from the html
@@ -125,7 +127,6 @@ export default defineComponent({
     .label {
         font-size: @description;
         padding: 4px 8px;
-        color: white;
         border-radius: @border_radius;
     }
 

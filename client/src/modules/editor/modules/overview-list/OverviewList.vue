@@ -6,13 +6,14 @@
         </label>
         <ScrollPanel class="scroll-panel">
             <OverviewItem
-                v-for="content in $store.state.editor.nodes"
+                v-for="content in nodes"
                 :key="content.id"
                 :name="content.name"
                 :label="content.label"
                 :attribtues="content.attributes"
                 :nodeId="content.id"
-                :color="getColorByLabel(content.label)"
+                :color="labelColor.get(content.label).color"
+                :font-color="labelColor.get(content.label).fontColor"
             />
             <div class="space"></div>
         </ScrollPanel>
@@ -23,22 +24,15 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import OverviewItem from "@/modules/editor/modules/overview-list/components/OverviewItem.vue";
-import Label from "@/modules/editor/models/Label";
 
 export default defineComponent({
     name: "OverviewList",
     components: { OverviewItem },
-    created() {
-        this.$store.dispatch("editor/loadNodes");
-    },
-    methods: {
-        /**
-         * Gets the color that corresponds to a label
-         */
-        getColorByLabel(label: string): string {
-            const element = this.$store.state.editor.labels.find((element: Label) => element.name === label);
-            return element?.color ? element.color : "#FFFFFF";
-        },
+    props: {
+        // Nodes to be displayed in the overview
+        nodes: Array,
+        // Background colors and color fonts for the nodes
+        labelColor: Object,
     },
 });
 </script>
