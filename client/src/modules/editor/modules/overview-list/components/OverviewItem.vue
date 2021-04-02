@@ -9,7 +9,7 @@
         @dragstart="startDrag($event)"
         @dragend="endDrag"
     >
-        <h3>{{ name }}</h3>
+        <p>{{ name }}</p>
         <div class="label" :style="{ background: color }">
             {{ label }}
         </div>
@@ -112,11 +112,10 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "~@/styles/styles.less";
+@import "~@/styles/global.less";
 
 .node {
-    height: 60px;
-    padding: 0 24px 0 16px;
+    padding: 12px 24px 12px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -124,9 +123,10 @@ export default defineComponent({
     cursor: pointer;
 
     .label {
+        font-size: @description;
         padding: 4px 8px;
-        border: 1px solid @grey;
-        border-radius: 5px;
+        color: white;
+        border-radius: @border_radius;
     }
 
     &:hover {
@@ -143,11 +143,10 @@ export default defineComponent({
 }
 
 .dragged {
-    border-radius: @border-radius;
+    border-radius: @border_radius;
     width: fit-content;
     height: fit-content;
     padding: 8px 16px;
-
     display: flex;
     flex-direction: row;
     justify-content: center;
