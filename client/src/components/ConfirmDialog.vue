@@ -44,7 +44,9 @@ export default defineComponent({
     align-items: center;
     width: 500px;
 
-    img {
+    svg {
+        fill: @dark;
+        width: 96px;
         height: 96px;
         margin-right: 32px;
     }

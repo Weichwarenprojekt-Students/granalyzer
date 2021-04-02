@@ -44,7 +44,7 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "~@/styles/styles.less";
+@import "~@/styles/global.less";
 
 .content {
     height: 100%;

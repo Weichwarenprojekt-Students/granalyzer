@@ -117,7 +117,6 @@ export default defineComponent({
     width: @icon_size;
     margin: @padding;
     height: @icon_size;
-    color: #333;
 }
 
 nav {

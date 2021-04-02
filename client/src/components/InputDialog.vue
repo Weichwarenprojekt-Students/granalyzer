@@ -55,6 +55,7 @@ export default defineComponent({
     width: 500px;
 
     svg {
+        fill: @dark;
         height: 96px;
         width: 96px;
         margin-right: 32px;
