@@ -1,15 +1,16 @@
-import { Diagram } from "@/modules/start/models/Diagram";
+import { Diagram } from "@/models/Diagram";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
 import Label from "@/modules/editor/models/Label";
 import Node from "@/modules/editor/models/Node";
+import { graphEditor } from "@/modules/editor/modules/graph-editor/store";
 
 export class EditorState {
     /**
      * The currently edited diagram
      */
-    public diagram = {} as Diagram;
+    public diagram = new Diagram("") as Diagram;
 
     /**
      * The id of the overview item that was selected last
@@ -95,5 +96,8 @@ export const editor = {
 
             if (res.status === 200) context.commit("loadLabels", await res.json());
         },
+    },
+    modules: {
+        graphEditor,
     },
 };

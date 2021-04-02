@@ -36,7 +36,7 @@ export default defineComponent({
 
     .card-icon {
         height: 180px;
-        border-radius: @border-radius;
+        border-radius: @border_radius;
         border: 2px solid @grey;
         display: flex;
         align-items: center;

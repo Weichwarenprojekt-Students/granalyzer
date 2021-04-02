@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { Folder } from "@/modules/start/models/Folder";
-import { Diagram } from "@/modules/start/models/Diagram";
+import { Folder } from "@/models/Folder";
+import { Diagram } from "@/models/Diagram";
 import { DELETE, GET, POST, PUT } from "@/utility";
 
 export class StartState {

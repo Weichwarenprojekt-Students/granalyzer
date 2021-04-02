@@ -1,8 +1,8 @@
 <template>
     <div class="content">
-        <OverviewList class="overview"></OverviewList>
         <EditorHeader class="header"></EditorHeader>
         <GraphEditor class="editor"></GraphEditor>
+        <OverviewList class="overview"></OverviewList>
     </div>
 </template>
 
@@ -57,7 +57,6 @@ export default defineComponent({
         width: @inventory_width;
         height: 100vh;
         position: relative;
-        z-index: 4000;
         background: white;
     }
 

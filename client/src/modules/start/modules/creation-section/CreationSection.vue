@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Diagram } from "@/modules/start/models/Diagram";
+import { Diagram } from "@/models/Diagram";
 import CreationCard from "./components/CreationCard.vue";
 import InputDialog from "@/components/InputDialog.vue";
 import { routeNames } from "@/utility";

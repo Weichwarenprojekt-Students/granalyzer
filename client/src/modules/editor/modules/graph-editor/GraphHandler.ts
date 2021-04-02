@@ -21,11 +21,19 @@ export class GraphHandler {
     private readonly graph: dia.Graph;
 
     /**
-     * Constructor
-     * @param graph The graph object from joint
+     * The paper object from joint
      */
-    constructor(graph: dia.Graph) {
+    private readonly paper: dia.Paper;
+
+    /**
+     * Constructor
+     *
+     * @param graph The graph object from joint
+     * @param paper The paper object from joint
+     */
+    constructor(graph: dia.Graph, paper: dia.Paper) {
         this.graph = graph;
+        this.paper = paper;
     }
 
     /**
@@ -52,6 +60,10 @@ export class GraphHandler {
             const target = mappedNodes.get(`${relation.to.uuid}-${relation.to.index}`);
             if (source && target) this.addRelation(source, target, relation.uuid, relation.label);
         });
+
+        // Rebuild the graph
+        this.graph.clear();
+        this.drawGraph();
     }
 
     /**
@@ -204,7 +216,7 @@ export class GraphHandler {
     /**
      * Draws the graph
      */
-    public drawGraph(): void {
+    private drawGraph(): void {
         this.nodes.forEach((ref, diagElement) => {
             diagElement.addTo(this.graph);
         });

@@ -1,3 +1,12 @@
 {
-  "title": "Hier bist du im Editor!"
+  "title": "Hier bist du im Editor!",
+  "toolbar": {
+    "undo": "Rückgängig (Strg + Z)",
+    "redo": "Wiederholen (Strg + Y)",
+    "delete": "Löschen"
+  },
+  "noDiagram": {
+    "title": "Kein Diagram",
+    "description": "Laden Sie erst ein Diagramm!"
+  }
 }

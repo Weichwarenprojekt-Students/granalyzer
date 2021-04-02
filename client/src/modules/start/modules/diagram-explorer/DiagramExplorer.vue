@@ -94,8 +94,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Folder } from "@/modules/start/models/Folder";
-import { Diagram } from "@/modules/start/models/Diagram";
+import { Folder } from "@/models/Folder";
+import { Diagram } from "@/models/Diagram";
 import { isEmpty, routeNames } from "@/utility";
 import InputDialog from "@/components/InputDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
