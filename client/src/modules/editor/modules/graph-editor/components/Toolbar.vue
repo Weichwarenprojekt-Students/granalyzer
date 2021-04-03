@@ -19,7 +19,12 @@
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#redo`"></use>
             </svg>
         </div>
-        <div class="item item-disabled" @click="remove" v-tooltip.bottom="$t('editor.toolbar.delete')">
+        <!-- TODO: Toggle visibility of delete icon according to "item selected" state-->
+        <div
+            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            @click="remove"
+            v-tooltip.bottom="$t('editor.toolbar.delete')"
+        >
             <svg class="icon">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#trash`"></use>
             </svg>

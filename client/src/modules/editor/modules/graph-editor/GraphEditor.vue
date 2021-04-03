@@ -129,6 +129,18 @@ export default defineComponent({
                     },
                 });
             });
+
+            // Find out if user clicked element and set element object
+            this.paper.on("element:pointerdown", (cell) => {
+                this.$store.commit("editor/setClickedItem", cell.model);
+                this.$store.commit("editor/setIfSelected", true);
+            });
+
+            // No element selected
+            this.paper.on("blank:pointerdown", () => {
+                // No element selected
+                this.$store.commit("editor/setIfSelected", false);
+            });
         },
         /**
          * Move the diagram paper
