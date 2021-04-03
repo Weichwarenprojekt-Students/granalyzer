@@ -48,9 +48,9 @@ export default defineComponent({
          * Handle the key events
          */
         handleKeys(e: KeyboardEvent): void {
-            if (e.key == "Delete") this.remove();
-            else if (e.key == "z" && e.ctrlKey) this.undo();
-            else if (e.key == "y" && e.ctrlKey) this.redo();
+            if (e.key == "Delete" && this.$store.getters["editor/itemSelected"]) this.remove();
+            else if (e.key == "z" && e.ctrlKey && this.$store.getters["editor/undoAvailable"]) this.undo();
+            else if (e.key == "y" && e.ctrlKey && this.$store.getters["editor/redoAvailable"]) this.redo();
         },
         /**
          * Remove the last selected node

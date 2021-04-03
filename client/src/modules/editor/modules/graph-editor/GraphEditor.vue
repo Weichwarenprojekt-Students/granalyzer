@@ -33,6 +33,7 @@ export default defineComponent({
         };
     },
     async mounted(): Promise<void> {
+        // TODO: Move this logic to a reusable class/construct
         this.initGraph();
         this.loadActiveDiagram();
     },
@@ -115,31 +116,31 @@ export default defineComponent({
                 }
             });
 
-            this.paper.on("cell:pointerdown", (cell) => {
-                for (let element of this.graph.getElements()) {
+            // Find out if user clicked element and set element object
+            this.paper.on("element:pointerdown", (cell) => {
+                for (let element of this.graph.getElements())
                     element.attr({
                         body: {
                             strokeWidth: 0,
                         },
                     });
-                }
                 cell.model.attr({
                     body: {
                         strokeWidth: 4,
                     },
                 });
-            });
-
-            // Find out if user clicked element and set element object
-            this.paper.on("element:pointerdown", (cell) => {
                 this.$store.commit("editor/setClickedItem", cell.model);
-                this.$store.commit("editor/setIfSelected", true);
             });
 
             // No element selected
             this.paper.on("blank:pointerdown", () => {
-                // No element selected
-                this.$store.commit("editor/setIfSelected", false);
+                for (let element of this.graph.getElements())
+                    element.attr({
+                        body: {
+                            strokeWidth: 0,
+                        },
+                    });
+                this.$store.commit("editor/setClickedItem", undefined);
             });
         },
         /**

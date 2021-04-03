@@ -3,26 +3,20 @@ import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { Node } from "./models/Node";
 import { Diagram } from "@/models/Diagram";
-import { CreateNodeCommand } from "./UndoRedo/Commands/CreateNodeCommand";
-import { isEmpty } from "@/utility";
+import { CreateNodeCommand } from "./undo-redo/commands/CreateNodeCommand";
 import { dia } from "jointjs";
-import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/UndoRedo/Commands/RemoveNodeCommand";
+import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/RemoveNodeCommand";
 
 export class GraphEditorState {
     /**
      * The graph handler
      */
-    public graphHandler = {} as GraphHandler;
+    public graphHandler?: GraphHandler;
 
     /**
      * The diagram element which has been clicked most recently
      */
-    public lastSelectedElement = {} as dia.Element;
-
-    /**
-     *  Stores if a element is being in selection
-     */
-    public itemSelected = false;
+    public selectedElement?: dia.Element;
 }
 
 export const graphEditor = {
@@ -38,55 +32,61 @@ export const graphEditor = {
          * Set the active diagram
          */
         setDiagram(state: GraphEditorState, diagram: Diagram): void {
-            state.graphHandler.fromJSON(diagram.serialized);
+            if (state.graphHandler) state.graphHandler.fromJSON(diagram.serialized);
         },
 
         /**
          * Set the clicked diagram element
          */
-        setClickedItem(state: GraphEditorState, diagElement: dia.Element): void {
-            state.lastSelectedElement = diagElement;
-        },
-
-        /**
-         * Set if the user clicked an element or the canvas background
-         */
-        setIfSelected(state: GraphEditorState, value: boolean): void {
-            state.itemSelected = value;
+        setClickedItem(state: GraphEditorState, diagElement?: dia.Element): void {
+            state.selectedElement = diagElement;
         },
 
         /**
          * Change the active diagram
          */
         undo(state: GraphEditorState): void {
-            state.graphHandler.Undo();
+            state.graphHandler?.Undo();
         },
         /**
          * Set selected item
          */
         redo(state: GraphEditorState): void {
-            state.graphHandler.Redo();
+            state.graphHandler?.Redo();
         },
         /**
          * Add a node
          */
         addNode(state: GraphEditorState, node: Node): void {
-            const command = new CreateNodeCommand(state.graphHandler, node);
-            state.graphHandler.addCommand(command);
+            if (state.graphHandler) {
+                const command = new CreateNodeCommand(state.graphHandler, node);
+                state.graphHandler.addCommand(command);
+            }
         },
 
         /**
          * Remove a node
          */
         removeNode(state: GraphEditorState): void {
-            const command = new RemoveNodeCommand(state.graphHandler, state.lastSelectedElement);
-            state.graphHandler.addCommand(command);
+            if (state.graphHandler && state.selectedElement) {
+                const command = new RemoveNodeCommand(state.graphHandler, state.selectedElement);
+                state.graphHandler.addCommand(command);
+            }
+            state.selectedElement = undefined;
         },
 
         /**
          * Save the data to backend
          */
         saveChange(state: GraphEditorState): void {
+            const graph = state.graphHandler?.toJSON();
+            // Log the graph as a nested object so that it doesn't completely cover the console
+            console.log({
+                msg: "Saved graph",
+                graph: {
+                    value: graph,
+                },
+            });
             // TODO: Save JSON config with REST backend!
         },
     },
@@ -126,14 +126,14 @@ export const graphEditor = {
          * @return True if undo is available
          */
         undoAvailable(state: GraphEditorState): boolean {
-            if (!isEmpty(state.graphHandler)) return state.graphHandler.hasUndo();
+            if (state.graphHandler) return state.graphHandler.hasUndo();
             else return false;
         },
         /**
          * @return True if redo is available
          */
         redoAvailable(state: GraphEditorState): boolean {
-            if (!isEmpty(state.graphHandler)) return state.graphHandler.hasRedo();
+            if (state.graphHandler) return state.graphHandler.hasRedo();
             else return false;
         },
 
@@ -141,7 +141,7 @@ export const graphEditor = {
          *@return True if element is being in selection
          */
         itemSelected(state: GraphEditorState): boolean {
-            return state.itemSelected;
+            return state.selectedElement !== undefined;
         },
     },
 };

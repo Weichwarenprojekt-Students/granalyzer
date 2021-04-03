@@ -2,35 +2,30 @@ import { dia, shapes } from "jointjs";
 import { Relation } from "./models/Relation";
 import { Node } from "./models/Node";
 import { SerializableGraph } from "@/modules/editor/modules/graph-editor/models/SerializableGraph";
-import { ICommand } from "@/modules/editor/modules/graph-editor/UndoRedo/Commands/ICommand";
-import { GraphActions } from "@/modules/editor/modules/graph-editor/UndoRedo/GraphActions";
+import { ICommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/ICommand";
+import { GraphActions } from "@/modules/editor/modules/graph-editor/undo-redo/GraphActions";
 
 export class GraphHandler {
-    /**
-     *  The redo stack
-     */
-    private redoStack = new Array<ICommand>();
-
-    /**
-     * The undo stack
-     */
-    private undoStack = new Array<ICommand>();
-
     /**
      * The nodes/elements of the diagram
      */
     public nodes = new Map<dia.Element, Node>();
-
     /**
      * The relations between the nodes of the diagram
      */
     public relations = new Map<shapes.standard.Link, Relation>();
-
     /**
      * The actual graph object from joint
      */
     public readonly graph: dia.Graph;
-
+    /**
+     *  The redo stack
+     */
+    private redoStack = new Array<ICommand>();
+    /**
+     * The undo stack
+     */
+    private undoStack = new Array<ICommand>();
     /**
      * The paper object from joint
      */
@@ -72,9 +67,9 @@ export class GraphHandler {
             if (source && target) GraphActions.addRelation(this, source, target, relation.uuid, relation.label);
         });
 
-        // Rebuild the graph
-        this.graph.clear();
-        this.drawGraph();
+        // Add the elements to the graph
+        this.nodes.forEach((ref, diagElement) => diagElement.addTo(this.graph));
+        this.relations.forEach((relation, link) => link.addTo(this.graph));
     }
 
     /**
@@ -113,11 +108,12 @@ export class GraphHandler {
      * @param command Command to be executed
      */
     public addCommand(command: ICommand): void {
-        // Add the new command to the undo stack/history
+        // Add command to the undo list and execute it
         this.undoStack.push(command);
+        command.redo();
 
-        // Execute the currently pushed command
-        command.Redo();
+        // Clear the redo stack
+        this.redoStack = [];
     }
 
     /**
@@ -138,42 +134,22 @@ export class GraphHandler {
      * Call the undo action
      */
     public Undo(): void {
-        if (!this.hasUndo()) return;
-
-        // Get the most recently redone/executed command
         const command = this.undoStack.pop();
-        command!.Undo();
-
-        // Add the command to the available future redo commands
-        this.redoStack.push(command!);
+        if (command) {
+            command.undo();
+            this.redoStack.push(command);
+        }
     }
 
     /**
      * Call the redo action
      */
     public Redo(): void {
-        if (!this.hasRedo()) return;
-
         // Get the most recently undone command
         const command = this.redoStack.pop();
-
-        // Execute the command
-        command!.Redo();
-
-        // Add the command to history
-        this.undoStack.push(command!);
-    }
-
-    /**
-     * Draws the graph
-     */
-    private drawGraph(): void {
-        this.nodes.forEach((ref, diagElement) => {
-            diagElement.addTo(this.graph);
-        });
-
-        this.relations.forEach((relation, link) => {
-            link.addTo(this.graph);
-        });
+        if (command) {
+            command.redo();
+            this.undoStack.push(command);
+        }
     }
 }

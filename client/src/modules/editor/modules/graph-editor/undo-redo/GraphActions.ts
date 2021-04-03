@@ -8,12 +8,12 @@ export class GraphActions {
     /**
      * Add a node to the diagram
      * @param node The node to be added
-     * @param gH The GraphHandler instance
+     * @param graphHandler The GraphHandler instance
      */
-    public static addNode(node: Node, gH: GraphHandler): dia.Element {
+    public static addNode(node: Node, graphHandler: GraphHandler): dia.Element {
         // Check if a node of this type was already registered and update the ref
         let index = -1;
-        gH.nodes.forEach((value) => {
+        graphHandler.nodes.forEach((value) => {
             if (node.ref.uuid == value.ref.uuid) index = Math.max(index, value.ref.index);
         });
         if (index >= 0) node.ref.index = index + 1;
@@ -36,56 +36,51 @@ export class GraphActions {
         });
 
         // Add the shape to the graph and to the other nodes
-        gH.nodes.set(shape, node);
-        if (gH.graph) shape.addTo(gH.graph);
+        graphHandler.nodes.set(shape, node);
+        if (graphHandler.graph) shape.addTo(graphHandler.graph);
 
         return shape;
     }
 
     /**
-     * Removes a node from the diagram
+     * Removes a node with all its relations from the diagram
+     *
      * @param diagElement The element to be removed
-     * @param gH The GraphHandler instance
+     * @param graphHandler The GraphHandler instance
      */
-    public static removeNode(diagElement: dia.Element, gH: GraphHandler): void {
-        const nodeRef = gH.nodes.get(diagElement);
+    public static removeNode(diagElement: dia.Element, graphHandler: GraphHandler): void {
+        const nodeRef = graphHandler.nodes.get(diagElement);
         if (!nodeRef) return;
 
-        // Remove the node
-        gH.nodes.delete(diagElement);
-
-        // Remove the relations
-        gH.relations.forEach((value, key) => {
-            if (value.from == nodeRef.ref || value.to == nodeRef.ref) gH.relations.delete(key);
+        // Remove node and relations from the graph handler
+        graphHandler.nodes.delete(diagElement);
+        graphHandler.relations.forEach((value, key) => {
+            if (value.from == nodeRef.ref || value.to == nodeRef.ref) graphHandler.relations.delete(key);
         });
 
-        // Remove the element (and all its relations) from the diagram and re-render
-        const diagElements = gH.graph.getElements();
-        const elIndex = diagElements.indexOf(diagElement);
-        if (elIndex !== -1) {
-            diagElements[elIndex].remove();
-        }
+        // Remove node and relations from the diagram
+        diagElement.remove();
     }
 
     /**
      * Add a new relation
      *
-     * @param gH The GraphHandler instance
+     * @param graphHandler The GraphHandler instance
      * @param source The source element
      * @param target The target element
      * @param uuid An optional uuid for the relation
      * @param label An optional label for the label
      */
     public static addRelation(
-        gH: GraphHandler,
+        graphHandler: GraphHandler,
         source: dia.Element,
         target: dia.Element,
         uuid?: string,
         label?: string,
     ): void {
         // Check if the nodes exist
-        const from = gH.nodes.get(source);
-        const to = gH.nodes.get(target);
+        const from = graphHandler.nodes.get(source);
+        const to = graphHandler.nodes.get(target);
         if (!from || !to) return;
 
         // Create the node relation
@@ -109,22 +104,22 @@ export class GraphActions {
         link.connector("rounded");
 
         // Add the relation to the graph and to the other links
-        link.addTo(gH.graph);
-        gH.relations.set(link, relation);
+        link.addTo(graphHandler.graph);
+        graphHandler.relations.set(link, relation);
     }
 
     /**
      * Remove a relation
      * @param relation The relation to be removed
-     * @param gH The GraphHandler instance
+     * @param graphHandler The GraphHandler instance
      * @graph graph The graph object
      */
-    public static removeRelation(relation: shapes.standard.Link, gH: GraphHandler): void {
+    public static removeRelation(relation: shapes.standard.Link, graphHandler: GraphHandler): void {
         // Remove the relation
-        gH.relations.delete(relation);
+        graphHandler.relations.delete(relation);
 
         // Remove the relation from the diagram and re-render
-        const diagRelations = gH.graph.getLinks();
+        const diagRelations = graphHandler.graph.getLinks();
         const relIndex = diagRelations.indexOf(relation);
         if (relIndex !== -1) {
             diagRelations[relIndex].remove();

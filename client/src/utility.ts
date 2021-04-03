@@ -9,6 +9,7 @@ export const routeNames = {
 
 /**
  * Determine whether an object is empty
+ * TODO: Remove this method and use optional parameters instead
  *
  * @param object The object to be checked
  * @return True if the object is null
@@ -16,6 +17,15 @@ export const routeNames = {
 // eslint-disable-next-line
 export function isEmpty(object: any): boolean {
     return Object.keys(object).length === 0;
+}
+
+/**
+ * Create a deep-copy of any object
+ *
+ * @param obj The object to be copied
+ */
+export function deepCopy<Type>(obj: Type): Type {
+    return JSON.parse(JSON.stringify(obj));
 }
 
 /**

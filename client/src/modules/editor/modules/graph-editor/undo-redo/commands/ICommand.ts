@@ -2,10 +2,10 @@ export interface ICommand {
     /**
      * The undo action
      */
-    Undo(): void;
+    undo(): void;
 
     /**
      * The redo action
      */
-    Redo(): void;
+    redo(): void;
 }
