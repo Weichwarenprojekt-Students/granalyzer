@@ -63,14 +63,14 @@
         <!-- The folders -->
         <ExplorerItem
             v-for="folder in $store.state.start.folders"
-            :key="folder.id"
+            :key="folder.folderId"
             @mousedown="selectFolder(folder)"
             v-on:dblclick="doubleClickedFolder"
             :icon-id="'folder'"
             :title="folder.name"
-            :is-selected="folder.id === selectedFolder.id"
+            :is-selected="folder.folderId === selectedFolder.folderId"
             :is-folder="true"
-            :itemId="folder.id"
+            :itemId="folder.folderId"
             @dragover.prevent
             @drop.stop.prevent
             @folder-drop="moveFolder"
@@ -80,14 +80,14 @@
         <!-- The diagrams -->
         <ExplorerItem
             v-for="diagram in $store.state.start.diagrams"
-            :key="diagram.id"
+            :key="diagram.diagramId"
             @mousedown="selectDiagram(diagram)"
             v-on:dblclick="doubleClickedDiagram"
             :icon-id="'diagram'"
             :title="diagram.name"
-            :is-selected="diagram.id === selectedDiagram.id"
+            :is-selected="diagram.diagramId === selectedDiagram.diagramId"
             :is-folder="false"
-            :itemId="diagram.id"
+            :itemId="diagram.diagramId"
         />
     </div>
 </template>
@@ -155,9 +155,9 @@ export default defineComponent({
             // Search for the name (name has to be searched because the name
             // of the selected folder can be outdated due to a rename event)
             for (let i = 0; i < folders.length; i++)
-                if (folders[i].id == this.selectedFolder.id) return folders[i].name;
+                if (folders[i].id == this.selectedFolder.folderId) return folders[i].name;
             for (let i = 0; i < diagrams.length; i++)
-                if (diagrams[i].id == this.selectedDiagram.id) return diagrams[i].name;
+                if (diagrams[i].id == this.selectedDiagram.diagramId) return diagrams[i].name;
             return "";
         },
     },
@@ -244,7 +244,7 @@ export default defineComponent({
          * Handle double click on folder
          */
         doubleClickedFolder(): void {
-            this.$router.push(`${routeNames.start}/${this.selectedFolder.id}`);
+            this.$router.push(`${routeNames.start}/${this.selectedFolder.folderId}`);
             this.clearSelection();
         },
         /**
