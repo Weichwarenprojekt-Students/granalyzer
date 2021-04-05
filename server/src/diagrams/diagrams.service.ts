@@ -1,6 +1,5 @@
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
-import * as neo4j from "neo4j-driver";
 import { Diagram } from "./diagram.model";
 import { UtilsNode } from "../util/utils.node";
 import { FoldersService } from "../folders/folders.service";
@@ -21,28 +20,13 @@ export class DiagramsService {
     ) {}
 
     /**
-     * Restructure the response of the db
-     */
-    static parseDiagram(record: Record<any, any>): Diagram {
-        const diagram: Diagram = {
-            ...record.get("diagram").properties,
-            id: record.get("diagram").identity.toNumber(),
-        };
-
-        // Append parentId if available
-        if (record.keys.indexOf("parentId") > -1) {
-            diagram.parentId = record.get("parentId")?.toNumber();
-        }
-
+    static parseDiagram(record: Record<any, any>): Diagram (
+        const diagram: Diagram = record.get("diagram");
         // Append serialized if available
         if (record.keys.indexOf("serialized") > -1) {
             diagram.serialized = record.get("serialized")?.toString();
         }
 
-        return diagram;
-    }
-
-    /**
      * Fetches all diagrams from the db
      */
     async getDiagrams(): Promise<Diagram[]> {
@@ -50,13 +34,14 @@ export class DiagramsService {
         const cypher = `
           MATCH (d:Diagram)
           OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder)
-          RETURN d AS diagram, id(f) AS parentId`;
+          RETURN d {. *, parentId:f.folderId} AS diagrams
+        `;
 
         const params = {};
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map(DiagramsService.parseDiagram));
+            .then((res) => res.records.map((record) => record.get("diagrams")));
     }
 
     /**
@@ -67,36 +52,37 @@ export class DiagramsService {
         const cypher = `
           MATCH (d:Diagram)
             WHERE NOT (d)-[:IS_CHILD]->()
-          RETURN d AS diagram`;
+          RETURN d { .* } AS diagrams
+        `;
 
         const params = {};
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map(DiagramsService.parseDiagram));
+            .then((res) => res.records.map((rec) => rec.get("diagrams")));
     }
 
     /**
      * Fetch a specific diagram from the db
      */
-    async getDiagram(id: number): Promise<Diagram> {
-        // Check whether id belongs to a diagram
-        await this.utilsNode.checkElementForLabel(id, "Diagram");
-
+    async getDiagram(id: string): Promise<Diagram> {
         // language=Cypher
         const cypher = `
-          MATCH (d:Diagram)
-            WHERE id(d) = $id
+          MATCH (d:Diagram {diagramId: $id})
           OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder)
-          RETURN d AS diagram, id(f) AS parentId`;
+          RETURN d {. *, parentId:f.folderId} AS diagram
+        `;
 
         const params = {
-            id: neo4j.int(id),
+            id: id,
         };
 
-        return this.neo4jService.read(cypher, params, this.database).then((res) => {
-            return DiagramsService.parseDiagram(res.records[0]);
-        });
+        return this.neo4jService
+            .read(cypher, params, this.database)
+            .then((res) => res.records[0].get("diagram"))
+            .catch(() => {
+                throw new NotFoundException("The diagram has not been found");
+            });
     }
 
     /**
@@ -105,124 +91,112 @@ export class DiagramsService {
     async addDiagram(name: string, serialized = ""): Promise<Diagram> {
         // language=Cypher
         const cypher = `
-          CREATE (d:Diagram {name: $name, serialized: $serialized})
-          RETURN d AS diagram`;
+          CREATE (d:Diagram {name: $name, serialized: $serialized, diagramId: apoc.create.uuid()})
+          RETURN d { .* } AS diagram
+        `;
 
         const params = {
+            name,
+            serialized,
+        };
+
+        return this.neo4jService.write(cypher, params, this.database).then((res) => res.records[0].get("diagram"));
+    }
+
+    /**
+     * Updates a specific diagram
+     */
+    async updateDiagram(id: string, name: string, serialized: string): Promise<Diagram> {
+        // language=Cypher
+        const cypher = `
+          MATCH (d:Diagram {diagramId: $id})
+          OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder)
+          SET d.name = $name
+          ${serialized ? "SET d.serialized = $serialized" : ""}
+          RETURN d {. *, parentId:f.folderId} AS diagram
+        `;
+
+        const params = {
+            id,
             name,
             serialized,
         };
 
         return this.neo4jService
             .write(cypher, params, this.database)
-            .then((res) => DiagramsService.parseDiagram(res.records[0]));
-    }
-
-    /**
-     * Updates a specific diagram
-     */
-    async updateDiagram(id: number, name: string, serialized: string): Promise<Diagram> {
-        // Check whether id belongs to a diagram
-        await this.utilsNode.checkElementForLabel(id, "Diagram");
-
-        // language=Cypher
-        const cypher = `
-          MATCH (d:Diagram)
-            WHERE id(d) = $id
-          OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder)
-          SET d.name = $name
-          ${serialized ? "SET d.serialized = $serialized" : ""}
-          RETURN d AS diagram, id(f) AS parentId`;
-
-        const params = {
-            id: neo4j.int(id),
-            name,
-            serialized,
-        };
-
-        return this.neo4jService.write(cypher, params, this.database).then((res) => {
-            return DiagramsService.parseDiagram(res.records[0]);
-        });
+            .then((res) => res.records[0].get("diagram"))
+            .catch(() => {
+                throw new NotFoundException();
+            });
     }
 
     /**
      * Delete specific diagram
      */
-    async deleteDiagram(id: number): Promise<Diagram> {
-        // Check whether id belongs to a diagram
-        await this.utilsNode.checkElementForLabel(id, "Diagram");
-
+    async deleteDiagram(id: string): Promise<Diagram> {
         // language=Cypher
         const cypher = `
           MATCH (d:Diagram)
-            WHERE id(d) = $id
+            WHERE d.diagramId = $id
           OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder)
           DETACH DELETE d
-          RETURN d AS diagram, id(f) AS folder`;
+          RETURN d { .*, parentId: f.folderId} AS diagram`;
 
         const params = {
-            id: neo4j.int(id),
+            id,
         };
 
-        return this.neo4jService.write(cypher, params, this.database).then((res) => {
-            return DiagramsService.parseDiagram(res.records[0]);
-        });
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then((res) => res.records[0].get("diagram"))
+            .catch(() => {
+                throw new NotFoundException();
+            });
     }
 
     /**
      * Returns all diagrams which are assign to the folder as a IS_CHILD relation
      */
-    async getDiagramsInFolder(id: number): Promise<Diagram[]> {
-        // Check whether id belongs to a folder
-        await this.utilsNode.checkElementForLabel(id, "Folder");
-
+    async getDiagramsInFolder(id: string): Promise<Diagram[]> {
         // language=Cypher
         const cypher = `
           MATCH (c:Diagram)-[r:IS_CHILD]->(p:Folder)
-            WHERE id(p) = $id
-          RETURN c AS diagram, $id AS parentId`;
+            WHERE p.folderId = $id
+          RETURN c { .*, parentId: p.folderId} AS diagrams
+        `;
 
         const params = {
-            id: this.neo4jService.int(id),
+            id,
         };
 
         return this.neo4jService.read(cypher, params, this.database).then((res) => {
-            return res.records.map(DiagramsService.parseDiagram);
+            return res.records.map((rec) => rec.get("diagrams"));
         });
     }
 
     /**
      * Returns a specific child of a given folder
      */
-    async getDiagramInFolder(parentId: number, childId: number): Promise<Diagram> {
-        // Check whether id belongs to a folder
-        await this.utilsNode.checkElementForLabel(parentId, "Folder");
-        await this.utilsNode.checkElementForLabel(childId, "Diagram");
-
+    async getDiagramInFolder(parentId: string, childId: string): Promise<Diagram> {
         // language=Cypher
         const cypher = `
           MATCH (d:Diagram)-[r:IS_CHILD]->(f:Folder)
-            WHERE id(f) = $parentId AND id(d) = $childId
-          RETURN d AS diagram, id(f) AS parentId`;
+            WHERE f.folderId = $parentId AND d.diagramId = $childId
+          RETURN d { .*, parentId: f.folderId} AS diagram
+        `;
 
         const params = {
-            parentId: this.neo4jService.int(parentId),
-            childId: this.neo4jService.int(childId),
+            parentId,
+            childId,
         };
 
-        return this.neo4jService.read(cypher, params, this.database).then((res) => {
-            return DiagramsService.parseDiagram(res.records[0]);
-        });
+        return this.neo4jService.read(cypher, params, this.database).then((res) => res.records[0].get("diagram"));
     }
 
     /**
      * Creates a IS_CHILD relation child-IS_CHILD->parent
      */
-    async moveDiagramToFolder(parentId: number, childId: number): Promise<Diagram> {
-        // Check whether id and child id belongs to a folder
-        await this.utilsNode.checkElementForLabel(parentId, "Folder");
-        await this.utilsNode.checkElementForLabel(childId, "Diagram");
-
+    async moveDiagramToFolder(parentId: string, childId: string): Promise<Diagram> {
         // Start a new transaction to keep deletion of old relationship and adding the new one persistent
         const transaction = this.neo4jService.beginTransaction(this.database);
 
@@ -232,18 +206,22 @@ export class DiagramsService {
         //language=Cypher
         const cypher = `
           MATCH (p:Folder), (c:Diagram)
-            WHERE id(p) = $parentId AND id(c) = $childId
-          CREATE (c)-[r:IS_CHILD]->(p)
-          RETURN c AS diagram, id(p) AS parentId`;
+            WHERE p.folderId = $parentId AND c.diagramId = $childId
+          MERGE (c)-[r:IS_CHILD]->(p)
+          RETURN c { .*, parentId: p.folderId} AS diagram
+        `;
 
         const params = {
-            parentId: this.neo4jService.int(parentId),
-            childId: this.neo4jService.int(childId),
+            parentId,
+            childId,
         };
 
         const child = await this.neo4jService
             .write(cypher, params, transaction)
-            .then((res) => DiagramsService.parseDiagram(res.records[0]));
+            .then((res) => res.records[0].get("diagram"))
+            .catch(() => {
+                throw new NotFoundException();
+            });
 
         // Commit the transaction
         await transaction.commit();
@@ -255,14 +233,8 @@ export class DiagramsService {
     /**
      * Deletes the IS_CHILD relation between the given parent and child
      */
-    async removeDiagramFromFolder(parentId: number, childId: number): Promise<Diagram> {
-        // Check whether id belongs to a folder
-        await this.utilsNode.checkElementForLabel(parentId, "Folder");
-        await this.utilsNode.checkElementForLabel(childId, "Diagram");
-
-        return this.deleteIsChildRelation(childId, this.database).then((res) =>
-            DiagramsService.parseDiagram(res.records[0]),
-        );
+    async removeDiagramFromFolder(parentId: string, childId: string): Promise<Diagram> {
+        return this.deleteIsChildRelation(childId, this.database).then((res) => res.records[0].get("diagram"));
     }
 
     /**
@@ -273,16 +245,17 @@ export class DiagramsService {
      * @param childId Id of the node whose relations should be deleted
      * @param databaseOrTransaction The current database or a neo4j transaction
      */
-    deleteIsChildRelation(childId: number, databaseOrTransaction?: string | Transaction): Result {
+    deleteIsChildRelation(childId: string, databaseOrTransaction?: string | Transaction): Result {
         //language=Cypher
         const cypher = `
           MATCH (c:Diagram)-[r:IS_CHILD]->(f:Folder)
-            WHERE id(c) = $childId
+            WHERE c.diagramId = $childId
           DELETE r
-          RETURN c AS diagram, id(f) AS parentId`;
+          RETURN c { .*, parentId: f.folderId} AS diagram
+        `;
 
         const params = {
-            childId: this.neo4jService.int(childId),
+            childId,
         };
 
         return this.neo4jService.write(cypher, params, databaseOrTransaction);

@@ -55,7 +55,7 @@ export class FoldersController {
     })
     @ApiNotAcceptableResponse({ description: "Requested resource is not a folder" })
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
-    getFolder(@Param("id") id: number) {
+    getFolder(@Param("id") id: string) {
         return this.foldersService.getFolder(id);
     }
 
@@ -85,7 +85,7 @@ export class FoldersController {
             },
         },
     })
-    updateFolder(@Param("id") id: number, @Body("name") name: string) {
+    updateFolder(@Param("id") id: string, @Body("name") name: string) {
         return this.foldersService.updateFolder(id, name);
     }
 
@@ -129,7 +129,7 @@ export class FoldersController {
         type: "number",
         description: "Identifier of the diagram",
     })
-    deleteFolder(@Param("id") id: number) {
+    deleteFolder(@Param("id") id: string) {
         return this.foldersService.deleteFolder(id);
     }
 
@@ -143,7 +143,7 @@ export class FoldersController {
     })
     @ApiNotAcceptableResponse({ description: "Requested resource is not a folder" })
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
-    getFoldersInFolder(@Param("id") id: number) {
+    getFoldersInFolder(@Param("id") id: string) {
         return this.foldersService.getFoldersInFolder(id);
     }
 
@@ -168,7 +168,7 @@ export class FoldersController {
             },
         },
     })
-    createFolderInFolder(@Body("name") name: string, @Param("parentId") parentId: number) {
+    createFolderInFolder(@Body("name") name: string, @Param("parentId") parentId: string) {
         return this.foldersService.addFolderInFolder(parentId, name);
     }
 
@@ -192,7 +192,7 @@ export class FoldersController {
         type: "number",
         description: "The id of the specified child folder",
     })
-    getFolderInFolder(@Param("id") id: number, @Param("childId") childId: number) {
+    getFolderInFolder(@Param("id") id: string, @Param("childId") childId: string) {
         return this.foldersService.getFolderInFolder(id, childId);
     }
 
@@ -216,7 +216,7 @@ export class FoldersController {
         type: "number",
         description: "The id of the child folder which should be added to the folder",
     })
-    moveFolderToFolder(@Param("id") id: number, @Param("childId") childId: number) {
+    moveFolderToFolder(@Param("id") id: string, @Param("childId") childId: string) {
         return this.foldersService.moveFolderToFolder(id, childId);
     }
 
@@ -240,7 +240,7 @@ export class FoldersController {
         type: "number",
         description: "The id of the child folder which should be deleted from the parent folder",
     })
-    removeFolderFromFolder(@Param("id") id: number, @Param("childId") childId: number) {
+    removeFolderFromFolder(@Param("id") id: string, @Param("childId") childId: string) {
         return this.foldersService.removeFolderFromFolder(id, childId);
     }
 
@@ -254,7 +254,7 @@ export class FoldersController {
     })
     @ApiNotAcceptableResponse({ description: "Requested resource is not a folder" })
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
-    getDiagramsInFolder(@Param("id") id: number) {
+    getDiagramsInFolder(@Param("id") id: string) {
         return this.diagramsService.getDiagramsInFolder(id);
     }
 
@@ -278,7 +278,7 @@ export class FoldersController {
         type: "number",
         description: "The id of the specified children",
     })
-    getDiagramInFolder(@Param("id") id: number, @Param("childId") childId: number) {
+    getDiagramInFolder(@Param("id") id: string, @Param("childId") childId: string) {
         return this.diagramsService.getDiagramInFolder(id, childId);
     }
 
@@ -302,7 +302,7 @@ export class FoldersController {
         type: "number",
         description: "The id of the diagram which should be added to the folder",
     })
-    moveDiagramToFolder(@Param("id") id: number, @Param("childId") childId: number) {
+    moveDiagramToFolder(@Param("id") id: string, @Param("childId") childId: string) {
         return this.diagramsService.moveDiagramToFolder(id, childId);
     }
 
@@ -326,7 +326,7 @@ export class FoldersController {
         type: "number",
         description: "The id of the child element which should be deleted from the folder",
     })
-    removeDiagramFromFolder(@Param("id") id: number, @Param("childId") childId: number) {
+    removeDiagramFromFolder(@Param("id") id: string, @Param("childId") childId: string) {
         return this.diagramsService.removeDiagramFromFolder(id, childId);
     }
 }

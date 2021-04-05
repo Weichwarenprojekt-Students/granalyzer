@@ -55,7 +55,7 @@ export class DiagramsController {
     })
     @ApiNotAcceptableResponse({ description: "Requested resource is not a diagram" })
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
-    getDiagram(@Param("id") id: number) {
+    getDiagram(@Param("id") id: string) {
         return this.diagramsService.getDiagram(id);
     }
 
@@ -116,7 +116,7 @@ export class DiagramsController {
             },
         },
     })
-    updateDiagram(@Param("id") id: number, @Body() body: Diagram) {
+    updateDiagram(@Param("id") id: string, @Body() body: Diagram) {
         return this.diagramsService.updateDiagram(id, body.name, body.serialized);
     }
 
@@ -135,7 +135,7 @@ export class DiagramsController {
     })
     @ApiNotAcceptableResponse({ description: "Requested resource is not a diagram" })
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
-    deleteDiagram(@Param("id") id: number) {
+    deleteDiagram(@Param("id") id: string) {
         return this.diagramsService.deleteDiagram(id);
     }
 }
