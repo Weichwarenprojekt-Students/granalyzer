@@ -8,6 +8,7 @@ import { dia } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/RemoveNodeCommand";
 import { GET } from "@/utility";
 import { Relation } from "./models/Relation";
+import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/MoveNodeCommand";
 
 export class GraphEditorState {
     /**
@@ -19,6 +20,21 @@ export class GraphEditorState {
      * The diagram element which has been clicked most recently
      */
     public selectedElement?: dia.Element;
+
+    /**
+     * Old X-Coordinate of the unselected element
+     */
+    public oldX?: number;
+
+    /**
+     * Old Y-Coordinate of the unselected element
+     */
+    public oldY?: number;
+
+    /**
+     * The move command
+     */
+    public moveCommand?: MoveNodeCommand;
 }
 
 export const graphEditor = {
@@ -42,6 +58,28 @@ export const graphEditor = {
          */
         setClickedItem(state: GraphEditorState, diagElement?: dia.Element): void {
             state.selectedElement = diagElement;
+
+            if (state.graphHandler && diagElement) {
+                state.oldX = diagElement.attributes.position.x;
+                state.oldY = diagElement.attributes.position.y;
+                state.moveCommand = new MoveNodeCommand(state.graphHandler, diagElement);
+            }
+        },
+
+        /**
+         * Set the unselected diagram element
+         */
+        setReleasedItem(state: GraphEditorState, diagElement?: dia.Element): void {
+            if (state.moveCommand && state.graphHandler && diagElement) {
+                const newX = diagElement.attributes.position.x;
+                const newY = diagElement.attributes.position.y;
+
+                // Only fire the command when there was an actual element drag
+                if (state.oldX != newX || state.oldY != newY) {
+                    state.moveCommand.setNodeStopPos(newX, newY);
+                    state.graphHandler.addCommand(state.moveCommand);
+                }
+            }
         },
 
         /**

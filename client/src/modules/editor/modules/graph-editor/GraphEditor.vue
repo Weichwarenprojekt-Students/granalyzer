@@ -129,7 +129,13 @@ export default defineComponent({
                         strokeWidth: 4,
                     },
                 });
+                // Get selected element
                 this.$store.commit("editor/setClickedItem", cell.model);
+            });
+
+            // Get unselected element
+            this.paper.on("element:pointerup", (cell) => {
+                this.$store.commit("editor/setReleasedItem", cell.model);
             });
 
             // No element selected
