@@ -1,4 +1,5 @@
 {
+  "titleOverview": "Eintragsübersicht",
   "title": "Hier bist du im Editor!",
   "toolbar": {
     "undo": "Rückgängig (Strg + Z)",
@@ -8,5 +9,8 @@
   "noDiagram": {
     "title": "Kein Diagram",
     "description": "Laden Sie erst ein Diagramm!"
+  },
+  "noNodes": {
+    "description": "Keine Einträge gefunden"
   }
 }

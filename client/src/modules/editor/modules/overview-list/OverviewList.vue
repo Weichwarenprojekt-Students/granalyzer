@@ -1,6 +1,6 @@
 <template>
     <div class="content">
-        <div class="title">Node Overview</div>
+        <div class="title">{{ $t("editor.titleOverview") }}</div>
         <label class="searchbar">
             <input type="text" placeholder="Search..." />
         </label>
@@ -16,6 +16,12 @@
                 :font-color="labelColor.get(content.label).fontColor"
             />
             <div class="space" />
+            <div v-if="!nodesAndLabelsLoaded" class="emptyList">
+                <svg>
+                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
+                </svg>
+                <div class="message">{{ $t("editor.noNodes.description") }}</div>
+            </div>
         </ScrollPanel>
     </div>
 </template>
@@ -43,7 +49,17 @@ export default defineComponent({
         // Background colors and color fonts for the nodes
         labelColor: Object,
     },
+    computed: {
+        /**
+         * Check if list is empty
+         */
+        nodesAndLabelsLoaded(): boolean {
+            return this.$store.state.editor.nodes.length > 0 && this.$store.state.editor.labels.length > 0;
+        },
+    },
     mounted() {
+        this.$store.dispatch("editor/loadNodesAndLabels", false);
+
         this.scrollPanel = document.getElementsByClassName("p-scrollpanel-content")[0];
         this.scrollPanel.addEventListener("scroll", this.handleScroll);
 
@@ -53,20 +69,16 @@ export default defineComponent({
         /**
          * Reload new nodes, when user is scrolling down
          */
-        handleScroll() {
+        async handleScroll() {
             const clientHeight = this.scrollPanel.clientHeight;
             const scrollTop = this.scrollPanel.scrollTop;
             const scrollHeight = this.scrollPanel.scrollHeight;
 
-            if (this.allowReload) {
+            if (this.allowReload && scrollTop + clientHeight * 1.4 > scrollHeight) {
                 this.allowReload = false;
 
-                // Prevent multiple execution of node-reload
-                setTimeout(() => {
-                    // Reload nodes, if scroll bar passes a threshold
-                    if (scrollTop + clientHeight * 1.4 > scrollHeight) this.$store.dispatch("editor/loadNodes", true);
-                    this.allowReload = true;
-                }, 150);
+                await this.$store.dispatch("editor/loadNodesAndLabels", true);
+                this.allowReload = true;
             }
         },
     },
@@ -108,6 +120,24 @@ export default defineComponent({
 
     .space {
         padding-bottom: 24px;
+    }
+
+    .emptyList {
+        display: flex;
+        align-items: center;
+        padding-left: 8px;
+
+        svg {
+            fill: @dark_grey;
+            height: 24px;
+            width: 24px;
+        }
+
+        .message {
+            color: @dark_grey;
+            padding-left: 8px;
+            font-size: @h3;
+        }
     }
 }
 

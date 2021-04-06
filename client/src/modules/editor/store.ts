@@ -120,24 +120,18 @@ export const editor = {
     },
     actions: {
         /**
-         * Loads the nodes for the overview
+         * Loads the nodes and color values for the overview
          */
-        async loadNodes(context: ActionContext<EditorState, RootState>, extend: boolean): Promise<void> {
+        async loadNodesAndLabels(context: ActionContext<EditorState, RootState>, extend: boolean): Promise<void> {
             if (extend) context.state.limit += 50;
-            const res = await GET("/api/nodes?limit=" + context.state.limit);
+            const resNodes = await GET("/api/nodes?limit=" + context.state.limit);
+            const resLabels = await GET("/api/data-scheme/label");
 
-            if (res.status === 200) context.commit("loadNodes", await res.json());
-        },
-        /**
-         * Get the color value for a specific node
-         */
-        async loadLabels(context: ActionContext<EditorState, RootState>): Promise<void> {
-            const res = await GET("/api/data-scheme/label");
-
-            if (res.status === 200) {
-                const data = await res.json();
+            if (resLabels.status === 200 && resNodes.status === 200) {
+                const data = await resLabels.json();
                 context.commit("loadLabelColors", data);
                 context.commit("loadLabels", data);
+                context.commit("loadNodes", await resNodes.json());
             }
         },
     },

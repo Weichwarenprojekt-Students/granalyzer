@@ -1,6 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
      style="width:0;height:0;position:absolute;overflow:hidden;">
     <defs>
+        <symbol viewBox="0 0 24 24" id="not-found" aria-labelledby="not-found-title">
+            <title id="not-found-title">icon not-found</title>
+            <path d="M21.172 24l-7.387-7.387c-1.388.874-3.024 1.387-4.785 1.387-4.971 0-9-4.029-9-9s4.029-9 9-9 9 4.029 9 9c0 1.761-.514 3.398-1.387 4.785l7.387 7.387-2.828 2.828zm-12.172-8c3.859 0 7-3.14 7-7s-3.141-7-7-7-7 3.14-7 7 3.141 7 7 7zm-3-8c.552 0 1 .448 1 1s-.448 1-1 1-1-.448-1-1 .448-1 1-1zm3 0c.552 0 1 .448 1 1s-.448 1-1 1-1-.448-1-1 .448-1 1-1zm3 0c.552 0 1 .448 1 1s-.448 1-1 1-1-.448-1-1 .448-1 1-1z"/>
+        </symbol>
         <symbol viewBox="0 0 24 24" id="add-folder" aria-labelledby="add-folder-title">
             <title id="add-folder-title">icon add-folder</title>
             <path d="M24 17h-3v-3h-2v3h-3v2h3v3h2v-3h3v-2zm-10 5h-14v-20h7c1.695 1.942 2.371 3 4 3h13v7h-2v-5h-11c-2.34 0-3.537-1.388-4.916-3h-4.084v16h12v2z"/>

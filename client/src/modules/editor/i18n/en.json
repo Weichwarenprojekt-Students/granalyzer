@@ -1,4 +1,5 @@
 {
+  "titleOverview": "Node Overview",
   "title": "Here you are in the editor!",
   "toolbar": {
     "undo": "Undo (Ctrl + Z)",
@@ -8,5 +9,8 @@
   "noDiagram": {
     "title": "No Diagram",
     "description": "You have to load a diagram first!"
+  },
+  "noNodes": {
+    "description": "No nodes found"
   }
 }

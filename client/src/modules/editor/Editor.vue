@@ -3,7 +3,6 @@
         <EditorHeader class="header"></EditorHeader>
         <GraphEditor class="editor"></GraphEditor>
         <OverviewList
-            v-if="nodesAndLabelsLoaded"
             class="overview"
             :nodes="$store.state.editor.nodes"
             :labelColor="$store.state.editor.labelColor"
@@ -24,25 +23,11 @@ export default defineComponent({
         EditorHeader,
         OverviewList,
     },
-    mounted() {
-        this.$store.dispatch("editor/loadNodes", false);
-        this.$store.dispatch("editor/loadLabels");
-    },
-    computed: {
-        /**
-         * Make sure the state contains necessary data that needs to be provided to the overview list
-         */
-        nodesAndLabelsLoaded(): boolean {
-            return this.$store.state.editor.nodes.length > 0 && this.$store.state.editor.labels.length > 0;
-        },
-    },
 });
 </script>
 
 <style lang="less" scoped>
-@import "~@/styles/styles.less";
-
-@header-height: 64px;
+@import "~@/styles/global.less";
 
 .content {
     width: 100%;
