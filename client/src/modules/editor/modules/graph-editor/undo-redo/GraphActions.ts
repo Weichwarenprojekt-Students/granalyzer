@@ -69,14 +69,14 @@ export class GraphActions {
      * @param source The source element
      * @param target The target element
      * @param uuid An optional uuid for the relation
-     * @param label An optional label for the label
+     * @param labelText An optional label for the relation
      */
     public static addRelation(
         graphHandler: GraphHandler,
         source: dia.Element,
         target: dia.Element,
         uuid?: string,
-        label?: string,
+        labelText?: string,
     ): void {
         // Check if the nodes exist
         const from = graphHandler.nodes.get(source);
@@ -86,7 +86,7 @@ export class GraphActions {
         // Create the node relation
         const relation: Relation = {
             uuid,
-            label,
+            type: labelText,
             from: from.ref,
             to: to.ref,
         };
@@ -102,6 +102,8 @@ export class GraphActions {
         });
         link.router("manhattan");
         link.connector("rounded");
+
+        if (labelText) link.appendLabel({ attrs: { text: { text: labelText }, rect: { fill: "#0000" } } });
 
         // Add the relation to the graph and to the other links
         link.addTo(graphHandler.graph.graph);

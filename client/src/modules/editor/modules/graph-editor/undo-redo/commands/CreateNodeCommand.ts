@@ -32,14 +32,14 @@ export class CreateNodeCommand implements ICommand {
                 this.graphHandler.nodes.forEach((value: Node, key: dia.Element) => {
                     // Connect relation to all end nodes that are in the diagram
                     if (rel.to.uuid == value.ref.uuid && this.diagElement)
-                        GraphActions.addRelation(this.graphHandler, this.diagElement, key);
+                        GraphActions.addRelation(this.graphHandler, this.diagElement, key, rel.uuid, rel.type);
                 });
             } else if (rel.to.uuid === this.node.ref.uuid) {
                 // Else if the new node is the endpoint of the relation
                 this.graphHandler.nodes.forEach((value: Node, key: dia.Element) => {
                     // Connect relation to all start nodes that are in the diagram
                     if (rel.from.uuid == value.ref.uuid && this.diagElement)
-                        GraphActions.addRelation(this.graphHandler, key, this.diagElement);
+                        GraphActions.addRelation(this.graphHandler, key, this.diagElement, rel.uuid, rel.type);
                 });
             }
         });

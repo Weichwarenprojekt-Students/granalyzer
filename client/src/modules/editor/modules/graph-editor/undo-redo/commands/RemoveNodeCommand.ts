@@ -64,13 +64,7 @@ export class RemoveNodeCommand implements ICommand {
                 if (relation.to.uuid == value.ref.uuid && relation.to.index == value.ref.index) targetElement = key;
             });
             if (sourceElement && targetElement)
-                GraphActions.addRelation(
-                    this.graphHandler,
-                    sourceElement,
-                    targetElement,
-                    relation.uuid,
-                    relation.label,
-                );
+                GraphActions.addRelation(this.graphHandler, sourceElement, targetElement, relation.uuid, relation.type);
         });
     }
 }

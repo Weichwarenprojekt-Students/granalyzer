@@ -17,7 +17,7 @@ export interface Relation {
      */
     uuid?: string;
     /**
-     * The label of the relation
+     * The type of the relation
      */
-    label?: string;
+    type?: string;
 }

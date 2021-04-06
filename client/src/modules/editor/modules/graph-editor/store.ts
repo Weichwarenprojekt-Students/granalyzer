@@ -164,7 +164,7 @@ export const graphEditor = {
                     from: { uuid: rel.start, index: 0 },
                     to: { uuid: rel.end, index: 0 },
                     uuid: rel.id,
-                    label: rel.type,
+                    type: rel.type,
                 };
             });
 

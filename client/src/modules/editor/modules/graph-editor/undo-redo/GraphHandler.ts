@@ -59,7 +59,7 @@ export class GraphHandler {
         relations.forEach((relation) => {
             const source = mappedNodes.get(`${relation.from.uuid}-${relation.from.index}`);
             const target = mappedNodes.get(`${relation.to.uuid}-${relation.to.index}`);
-            if (source && target) GraphActions.addRelation(this, source, target, relation.uuid, relation.label);
+            if (source && target) GraphActions.addRelation(this, source, target, relation.uuid, relation.type);
         });
 
         // Add the elements to the graph
