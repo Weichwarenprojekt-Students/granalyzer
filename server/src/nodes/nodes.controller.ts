@@ -17,7 +17,9 @@ export class NodesController {
     @ApiQuery({ name: "limit", type: "number" })
     @ApiQuery({ name: "offset", type: "number" })
     @ApiOperation({
-        description: "Returns all the node from the customer db with applying a limit and offset",
+        description:
+            "Returns all the node from the customer db with applying a limit and offset, default limit is 20, " +
+            "default offset is 0",
     })
     @ApiOkResponse({
         description: "Return the nodes",
