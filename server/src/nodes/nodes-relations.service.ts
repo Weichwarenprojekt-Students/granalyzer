@@ -5,6 +5,10 @@ import { DataSchemeUtil } from "../util/data-scheme.util";
 
 @Injectable()
 export class NodesRelationsService {
+    /**
+     * Customer database
+     * @private
+     */
     private database = process.env.DB_CUSTOMER;
 
     constructor(private readonly neo4jService: Neo4jService, private readonly dataSchemeUtil: DataSchemeUtil) {}

@@ -3,6 +3,7 @@ import { NodesService } from "./nodes.service";
 import Node from "./node.model";
 import { ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { NodesRelationsService } from "./nodes-relations.service";
+import Relation from "../relations/relation.model";
 
 @ApiTags("nodes")
 @Controller("nodes")
@@ -56,6 +57,13 @@ export class NodesController {
     }
 
     @Get(":id/relations")
+    @ApiOperation({
+        description: "Return all relations that are connected to a node matching id",
+    })
+    @ApiOkResponse({
+        description: "Return the all relations of a node",
+        type: [Relation],
+    })
     getRelationsOfNode(@Param("id") id: number) {
         return this.nodesRelationsService.getRelationsOfNode(id);
     }
