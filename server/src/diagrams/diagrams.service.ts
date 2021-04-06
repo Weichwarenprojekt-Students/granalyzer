@@ -1,7 +1,6 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { Diagram } from "./diagram.model";
-import { FoldersService } from "../folders/folders.service";
 import { Transaction } from "neo4j-driver";
 import Result from "neo4j-driver/types/result";
 
@@ -12,10 +11,7 @@ export class DiagramsService {
      */
     private readonly database = process.env.DB_TOOL;
 
-    constructor(
-        private readonly neo4jService: Neo4jService,
-        @Inject(forwardRef(() => FoldersService)) private foldersService: FoldersService,
-    ) {}
+    constructor(private readonly neo4jService: Neo4jService) {}
 
     /**
     static parseDiagram(record: Record<any, any>): Diagram (
@@ -39,7 +35,10 @@ export class DiagramsService {
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map((record) => record.get("diagram")));
+            .then((res) => res.records.map((record) => record.get("diagram")))
+            .catch(() => {
+                throw new NotFoundException();
+            });
     }
 
     /**
@@ -50,7 +49,7 @@ export class DiagramsService {
         const cypher = `
           MATCH (d:Diagram)
             WHERE NOT (d)-[:IS_CHILD]->()
-          RETURN d { .* } AS diagrams
+          RETURN d {. *} AS diagram
         `;
 
         const params = {};
@@ -90,7 +89,7 @@ export class DiagramsService {
         // language=Cypher
         const cypher = `
           CREATE (d:Diagram {name: $name, serialized: $serialized, diagramId: apoc.create.uuid()})
-          RETURN d { .* } AS diagram
+          RETURN d {. *} AS diagram
         `;
 
         const params = {
@@ -137,8 +136,9 @@ export class DiagramsService {
           MATCH (d:Diagram)
             WHERE d.diagramId = $id
           OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder)
+          WITH properties(d) AS props, f, d
           DETACH DELETE d
-          RETURN d {. *, parentId:f.folderId} AS diagram`;
+          RETURN props {. *, parentId:f.parentId} AS diagram`;
 
         const params = {
             id,
@@ -243,7 +243,7 @@ export class DiagramsService {
      * @param childId Id of the node whose relations should be deleted
      * @param databaseOrTransaction The current database or a neo4j transaction
      */
-    deleteIsChildRelation(childId: string, databaseOrTransaction?: string | Transaction): Result {
+    private deleteIsChildRelation(childId: string, databaseOrTransaction?: string | Transaction): Result {
         //language=Cypher
         const cypher = `
           MATCH (c:Diagram)-[r:IS_CHILD]->(f:Folder)

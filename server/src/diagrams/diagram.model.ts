@@ -23,7 +23,7 @@ export class Diagram {
         name: "parentId",
         description: "The id of the parent folder",
     })
-    parentId?: string;
+    parentId: string = null;
 
     @ApiProperty({
         required: false,
