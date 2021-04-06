@@ -33,6 +33,11 @@ export class EditorState {
     public nodes = [] as Node[];
 
     /**
+     * Limit of nodes to be loaded
+     */
+    public limit = 50;
+
+    /**
      * Labels in the customer db
      */
     public labels = [] as Label[];
@@ -117,8 +122,9 @@ export const editor = {
         /**
          * Loads the nodes for the overview
          */
-        async loadNodes(context: ActionContext<EditorState, RootState>): Promise<void> {
-            const res = await GET("/api/nodes");
+        async loadNodes(context: ActionContext<EditorState, RootState>, extend: boolean): Promise<void> {
+            if (extend) context.state.limit += 50;
+            const res = await GET("/api/nodes?limit=" + context.state.limit);
 
             if (res.status === 200) context.commit("loadNodes", await res.json());
         },

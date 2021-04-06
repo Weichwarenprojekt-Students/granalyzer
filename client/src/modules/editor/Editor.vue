@@ -25,7 +25,7 @@ export default defineComponent({
         OverviewList,
     },
     mounted() {
-        this.$store.dispatch("editor/loadNodes");
+        this.$store.dispatch("editor/loadNodes", false);
         this.$store.dispatch("editor/loadLabels");
     },
     computed: {

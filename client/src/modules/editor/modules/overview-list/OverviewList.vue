@@ -15,9 +15,8 @@
                 :color="labelColor.get(content.label).color"
                 :font-color="labelColor.get(content.label).fontColor"
             />
-            <div class="space"></div>
+            <div class="space" />
         </ScrollPanel>
-        <!--<div class="button">Add Node</div>-->
     </div>
 </template>
 
@@ -28,11 +27,48 @@ import OverviewItem from "@/modules/editor/modules/overview-list/components/Over
 export default defineComponent({
     name: "OverviewList",
     components: { OverviewItem },
+    data() {
+        return {
+            // Scroll panel for the overview
+            scrollPanel: {} as Element,
+            // Scroll panel y-bar
+            scrollPanelBar: {} as Element,
+            // Flag to prevent scroll event from loading too many times
+            allowReload: true,
+        };
+    },
     props: {
         // Nodes to be displayed in the overview
         nodes: Array,
         // Background colors and color fonts for the nodes
         labelColor: Object,
+    },
+    mounted() {
+        this.scrollPanel = document.getElementsByClassName("p-scrollpanel-content")[0];
+        this.scrollPanel.addEventListener("scroll", this.handleScroll);
+
+        this.scrollPanelBar = document.getElementsByClassName("p-scrollpanel-bar-y")[0];
+    },
+    methods: {
+        /**
+         * Reload new nodes, when user is scrolling down
+         */
+        handleScroll() {
+            const clientHeight = this.scrollPanel.clientHeight;
+            const scrollTop = this.scrollPanel.scrollTop;
+            const scrollHeight = this.scrollPanel.scrollHeight;
+
+            if (this.allowReload) {
+                this.allowReload = false;
+
+                // Prevent multiple execution of node-reload
+                setTimeout(() => {
+                    // Reload nodes, if scroll bar passes a threshold
+                    if (scrollTop + clientHeight * 1.4 > scrollHeight) this.$store.dispatch("editor/loadNodes", true);
+                    this.allowReload = true;
+                }, 150);
+            }
+        },
     },
 });
 </script>
@@ -71,7 +107,7 @@ export default defineComponent({
     flex: 1 1 auto !important;
 
     .space {
-        height: 20px;
+        padding-bottom: 24px;
     }
 }
 
