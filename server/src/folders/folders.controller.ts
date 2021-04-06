@@ -71,7 +71,7 @@ export class FoldersController {
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "The identifier of the diagram",
     })
     @ApiBody({
@@ -126,7 +126,7 @@ export class FoldersController {
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "Identifier of the diagram",
     })
     deleteFolder(@Param("id") id: string) {
@@ -184,12 +184,12 @@ export class FoldersController {
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "Id of the folder which contains the child",
     })
     @ApiParam({
         name: "childId",
-        type: "number",
+        type: "string",
         description: "The id of the specified child folder",
     })
     getFolderInFolder(@Param("id") id: string, @Param("childId") childId: string) {
@@ -208,12 +208,12 @@ export class FoldersController {
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "The folder id to which the child folder should be added",
     })
     @ApiParam({
         name: "childId",
-        type: "number",
+        type: "string",
         description: "The id of the child folder which should be added to the folder",
     })
     moveFolderToFolder(@Param("id") id: string, @Param("childId") childId: string) {
@@ -232,12 +232,12 @@ export class FoldersController {
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "The folder id from which the specific child folder should be removed",
     })
     @ApiParam({
         name: "childId",
-        type: "number",
+        type: "string",
         description: "The id of the child folder which should be deleted from the parent folder",
     })
     removeFolderFromFolder(@Param("id") id: string, @Param("childId") childId: string) {
@@ -247,6 +247,11 @@ export class FoldersController {
     @Get(":id/diagrams")
     @ApiOperation({
         description: "Returns all child diagrams of the folder with the given id",
+    })
+    @ApiParam({
+        name: "id",
+        type: "string",
+        description: "The folder id",
     })
     @ApiOkResponse({
         type: [Diagram],
@@ -270,12 +275,12 @@ export class FoldersController {
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "Id of the folder which contains the child",
     })
     @ApiParam({
         name: "childId",
-        type: "number",
+        type: "string",
         description: "The id of the specified children",
     })
     getDiagramInFolder(@Param("id") id: string, @Param("childId") childId: string) {
@@ -294,12 +299,12 @@ export class FoldersController {
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "The folder id to which the child should be added",
     })
     @ApiParam({
         name: "childId",
-        type: "number",
+        type: "string",
         description: "The id of the diagram which should be added to the folder",
     })
     moveDiagramToFolder(@Param("id") id: string, @Param("childId") childId: string) {
@@ -318,12 +323,12 @@ export class FoldersController {
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "The folder id from which the specific child should be removed",
     })
     @ApiParam({
         name: "childId",
-        type: "number",
+        type: "string",
         description: "The id of the child element which should be deleted from the folder",
     })
     removeDiagramFromFolder(@Param("id") id: string, @Param("childId") childId: string) {

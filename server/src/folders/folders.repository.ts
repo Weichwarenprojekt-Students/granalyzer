@@ -1,4 +1,3 @@
-import * as neo4j from "neo4j-driver";
 import { TestUtils } from "../../test/test-utils";
 
 export class FoldersRepository {
@@ -9,19 +8,15 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 folder: {
-                    identity: neo4j.int(0),
-                    properties: {
-                        name: "folder 1",
-                    },
+                    name: "folder 1",
+                    folderId: "0-0-0-0",
+                    parentId: "0-0-0-2",
                 },
-                parentId: neo4j.int(2),
             },
             {
                 folder: {
-                    identity: neo4j.int(1),
-                    properties: {
-                        name: "folder 2",
-                    },
+                    folderId: "0-0-0-1",
+                    name: "folder 2",
                 },
             },
         ]);
@@ -33,12 +28,12 @@ export class FoldersRepository {
     static resultGetFolders() {
         return [
             {
-                id: 0,
+                folderId: "0-0-0-0",
                 name: "folder 1",
-                parentId: 2,
+                parentId: "0-0-0-2",
             },
             {
-                id: 1,
+                folderId: "0-0-0-1",
                 name: "folder 2",
             },
         ];
@@ -51,10 +46,8 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 folder: {
-                    identity: neo4j.int(0),
-                    properties: {
-                        name: "folder 1",
-                    },
+                    folderId: "0-0-0-0",
+                    name: "folder 1",
                 },
             },
         ]);
@@ -65,7 +58,7 @@ export class FoldersRepository {
      */
     static resultGetFolder() {
         return {
-            id: 0,
+            folderId: "0-0-0-0",
             name: "folder 1",
         };
     }
@@ -77,10 +70,8 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 folder: {
-                    identity: neo4j.int(0),
-                    properties: {
-                        name: "added folder",
-                    },
+                    folderId: "0-0-0-0",
+                    name: "added folder",
                 },
             },
         ]);
@@ -91,7 +82,7 @@ export class FoldersRepository {
      */
     static resultAddFolder() {
         return {
-            id: 0,
+            folderId: "0-0-0-0",
             name: "added folder",
         };
     }
@@ -103,10 +94,8 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 folder: {
-                    identity: neo4j.int(0),
-                    properties: {
-                        name: "updated folder",
-                    },
+                    folderId: "0-0-0-0",
+                    name: "updated folder",
                 },
             },
         ]);
@@ -117,7 +106,7 @@ export class FoldersRepository {
      */
     static resultUpdateFolder() {
         return {
-            id: 0,
+            folderId: "0-0-0-0",
             name: "updated folder",
         };
     }
@@ -129,10 +118,8 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 folder: {
-                    identity: neo4j.int(0),
-                    properties: {
-                        name: "deleted folder",
-                    },
+                    folderId: "0-0-0-0",
+                    name: "deleted folder",
                 },
             },
         ]);
@@ -143,7 +130,7 @@ export class FoldersRepository {
      */
     static resultDeleteFolder() {
         return {
-            id: 0,
+            folderId: "0-0-0-0",
             name: "deleted folder",
         };
     }
@@ -155,20 +142,14 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 folder: {
-                    identity: neo4j.int(2),
-                    labels: ["Folder"],
-                    properties: {
-                        name: "inner folder",
-                    },
+                    folderId: "0-0-0-2",
+                    name: "inner folder",
                 },
             },
             {
                 folder: {
-                    identity: neo4j.int(3),
-                    labels: ["Folder"],
-                    properties: {
-                        name: "inner folder",
-                    },
+                    folderId: "0-0-0-3",
+                    name: "inner folder",
                 },
             },
         ]);
@@ -180,11 +161,11 @@ export class FoldersRepository {
     static resultGetFoldersInFolder() {
         return [
             {
-                id: 2,
+                folderId: "0-0-0-2",
                 name: "inner folder",
             },
             {
-                id: 3,
+                folderId: "0-0-0-3",
                 name: "inner folder",
             },
         ];
@@ -197,11 +178,8 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 folder: {
-                    identity: neo4j.int(2),
-                    labels: ["Folder"],
-                    properties: {
-                        name: "child folder",
-                    },
+                    folderId: "0-0-0-2",
+                    name: "child folder",
                 },
             },
         ]);
@@ -212,7 +190,7 @@ export class FoldersRepository {
      */
     static resultGetFolderInFolder() {
         return {
-            id: 2,
+            folderId: "0-0-0-2",
             name: "child folder",
         };
     }
@@ -224,11 +202,8 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 folder: {
-                    identity: neo4j.int(2),
-                    labels: ["Folder"],
-                    properties: {
-                        name: "folder 3",
-                    },
+                    folderId: "0-0-0-2",
+                    name: "folder 3",
                 },
             },
         ]);
@@ -239,7 +214,7 @@ export class FoldersRepository {
      */
     static resultAddFolderToFolder() {
         return {
-            id: 2,
+            folderId: "0-0-0-2",
             name: "folder 3",
         };
     }
@@ -251,11 +226,8 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 folder: {
-                    identity: neo4j.int(2),
-                    labels: ["Folder"],
-                    properties: {
-                        name: "removed folder",
-                    },
+                    folderId: "0-0-0-2",
+                    name: "removed folder",
                 },
             },
         ]);
@@ -266,7 +238,7 @@ export class FoldersRepository {
      */
     static resultRemoveFolderFromFolder() {
         return {
-            id: 2,
+            folderId: "0-0-0-2",
             name: "removed folder",
         };
     }
@@ -278,20 +250,14 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 folder: {
-                    identity: neo4j.int(0),
-                    labels: ["Folder"],
-                    properties: {
-                        name: "folder 1",
-                    },
+                    folderId: "0-0-0-0",
+                    name: "folder 1",
                 },
             },
             {
                 folder: {
-                    identity: neo4j.int(1),
-                    labels: ["Folder"],
-                    properties: {
-                        name: "folder 2",
-                    },
+                    folderId: "0-0-0-1",
+                    name: "folder 2",
                 },
             },
         ]);
@@ -303,11 +269,11 @@ export class FoldersRepository {
     static resultGetAllRootFolders() {
         return [
             {
-                id: 0,
+                folderId: "0-0-0-0",
                 name: "folder 1",
             },
             {
-                id: 1,
+                folderId: "0-0-0-1",
                 name: "folder 2",
             },
         ];
@@ -320,20 +286,14 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 diagram: {
-                    identity: neo4j.int(2),
-                    labels: ["Folder"],
-                    properties: {
-                        name: "inner diagram",
-                    },
+                    folderId: "0-0-0-2",
+                    name: "inner diagram",
                 },
             },
             {
                 diagram: {
-                    identity: neo4j.int(3),
-                    labels: ["Diagram"],
-                    properties: {
-                        name: "inner diagram",
-                    },
+                    folderId: "0-0-0-3",
+                    name: "inner diagram",
                 },
             },
         ]);
@@ -345,11 +305,11 @@ export class FoldersRepository {
     static resultGetDiagramsInFolder() {
         return [
             {
-                id: 2,
+                folderId: "0-0-0-2",
                 name: "inner diagram",
             },
             {
-                id: 3,
+                folderId: "0-0-0-3",
                 name: "inner diagram",
             },
         ];
@@ -362,11 +322,8 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 diagram: {
-                    identity: neo4j.int(2),
-                    labels: ["Diagram"],
-                    properties: {
-                        name: "child diagram",
-                    },
+                    folderId: "0-0-0-2",
+                    name: "child diagram",
                 },
             },
         ]);
@@ -377,7 +334,7 @@ export class FoldersRepository {
      */
     static resultGetDiagramInFolder() {
         return {
-            id: 2,
+            folderId: "0-0-0-2",
             name: "child diagram",
         };
     }
@@ -389,11 +346,8 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 diagram: {
-                    identity: neo4j.int(2),
-                    labels: ["Diagram"],
-                    properties: {
-                        name: "diagram 3",
-                    },
+                    folderId: "0-0-0-2",
+                    name: "diagram 3",
                 },
             },
         ]);
@@ -404,7 +358,7 @@ export class FoldersRepository {
      */
     static resultAddDiagramToFolder() {
         return {
-            id: 2,
+            folderId: "0-0-0-2",
             name: "diagram 3",
         };
     }
@@ -416,11 +370,8 @@ export class FoldersRepository {
         return TestUtils.mockDbResult([
             {
                 diagram: {
-                    identity: neo4j.int(2),
-                    labels: ["Diagram"],
-                    properties: {
-                        name: "removed diagram",
-                    },
+                    folderId: "0-0-0-2",
+                    name: "removed diagram",
                 },
             },
         ]);
@@ -431,7 +382,7 @@ export class FoldersRepository {
      */
     static resultRemoveDiagramFromFolder() {
         return {
-            id: 2,
+            folderId: "0-0-0-2",
             name: "removed diagram",
         };
     }

@@ -1,4 +1,3 @@
-import * as neo4j from "neo4j-driver";
 import { TestUtils } from "../../test/test-utils";
 
 export class DiagramsRepository {
@@ -9,19 +8,15 @@ export class DiagramsRepository {
         return TestUtils.mockDbResult([
             {
                 diagram: {
-                    identity: neo4j.int(0),
-                    properties: {
-                        name: "diagram 1",
-                    },
+                    diagramId: "0-0-0-0",
+                    name: "diagram 1",
+                    parentId: "0-0-0-2",
                 },
-                parentId: neo4j.int(2),
             },
             {
                 diagram: {
-                    identity: neo4j.int(1),
-                    properties: {
-                        name: "diagram 2",
-                    },
+                    diagramId: "0-0-0-1",
+                    name: "diagram 2",
                 },
             },
         ]);
@@ -33,12 +28,12 @@ export class DiagramsRepository {
     static resultGetDiagrams() {
         return [
             {
-                id: 0,
+                diagramId: "0-0-0-0",
                 name: "diagram 1",
-                parentId: 2,
+                parentId: "0-0-0-2",
             },
             {
-                id: 1,
+                diagramId: "0-0-0-1",
                 name: "diagram 2",
             },
         ];
@@ -51,10 +46,8 @@ export class DiagramsRepository {
         return TestUtils.mockDbResult([
             {
                 diagram: {
-                    identity: neo4j.int(0),
-                    properties: {
-                        name: "diagram 1",
-                    },
+                    diagramId: "0-0-0-0",
+                    name: "diagram 1",
                 },
             },
         ]);
@@ -65,7 +58,7 @@ export class DiagramsRepository {
      */
     static resultGetDiagram() {
         return {
-            id: 0,
+            diagramId: "0-0-0-0",
             name: "diagram 1",
         };
     }
@@ -77,10 +70,8 @@ export class DiagramsRepository {
         return TestUtils.mockDbResult([
             {
                 diagram: {
-                    identity: neo4j.int(0),
-                    properties: {
-                        name: "added diagram",
-                    },
+                    diagramId: "0-0-0-0",
+                    name: "added diagram",
                 },
             },
         ]);
@@ -91,7 +82,7 @@ export class DiagramsRepository {
      */
     static resultAddDiagram() {
         return {
-            id: 0,
+            diagramId: "0-0-0-0",
             name: "added diagram",
         };
     }
@@ -103,10 +94,8 @@ export class DiagramsRepository {
         return TestUtils.mockDbResult([
             {
                 diagram: {
-                    identity: neo4j.int(0),
-                    properties: {
-                        name: "update diagram",
-                    },
+                    diagramId: "0-0-0-0",
+                    name: "update diagram",
                 },
             },
         ]);
@@ -117,7 +106,7 @@ export class DiagramsRepository {
      */
     static resultUpdateDiagram() {
         return {
-            id: 0,
+            diagramId: "0-0-0-0",
             name: "update diagram",
         };
     }
@@ -129,10 +118,8 @@ export class DiagramsRepository {
         return TestUtils.mockDbResult([
             {
                 diagram: {
-                    identity: neo4j.int(0),
-                    properties: {
-                        name: "delete diagram",
-                    },
+                    diagramId: "0-0-0-0",
+                    name: "delete diagram",
                 },
             },
         ]);
@@ -143,7 +130,7 @@ export class DiagramsRepository {
      */
     static resultDeleteDiagram() {
         return {
-            id: 0,
+            diagramId: "0-0-0-0",
             name: "delete diagram",
         };
     }

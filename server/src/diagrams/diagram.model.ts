@@ -3,11 +3,11 @@ import { ApiProperty } from "@nestjs/swagger";
 export class Diagram {
     @ApiProperty({
         required: false,
-        type: "number",
-        name: "id",
+        type: "string",
+        name: "diagramId",
         description: "The id of the diagram",
     })
-    id?: number;
+    diagramId: string;
 
     @ApiProperty({
         required: true,
@@ -19,11 +19,11 @@ export class Diagram {
 
     @ApiProperty({
         required: false,
-        type: "number",
+        type: "string",
         name: "parentId",
         description: "The id of the parent folder",
     })
-    parentId?: number;
+    parentId?: string;
 
     @ApiProperty({
         required: false,

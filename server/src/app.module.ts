@@ -1,4 +1,4 @@
-import { Logger, Module } from "@nestjs/common";
+import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
 import { DiagramsModule } from "./diagrams/diagrams.module";
@@ -26,7 +26,7 @@ import { UtilModule } from "./util/util.module";
 })
 export class AppModule {
     constructor(private neo4jService: Neo4jService) {
-        this.initDatabase().then((ret) => console.log("Database setup successful"));
+        this.initDatabase().then(() => console.log("Database setup successful"));
     }
 
     /**

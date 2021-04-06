@@ -4,17 +4,17 @@ import { ApiProperty } from "@nestjs/swagger";
 export class Label {
     @ApiProperty({
         required: false,
-        type: "number",
-        name: "id",
+        type: "string",
+        name: "labelId",
         description: "Id of the label scheme",
     })
-    id?: number;
+    labelId?: string;
 
     @ApiProperty({
         required: true,
         type: "string",
         name: "name",
-        description: "name of the label scheme",
+        description: "Name of the label scheme",
     })
     name: string;
 
@@ -42,10 +42,10 @@ export class Label {
      * @param attributes attributes of the label
      * @param id ID in the database
      */
-    constructor(name?: string, color?: string, attributes?: Attribute[], id?: number) {
+    constructor(name?: string, color?: string, attributes?: Attribute[], id?: string) {
         this.name = name ?? "";
         this.color = color ?? "#000";
         this.attributes = attributes ?? [];
-        if (id) this.id = id;
+        if (id) this.labelId = id;
     }
 }

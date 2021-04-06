@@ -6,14 +6,13 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { DataSchemeController } from "./data-scheme.controller";
 import { DataSchemeService } from "./data-scheme.service";
 import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
-import { NotAcceptableException, NotFoundException } from "@nestjs/common";
+import { NotFoundException } from "@nestjs/common";
 import { Label } from "./models/label";
 import { ColorAttribute, NumberAttribute, StringAttribute } from "./models/attributes";
 import { RelationType } from "./models/relationType";
 import { Connection } from "./models/connection";
 import { Scheme } from "./data-scheme.model";
-import { UtilsNode } from "../util/utils.node";
-import * as dotenv from "dotenv";
+import { ConfigModule } from "@nestjs/config";
 
 describe("DataSchemeController", () => {
     let module: TestingModule;
@@ -27,16 +26,15 @@ describe("DataSchemeController", () => {
     let actedInRelation: RelationType;
     let followsRelation: RelationType;
 
-    let movieLabelId: number;
-    let personLabelId: number;
-    let actedInRelationId: number;
-    let followsRelationId: number;
+    let movieLabelId: string;
+    let personLabelId: string;
+    let actedInRelationId: string;
+    let followsRelationId: string;
 
     beforeAll(async () => {
-        dotenv.config();
-
         module = await Test.createTestingModule({
             imports: [
+                ConfigModule.forRoot(),
                 Neo4jModule.forRoot({
                     scheme: "bolt",
                     host: process.env.DB_HOST,
@@ -46,7 +44,7 @@ describe("DataSchemeController", () => {
                 }),
             ],
             controllers: [DataSchemeController],
-            providers: [DataSchemeService, UtilsNode],
+            providers: [DataSchemeService],
         }).compile();
 
         neo4jService = module.get<Neo4jService>(Neo4jService);
@@ -63,12 +61,12 @@ describe("DataSchemeController", () => {
     });
 
     beforeEach(async () => {
-        function writeLabel(l): Promise<number> {
+        function writeLabel(l): Promise<string> {
             // language=cypher
             const cypher = `
-              MERGE (l:LabelScheme {name: $labelName})
+              MERGE (l:LabelScheme {name: $labelName, labelId: apoc.create.uuid()})
               SET l.color = $color, l.attributes = $attribs
-              RETURN l AS label`;
+              RETURN l {.*} AS label`;
 
             const params = {
                 labelName: l.name,
@@ -77,15 +75,15 @@ describe("DataSchemeController", () => {
             };
             return neo4jService
                 .write(cypher, params, process.env.DB_TOOL)
-                .then((res) => res.records[0].get("label").identity.toNumber());
+                .then((res) => res.records[0].get("label").labelId);
         }
 
-        function writeRelation(r): Promise<number> {
+        function writeRelation(r): Promise<string> {
             // language=cypher
             const cypher = `
-              MERGE (r:RelationType {name: $labelName})
+              MERGE (r:RelationType {name: $labelName, relationId: apoc.create.uuid()})
               SET r.attributes = $attribs, r.connections = $connects
-              RETURN r AS relation`;
+              RETURN r {.*} AS relation`;
 
             const params = {
                 labelName: r.name,
@@ -95,7 +93,7 @@ describe("DataSchemeController", () => {
 
             return neo4jService
                 .write(cypher, params, process.env.DB_TOOL)
-                .then((res) => res.records[0].get("relation").identity.toNumber());
+                .then((res) => res.records[0].get("relation").relationId);
         }
 
         movieLabel = new Label("Movie", "#666", [
@@ -104,7 +102,7 @@ describe("DataSchemeController", () => {
         ]);
 
         movieLabelId = await writeLabel(movieLabel);
-        movieLabel.id = movieLabelId;
+        movieLabel.labelId = movieLabelId;
 
         personLabel = new Label("Person", "#420", [
             new StringAttribute("name", true, "Done Default"),
@@ -112,7 +110,7 @@ describe("DataSchemeController", () => {
         ]);
 
         personLabelId = await writeLabel(personLabel);
-        personLabel.id = personLabelId;
+        personLabel.labelId = personLabelId;
 
         actedInRelation = new RelationType(
             "ACTED_IN",
@@ -121,12 +119,12 @@ describe("DataSchemeController", () => {
         );
 
         actedInRelationId = await writeRelation(actedInRelation);
-        actedInRelation.id = actedInRelationId;
+        actedInRelation.relationId = actedInRelationId;
 
         followsRelation = new RelationType("FOLLOWS", [], [new Connection("Person", "Person")]);
 
         followsRelationId = await writeRelation(followsRelation);
-        followsRelation.id = followsRelationId;
+        followsRelation.relationId = followsRelationId;
     });
 
     afterEach(async () => {
@@ -167,10 +165,6 @@ describe("DataSchemeController", () => {
                 NotFoundException,
             );
         });
-
-        it("id of relation should return not found exception", async () => {
-            await expect(controller.getLabel(followsRelationId)).rejects.toThrowError(NotAcceptableException);
-        });
     });
 
     describe("getAllRelations", () => {
@@ -188,10 +182,6 @@ describe("DataSchemeController", () => {
             await expect(controller.getRelation(actedInRelationId + followsRelationId + 100)).rejects.toThrowError(
                 NotFoundException,
             );
-        });
-
-        it("id of label should return not found exception", async () => {
-            await expect(controller.getRelation(movieLabelId)).rejects.toThrowError(NotAcceptableException);
         });
     });
 });

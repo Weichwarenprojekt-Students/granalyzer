@@ -47,7 +47,7 @@ export class DataSchemeController {
     })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "Identifier of the label scheme",
     })
     @ApiOkResponse({
@@ -60,7 +60,7 @@ export class DataSchemeController {
     @ApiNotFoundResponse({
         description: "Requested resource does not exist",
     })
-    getLabel(@Param("id") id: number) {
+    getLabel(@Param("id") id: string) {
         return this.dataSchemeService.getLabel(id);
     }
 
@@ -82,7 +82,7 @@ export class DataSchemeController {
     })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "Identifier of the relation scheme",
     })
     @ApiOkResponse({
@@ -95,7 +95,7 @@ export class DataSchemeController {
     @ApiNotFoundResponse({
         description: "Requested resource does not exist",
     })
-    getRelation(@Param("id") id: number) {
+    getRelation(@Param("id") id: string) {
         return this.dataSchemeService.getRelation(id);
     }
 }

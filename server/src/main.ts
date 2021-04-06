@@ -1,6 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
+import { Logger } from "@nestjs/common";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -20,6 +21,8 @@ async function bootstrap() {
 
     // Set route prefix which is used globally
     app.setGlobalPrefix(process.env.API_PREFIX);
+
+    app.useLogger(Logger);
 
     // Start server at defined port
     await app.listen(process.env.BACKEND_PORT);

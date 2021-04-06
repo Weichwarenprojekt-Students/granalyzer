@@ -21,14 +21,14 @@ export class FoldersService {
         const cypher = `
           MATCH (f:Folder)
           OPTIONAL MATCH (f:Folder)-[:IS_CHILD]->(p:Folder)
-          RETURN f {. *, parentId:p.folderId} AS folders
+          RETURN f {. *, parentId:p.folderId} AS folder
         `;
 
         const params = {};
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map((rec) => rec.get("folders")));
+            .then((res) => res.records.map((rec) => rec.get("folder")));
     }
 
     /**
@@ -39,14 +39,14 @@ export class FoldersService {
         const cypher = `
           MATCH (f:Folder)
             WHERE NOT (f)-[:IS_CHILD]->()
-          RETURN f { .* } AS folders
+          RETURN f {.*} AS folder
         `;
 
         const params = {};
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map((rec) => rec.get("folders")));
+            .then((res) => res.records.map((rec) => rec.get("folder")));
     }
 
     /**
@@ -96,7 +96,7 @@ export class FoldersService {
             WHERE f.folderId = $id
           OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
           DETACH DELETE c
-          RETURN f {. *, parentId: p.folderId } AS folder
+          RETURN f {. *, parentId:p.folderId} AS folder
         `;
 
         const params = {
@@ -135,16 +135,16 @@ export class FoldersService {
         const cypher = `
           MATCH (c:Folder)-[:IS_CHILD]->(p:Folder)
             WHERE p.folderId = $id
-          RETURN c {. *, parentId:p.folderId} AS folders
+          RETURN c {. *, parentId:p.folderId} AS folder
         `;
 
         const params = {
             id,
         };
 
-        return this.neo4jService.read(cypher, params, this.database).then((res) => {
-            return res.records.map((rec) => rec.get("folders"));
-        });
+        return this.neo4jService
+            .read(cypher, params, this.database)
+            .then((res) => res.records.map((rec) => rec.get("folder")));
     }
 
     /**

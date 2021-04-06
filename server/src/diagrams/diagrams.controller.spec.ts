@@ -8,9 +8,8 @@ import { DiagramsService } from "./diagrams.service";
 import { Neo4jService } from "nest-neo4j/dist";
 import { DiagramsRepository } from "./diagrams.repository";
 import MockNeo4jService from "../../test/mock-neo4j.service";
-import { UtilsRepository } from "../util/utils.repository";
-import { UtilsNode } from "../util/utils.node";
 import { FoldersService } from "../folders/folders.service";
+import { TestingLogger } from "@nestjs/testing/services/testing-logger.service";
 
 describe("DiagramsController", () => {
     let service: DiagramsService;
@@ -28,9 +27,10 @@ describe("DiagramsController", () => {
                     provide: Neo4jService,
                     useValue: MockNeo4jService,
                 },
-                UtilsNode,
             ],
         }).compile();
+
+        module.useLogger(TestingLogger);
 
         neo4jService = module.get<Neo4jService>(Neo4jService);
         service = module.get<DiagramsService>(DiagramsService);
@@ -63,12 +63,9 @@ describe("DiagramsController", () => {
 
     describe("getDiagram", () => {
         it("should return one diagram", async () => {
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Diagram"),
-            );
             jest.spyOn(neo4jService, "read").mockImplementation(() => DiagramsRepository.mockGetDiagram());
 
-            expect(await controller.getDiagram(0)).toStrictEqual(DiagramsRepository.resultGetDiagram());
+            expect(await controller.getDiagram("0-0-0-0")).toStrictEqual(DiagramsRepository.resultGetDiagram());
         });
     });
 
@@ -87,10 +84,6 @@ describe("DiagramsController", () => {
 
     describe("updateDiagram", () => {
         it("should return the updated diagram", async () => {
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Diagram"),
-            );
-
             jest.spyOn(neo4jService, "write").mockImplementation(() => DiagramsRepository.mockUpdateDiagram());
 
             const bodyObject = {
@@ -106,13 +99,9 @@ describe("DiagramsController", () => {
 
     describe("deleteDiagram", () => {
         it("should return the deleted diagram", async () => {
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Diagram"),
-            );
-
             jest.spyOn(neo4jService, "write").mockImplementation(() => DiagramsRepository.mockDeleteDiagram());
 
-            expect(await controller.deleteDiagram(0)).toStrictEqual(DiagramsRepository.resultDeleteDiagram());
+            expect(await controller.deleteDiagram("0-0-0-0")).toStrictEqual(DiagramsRepository.resultDeleteDiagram());
         });
     });
 });

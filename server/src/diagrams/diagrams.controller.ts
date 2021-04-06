@@ -46,7 +46,7 @@ export class DiagramsController {
     })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "Identifier of the diagram which is requested",
     })
     @ApiOkResponse({
@@ -98,7 +98,7 @@ export class DiagramsController {
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "Identifier of the diagram which should be updated",
     })
     @ApiBody({
@@ -126,7 +126,7 @@ export class DiagramsController {
     })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "Identifier of the diagram which should be deleted",
     })
     @ApiOkResponse({

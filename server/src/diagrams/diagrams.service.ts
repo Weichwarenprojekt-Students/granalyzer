@@ -1,7 +1,6 @@
 import { forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { Diagram } from "./diagram.model";
-import { UtilsNode } from "../util/utils.node";
 import { FoldersService } from "../folders/folders.service";
 import { Transaction } from "neo4j-driver";
 import Result from "neo4j-driver/types/result";
@@ -15,7 +14,6 @@ export class DiagramsService {
 
     constructor(
         private readonly neo4jService: Neo4jService,
-        private readonly utilsNode: UtilsNode,
         @Inject(forwardRef(() => FoldersService)) private foldersService: FoldersService,
     ) {}
 
@@ -34,14 +32,14 @@ export class DiagramsService {
         const cypher = `
           MATCH (d:Diagram)
           OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder)
-          RETURN d {. *, parentId:f.folderId} AS diagrams
+          RETURN d {. *, parentId:f.folderId} AS diagram
         `;
 
         const params = {};
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map((record) => record.get("diagrams")));
+            .then((res) => res.records.map((record) => record.get("diagram")));
     }
 
     /**
@@ -59,7 +57,7 @@ export class DiagramsService {
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map((rec) => rec.get("diagrams")));
+            .then((res) => res.records.map((rec) => rec.get("diagram")));
     }
 
     /**
@@ -74,7 +72,7 @@ export class DiagramsService {
         `;
 
         const params = {
-            id: id,
+            id,
         };
 
         return this.neo4jService
@@ -140,7 +138,7 @@ export class DiagramsService {
             WHERE d.diagramId = $id
           OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder)
           DETACH DELETE d
-          RETURN d { .*, parentId: f.folderId} AS diagram`;
+          RETURN d {. *, parentId:f.folderId} AS diagram`;
 
         const params = {
             id,
@@ -162,16 +160,16 @@ export class DiagramsService {
         const cypher = `
           MATCH (c:Diagram)-[r:IS_CHILD]->(p:Folder)
             WHERE p.folderId = $id
-          RETURN c { .*, parentId: p.folderId} AS diagrams
+          RETURN c {. *, parentId:p.folderId} AS diagram
         `;
 
         const params = {
             id,
         };
 
-        return this.neo4jService.read(cypher, params, this.database).then((res) => {
-            return res.records.map((rec) => rec.get("diagrams"));
-        });
+        return this.neo4jService
+            .read(cypher, params, this.database)
+            .then((res) => res.records.map((rec) => rec.get("diagram")));
     }
 
     /**
@@ -182,7 +180,7 @@ export class DiagramsService {
         const cypher = `
           MATCH (d:Diagram)-[r:IS_CHILD]->(f:Folder)
             WHERE f.folderId = $parentId AND d.diagramId = $childId
-          RETURN d { .*, parentId: f.folderId} AS diagram
+          RETURN d {. *, parentId:f.folderId} AS diagram
         `;
 
         const params = {
@@ -208,7 +206,7 @@ export class DiagramsService {
           MATCH (p:Folder), (c:Diagram)
             WHERE p.folderId = $parentId AND c.diagramId = $childId
           MERGE (c)-[r:IS_CHILD]->(p)
-          RETURN c { .*, parentId: p.folderId} AS diagram
+          RETURN c {. *, parentId:p.folderId} AS diagram
         `;
 
         const params = {
@@ -251,7 +249,7 @@ export class DiagramsService {
           MATCH (c:Diagram)-[r:IS_CHILD]->(f:Folder)
             WHERE c.diagramId = $childId
           DELETE r
-          RETURN c { .*, parentId: f.folderId} AS diagram
+          RETURN c {. *, parentId:f.folderId} AS diagram
         `;
 
         const params = {

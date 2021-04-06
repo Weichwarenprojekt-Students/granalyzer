@@ -1,12 +1,10 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
-import * as neo4j from "neo4j-driver";
-import { Attribute } from "./models/attributes";
-import { Label } from "./models/label";
-import { RelationType } from "./models/relationType";
 import { Scheme } from "./data-scheme.model";
+import { RelationType } from "./models/relationType";
+import { Attribute } from "./models/attributes";
 import { Connection } from "./models/connection";
-import { UtilsNode } from "../util/utils.node";
+import { Label } from "./models/label";
 
 @Injectable()
 export class DataSchemeService {
@@ -15,7 +13,7 @@ export class DataSchemeService {
      */
     private readonly database = process.env.DB_TOOL;
 
-    constructor(private readonly neo4jService: Neo4jService, private readonly utilsNode: UtilsNode) {}
+    constructor(private readonly neo4jService: Neo4jService) {}
 
     /**
      * Parses the record to labels
@@ -23,12 +21,8 @@ export class DataSchemeService {
      * @private
      */
     private static parseLabel(record: Record<any, any>): Label {
-        const l = {
-            ...record.get("dataScheme").properties,
-            id: record.get("dataScheme").identity.toNumber(),
-        };
-        l.attributes = JSON.parse(l.attributes, Attribute.reviver);
-        return Object.assign(new Label(), l);
+        record.attributes = JSON.parse(record.attributes, Attribute.reviver);
+        return Object.assign(new Label(), record);
     }
 
     /**
@@ -37,14 +31,10 @@ export class DataSchemeService {
      * @private
      */
     private static parseRelation(record: Record<any, any>): RelationType {
-        const l = {
-            ...record.get("dataScheme").properties,
-            id: record.get("dataScheme").identity.toNumber(),
-        };
-        l.attributes = JSON.parse(l.attributes, Attribute.reviver);
-        l.connections = JSON.parse(l.connections).map((conn) => Object.assign(new Connection(), conn));
+        record.attributes = JSON.parse(record.attributes, Attribute.reviver);
+        record.connections = JSON.parse(record.connections).map((conn) => Object.assign(new Connection(), conn));
 
-        return Object.assign(new RelationType(), l);
+        return Object.assign(new RelationType(), record);
     }
 
     /**
@@ -59,32 +49,30 @@ export class DataSchemeService {
      */
     async getAllLabel() {
         // language=cypher
-        const cypher = "MATCH (ls:LabelScheme) RETURN ls AS dataScheme";
+        const cypher = "MATCH (ls:LabelScheme) RETURN ls {.*} AS dataScheme";
         const params = {};
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map(DataSchemeService.parseLabel));
+            .then((res) => res.records.map((record) => DataSchemeService.parseLabel(record.get("dataScheme"))));
     }
 
     /**
      * Fetch the label with id id
      * @param id
      */
-    async getLabel(id: number) {
-        await this.utilsNode.checkElementForLabel(id, "LabelScheme");
-
+    async getLabel(id: string) {
         // language=cypher
-        const cypher = "MATCH (ls:LabelScheme) WHERE id(ls) = $id RETURN ls AS dataScheme";
+        const cypher = "MATCH (ls:LabelScheme) WHERE ls.labelId = $id RETURN ls {.*} AS dataScheme";
         const params = {
-            id: neo4j.int(id),
+            id,
         };
 
         return this.neo4jService.read(cypher, params, this.database).then((res) => {
             if (!res.records.length) {
                 throw new NotFoundException("Label with id: " + id + " not found");
             }
-            return DataSchemeService.parseLabel(res.records[0]);
+            return DataSchemeService.parseLabel(res.records[0].get("dataScheme"));
         });
     }
 
@@ -112,32 +100,30 @@ export class DataSchemeService {
      */
     async getAllRelations() {
         // language=cypher
-        const cypher = "MATCH (rt:RelationType) RETURN rt AS dataScheme";
+        const cypher = "MATCH (rt:RelationType) RETURN rt {.*} AS dataScheme";
         const params = {};
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map(DataSchemeService.parseRelation));
+            .then((res) => res.records.map((record) => DataSchemeService.parseRelation(record.get("dataScheme"))));
     }
 
     /**
      * Fetch the relation with id id
      * @param id
      */
-    async getRelation(id: number) {
-        await this.utilsNode.checkElementForLabel(id, "RelationType");
-
+    async getRelation(id: string) {
         // language=cypher
-        const cypher = "MATCH (rt:RelationType) WHERE id(rt) = $id RETURN rt AS dataScheme";
+        const cypher = "MATCH (rt:RelationType) WHERE rt.relationId = $id RETURN rt {.*} AS dataScheme";
         const params = {
-            id: neo4j.int(id),
+            id,
         };
 
         return this.neo4jService.read(cypher, params, this.database).then((res) => {
             if (!res.records.length) {
                 throw new NotFoundException("Relation with id: " + id + " not found");
             }
-            return DataSchemeService.parseRelation(res.records[0]);
+            return DataSchemeService.parseRelation(res.records[0].get("dataScheme"));
         });
     }
 
