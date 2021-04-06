@@ -103,6 +103,8 @@ export class DiagramsService {
      * Adds a new diagram to the db
      */
     async addDiagram(name: string, serialized: string): Promise<Diagram> {
+        if (serialized == null) serialized = "";
+
         // language=Cypher
         const cypher = `
           CREATE (d:Diagram {name: $name, serialized: $serialized})
@@ -122,6 +124,11 @@ export class DiagramsService {
      * Updates a specific diagram
      */
     async updateDiagram(id: number, name: string, serialized: string): Promise<Diagram> {
+        // serialized is optional
+        if (serialized == null) {
+            serialized = "";
+        }
+
         // Check whether id belongs to a diagram
         await this.utilsNode.checkElementForLabel(id, "Diagram");
 
