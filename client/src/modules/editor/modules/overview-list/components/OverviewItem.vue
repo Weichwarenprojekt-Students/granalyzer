@@ -23,7 +23,6 @@ import Node from "@/modules/editor/models/Node";
 export default defineComponent({
     name: "OverviewItem",
     props: {
-        // Labels and nodes of the customer db
         name: String,
         label: String,
         attributes: Array,
@@ -71,7 +70,6 @@ export default defineComponent({
             evt.dataTransfer.setData("overview-drag", this.nodeId);
 
             // Store currently dragged item, so it can be replicated in the diagram
-
             if (this.name && this.label) {
                 this.$store.commit(
                     "editor/setLastDragged",
@@ -96,14 +94,11 @@ export default defineComponent({
             evt.dataTransfer.setDragImage(ghostElement, 0, 0);
 
             // Remove ghost-element from the html
-            setTimeout(() => {
-                ghostElement.parentNode.removeChild(ghostElement);
-            }, 100);
+            setTimeout(() => ghostElement.parentNode.removeChild(ghostElement), 100);
         },
         /**
          * Event function that handles the cancel of a drag
          */
-        //  eslint-disable-next-line
         endDrag(): void {
             setTimeout(() => {
                 this.$store.commit("editor/setDragIntoDiagram", false);

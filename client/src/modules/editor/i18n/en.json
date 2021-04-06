@@ -11,6 +11,6 @@
     "description": "You have to load a diagram first!"
   },
   "noNodes": {
-    "description": "No nodes found"
+    "description": "No nodes found!"
   }
 }

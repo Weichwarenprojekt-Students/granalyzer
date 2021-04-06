@@ -1,7 +1,7 @@
 import { Diagram } from "@/models/Diagram";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { GET } from "@/utility";
+import { GET, getBrightness } from "@/utility";
 import Label from "@/modules/editor/models/Label";
 import Node from "@/modules/editor/models/Node";
 import { graphEditor } from "@/modules/editor/modules/graph-editor/store";
@@ -31,11 +31,6 @@ export class EditorState {
      * Nodes in the customer db
      */
     public nodes = [] as Node[];
-
-    /**
-     * Limit of nodes to be loaded
-     */
-    public limit = 50;
 
     /**
      * Labels in the customer db
@@ -79,37 +74,28 @@ export const editor = {
         /**
          * Stores the nodes
          */
-        loadNodes(state: EditorState, nodes: Node[]): void {
+        storeNodes(state: EditorState, nodes: Node[]): void {
             state.nodes = nodes;
         },
         /**
-         * Stores the labels
+         * Extend the existing nodes
          */
-        loadLabels(state: EditorState, labels: Label[]): void {
-            state.labels = labels;
+        extendNodes(state: EditorState, nodes: Node[]): void {
+            state.nodes.push(...nodes);
         },
         /**
-         * Creates a map of labels, colors and the most fitting font color
+         * Store the labels and create a color map for the label colors
+         * with the matching font colors
          */
-        loadLabelColors(state: EditorState, labels: Label[]): void {
+        storeLabels(state: EditorState, labels: Label[]): void {
+            state.labels = labels;
             labels.forEach((label) => {
-                let brightness = 0;
-
                 if (label.name && label.color) {
-                    // Remove "#" from hex-code
-                    const parsedHex = parseInt(label.color.substr(1), 16);
-                    if (parsedHex) {
-                        // Get R, G, B values from hex-code
-                        const R = (parsedHex >> 16) & 255;
-                        const G = (parsedHex >> 8) & 255;
-                        const B = parsedHex & 255;
-                        // Calculate color brightness from RGB-values
-                        brightness = R * 0.299 + G * 0.587 + B * 0.114;
-                    }
-
-                    // Black font color, if brightness is above 50%
+                    // Set the right font color depending on the brightness
+                    const brightness = getBrightness(label.color);
                     const font = brightness > 170 ? "#333333" : "#FFFFFF";
 
+                    // Add label color and the font color to the color map
                     state.labelColor.set(label.name, {
                         color: label.color,
                         fontColor: font,
@@ -120,19 +106,32 @@ export const editor = {
     },
     actions: {
         /**
-         * Loads the nodes and color values for the overview
+         * Loads the labels and the first load of nodes
          */
-        async loadNodesAndLabels(context: ActionContext<EditorState, RootState>, extend: boolean): Promise<void> {
-            if (extend) context.state.limit += 50;
-            const resNodes = await GET("/api/nodes?limit=" + context.state.limit);
+        async loadLabels(context: ActionContext<EditorState, RootState>): Promise<void> {
+            const resNodes = await GET("/api/nodes?limit=50");
             const resLabels = await GET("/api/data-scheme/label");
 
             if (resLabels.status === 200 && resNodes.status === 200) {
-                const data = await resLabels.json();
-                context.commit("loadLabelColors", data);
-                context.commit("loadLabels", data);
-                context.commit("loadNodes", await resNodes.json());
+                context.commit("storeLabels", await resLabels.json());
+                context.commit("storeNodes", await resNodes.json());
             }
+        },
+        /**
+         * Extend the nodes
+         * @param context
+         */
+        async extendNodes(context: ActionContext<EditorState, RootState>): Promise<void> {
+            const resNodes = await GET(`/api/nodes?limit=50&offset=${context.state.nodes.length}`);
+            if (resNodes.status === 200) context.commit("extendNodes", await resNodes.json());
+        },
+    },
+    getters: {
+        /**
+         * @return True if the nodes and the labels are loaded
+         */
+        nodesReady(state: EditorState): boolean {
+            return state.nodes.length > 0 && state.labels.length > 0;
         },
     },
     modules: {

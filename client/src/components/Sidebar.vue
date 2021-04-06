@@ -138,6 +138,10 @@ nav {
 
     .isSelected {
         background: @secondary_color;
+
+        &:hover {
+            background: @secondary_color;
+        }
     }
 }
 </style>

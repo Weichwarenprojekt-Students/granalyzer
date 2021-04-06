@@ -5,6 +5,12 @@
             <input type="text" placeholder="Search..." />
         </label>
         <ScrollPanel class="scroll-panel">
+            <div v-if="!$store.getters['editor/nodesReady']" class="emptyList">
+                <svg>
+                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
+                </svg>
+                <div class="message">{{ $t("editor.noNodes.description") }}</div>
+            </div>
             <OverviewItem
                 v-for="content in nodes"
                 :key="content.id"
@@ -16,12 +22,6 @@
                 :font-color="labelColor.get(content.label).fontColor"
             />
             <div class="space" />
-            <div v-if="!nodesAndLabelsLoaded" class="emptyList">
-                <svg>
-                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
-                </svg>
-                <div class="message">{{ $t("editor.noNodes.description") }}</div>
-            </div>
         </ScrollPanel>
     </div>
 </template>
@@ -37,8 +37,6 @@ export default defineComponent({
         return {
             // Scroll panel for the overview
             scrollPanel: {} as Element,
-            // Scroll panel y-bar
-            scrollPanelBar: {} as Element,
             // Flag to prevent scroll event from loading too many times
             allowReload: true,
         };
@@ -49,21 +47,13 @@ export default defineComponent({
         // Background colors and color fonts for the nodes
         labelColor: Object,
     },
-    computed: {
-        /**
-         * Check if list is empty
-         */
-        nodesAndLabelsLoaded(): boolean {
-            return this.$store.state.editor.nodes.length > 0 && this.$store.state.editor.labels.length > 0;
-        },
-    },
     mounted() {
-        this.$store.dispatch("editor/loadNodesAndLabels", false);
+        // Load the labels with the first load of matching nodes
+        this.$store.dispatch("editor/loadLabels");
 
+        // Watch for scroll events to load new nodes on demand
         this.scrollPanel = document.getElementsByClassName("p-scrollpanel-content")[0];
         this.scrollPanel.addEventListener("scroll", this.handleScroll);
-
-        this.scrollPanelBar = document.getElementsByClassName("p-scrollpanel-bar-y")[0];
     },
     methods: {
         /**
@@ -76,8 +66,7 @@ export default defineComponent({
 
             if (this.allowReload && scrollTop + clientHeight * 1.4 > scrollHeight) {
                 this.allowReload = false;
-
-                await this.$store.dispatch("editor/loadNodesAndLabels", true);
+                await this.$store.dispatch("editor/extendNodes", true);
                 this.allowReload = true;
             }
         },
@@ -125,17 +114,19 @@ export default defineComponent({
     .emptyList {
         display: flex;
         align-items: center;
-        padding-left: 8px;
+        margin-right: 18px;
+        flex-direction: column;
 
         svg {
             fill: @dark_grey;
-            height: 24px;
-            width: 24px;
+            height: 64px;
+            width: 64px;
+            margin-top: 32px;
+            margin-bottom: 16px;
         }
 
         .message {
-            color: @dark_grey;
-            padding-left: 8px;
+            color: @dark;
             font-size: @h3;
         }
     }
