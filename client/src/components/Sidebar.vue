@@ -99,7 +99,7 @@ export default defineComponent({
     width: @navbar_width_collapsed;
 
     .logo {
-        margin: 16px 12px 32px 12px;
+        margin: 16px (@padding - 4px) 48px (@padding - 4px);
     }
 }
 
