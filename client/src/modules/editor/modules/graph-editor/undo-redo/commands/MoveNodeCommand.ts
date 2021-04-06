@@ -1,14 +1,32 @@
 import { ICommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/ICommand";
-import { Node } from "@/modules/editor/modules/graph-editor/models/Node";
-import { GraphHandler } from "@/modules/editor/modules/graph-editor/GraphHandler";
+import { Node } from "../models/Node";
+import { GraphHandler } from "../GraphHandler";
 import { dia } from "jointjs";
 
 export class MoveNodeCommand implements ICommand {
+    /**
+     * The node that was moved
+     */
     private readonly node?: Node;
 
+    /**
+     * The initial x position
+     */
     private readonly startXPos: number;
+
+    /**
+     * The initial y position
+     */
     private readonly startYPos: number;
+
+    /**
+     * The final x position
+     */
     private stopXPos: number;
+
+    /**
+     * The final y position
+     */
     private stopYPos: number;
 
     /**
@@ -26,6 +44,7 @@ export class MoveNodeCommand implements ICommand {
 
     /**
      * Sets the stop-position of the node
+     *
      * @param stopXPos X-Coordinate
      * @param stopYPos Y-Coordinate
      */

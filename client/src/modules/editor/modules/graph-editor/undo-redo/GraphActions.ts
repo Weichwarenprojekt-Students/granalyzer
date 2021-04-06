@@ -1,8 +1,8 @@
-import { NodeShapes } from "@/modules/editor/modules/graph-editor/models/NodeShapes";
-import { GraphHandler } from "@/modules/editor/modules/graph-editor/GraphHandler";
+import { NodeShapes } from "@/modules/editor/modules/graph-editor/undo-redo/models/NodeShapes";
+import { GraphHandler } from "@/modules/editor/modules/graph-editor/undo-redo/GraphHandler";
 import { dia, shapes } from "jointjs";
-import { Node } from "../models/Node";
-import { Relation } from "@/modules/editor/modules/graph-editor/models/Relation";
+import { Node } from "./models/Node";
+import { Relation } from "@/modules/editor/modules/graph-editor/undo-redo/models/Relation";
 
 export class GraphActions {
     /**
@@ -37,7 +37,7 @@ export class GraphActions {
 
         // Add the shape to the graph and to the other nodes
         graphHandler.nodes.set(shape, node);
-        if (graphHandler.graph) shape.addTo(graphHandler.graph);
+        shape.addTo(graphHandler.graph.graph);
 
         return shape;
     }
@@ -104,7 +104,7 @@ export class GraphActions {
         link.connector("rounded");
 
         // Add the relation to the graph and to the other links
-        link.addTo(graphHandler.graph);
+        link.addTo(graphHandler.graph.graph);
         graphHandler.relations.set(link, relation);
     }
 
@@ -115,14 +115,7 @@ export class GraphActions {
      * @graph graph The graph object
      */
     public static removeRelation(relation: shapes.standard.Link, graphHandler: GraphHandler): void {
-        // Remove the relation
         graphHandler.relations.delete(relation);
-
-        // Remove the relation from the diagram and re-render
-        const diagRelations = graphHandler.graph.getLinks();
-        const relIndex = diagRelations.indexOf(relation);
-        if (relIndex !== -1) {
-            diagRelations[relIndex].remove();
-        }
+        relation.remove();
     }
 }

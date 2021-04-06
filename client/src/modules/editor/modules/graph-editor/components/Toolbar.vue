@@ -19,7 +19,6 @@
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#redo`"></use>
             </svg>
         </div>
-        <!-- TODO: Toggle visibility of delete icon according to "item selected" state-->
         <div
             :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
             @click="remove"
@@ -97,7 +96,7 @@ export default defineComponent({
         border-radius: @border_radius;
 
         &:hover {
-            background: @secondary_color;
+            background: @accent_color;
         }
     }
 }

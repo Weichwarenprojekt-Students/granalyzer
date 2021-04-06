@@ -1,13 +1,13 @@
-import { GraphHandler } from "@/modules/editor/modules/graph-editor/GraphHandler";
+import { GraphHandler } from "@/modules/editor/modules/graph-editor/undo-redo/GraphHandler";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { Node } from "./models/Node";
+import { Node } from "./undo-redo/models/Node";
 import { Diagram } from "@/models/Diagram";
 import { CreateNodeCommand } from "./undo-redo/commands/CreateNodeCommand";
 import { dia } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/RemoveNodeCommand";
 import { GET } from "@/utility";
-import { Relation } from "./models/Relation";
+import { Relation } from "./undo-redo/models/Relation";
 import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/MoveNodeCommand";
 
 export class GraphEditorState {

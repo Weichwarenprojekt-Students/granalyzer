@@ -1,9 +1,9 @@
 import { ICommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/ICommand";
 import { dia } from "jointjs";
-import { GraphHandler } from "@/modules/editor/modules/graph-editor/GraphHandler";
-import { Node } from "@/modules/editor/modules/graph-editor/models/Node";
+import { GraphHandler } from "@/modules/editor/modules/graph-editor/undo-redo/GraphHandler";
+import { Node } from "@/modules/editor/modules/graph-editor/undo-redo/models/Node";
 import { GraphActions } from "@/modules/editor/modules/graph-editor/undo-redo/GraphActions";
-import { Relation } from "@/modules/editor/modules/graph-editor/models/Relation";
+import { Relation } from "@/modules/editor/modules/graph-editor/undo-redo/models/Relation";
 import { deepCopy } from "@/utility";
 
 export class RemoveNodeCommand implements ICommand {

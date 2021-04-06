@@ -1,4 +1,4 @@
-import { NodeReference } from "@/modules/editor/modules/graph-editor/models/NodeReference";
+import { NodeReference } from "@/modules/editor/modules/graph-editor/undo-redo/models/NodeReference";
 
 /**
  * The data for a single relation

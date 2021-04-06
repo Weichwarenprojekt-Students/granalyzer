@@ -1,9 +1,10 @@
 import { dia, shapes } from "jointjs";
 import { Relation } from "./models/Relation";
 import { Node } from "./models/Node";
-import { SerializableGraph } from "@/modules/editor/modules/graph-editor/models/SerializableGraph";
+import { SerializableGraph } from "@/modules/editor/modules/graph-editor/undo-redo/models/SerializableGraph";
 import { ICommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/ICommand";
 import { GraphActions } from "@/modules/editor/modules/graph-editor/undo-redo/GraphActions";
+import { JointGraph } from "@/modules/editor/modules/graph-editor/JointGraph";
 
 export class GraphHandler {
     /**
@@ -17,7 +18,7 @@ export class GraphHandler {
     /**
      * The actual graph object from joint
      */
-    public readonly graph: dia.Graph;
+    public readonly graph: JointGraph;
     /**
      *  The redo stack
      */
@@ -26,20 +27,14 @@ export class GraphHandler {
      * The undo stack
      */
     private undoStack = new Array<ICommand>();
-    /**
-     * The paper object from joint
-     */
-    private readonly paper: dia.Paper;
 
     /**
      * Constructor
      *
-     * @param graph The graph object from joint
-     * @param paper The paper object from joint
+     * @param graph The joint graph object
      */
-    constructor(graph: dia.Graph, paper: dia.Paper) {
+    constructor(graph: JointGraph) {
         this.graph = graph;
-        this.paper = paper;
     }
 
     /**
@@ -68,8 +63,8 @@ export class GraphHandler {
         });
 
         // Add the elements to the graph
-        this.nodes.forEach((ref, diagElement) => diagElement.addTo(this.graph));
-        this.relations.forEach((relation, link) => link.addTo(this.graph));
+        this.nodes.forEach((ref, diagElement) => diagElement.addTo(this.graph.graph));
+        this.relations.forEach((relation, link) => link.addTo(this.graph.graph));
     }
 
     /**

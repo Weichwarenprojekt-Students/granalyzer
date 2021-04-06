@@ -1,9 +1,9 @@
 import { dia } from "jointjs";
-import { Node } from "../../models/Node";
+import { Node } from "../models/Node";
 import { ICommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/ICommand";
-import { GraphHandler } from "@/modules/editor/modules/graph-editor/GraphHandler";
+import { GraphHandler } from "@/modules/editor/modules/graph-editor/undo-redo/GraphHandler";
 import { GraphActions } from "../GraphActions";
-import { Relation } from "@/modules/editor/modules/graph-editor/models/Relation";
+import { Relation } from "../models/Relation";
 
 export class CreateNodeCommand implements ICommand {
     /**
