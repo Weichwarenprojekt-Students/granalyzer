@@ -6,6 +6,8 @@ import { Diagram } from "@/models/Diagram";
 import { CreateNodeCommand } from "./undo-redo/commands/CreateNodeCommand";
 import { dia } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/RemoveNodeCommand";
+import { GET } from "@/utility";
+import { Relation } from "./models/Relation";
 
 export class GraphEditorState {
     /**
@@ -57,9 +59,9 @@ export const graphEditor = {
         /**
          * Add a node
          */
-        addNode(state: GraphEditorState, node: Node): void {
+        addNode(state: GraphEditorState, payload: [node: Node, rels: Relation[]]): void {
             if (state.graphHandler) {
-                const command = new CreateNodeCommand(state.graphHandler, node);
+                const command = new CreateNodeCommand(state.graphHandler, payload[0], payload[1]);
                 state.graphHandler.addCommand(command);
             }
         },
@@ -106,11 +108,29 @@ export const graphEditor = {
             context.commit("redo");
         },
         /**
-         * Add a node
+         * Add a node with its relations
          */
         async addNode(context: ActionContext<GraphEditorState, RootState>, node: Node): Promise<void> {
             context.commit("saveChange");
-            context.commit("addNode", node);
+
+            // Model to represent the api response todo move type to separate class
+            type ApiRelation = { start: string; end: string; id: string; type: string };
+
+            // Perform api request
+            const res = await GET("/api/nodes/" + node.ref.uuid + "/relations");
+            const newVar: ApiRelation[] = await res.json();
+
+            // Transform relations from api into Relation objects
+            const rels: Relation[] = newVar.map((rel) => {
+                return {
+                    from: { uuid: rel.start, index: 0 },
+                    to: { uuid: rel.end, index: 0 },
+                    uuid: rel.id,
+                    label: rel.type,
+                };
+            });
+
+            context.commit("addNode", [node, rels]);
         },
 
         /**
