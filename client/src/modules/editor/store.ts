@@ -103,7 +103,7 @@ export const editor = {
                     }
 
                     // Black font color, if brightness is above 50%
-                    const font = brightness > 127.5 ? "#000000" : "#FFFFFF";
+                    const font = brightness > 170 ? "#333333" : "#FFFFFF";
 
                     state.labelColor.set(label.name, {
                         color: label.color,
