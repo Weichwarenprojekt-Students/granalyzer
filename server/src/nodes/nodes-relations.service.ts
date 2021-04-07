@@ -7,7 +7,6 @@ import { DataSchemeUtil } from "../util/data-scheme.util";
 export class NodesRelationsService {
     /**
      * Customer database
-     * @private
      */
     private database = process.env.DB_CUSTOMER;
 
