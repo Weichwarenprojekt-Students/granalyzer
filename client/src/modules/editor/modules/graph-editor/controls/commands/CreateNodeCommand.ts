@@ -23,7 +23,9 @@ export class CreateNodeCommand implements ICommand {
      * The redo action which adds the node to the diagram
      */
     redo(): void {
-        this.diagElement = this.graphHandler.controls.addNode(this.node);
+        // Use existing node after first undo in order to keep the reference
+        if (!this.diagElement) this.diagElement = this.graphHandler.controls.addNode(this.node);
+        else this.graphHandler.controls.addExistingNode(this.node, this.diagElement);
 
         this.relations.forEach((rel: Relation) => {
             if (rel.from.uuid === this.node.ref.uuid) {
