@@ -1,10 +1,12 @@
 import { dia, shapes } from "jointjs";
 import { Relation } from "./models/Relation";
 import { Node } from "./models/Node";
-import { SerializableGraph } from "@/modules/editor/modules/graph-editor/undo-redo/models/SerializableGraph";
-import { ICommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/ICommand";
-import { GraphActions } from "@/modules/editor/modules/graph-editor/undo-redo/GraphActions";
-import { JointGraph } from "@/modules/editor/modules/graph-editor/JointGraph";
+import { SerializableGraph } from "@/modules/editor/modules/graph-editor/controls/models/SerializableGraph";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
+import { JointGraph } from "@/shared/JointGraph";
+import { Store } from "vuex";
+import { RootState } from "@/store";
+import { GraphControls } from "@/modules/editor/modules/graph-editor/controls/GraphControls";
 
 export class GraphHandler {
     /**
@@ -15,6 +17,10 @@ export class GraphHandler {
      * The relations between the nodes of the diagram
      */
     public relations = new Map<shapes.standard.Link, Relation>();
+    /**
+     * The extended controls for the graph
+     */
+    public controls: GraphControls;
     /**
      * The actual graph object from joint
      */
@@ -31,10 +37,12 @@ export class GraphHandler {
     /**
      * Constructor
      *
+     * @param store The vuex store
      * @param graph The joint graph object
      */
-    constructor(graph: JointGraph) {
+    constructor(store: Store<RootState>, graph: JointGraph) {
         this.graph = graph;
+        this.controls = new GraphControls(this, store);
     }
 
     /**
@@ -50,7 +58,7 @@ export class GraphHandler {
         // Create the nodes
         const mappedNodes = new Map<string, dia.Element>();
         nodes.forEach((node) => {
-            const newNode = GraphActions.addNode(node, this);
+            const newNode = this.controls.addNode(node);
             const ref = this.nodes.get(newNode);
             if (ref) mappedNodes.set(`${ref.ref.uuid}-${ref.ref.index}`, newNode);
         });
@@ -59,7 +67,7 @@ export class GraphHandler {
         relations.forEach((relation) => {
             const source = mappedNodes.get(`${relation.from.uuid}-${relation.from.index}`);
             const target = mappedNodes.get(`${relation.to.uuid}-${relation.to.index}`);
-            if (source && target) GraphActions.addRelation(this, source, target, relation.uuid, relation.type);
+            if (source && target) this.controls.addRelation(source, target, relation.uuid, relation.type);
         });
 
         // Add the elements to the graph

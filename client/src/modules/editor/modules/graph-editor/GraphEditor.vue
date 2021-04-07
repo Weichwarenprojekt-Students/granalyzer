@@ -1,16 +1,23 @@
 <template>
-    <div id="graphContainer" @mousemove="graph.mousemove">
-        <div id="joint" @dragover.prevent @drop.stop.prevent />
-        <Toolbar />
+    <div class="container" @mousemove="graph.mousemove">
+        <ProgressBar v-show="$store.state.editor.graphEditor.editorLoading" mode="indeterminate" class="loading" />
+        <Toolbar v-show="!$store.state.editor.graphEditor.editorLoading" />
+        <div
+            id="joint"
+            :class="{ disabled: $store.state.editor.graphEditor.editorLoading }"
+            @dragover.prevent
+            @drop.stop.prevent
+        />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { GraphHandler } from "./undo-redo/GraphHandler";
+import { GraphHandler } from "./controls/GraphHandler";
 import { isEmpty } from "@/utility";
 import Toolbar from "./components/Toolbar.vue";
-import { JointGraph } from "@/modules/editor/modules/graph-editor/JointGraph";
+import { JointGraph } from "@/shared/JointGraph";
+import { GraphControls } from "./controls/GraphControls";
 
 export default defineComponent({
     name: "GraphEditor",
@@ -20,77 +27,46 @@ export default defineComponent({
     data() {
         return {
             graph: {} as JointGraph,
+            editorControls: {} as GraphControls,
         };
     },
     async mounted(): Promise<void> {
-        // TODO: Add loading bar
-        this.initGraph();
-        this.loadActiveDiagram();
-    },
-    methods: {
-        /**
-         * Initialize the joint graph and register some basic events
-         */
-        initGraph(): void {
-            this.graph = new JointGraph("joint");
-            this.$store.commit("editor/setGraphHandler", new GraphHandler(this.graph));
+        // Set up the graph and the controls
+        this.graph = new JointGraph("joint");
+        this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
 
-            // Watch for drag events from the overview list TODO: Fix Linux bug
-            this.graph.paper.on("paper:mouseenter", (evt) => {
-                // Check, if user is allowed to drag a node into the diagram
-                if (this.$store.state.editor.canDragIntoDiagram) {
-                    // Get the mouse position in the graph and add the node accordingly
-                    const point = this.graph.paper.clientToLocalPoint({ x: evt.clientX, y: evt.clientY });
-                    const node = this.$store.state.editor.lastDraggedContent;
-                    this.$store.dispatch("editor/addNode", {
-                        x: point.x,
-                        y: point.y,
-                        shape: "rectangle",
-                        color: node.color,
-                        label: node.name,
-                        ref: {
-                            uuid: node.id,
-                            index: 0,
-                        },
-                    });
-                }
+        // Load the active diagram
+        if (isEmpty(this.$store.state.editor.diagram)) {
+            this.$toast.add({
+                severity: "error",
+                summary: this.$t("editor.noDiagram.title"),
+                detail: this.$t("editor.noDiagram.description"),
+                life: 3000,
             });
-
-            // Find out if user clicked element and set element object
-            this.graph.paper.on("element:pointerdown", (cell) =>
-                // Get selected element
-                this.$store.commit("editor/setClickedItem", cell.model),
-            );
-
-            // Get unselected element
-            this.graph.paper.on("element:pointerup", (cell) => {
-                this.$store.commit("editor/setReleasedItem", cell.model);
-            });
-
-            // No element selected
-            this.graph.paper.on("blank:pointerdown", () => this.$store.commit("editor/setClickedItem", undefined));
-        },
-        /**
-         * Load the currently active diagram
-         */
-        loadActiveDiagram(): void {
-            if (isEmpty(this.$store.state.editor.diagram)) {
-                this.$toast.add({
-                    severity: "error",
-                    summary: this.$t("editor.noDiagram.title"),
-                    detail: this.$t("editor.noDiagram.description"),
-                    life: 3000,
-                });
-            } else {
-                this.$store.commit("editor/setDiagram", this.$store.state.editor.diagram);
-            }
-        },
+        } else {
+            this.$store.commit("editor/setDiagram", this.$store.state.editor.diagram);
+        }
     },
 });
 </script>
 
 <style lang="less">
 @import "~@/styles/global";
+
+.container {
+    position: relative;
+}
+
+.loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.disabled {
+    pointer-events: none;
+}
 
 .node {
     cursor: pointer;

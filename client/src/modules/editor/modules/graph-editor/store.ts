@@ -1,14 +1,14 @@
-import { GraphHandler } from "@/modules/editor/modules/graph-editor/undo-redo/GraphHandler";
+import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { Node } from "./undo-redo/models/Node";
+import { Node } from "./controls/models/Node";
 import { Diagram } from "@/models/Diagram";
-import { CreateNodeCommand } from "./undo-redo/commands/CreateNodeCommand";
+import { CreateNodeCommand } from "./controls/commands/CreateNodeCommand";
 import { dia } from "jointjs";
-import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/RemoveNodeCommand";
+import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/RemoveNodeCommand";
 import { GET } from "@/utility";
-import { Relation } from "./undo-redo/models/Relation";
-import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/MoveNodeCommand";
+import { Relation } from "./controls/models/Relation";
+import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/MoveNodeCommand";
 
 export class GraphEditorState {
     /**
@@ -22,19 +22,9 @@ export class GraphEditorState {
     public selectedElement?: dia.Element;
 
     /**
-     * Old X-Coordinate of the unselected element
+     * True if the graph editor is currently loading
      */
-    public oldX?: number;
-
-    /**
-     * Old Y-Coordinate of the unselected element
-     */
-    public oldY?: number;
-
-    /**
-     * The move command
-     */
-    public moveCommand?: MoveNodeCommand;
+    public editorLoading = false;
 }
 
 export const graphEditor = {
@@ -56,30 +46,15 @@ export const graphEditor = {
         /**
          * Set the clicked diagram element
          */
-        setClickedItem(state: GraphEditorState, diagElement?: dia.Element): void {
+        setSelectedElement(state: GraphEditorState, diagElement?: dia.Element): void {
             state.selectedElement = diagElement;
-
-            if (state.graphHandler && diagElement) {
-                state.oldX = diagElement.attributes.position.x;
-                state.oldY = diagElement.attributes.position.y;
-                state.moveCommand = new MoveNodeCommand(state.graphHandler, diagElement);
-            }
         },
 
         /**
          * Set the unselected diagram element
          */
-        setReleasedItem(state: GraphEditorState, diagElement?: dia.Element): void {
-            if (state.moveCommand && state.graphHandler && diagElement) {
-                const newX = diagElement.attributes.position.x;
-                const newY = diagElement.attributes.position.y;
-
-                // Only fire the command when there was an actual element drag
-                if (state.oldX != newX || state.oldY != newY) {
-                    state.moveCommand.setNodeStopPos(newX, newY);
-                    state.graphHandler.addCommand(state.moveCommand);
-                }
-            }
+        addMoveCommand(state: GraphEditorState, moveCommand: MoveNodeCommand): void {
+            if (state.graphHandler) state.graphHandler.addCommand(moveCommand);
         },
 
         /**
@@ -103,7 +78,6 @@ export const graphEditor = {
                 state.graphHandler.addCommand(command);
             }
         },
-
         /**
          * Remove a node
          */
@@ -114,13 +88,18 @@ export const graphEditor = {
             }
             state.selectedElement = undefined;
         },
-
+        /**
+         * Active/Deactivate the loading state
+         */
+        setEditorLoading(state: GraphEditorState, loading: boolean): void {
+            state.editorLoading = loading;
+        },
         /**
          * Save the data to backend
          */
         saveChange(state: GraphEditorState): void {
-            const graph = state.graphHandler?.toJSON();
             // Log the graph as a nested object so that it doesn't completely cover the console
+            const graph = state.graphHandler?.toJSON();
             console.log({
                 msg: "Saved graph",
                 graph: {
@@ -135,23 +114,28 @@ export const graphEditor = {
          * Undo a change
          */
         async undo(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
-            context.commit("saveChange");
+            context.commit("setEditorLoading", true);
             context.commit("undo");
+            context.commit("setEditorLoading", false);
+            context.commit("saveChange");
         },
         /**
          * Redo a change
          */
         async redo(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
-            context.commit("saveChange");
+            context.commit("setEditorLoading", true);
             context.commit("redo");
+            context.commit("setEditorLoading", false);
+            context.commit("saveChange");
         },
         /**
          * Add a node with its relations
          */
         async addNode(context: ActionContext<GraphEditorState, RootState>, node: Node): Promise<void> {
-            context.commit("saveChange");
+            context.commit("setEditorLoading", true);
 
-            // Model to represent the api response todo move type to separate class
+            // Model to represent the api response TODO: move type to separate class (maybe same for the
+            // node and label class at the top level of the editor)
             type ApiRelation = { start: string; end: string; id: string; type: string };
 
             // Perform api request
@@ -159,7 +143,7 @@ export const graphEditor = {
             const newVar: ApiRelation[] = await res.json();
 
             // Transform relations from api into Relation objects
-            const rels: Relation[] = newVar.map((rel) => {
+            const relations: Relation[] = newVar.map((rel) => {
                 return {
                     from: { uuid: rel.start, index: 0 },
                     to: { uuid: rel.end, index: 0 },
@@ -167,16 +151,19 @@ export const graphEditor = {
                     type: rel.type,
                 };
             });
-
-            context.commit("addNode", [node, rels]);
+            context.commit("addNode", [node, relations]);
+            context.commit("setEditorLoading", false);
+            context.commit("saveChange");
         },
 
         /**
          * Remove a node
          */
         async removeNode(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
-            context.commit("saveChange");
+            context.commit("setEditorLoading", true);
             context.commit("removeNode");
+            context.commit("saveChange");
+            context.commit("setEditorLoading", false);
         },
     },
     getters: {

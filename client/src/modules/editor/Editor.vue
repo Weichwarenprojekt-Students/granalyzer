@@ -1,12 +1,14 @@
 <template>
     <div class="content">
-        <EditorHeader class="header"></EditorHeader>
-        <GraphEditor class="editor"></GraphEditor>
         <OverviewList
             class="overview"
             :nodes="$store.state.editor.nodes"
             :labelColor="$store.state.editor.labelColor"
         ></OverviewList>
+        <div class="center">
+            <EditorHeader class="header"></EditorHeader>
+            <GraphEditor class="editor"></GraphEditor>
+        </div>
     </div>
 </template>
 
@@ -33,30 +35,30 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     background: @light_grey;
-    position: relative;
+    display: flex;
+}
 
-    .header {
-        width: 100%;
-        height: @header-height;
-        background: white;
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
+.overview {
+    width: @inventory_width;
+    height: 100vh;
+    flex: 0 0 auto;
+    background: white;
+}
 
-    .overview {
-        width: @inventory_width;
-        height: 100vh;
-        position: relative;
-        background: white;
-    }
+.center {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
 
-    .editor {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        top: @header-height;
-    }
+.header {
+    width: 100%;
+    height: @header-height;
+    background: white;
+    flex: 0 0 auto;
+}
+
+.editor {
+    flex: 1 1 auto;
 }
 </style>

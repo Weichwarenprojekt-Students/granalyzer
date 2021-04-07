@@ -1,9 +1,8 @@
-import { ICommand } from "@/modules/editor/modules/graph-editor/undo-redo/commands/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { dia } from "jointjs";
-import { GraphHandler } from "@/modules/editor/modules/graph-editor/undo-redo/GraphHandler";
-import { Node } from "@/modules/editor/modules/graph-editor/undo-redo/models/Node";
-import { GraphActions } from "@/modules/editor/modules/graph-editor/undo-redo/GraphActions";
-import { Relation } from "@/modules/editor/modules/graph-editor/undo-redo/models/Relation";
+import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
+import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 import { deepCopy } from "@/utility";
 
 export class RemoveNodeCommand implements ICommand {
@@ -30,11 +29,8 @@ export class RemoveNodeCommand implements ICommand {
         else return;
 
         // Create deep copy of all relations
-        this.graphHandler.relations.forEach((value, key) => {
-            if (value.from == node.ref || value.to == node.ref) {
-                const relation = this.graphHandler.relations.get(key);
-                if (relation) this.relations.push(deepCopy(relation));
-            }
+        this.graphHandler.relations.forEach((value) => {
+            if (value.from == node.ref || value.to == node.ref) this.relations.push(deepCopy(value));
         });
     }
 
@@ -42,7 +38,7 @@ export class RemoveNodeCommand implements ICommand {
      * The redo action
      */
     redo(): void {
-        GraphActions.removeNode(this.diagElement, this.graphHandler);
+        this.graphHandler.controls.removeNode(this.diagElement);
     }
 
     /**
@@ -50,7 +46,7 @@ export class RemoveNodeCommand implements ICommand {
      */
     undo(): void {
         // Restore the deleted diagram element from node copy
-        if (this.node) this.diagElement = GraphActions.addNode(this.node, this.graphHandler);
+        if (this.node) this.diagElement = this.graphHandler.controls.addNode(this.node);
         else return;
 
         // Restore the deleted relations from the relations copy
@@ -64,7 +60,7 @@ export class RemoveNodeCommand implements ICommand {
                 if (relation.to.uuid == value.ref.uuid && relation.to.index == value.ref.index) targetElement = key;
             });
             if (sourceElement && targetElement)
-                GraphActions.addRelation(this.graphHandler, sourceElement, targetElement, relation.uuid, relation.type);
+                this.graphHandler.controls.addRelation(sourceElement, targetElement, relation.uuid, relation.type);
         });
     }
 }
