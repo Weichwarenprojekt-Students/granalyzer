@@ -28,32 +28,32 @@ export default class Relation {
     @ApiProperty({
         required: true,
         type: "number",
-        name: "start",
+        name: "from",
         description: "Id of the node where the relation starts",
     })
-    public start: number;
+    public from: number;
 
     @ApiProperty({
         required: true,
         type: "number",
-        name: "end",
+        name: "to",
         description: "Id of the node where the relation ends",
     })
-    public end: number;
+    public to: number;
 
     /**
      * Constructor
      *
      * @param type Type of the relation
-     * @param start Id of the node where the relation starts
-     * @param end Id of the node where the relation ends
+     * @param from Id of the node where the relation starts
+     * @param to Id of the node where the relation ends
      * @param attributes Attributes of the relation
      * @param id Id of the relation
      */
-    constructor(type: string, start: number, end: number, attributes: any, id?: number) {
+    constructor(type: string, from: number, to: number, attributes: any, id?: number) {
         this.type = type;
-        this.start = start;
-        this.end = end;
+        this.from = from;
+        this.to = to;
         this.attributes = attributes;
         this.id = id;
     }

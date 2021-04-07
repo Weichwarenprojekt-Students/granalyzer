@@ -41,8 +41,8 @@ export class NodesRelationsService {
         const relation = {
             id: record.get(queryKey).identity.toNumber(),
             type: record.get(queryKey).type,
-            start: record.get(queryKey).start.toNumber(),
-            end: record.get(queryKey).end.toNumber(),
+            from: record.get(queryKey).start.toNumber(),
+            to: record.get(queryKey).end.toNumber(),
             attributes: attributes,
         } as Relation;
 

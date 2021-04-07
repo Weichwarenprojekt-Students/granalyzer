@@ -1,4 +1,4 @@
-export default class Label {
+export default class ApiLabel {
     /**
      * Label model
      *

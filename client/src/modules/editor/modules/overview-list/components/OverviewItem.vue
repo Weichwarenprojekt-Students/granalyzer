@@ -15,14 +15,14 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Node from "@/modules/editor/models/Node";
+import ApiNode from "@/modules/editor/models/ApiNode";
 
 export default defineComponent({
     name: "OverviewItem",
     props: {
         node: {
             type: Object,
-            default: new Node("", ""),
+            default: new ApiNode("", ""),
         },
         color: String,
         fontColor: String,

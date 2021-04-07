@@ -187,8 +187,8 @@ describe("NodesController", () => {
             const relations: Relation[] = await controller.getRelationsOfNode(movieNodeId);
 
             expect(relations.length).toBeGreaterThan(0);
-            expect(relations[0].start).toEqual(movieNodeId);
-            expect(relations[0].end).toEqual(validNodeId);
+            expect(relations[0].from).toEqual(movieNodeId);
+            expect(relations[0].to).toEqual(validNodeId);
         });
 
         it("should throw an exception", async () => {
@@ -259,8 +259,8 @@ describe("NodesController", () => {
         const cypher = `MATCH (start), (end) WHERE id(start) = $start AND id(end) = $end
                         CREATE(start)-[r:${relation.type}]->(end) SET r.attrOne = $attrOne RETURN r`;
         const params = {
-            start: neo4jService.int(relation.start),
-            end: neo4jService.int(relation.end),
+            start: neo4jService.int(relation.from),
+            end: neo4jService.int(relation.to),
             attrOne: relation.attributes.attrOne,
         };
 

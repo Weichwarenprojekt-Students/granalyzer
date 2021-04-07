@@ -2,8 +2,8 @@ import { Diagram } from "@/models/Diagram";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET, getBrightness } from "@/utility";
-import Label from "@/modules/editor/models/Label";
-import Node from "@/modules/editor/models/Node";
+import ApiLabel from "@/modules/editor/models/ApiLabel";
+import ApiNode from "@/modules/editor/models/ApiNode";
 import { graphEditor } from "@/modules/editor/modules/graph-editor/store";
 
 export class EditorState {
@@ -15,17 +15,17 @@ export class EditorState {
     /**
      * Replication of the overview item that is dragged into the diagram
      */
-    public selectedNode?: Node;
+    public selectedNode?: ApiNode;
 
     /**
      * Nodes in the customer db
      */
-    public nodes = new Array<Node>();
+    public nodes = new Array<ApiNode>();
 
     /**
      * Labels in the customer db
      */
-    public labels = new Array<Label>();
+    public labels = new Array<ApiLabel>();
 
     /**
      * Label/Color, FontColor Map
@@ -46,26 +46,26 @@ export const editor = {
         /**
          * Set selected item
          */
-        setSelectedNode(state: EditorState, node?: Node): void {
+        setSelectedNode(state: EditorState, node?: ApiNode): void {
             state.selectedNode = node;
         },
         /**
          * Stores the nodes
          */
-        storeNodes(state: EditorState, nodes: Node[]): void {
+        storeNodes(state: EditorState, nodes: ApiNode[]): void {
             state.nodes = nodes;
         },
         /**
          * Extend the existing nodes
          */
-        extendNodes(state: EditorState, nodes: Node[]): void {
+        extendNodes(state: EditorState, nodes: ApiNode[]): void {
             state.nodes.push(...nodes);
         },
         /**
          * Store the labels and create a color map for the label colors
          * with the matching font colors
          */
-        storeLabels(state: EditorState, labels: Label[]): void {
+        storeLabels(state: EditorState, labels: ApiLabel[]): void {
             state.labels = labels;
             labels.forEach((label) => {
                 if (label.name && label.color) {

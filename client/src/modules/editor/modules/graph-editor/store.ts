@@ -9,6 +9,7 @@ import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/control
 import { GET } from "@/utility";
 import { Relation } from "./controls/models/Relation";
 import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/MoveNodeCommand";
+import ApiRelation from "@/modules/editor/models/ApiRelation";
 
 export class GraphEditorState {
     /**
@@ -134,10 +135,6 @@ export const graphEditor = {
         async addNode(context: ActionContext<GraphEditorState, RootState>, node: Node): Promise<void> {
             context.commit("setEditorLoading", true);
 
-            // Model to represent the api response TODO: move type to separate class (maybe same for the
-            // node and label class at the top level of the editor)
-            type ApiRelation = { start: string; end: string; id: string; type: string };
-
             // Perform api request
             const res = await GET("/api/nodes/" + node.ref.uuid + "/relations");
             const newVar: ApiRelation[] = await res.json();
@@ -145,8 +142,8 @@ export const graphEditor = {
             // Transform relations from api into Relation objects
             const relations: Relation[] = newVar.map((rel) => {
                 return {
-                    from: { uuid: rel.start, index: 0 },
-                    to: { uuid: rel.end, index: 0 },
+                    from: { uuid: rel.from, index: 0 },
+                    to: { uuid: rel.to, index: 0 },
                     uuid: rel.id,
                     type: rel.type,
                 };

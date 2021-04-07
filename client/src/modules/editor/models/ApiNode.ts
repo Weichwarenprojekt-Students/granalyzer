@@ -1,4 +1,4 @@
-export default class Node {
+export default class ApiNode {
     /**
      * Node model
      *
