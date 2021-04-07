@@ -104,7 +104,6 @@ export default defineComponent({
 .node + text {
     color: grey;
     cursor: pointer;
-    fill: @dark;
 
     tspan {
         font-size: 20px;

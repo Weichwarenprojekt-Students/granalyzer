@@ -6,6 +6,7 @@ import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node
 import { dia, shapes } from "jointjs";
 import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/models/NodeShapes";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import { getBrightness } from "@/utility";
 
 export class GraphControls {
     /**
@@ -34,23 +35,39 @@ export class GraphControls {
         // Create the shape
         const shape = NodeShapes.parseType(node.shape);
         shape.position(node.x, node.y);
-        shape.resize(100, 60);
+
+        // Use default color if node has no color
+        const nodeColor = node.color ? node.color : "#70FF87";
+
+        // Style node
         shape.attr({
-            body: {
-                fill: node.color ? node.color : "#70FF87",
-                strokeWidth: 0,
-                rx: 4,
-                ry: 4,
-                class: "node",
-            },
             label: {
                 text: node.label,
+                textAnchor: "middle",
+                textVerticalAnchor: "middle",
+                fill: getBrightness(nodeColor) > 170 ? "#333" : "#FFF",
+            },
+            body: {
+                ref: "label",
+                fill: nodeColor,
+                strokeWidth: 1,
+                rx: 4,
+                ry: 4,
+                refWidth: 32,
+                refHeight: 16,
+                refX: -16,
+                refY: -8,
+                class: "node",
             },
         });
 
         // Add the shape to the graph and to the other nodes
         this.graphHandler.nodes.set(shape, node);
         shape.addTo(this.graphHandler.graph.graph);
+
+        // Update some svg attribute, so that style gets shown correctly from the beginning
+        // Needs to be done, don't ask why...
+        shape.attr("body/strokeWidth", 0);
 
         return shape;
     }
