@@ -76,6 +76,17 @@ export class GraphControls {
     }
 
     /**
+     * Add an existing node with a diag element to the graph
+     *
+     * @param node The node to be added
+     * @param diagElement The existing dia.Element of the node
+     */
+    public addExistingNode(node: Node, diagElement: dia.Element): void {
+        this.graphHandler.nodes.set(diagElement, node);
+        diagElement.addTo(this.graphHandler.graph.graph);
+    }
+
+    /**
      * Removes a node with all its relations from the diagram
      *
      * @param diagElement The element to be removed

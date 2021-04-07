@@ -22,7 +22,7 @@ export class RemoveNodeCommand implements ICommand {
      * @param graphHandler The GraphHandler instance
      * @param diagElement The diagram element
      */
-    constructor(private graphHandler: GraphHandler, private diagElement: dia.Element) {
+    constructor(private graphHandler: GraphHandler, private readonly diagElement: dia.Element) {
         // Create deep copy of the given node
         const node = graphHandler.nodes.get(diagElement);
         if (node) this.node = deepCopy(node);
@@ -46,7 +46,7 @@ export class RemoveNodeCommand implements ICommand {
      */
     undo(): void {
         // Restore the deleted diagram element from node copy
-        if (this.node) this.diagElement = this.graphHandler.controls.addNode(this.node);
+        if (this.node) this.graphHandler.controls.addExistingNode(this.node, this.diagElement);
         else return;
 
         // Restore the deleted relations from the relations copy
