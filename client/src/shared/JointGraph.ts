@@ -54,8 +54,8 @@ export class JointGraph {
     // eslint-disable-next-line
     public mousemove(event: any): void {
         if (!this.eventData) return;
-        const tx = event.offsetX - this.eventData.x;
-        const ty = event.offsetY - this.eventData.y;
+        const tx = event.pageX - this.eventData.x;
+        const ty = event.pageY - this.eventData.y;
         if (this.panning) this.paper.translate(tx + this.eventData.px, ty + this.eventData.py);
     }
 
@@ -66,7 +66,7 @@ export class JointGraph {
         // Start panning the diagram
         this.paper.on("blank:pointerdown", (evt) => {
             const offset = this.paper.translate();
-            this.eventData = { x: evt.offsetX, y: evt.offsetY, px: offset.tx, py: offset.ty };
+            this.eventData = { x: evt.pageX, y: evt.pageY, px: offset.tx, py: offset.ty };
             this.panning = true;
         });
 
