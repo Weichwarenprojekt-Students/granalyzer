@@ -6,6 +6,9 @@ import { Logger } from "@nestjs/common";
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
 
+    // Set route prefix which is used globally
+    app.setGlobalPrefix(process.env.API_PREFIX);
+
     // Setup swagger docs
     const config = new DocumentBuilder()
         .setTitle("Granalyzer API")
@@ -18,9 +21,6 @@ async function bootstrap() {
         .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup(process.env.SWAGGER_PREFIX, app, document);
-
-    // Set route prefix which is used globally
-    app.setGlobalPrefix(process.env.API_PREFIX);
 
     app.useLogger(Logger);
 
