@@ -124,11 +124,6 @@ export class DiagramsService {
      * Updates a specific diagram
      */
     async updateDiagram(id: number, name: string, serialized: string): Promise<Diagram> {
-        // serialized is optional
-        if (serialized == null) {
-            serialized = "";
-        }
-
         // Check whether id belongs to a diagram
         await this.utilsNode.checkElementForLabel(id, "Diagram");
 
@@ -137,7 +132,8 @@ export class DiagramsService {
           MATCH (d:Diagram)
             WHERE id(d) = $id
           OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder)
-          SET d = {name: $name, serialized: $serialized}
+          SET d.name = $name
+          ${serialized ? "SET d.serialized = $serialized" : ""}
           RETURN d AS diagram, id(f) AS parentId`;
 
         const params = {

@@ -203,7 +203,7 @@ export const start = {
         async editDiagram(context: ActionContext<StartState, RootState>, diagram: Diagram): Promise<void> {
             const res = await PUT(`/api/diagrams/${diagram.id}`, JSON.stringify(diagram));
             if (res.status === 200) {
-                context.commit("editDiagram", diagram);
+                context.commit("editDiagram", await res.json());
                 context.commit("sortDiagrams");
             }
         },
@@ -213,7 +213,7 @@ export const start = {
         async editFolder(context: ActionContext<StartState, RootState>, folder: Folder): Promise<void> {
             const res = await PUT(`/api/folders/${folder.id}`, JSON.stringify(folder));
             if (res.status === 200) {
-                context.commit("editFolder", folder);
+                context.commit("editFolder", await res.json());
                 context.commit("sortFolders");
             }
         },
