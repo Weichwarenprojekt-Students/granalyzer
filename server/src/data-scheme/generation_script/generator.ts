@@ -1,7 +1,7 @@
 import * as neo4j from "neo4j-driver";
 import { Driver, Session } from "neo4j-driver";
 import { Scheme } from "../data-scheme.model";
-import { Label } from "../models/label";
+import { LabelScheme } from "../models/labelScheme";
 import { StringAttribute } from "../models/attributes";
 import { RelationType } from "../models/relationType";
 import { Connection } from "../models/connection";
@@ -78,7 +78,7 @@ export class SchemeGenerator {
      * @param session Database session
      * @private
      */
-    private static async generateLabelScheme(session: Session): Promise<Label[]> {
+    private static async generateLabelScheme(session: Session): Promise<LabelScheme[]> {
         // Get all label names
         // language=cypher
         let query = `
@@ -90,11 +90,11 @@ export class SchemeGenerator {
 
         const labelNames = await this.fetchData(query, {}, "label", session);
 
-        const labels: Label[] = [];
+        const labels: LabelScheme[] = [];
 
         for (const labelName of labelNames) {
             // Generate a new named label with a random color
-            const newLabel = new Label(labelName, SchemeGenerator.getRandomColor());
+            const newLabel = new LabelScheme(labelName, SchemeGenerator.getRandomColor());
 
             // Get all existing keys of properties/attributes of the current label
             // language=cypher

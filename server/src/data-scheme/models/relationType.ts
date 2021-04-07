@@ -4,14 +4,6 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class RelationType {
     @ApiProperty({
-        required: false,
-        type: "string",
-        name: "relationId",
-        description: "Id of the relation type scheme",
-    })
-    relationId?: string;
-
-    @ApiProperty({
         required: true,
         type: "string",
         name: "name",
@@ -41,12 +33,10 @@ export class RelationType {
      * @param name Name of the relation type
      * @param attributes Attributes of the relation type
      * @param connections Possible connections of the relation type
-     * @param id ID in the database
      */
-    constructor(name?: string, attributes?: Attribute[], connections?: Connection[], id?: string) {
+    constructor(name?: string, attributes?: Attribute[], connections?: Connection[]) {
         this.name = name ?? "";
         this.attributes = attributes ?? [];
         this.connections = connections ?? [];
-        if (id) this.relationId = id;
     }
 }

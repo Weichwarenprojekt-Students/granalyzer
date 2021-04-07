@@ -213,24 +213,4 @@ describe("DiagramsController", () => {
                 throw new NotFoundException();
             });
     }
-
-    function getDiagramWithId(id: string): Promise<Diagram> {
-        // language=Cypher
-        const cypher = `
-          MATCH (d:Diagram {diagramId: $id})
-          OPTIONAL MATCH (d)-[:IS_CHILD]->(f:Folder)
-          RETURN d {. *, parentId:f.folderId} AS diagram
-        `;
-
-        const params = {
-            id,
-        };
-
-        return neo4jService
-            .read(cypher, params, process.env.DB_TOOL)
-            .then((res) => res.records[0].get("diagram"))
-            .catch(() => {
-                throw new NotFoundException("The diagram has not been found");
-            });
-    }
 });

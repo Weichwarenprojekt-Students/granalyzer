@@ -1,4 +1,4 @@
-import { forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { HttpException, Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { Diagram } from "./diagram.model";
 import { Transaction } from "neo4j-driver";
@@ -10,6 +10,12 @@ export class DiagramsService {
      * Configures the default database
      */
     private readonly database = process.env.DB_TOOL;
+
+    /**
+     * Logging instance with class context
+     * @private
+     */
+    static readonly logger = new Logger(DiagramsService.name);
 
     constructor(private readonly neo4jService: Neo4jService) {}
 
@@ -23,7 +29,7 @@ export class DiagramsService {
 
      * Fetches all diagrams from the db
      */
-    async getDiagrams(): Promise<Diagram[]> {
+    async getDiagrams(): Promise<Diagram[] | undefined> {
         // language=Cypher
         const cypher = `
           MATCH (d:Diagram)
@@ -33,18 +39,19 @@ export class DiagramsService {
 
         const params = {};
 
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => res.records.map((record) => record.get("diagram"));
+
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map((record) => record.get("diagram")))
-            .catch(() => {
-                throw new NotFoundException();
-            });
+            .then(resolveRead)
+            .catch(DiagramsService.catchDbError);
     }
 
     /**
      * Return all diagrams at top level (which are not nested into another folder)
      */
-    async getAllRootDiagrams(): Promise<Diagram[]> {
+    async getAllRootDiagrams(): Promise<Diagram[] | undefined> {
         // language=Cypher
         const cypher = `
           MATCH (d:Diagram)
@@ -54,9 +61,13 @@ export class DiagramsService {
 
         const params = {};
 
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => res.records.map((rec) => rec.get("diagram"));
+
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map((rec) => rec.get("diagram")));
+            .then(resolveRead)
+            .catch(DiagramsService.catchDbError);
     }
 
     /**
@@ -74,12 +85,18 @@ export class DiagramsService {
             id,
         };
 
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => {
+            if (!res.records[0]) {
+                throw new NotFoundException(`The diagram with id ${id} has not been found`);
+            }
+            return res.records[0].get("diagram");
+        };
+
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records[0].get("diagram"))
-            .catch(() => {
-                throw new NotFoundException("The diagram has not been found");
-            });
+            .then(resolveRead)
+            .catch(DiagramsService.catchDbError);
     }
 
     /**
@@ -97,7 +114,13 @@ export class DiagramsService {
             serialized,
         };
 
-        return this.neo4jService.write(cypher, params, this.database).then((res) => res.records[0].get("diagram"));
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => res.records[0].get("diagram");
+
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then(resolveWrite)
+            .catch(DiagramsService.catchDbError);
     }
 
     /**
@@ -119,12 +142,18 @@ export class DiagramsService {
             serialized,
         };
 
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            if (!res.records[0]) {
+                throw new NotFoundException(`The diagram with the id ${id} could not be found`);
+            }
+            return res.records[0].get("diagram");
+        };
+
         return this.neo4jService
             .write(cypher, params, this.database)
-            .then((res) => res.records[0].get("diagram"))
-            .catch(() => {
-                throw new NotFoundException();
-            });
+            .then(resolveWrite)
+            .catch(DiagramsService.catchDbError);
     }
 
     /**
@@ -144,18 +173,24 @@ export class DiagramsService {
             id,
         };
 
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            if (!res.records[0]) {
+                throw new NotFoundException(`The diagram with id ${id} has not been found`);
+            }
+            return res.records[0].get("diagram");
+        };
+
         return this.neo4jService
             .write(cypher, params, this.database)
-            .then((res) => res.records[0].get("diagram"))
-            .catch(() => {
-                throw new NotFoundException();
-            });
+            .then(resolveWrite)
+            .catch(DiagramsService.catchDbError);
     }
 
     /**
      * Returns all diagrams which are assigned to the folder as a IS_CHILD relation
      */
-    async getDiagramsInFolder(id: string): Promise<Diagram[]> {
+    async getDiagramsInFolder(id: string): Promise<Diagram[] | undefined> {
         // language=Cypher
         const cypher = `
           MATCH (c:Diagram)-[r:IS_CHILD]->(p:Folder)
@@ -167,9 +202,13 @@ export class DiagramsService {
             id,
         };
 
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => res.records.map((rec) => rec.get("diagram"));
+
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map((rec) => rec.get("diagram")));
+            .then(resolveRead)
+            .catch(DiagramsService.catchDbError);
     }
 
     /**
@@ -188,7 +227,18 @@ export class DiagramsService {
             childId,
         };
 
-        return this.neo4jService.read(cypher, params, this.database).then((res) => res.records[0].get("diagram"));
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => {
+            if (!res.records[0]) {
+                throw new NotFoundException(`The folder or diagram has not been found`);
+            }
+            return res.records[0].get("diagram");
+        };
+
+        return this.neo4jService
+            .read(cypher, params, this.database)
+            .then(resolveRead)
+            .catch(DiagramsService.catchDbError);
     }
 
     /**
@@ -214,12 +264,19 @@ export class DiagramsService {
             childId,
         };
 
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            if (!res.records[0]) {
+                throw new NotFoundException(`The diagram could not be assigned to the new folder`);
+            }
+            return res.records[0].get("diagram");
+        };
+
+        // Fetch all child diagrams
         const child = await this.neo4jService
             .write(cypher, params, transaction)
-            .then((res) => res.records[0].get("diagram"))
-            .catch(() => {
-                throw new NotFoundException();
-            });
+            .then(resolveWrite)
+            .catch(DiagramsService.catchDbError);
 
         // Commit the transaction
         await transaction.commit();
@@ -232,7 +289,17 @@ export class DiagramsService {
      * Deletes the IS_CHILD relation between the given parent and child
      */
     async removeDiagramFromFolder(parentId: string, childId: string): Promise<Diagram> {
-        return this.deleteIsChildRelation(childId, this.database).then((res) => res.records[0].get("diagram"));
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            if (!res.records[0]) {
+                throw new NotFoundException("Parent or child element could not be found");
+            }
+            return res.records[0].get("diagram");
+        };
+
+        return this.deleteIsChildRelation(childId, this.database)
+            .then(resolveWrite)
+            .catch(DiagramsService.catchDbError);
     }
 
     /**
@@ -257,5 +324,19 @@ export class DiagramsService {
         };
 
         return this.neo4jService.write(cypher, params, databaseOrTransaction);
+    }
+
+    /**
+     * TODO: Move into util
+     * @param err
+     * @private
+     */
+    private static catchDbError(err: Error) {
+        // Pass Nestjs HttpException forward
+        if (err instanceof HttpException) throw err;
+
+        // Catch neo4j errors
+        DiagramsService.logger.error(err.message, err.stack);
+        throw new InternalServerErrorException();
     }
 }

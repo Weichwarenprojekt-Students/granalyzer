@@ -1,20 +1,12 @@
 import { Attribute } from "./attributes";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class Label {
-    @ApiProperty({
-        required: false,
-        type: "string",
-        name: "labelId",
-        description: "Id of the label scheme",
-    })
-    labelId?: string;
-
+export class LabelScheme {
     @ApiProperty({
         required: true,
         type: "string",
         name: "name",
-        description: "Name of the label scheme",
+        description: "Unique Name of the label scheme",
     })
     name: string;
 
@@ -40,12 +32,10 @@ export class Label {
      * @param name name of the label
      * @param color color of the label
      * @param attributes attributes of the label
-     * @param id ID in the database
      */
-    constructor(name?: string, color?: string, attributes?: Attribute[], id?: string) {
+    constructor(name?: string, color?: string, attributes?: Attribute[]) {
         this.name = name ?? "";
         this.color = color ?? "#000";
         this.attributes = attributes ?? [];
-        if (id) this.labelId = id;
     }
 }

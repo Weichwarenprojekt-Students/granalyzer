@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { HttpException, Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { Folder } from "./folder.model";
 import { Transaction } from "neo4j-driver";
@@ -11,30 +11,40 @@ export class FoldersService {
      */
     private readonly database = process.env.DB_TOOL;
 
+    /**
+     * Logging instance with class context
+     * @private
+     */
+    static readonly logger = new Logger(FoldersService.name);
+
     constructor(private readonly neo4jService: Neo4jService) {}
 
     /**
      * Return all folders
      */
-    async getAllFolders(): Promise<Folder[]> {
+    async getAllFolders(): Promise<Folder[] | undefined> {
         // language=Cypher
         const cypher = `
           MATCH (f:Folder)
           OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
-          RETURN f {. *, parentId: p.folderId} AS folder
+          RETURN f {. *, parentId:p.folderId} AS folder
         `;
 
         const params = {};
 
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => res.records.map((rec) => rec.get("folder"));
+
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map((rec) => rec.get("folder")));
+            .then(resolveRead)
+            .catch(FoldersService.catchDbError);
     }
 
     /**
      * Return all folders at top level (which are not nested into another folder)
      */
-    async getAllRootFolders(): Promise<Folder[]> {
+    async getAllRootFolders(): Promise<Folder[] | undefined> {
         // language=Cypher
         const cypher = `
           MATCH (f:Folder)
@@ -44,9 +54,13 @@ export class FoldersService {
 
         const params = {};
 
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => res.records.map((rec) => rec.get("folder"));
+
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map((rec) => rec.get("folder")));
+            .then(resolveRead)
+            .catch(FoldersService.catchDbError);
     }
 
     /**
@@ -65,12 +79,19 @@ export class FoldersService {
             id,
         };
 
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => {
+            // Check if the folder exists
+            if (!res.records[0]) {
+                throw new NotFoundException(`Folder with id ${id} not found.`);
+            }
+            return res.records[0].get("folder");
+        };
+
         return this.neo4jService
             .read(cypher, param, this.database)
-            .then((res) => res.records[0].get("folder"))
-            .catch(() => {
-                throw new NotFoundException();
-            });
+            .then(resolveRead)
+            .catch(FoldersService.catchDbError);
     }
 
     /**
@@ -87,7 +108,13 @@ export class FoldersService {
             name,
         };
 
-        return this.neo4jService.write(cypher, params, this.database).then((res) => res.records[0].get("folder"));
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => res.records[0].get("folder");
+
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then(resolveWrite)
+            .catch(FoldersService.catchDbError);
     }
 
     /**
@@ -98,19 +125,31 @@ export class FoldersService {
         // language=Cypher
         const cypher = `
           MATCH (f:Folder), (c)
-          WHERE f.folderId = $id AND (c:Diagram OR c:Folder)
+            WHERE f.folderId = $id AND (c:Diagram OR c:Folder)
           MATCH (c)-[:IS_CHILD*0..]->(f)
           OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
-          WITH c, p.folderId as parentId, properties(f) AS props
+          WITH c, p.folderId AS parentId, properties(f) AS props
           DETACH DELETE c
-          RETURN props {. *, parentId: parentId } AS folder
+          RETURN props {. *, parentId:parentId} AS folder
         `;
 
         const params = {
             id,
         };
 
-        return this.neo4jService.write(cypher, params, this.database).then((res) => res.records[0].get("folder"));
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            // Check if the element which should be deleted did exist
+            if (!res.records[0]) {
+                throw new NotFoundException(`Folder with id ${id} not found.`);
+            }
+            return res.records[0].get("folder");
+        };
+
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then(resolveWrite)
+            .catch(FoldersService.catchDbError);
     }
 
     /**
@@ -131,33 +170,44 @@ export class FoldersService {
             name,
         };
 
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            // Check if the element which should be updated did exist
+            if (!res.records[0]) {
+                throw new NotFoundException(`Folder with id ${id} not found.`);
+            }
+            return res.records[0].get("folder");
+        };
+
         return this.neo4jService
             .write(cypher, params, this.database)
-            .then((res) => res.records[0].get("folder"))
-            .catch(() => {
-                throw new NotFoundException();
-            });
+            .then(resolveWrite)
+            .catch(FoldersService.catchDbError);
     }
 
     /**
      * Returns all folders which are assigned to the folder as IS_CHILD relation
      */
-    async getFoldersInFolder(id: string): Promise<Folder[]> {
+    async getFoldersInFolder(id: string): Promise<Folder[] | undefined> {
         // language=Cypher
         const cypher = `
           MATCH (c:Folder)-[:IS_CHILD]->(p:Folder)
             WHERE p.folderId = $id
-          RETURN c {. *, parentId: p.folderId} AS folder
+          RETURN c {. *, parentId:p.folderId} AS folder
         `;
 
         const params = {
             id,
         };
 
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => res.records.map((rec) => rec.get("folder"));
+
         // Will return empty array if folder with id does not exist
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map((rec) => rec.get("folder")));
+            .then(resolveRead)
+            .catch(FoldersService.catchDbError);
     }
 
     /**
@@ -176,12 +226,19 @@ export class FoldersService {
             childId,
         };
 
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => {
+            // Catch child or parent not found
+            if (!res.records[0]) {
+                throw new NotFoundException("Child or parent element not found.");
+            }
+            return res.records[0].get("folder");
+        };
+
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records[0].get("folder"))
-            .catch(() => {
-                throw new NotFoundException("Child or parent element not found.");
-            });
+            .then(resolveRead)
+            .catch(FoldersService.catchDbError);
     }
 
     /**
@@ -206,12 +263,20 @@ export class FoldersService {
             parentId,
             childId,
         };
+
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            // Check if elements were found
+            if (!res.records[0]) {
+                throw new NotFoundException("Child or parent element has not been found.");
+            }
+            return res.records[0].get("folder");
+        };
+
         const child = await this.neo4jService
             .write(cypher, params, transaction)
-            .then((res) => res.records[0].get("folder"))
-            .catch(() => {
-                throw new NotFoundException("Child or parent element has not been found.");
-            });
+            .then(resolveWrite)
+            .catch(FoldersService.catchDbError);
 
         // Commit the transaction
         await transaction.commit();
@@ -233,7 +298,16 @@ export class FoldersService {
      * Deletes the IS_CHILD relation between the given parent and child
      */
     async removeFolderFromFolder(parentId: string, childId: string): Promise<Folder> {
-        return this.deleteIsChildRelation(childId, this.database).then((res) => res.records[0].get("folder"));
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            // Check if elements were found
+            if (!res.records[0]) {
+                throw new NotFoundException("Child or parent element has not been found.");
+            }
+            return res.records[0].get("folder");
+        };
+
+        return this.deleteIsChildRelation(childId, this.database).then(resolveWrite).catch(FoldersService.catchDbError);
     }
 
     /**
@@ -258,5 +332,19 @@ export class FoldersService {
         };
 
         return this.neo4jService.write(cypher, params, databaseOrTransaction);
+    }
+
+    /**
+     * TODO: Move into util
+     * @param err
+     * @private
+     */
+    private static catchDbError(err: Error) {
+        // Pass Nestjs HttpException forward
+        if (err instanceof HttpException) throw err;
+
+        // Catch neo4j errors
+        FoldersService.logger.error(err.message, err.stack);
+        throw new InternalServerErrorException();
     }
 }

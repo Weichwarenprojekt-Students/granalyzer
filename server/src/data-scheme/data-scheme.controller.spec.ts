@@ -7,7 +7,7 @@ import { DataSchemeController } from "./data-scheme.controller";
 import { DataSchemeService } from "./data-scheme.service";
 import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
 import { NotFoundException } from "@nestjs/common";
-import { Label } from "./models/label";
+import { LabelScheme } from "./models/labelScheme";
 import { ColorAttribute, NumberAttribute, StringAttribute } from "./models/attributes";
 import { RelationType } from "./models/relationType";
 import { Connection } from "./models/connection";
@@ -21,15 +21,15 @@ describe("DataSchemeController", () => {
     let neo4jService: Neo4jService;
     let controller: DataSchemeController;
 
-    let movieLabel: Label;
-    let personLabel: Label;
+    let movieLabel: LabelScheme;
+    let personLabel: LabelScheme;
     let actedInRelation: RelationType;
     let followsRelation: RelationType;
 
-    let movieLabelId: string;
-    let personLabelId: string;
-    let actedInRelationId: string;
-    let followsRelationId: string;
+    let movieLabelName: string;
+    let personLabelName: string;
+    let actedInRelationName: string;
+    let followsRelationName: string;
 
     beforeAll(async () => {
         module = await Test.createTestingModule({
@@ -51,20 +51,23 @@ describe("DataSchemeController", () => {
         service = module.get<DataSchemeService>(DataSchemeService);
         controller = module.get<DataSchemeController>(DataSchemeController);
 
-        // language=cypher
-        await neo4jService.write(`CREATE DATABASE ${process.env.DB_TOOL} IF NOT exists`).catch(console.error);
-        // language=cypher
-        await neo4jService.write(`CREATE DATABASE ${process.env.DB_CUSTOMER} IF NOT exists`).catch(console.error);
+        // TODO: Move into utils
+        {
+            // language=cypher
+            await neo4jService.write(`CREATE DATABASE ${process.env.DB_TOOL} IF NOT exists`).catch(console.error);
+            // language=cypher
+            await neo4jService.write(`CREATE DATABASE ${process.env.DB_CUSTOMER} IF NOT exists`).catch(console.error);
 
-        // language=cypher
-        await neo4jService.write("MATCH (a) DETACH DELETE a RETURN a", {}, process.env.DB_TOOL);
+            // language=cypher
+            await neo4jService.write("MATCH (a) DETACH DELETE a RETURN a", {}, process.env.DB_TOOL);
+        }
     });
 
     beforeEach(async () => {
         function writeLabel(l): Promise<string> {
             // language=cypher
             const cypher = `
-              MERGE (l:LabelScheme {name: $labelName, labelId: apoc.create.uuid()})
+              MERGE (l:LabelScheme {name: $labelName})
               SET l.color = $color, l.attributes = $attribs
               RETURN l {.*} AS label`;
 
@@ -75,13 +78,13 @@ describe("DataSchemeController", () => {
             };
             return neo4jService
                 .write(cypher, params, process.env.DB_TOOL)
-                .then((res) => res.records[0].get("label").labelId);
+                .then((res) => res.records[0].get("label").name);
         }
 
         function writeRelation(r): Promise<string> {
             // language=cypher
             const cypher = `
-              MERGE (r:RelationType {name: $labelName, relationId: apoc.create.uuid()})
+              MERGE (r:RelationType {name: $labelName})
               SET r.attributes = $attribs, r.connections = $connects
               RETURN r {.*} AS relation`;
 
@@ -93,41 +96,35 @@ describe("DataSchemeController", () => {
 
             return neo4jService
                 .write(cypher, params, process.env.DB_TOOL)
-                .then((res) => res.records[0].get("relation").relationId);
+                .then((res) => res.records[0].get("relation").name);
         }
 
-        movieLabel = new Label("Movie", "#666", [
+        movieLabel = new LabelScheme("Movie", "#666", [
             new StringAttribute("title", true, "unknown"),
             new NumberAttribute("released"),
         ]);
+        movieLabel.name = movieLabelName = await writeLabel(movieLabel);
 
-        movieLabelId = await writeLabel(movieLabel);
-        movieLabel.labelId = movieLabelId;
-
-        personLabel = new Label("Person", "#420", [
+        personLabel = new LabelScheme("Person", "#420", [
             new StringAttribute("name", true, "Done Default"),
             new ColorAttribute("haircolor"),
         ]);
-
-        personLabelId = await writeLabel(personLabel);
-        personLabel.labelId = personLabelId;
+        personLabel.name = personLabelName = await writeLabel(personLabel);
 
         actedInRelation = new RelationType(
             "ACTED_IN",
             [new StringAttribute("role")],
             [new Connection("Person", "Movie")],
         );
-
-        actedInRelationId = await writeRelation(actedInRelation);
-        actedInRelation.relationId = actedInRelationId;
+        actedInRelation.name = actedInRelationName = await writeRelation(actedInRelation);
 
         followsRelation = new RelationType("FOLLOWS", [], [new Connection("Person", "Person")]);
-
-        followsRelationId = await writeRelation(followsRelation);
-        followsRelation.relationId = followsRelationId;
+        followsRelation.name = followsRelationName = await writeRelation(followsRelation);
     });
 
     afterEach(async () => {
+        // TODO: move into utils
+
         // language=cypher
         const cypher = "MATCH (a) DETACH DELETE a RETURN a";
         const params = {};
@@ -151,17 +148,17 @@ describe("DataSchemeController", () => {
 
     describe("getAllLabels", () => {
         it("should return all Labels", async () => {
-            expect((await controller.getAllLabels()).sort()).toEqual([movieLabel, personLabel].sort());
+            expect((await controller.getAllLabelSchemes()).sort()).toEqual([movieLabel, personLabel].sort());
         });
     });
 
     describe("getLabel", () => {
         it("should return one label", async () => {
-            expect(await controller.getLabel(movieLabelId)).toEqual(movieLabel);
+            expect(await controller.getLabelScheme(movieLabelName)).toEqual(movieLabel);
         });
 
         it("non-existing id should return not found exception", async () => {
-            await expect(controller.getLabel(movieLabelId + personLabelId + 100)).rejects.toThrowError(
+            await expect(controller.getLabelScheme(movieLabelName + personLabelName + 100)).rejects.toThrowError(
                 NotFoundException,
             );
         });
@@ -169,19 +166,19 @@ describe("DataSchemeController", () => {
 
     describe("getAllRelations", () => {
         it("should return all relations", async () => {
-            expect((await controller.getAllRelations()).sort()).toEqual([actedInRelation, followsRelation].sort());
+            expect((await controller.getAllRelationTypes()).sort()).toEqual([actedInRelation, followsRelation].sort());
         });
     });
 
     describe("getRelation", () => {
         it("should return one relation", async () => {
-            expect(await controller.getRelation(actedInRelationId)).toEqual(actedInRelation);
+            expect(await controller.getRelationType(actedInRelationName)).toEqual(actedInRelation);
         });
 
         it("non-existing id should return not found exception", async () => {
-            await expect(controller.getRelation(actedInRelationId + followsRelationId + 100)).rejects.toThrowError(
-                NotFoundException,
-            );
+            await expect(
+                controller.getRelationType(actedInRelationName + followsRelationName + 100),
+            ).rejects.toThrowError(NotFoundException);
         });
     });
 });
