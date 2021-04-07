@@ -1,6 +1,10 @@
 <template>
     <div class="container" @mousemove="graph.mousemove">
-        <ProgressBar v-show="$store.state.editor.graphEditor.editorLoading" mode="indeterminate" class="loading" />
+        <ProgressBar
+            v-show="$store.state.editor.graphEditor.editorLoading"
+            mode="indeterminate"
+            class="graph-editor-loading"
+        />
         <Toolbar v-show="!$store.state.editor.graphEditor.editorLoading" />
         <div
             id="joint"
@@ -82,8 +86,8 @@ export default defineComponent({
     position: relative;
 }
 
-.loading {
-    position: absolute;
+.graph-editor-loading {
+    position: absolute !important;
     top: 0;
     left: 0;
     right: 0;
