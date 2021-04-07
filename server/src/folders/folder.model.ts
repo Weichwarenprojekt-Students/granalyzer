@@ -23,5 +23,5 @@ export class Folder {
         name: "parentId",
         description: "The Id of the parent folder",
     })
-    parentId?: number;
+    parentId?: string;
 }

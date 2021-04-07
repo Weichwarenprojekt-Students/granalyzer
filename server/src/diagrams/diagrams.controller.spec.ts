@@ -11,21 +11,19 @@ import { DiagramsController } from "./diagrams.controller";
 import { Diagram } from "./diagram.model";
 import { Folder } from "../folders/folder.model";
 
-describe("DataSchemeController", () => {
+describe("DiagramsController", () => {
     let module: TestingModule;
 
     let diagramsService: DiagramsService;
     let neo4jService: Neo4jService;
     let diagramsController: DiagramsController;
 
-    let diagram1;
-    let diagram2;
-    let diagram3;
+    let diagram1: Diagram;
+    let diagram2: Diagram;
+    let diagram3: Diagram;
 
-    let folder1;
-    let folder2;
-
-    let parent1;
+    let folder1: Folder;
+    let folder2: Folder;
 
     beforeAll(async () => {
         module = await Test.createTestingModule({
@@ -75,8 +73,7 @@ describe("DataSchemeController", () => {
         diagram2 = await addDiagram("Diagram 2");
         diagram3 = await addDiagram("Diagram 3");
 
-        parent1 = await moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
-        diagram1 = await getDiagramWithId(diagram1["diagramId"]);
+        diagram1 = await moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
     });
 
     afterEach(async () => {

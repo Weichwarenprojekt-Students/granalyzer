@@ -20,8 +20,8 @@ export class FoldersService {
         // language=Cypher
         const cypher = `
           MATCH (f:Folder)
-          OPTIONAL MATCH (f:Folder)-[:IS_CHILD]->(p:Folder)
-          RETURN f {. *, parentId:p.folderId} AS folder
+          OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
+          RETURN f {. *, parentId: p.folderId} AS folder
         `;
 
         const params = {};
@@ -39,7 +39,7 @@ export class FoldersService {
         const cypher = `
           MATCH (f:Folder)
             WHERE NOT (f)-[:IS_CHILD]->()
-          RETURN f {.*} AS folder
+          RETURN f {. *} AS folder
         `;
 
         const params = {};
@@ -65,7 +65,12 @@ export class FoldersService {
             id,
         };
 
-        return this.neo4jService.read(cypher, param, this.database).then((res) => res.records[0].get("folder"));
+        return this.neo4jService
+            .read(cypher, param, this.database)
+            .then((res) => res.records[0].get("folder"))
+            .catch(() => {
+                throw new NotFoundException();
+            });
     }
 
     /**
@@ -75,7 +80,7 @@ export class FoldersService {
         // language=Cypher
         const cypher = `
           CREATE (f:Folder {name: $name, folderId: apoc.create.uuid()})
-          RETURN f { .* } AS folder
+          RETURN f {. *} AS folder
         `;
 
         const params = {
@@ -92,11 +97,13 @@ export class FoldersService {
         // Deletes the folder and all contained children (recursively)
         // language=Cypher
         const cypher = `
-          MATCH (f:Folder)<-[:IS_CHILD*0..]-(c)
-            WHERE f.folderId = $id
+          MATCH (f:Folder), (c)
+          WHERE f.folderId = $id AND (c:Diagram OR c:Folder)
+          MATCH (c)-[:IS_CHILD*0..]->(f)
           OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
+          WITH c, p.folderId as parentId, properties(f) AS props
           DETACH DELETE c
-          RETURN f {. *, parentId:p.folderId} AS folder
+          RETURN props {. *, parentId: parentId } AS folder
         `;
 
         const params = {
@@ -124,7 +131,12 @@ export class FoldersService {
             name,
         };
 
-        return this.neo4jService.write(cypher, params, this.database).then((res) => res.records[0].get("folder"));
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then((res) => res.records[0].get("folder"))
+            .catch(() => {
+                throw new NotFoundException();
+            });
     }
 
     /**
@@ -135,13 +147,14 @@ export class FoldersService {
         const cypher = `
           MATCH (c:Folder)-[:IS_CHILD]->(p:Folder)
             WHERE p.folderId = $id
-          RETURN c {. *, parentId:p.folderId} AS folder
+          RETURN c {. *, parentId: p.folderId} AS folder
         `;
 
         const params = {
             id,
         };
 
+        // Will return empty array if folder with id does not exist
         return this.neo4jService
             .read(cypher, params, this.database)
             .then((res) => res.records.map((rec) => rec.get("folder")));
@@ -186,7 +199,7 @@ export class FoldersService {
           MATCH (p:Folder), (c:Folder)
             WHERE c.folderId = $childId AND p.folderId = $parentId
           MERGE (c)-[r:IS_CHILD]->(p)
-          RETURN c { .*, parentId: p.folderId } AS folder
+          RETURN c {. *, parentId:p.folderId} AS folder
         `;
 
         const params = {
@@ -237,7 +250,7 @@ export class FoldersService {
           MATCH (c:Folder)-[r:IS_CHILD]->(p:Folder)
             WHERE c.folderId = $childId
           DELETE r
-          RETURN c {. *, parentId:p.folderId}
+          RETURN c {. *, parentId:p.folderId} AS folder
         `;
 
         const params = {

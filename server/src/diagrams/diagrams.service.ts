@@ -153,7 +153,7 @@ export class DiagramsService {
     }
 
     /**
-     * Returns all diagrams which are assign to the folder as a IS_CHILD relation
+     * Returns all diagrams which are assigned to the folder as a IS_CHILD relation
      */
     async getDiagramsInFolder(id: string): Promise<Diagram[]> {
         // language=Cypher
