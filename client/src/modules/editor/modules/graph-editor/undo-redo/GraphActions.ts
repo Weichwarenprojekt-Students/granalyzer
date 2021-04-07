@@ -100,10 +100,26 @@ export class GraphActions {
                 strokeWidth: 4,
             },
         });
-        link.router("manhattan");
-        link.connector("rounded");
+        link.connector("rounded", { radius: 20 });
 
-        if (labelText) link.appendLabel({ attrs: { text: { text: labelText }, rect: { fill: "#0000" } } });
+        if (labelText)
+            link.appendLabel({
+                attrs: {
+                    text: { text: labelText, textAnchor: "middle", textVerticalAnchor: "middle" },
+                    rect: {
+                        ref: "text",
+                        fill: "#333",
+                        stroke: "#fff",
+                        strokeWidth: 0,
+                        refX: "-10%",
+                        refY: "-4%",
+                        refWidth: "120%",
+                        refHeight: "108%",
+                        rx: 0,
+                        ry: 0,
+                    },
+                },
+            });
 
         // Add the relation to the graph and to the other links
         link.addTo(graphHandler.graph.graph);

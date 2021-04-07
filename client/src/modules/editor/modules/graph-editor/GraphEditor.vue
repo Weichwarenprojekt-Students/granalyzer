@@ -90,6 +90,8 @@ export default defineComponent({
 </script>
 
 <style lang="less">
+@import "~@/styles/global";
+
 .node {
     cursor: pointer;
 }
@@ -97,11 +99,32 @@ export default defineComponent({
 .node + text {
     color: grey;
     cursor: pointer;
+    fill: @dark;
 
     tspan {
         font-size: 20px;
         font-weight: bold;
         cursor: pointer;
+    }
+}
+
+.label {
+    cursor: pointer;
+
+    text {
+        fill: white;
+
+        tspan {
+            font-size: 14px;
+        }
+    }
+}
+
+#graphContainer {
+    > div {
+        > svg {
+            background: #f2f2f2;
+        }
     }
 }
 </style>
