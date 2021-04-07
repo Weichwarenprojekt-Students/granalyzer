@@ -6,7 +6,7 @@ import { Diagram } from "@/models/Diagram";
 import { CreateNodeCommand } from "./controls/commands/CreateNodeCommand";
 import { dia } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/RemoveNodeCommand";
-import { GET } from "@/utility";
+import { GET, PUT } from "@/utility";
 import { Relation } from "./controls/models/Relation";
 import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/MoveNodeCommand";
 import ApiRelation from "@/modules/editor/models/ApiRelation";
@@ -95,20 +95,6 @@ export const graphEditor = {
         setEditorLoading(state: GraphEditorState, loading: boolean): void {
             state.editorLoading = loading;
         },
-        /**
-         * Save the data to backend
-         */
-        saveChange(state: GraphEditorState): void {
-            // Log the graph as a nested object so that it doesn't completely cover the console
-            const graph = state.graphHandler?.toJSON();
-            console.log({
-                msg: "Saved graph",
-                graph: {
-                    value: graph,
-                },
-            });
-            // TODO: Save JSON config with REST backend!
-        },
     },
     actions: {
         /**
@@ -118,7 +104,8 @@ export const graphEditor = {
             context.commit("setEditorLoading", true);
             context.commit("undo");
             context.commit("setEditorLoading", false);
-            context.commit("saveChange");
+
+            await context.dispatch("saveChange");
         },
         /**
          * Redo a change
@@ -127,7 +114,8 @@ export const graphEditor = {
             context.commit("setEditorLoading", true);
             context.commit("redo");
             context.commit("setEditorLoading", false);
-            context.commit("saveChange");
+
+            await context.dispatch("saveChange");
         },
         /**
          * Add a node with its relations
@@ -150,17 +138,44 @@ export const graphEditor = {
             });
             context.commit("addNode", [node, relations]);
             context.commit("setEditorLoading", false);
-            context.commit("saveChange");
-        },
 
+            await context.dispatch("saveChange");
+        },
         /**
          * Remove a node
          */
         async removeNode(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
             context.commit("removeNode");
-            context.commit("saveChange");
             context.commit("setEditorLoading", false);
+
+            await context.dispatch("saveChange");
+        },
+
+        /**
+         * Set the unselected diagram element
+         */
+        async addMoveCommand(
+            context: ActionContext<GraphEditorState, RootState>,
+            moveCommand: MoveNodeCommand,
+        ): Promise<void> {
+            context.commit("addMoveCommand", moveCommand);
+            await context.dispatch("saveChange");
+        },
+
+        /**
+         * Save changes to backend
+         */
+        async saveChange(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
+            const graph = context.state.graphHandler?.toJSON();
+
+            if (graph) {
+                const diagram = context.rootState.editor?.diagram;
+                if (!diagram) return;
+                diagram.serialized = graph;
+
+                await PUT("/api/diagrams/" + diagram.id, JSON.stringify(diagram));
+            }
         },
     },
     getters: {

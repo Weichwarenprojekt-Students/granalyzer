@@ -4,7 +4,7 @@ import { RootState } from "@/store";
 import { GET, getBrightness } from "@/utility";
 import ApiLabel from "@/modules/editor/models/ApiLabel";
 import ApiNode from "@/modules/editor/models/ApiNode";
-import { graphEditor } from "@/modules/editor/modules/graph-editor/store";
+import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
 
 export class EditorState {
     /**
@@ -31,6 +31,11 @@ export class EditorState {
      * Label/Color, FontColor Map
      */
     public labelColor = new Map() as Map<string, { color: string; fontColor: string }>;
+
+    /**
+     * Graph editor state
+     */
+    public graphEditor?: GraphEditorState;
 }
 
 export const editor = {

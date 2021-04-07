@@ -171,10 +171,10 @@ export class GraphControls {
         });
 
         // Check if a node was moved
-        this.graphHandler.graph.paper.on("element:pointerup", () => {
+        this.graphHandler.graph.paper.on("element:pointerup", async () => {
             if (!moveCommand || !moveCommand.positionChanged()) return;
             moveCommand.updateStopPosition();
-            this.store.commit("editor/addMoveCommand", moveCommand);
+            await this.store.dispatch("editor/addMoveCommand", moveCommand);
         });
     }
 }
