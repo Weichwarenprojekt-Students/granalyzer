@@ -15,26 +15,6 @@ export class GraphControls {
      * @param store The vuex store
      */
     constructor(private graphHandler: GraphHandler, private store: Store<RootState>) {
-        /*// Watch for drag events from the overview list TODO: Fix Linux bug
-        this.graphHandler.graph.paper.on("paper:mouseenter", (evt) => {
-            // Check, if user is allowed to drag a node into the diagram
-            if (this.store.state.editor.canDragIntoDiagram) {
-                // Get the mouse position in the graph and add the node accordingly
-                const point = this.graph.paper.clientToLocalPoint({ x: evt.clientX, y: evt.clientY });
-                const node = this.$store.state.editor.lastDraggedContent;
-                this.$store.dispatch("editor/addNode", {
-                    x: point.x,
-                    y: point.y,
-                    shape: "rectangle",
-                    color: node.color,
-                    label: node.name,
-                    ref: {
-                        uuid: node.id,
-                        index: 0,
-                    },
-                });
-            }
-        });*/
         this.registerNodeInteraction();
     }
 

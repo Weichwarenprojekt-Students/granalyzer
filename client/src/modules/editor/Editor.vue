@@ -1,10 +1,6 @@
 <template>
     <div class="content">
-        <OverviewList
-            class="overview"
-            :nodes="$store.state.editor.nodes"
-            :labelColor="$store.state.editor.labelColor"
-        ></OverviewList>
+        <OverviewList class="overview"></OverviewList>
         <div class="center">
             <EditorHeader class="header"></EditorHeader>
             <GraphEditor class="editor"></GraphEditor>

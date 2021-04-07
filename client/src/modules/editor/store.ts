@@ -13,29 +13,19 @@ export class EditorState {
     public diagram = new Diagram("") as Diagram;
 
     /**
-     * The id of the overview item that was selected last
-     */
-    public selectedItemId = "";
-
-    /**
-     * If set, user is allowed to drag items into the diagram
-     */
-    public canDragIntoDiagram = false;
-
-    /**
      * Replication of the overview item that is dragged into the diagram
      */
-    public lastDraggedContent = {} as Node;
+    public selectedNode?: Node;
 
     /**
      * Nodes in the customer db
      */
-    public nodes = [] as Node[];
+    public nodes = new Array<Node>();
 
     /**
      * Labels in the customer db
      */
-    public labels = [] as Label[];
+    public labels = new Array<Label>();
 
     /**
      * Label/Color, FontColor Map
@@ -56,20 +46,8 @@ export const editor = {
         /**
          * Set selected item
          */
-        setSelectedItem(state: EditorState, itemId: string): void {
-            state.selectedItemId = itemId;
-        },
-        /**
-         * Set last dragged element
-         */
-        setLastDragged(state: EditorState, node: Node): void {
-            state.lastDraggedContent = node;
-        },
-        /**
-         * Set flag to enable/disable dragging into the diagram
-         */
-        setDragIntoDiagram(state: EditorState, dragged: boolean): void {
-            state.canDragIntoDiagram = dragged;
+        setSelectedNode(state: EditorState, node?: Node): void {
+            state.selectedNode = node;
         },
         /**
          * Stores the nodes

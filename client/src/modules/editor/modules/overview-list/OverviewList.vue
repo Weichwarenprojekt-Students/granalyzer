@@ -12,14 +12,11 @@
                 <div class="message">{{ $t("editor.noNodes.description") }}</div>
             </div>
             <OverviewItem
-                v-for="content in nodes"
-                :key="content.id"
-                :name="content.name"
-                :label="content.label"
-                :attribtues="content.attributes"
-                :nodeId="content.id"
-                :color="labelColor.get(content.label).color"
-                :font-color="labelColor.get(content.label).fontColor"
+                v-for="node in $store.state.editor.nodes"
+                :key="node.id"
+                :node="node"
+                :color="$store.state.editor.labelColor.get(node.label).color"
+                :font-color="$store.state.editor.labelColor.get(node.label).fontColor"
             />
             <div class="space" />
         </ScrollPanel>
@@ -40,12 +37,6 @@ export default defineComponent({
             // Flag to prevent scroll event from loading too many times
             allowReload: true,
         };
-    },
-    props: {
-        // Nodes to be displayed in the overview
-        nodes: Array,
-        // Background colors and color fonts for the nodes
-        labelColor: Object,
     },
     mounted() {
         // Load the labels with the first load of matching nodes

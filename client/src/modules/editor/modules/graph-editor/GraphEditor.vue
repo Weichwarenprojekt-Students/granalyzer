@@ -6,7 +6,7 @@
             id="joint"
             :class="{ disabled: $store.state.editor.graphEditor.editorLoading }"
             @dragover.prevent
-            @drop.stop.prevent
+            @drop="onNodeDrop"
         />
     </div>
 </template>
@@ -46,6 +46,31 @@ export default defineComponent({
         } else {
             this.$store.commit("editor/setDiagram", this.$store.state.editor.diagram);
         }
+    },
+    methods: {
+        /**
+         * Check if a node from the overview list was dropped
+         */
+        // eslint-disable-next-line
+        onNodeDrop(evt: any): void {
+            // Get the selected node
+            const node = this.$store.state.editor.selectedNode;
+            if (!node) return;
+
+            // Get the mouse position in the graph and add the node accordingly
+            const point = this.graph.paper.clientToLocalPoint({ x: evt.clientX, y: evt.clientY });
+            this.$store.dispatch("editor/addNode", {
+                x: point.x,
+                y: point.y,
+                shape: "rectangle",
+                color: node.color,
+                label: node.name,
+                ref: {
+                    uuid: node.id,
+                    index: 0,
+                },
+            });
+        },
     },
 });
 </script>
