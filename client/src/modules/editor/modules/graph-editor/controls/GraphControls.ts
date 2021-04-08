@@ -81,6 +81,11 @@ export class GraphControls {
     public addExistingNode(node: Node, diagElement: dia.Element): void {
         this.graphHandler.nodes.set(diagElement, node);
         diagElement.addTo(this.graphHandler.graph.graph);
+
+        // Update some svg attribute, so that style gets shown correctly from the beginning
+        // Needs to be done, don't ask why...
+        diagElement.attr("body/strokeWidth", 3);
+        diagElement.attr("body/strokeWidth", 0);
     }
 
     /**
