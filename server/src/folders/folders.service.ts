@@ -302,7 +302,9 @@ export class FoldersService {
             return res.records[0].get("folder");
         };
 
-        return this.deleteIsChildRelation(childId, this.database).then(resolveWrite).catch(this.databaseUtil.catchDbError);
+        return this.deleteIsChildRelation(childId, this.database)
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**

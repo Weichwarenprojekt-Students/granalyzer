@@ -7,6 +7,7 @@ import MandatoryAttributeMissingException from "./exceptions/MandatoryAttributeM
 import Relation from "../relations/relation.model";
 import { RelationType } from "../data-scheme/models/relationType";
 import { Label } from "../../dist/src/data-scheme/models/label";
+import { LabelScheme } from "../data-scheme/models/labelScheme";
 
 @Injectable()
 export class DataSchemeUtil {
@@ -18,7 +19,7 @@ export class DataSchemeUtil {
      */
     async parseRecordByLabel(node: Node) {
         // Gets the label scheme which matches the nodes label name
-        const label: Label = await this.dataSchemeService.getLabelByName(node.label);
+        const label: LabelScheme = await this.dataSchemeService.getLabelByName(node.label);
         // Deep copy all attributes from the node
         const nodeAttributes = JSON.parse(JSON.stringify(node.attributes));
         // Deletes the node Attributes
@@ -44,7 +45,6 @@ export class DataSchemeUtil {
         // If not, throw exception
         if (!hasValidConnection) {
             const message = "Relation doesn't have a valid connection";
-            console.error(message);
             throw new InternalServerErrorException(message);
         }
 
@@ -83,7 +83,6 @@ export class DataSchemeUtil {
         } catch (e) {
             // Catch the Error if a Mandatory field is Empty
             if (e instanceof MandatoryAttributeMissingException) {
-                console.error(e.message);
                 throw new InternalServerErrorException("Mandatory attribute is missing");
             }
             throw e;
@@ -100,9 +99,9 @@ export class DataSchemeUtil {
      */
     private async getLabelsForRelation(relation: Relation): Promise<[string, string]> {
         // language=cypher
-        const cypher = "MATCH (s)-[r]->(e) WHERE id(r) = $id RETURN s, e";
+        const cypher = "MATCH (s)-[r]->(e) WHERE r.relationId = $id RETURN s, e";
         const params = {
-            id: this.neo4jService.int(relation.id),
+            id: relation.relationId,
         };
 
         const result = await this.neo4jService.read(cypher, params, process.env.DB_CUSTOMER);

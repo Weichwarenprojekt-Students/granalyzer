@@ -6,12 +6,6 @@ export class DatabaseUtil {
     constructor(private readonly neo4jService: Neo4jService) {}
 
     /**
-     * Logging instance with class context
-     * @private
-     */
-    private readonly logger = new Logger(DatabaseUtil.name);
-
-    /**
      * Catch neo4j query errors, log and hide them with an InternalServerError
      * @param err
      * @private
@@ -20,8 +14,11 @@ export class DatabaseUtil {
         // Pass Nestjs HttpException forward
         if (err instanceof HttpException) throw err;
 
+        // Logging instance with class context
+        const logger = new Logger(DatabaseUtil.name);
+
         // Catch neo4j errors
-        this.logger.error(err.message, err.stack);
+        logger.error(err.message, err.stack);
         throw new InternalServerErrorException();
 
         // Necessary to avoid void return value of function
