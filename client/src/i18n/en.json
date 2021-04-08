@@ -2,6 +2,7 @@
   "start": "Home",
   "editor": "Editor",
   "inventory": "Inventory",
+  "schemes": "Schemes",
   "dialog": {
     "confirm": "Confirm",
     "cancel": "Cancel"

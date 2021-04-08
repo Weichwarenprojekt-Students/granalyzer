@@ -4,6 +4,7 @@ import { editor, EditorState } from "@/modules/editor/store";
 import { inventory } from "@/modules/inventory/store";
 import { Locales } from "@/i18n";
 import { VueI18n } from "vue-i18n";
+import { schemes, SchemesState } from "@/modules/schemes/store";
 
 export class RootState {
     /**
@@ -24,6 +25,11 @@ export class RootState {
      * Editor state
      */
     public editor?: EditorState;
+
+    /**
+     * Schemes state
+     */
+    public schemes?: SchemesState;
 }
 
 export default createStore({
@@ -49,5 +55,6 @@ export default createStore({
         start,
         editor,
         inventory,
+        schemes,
     },
 });

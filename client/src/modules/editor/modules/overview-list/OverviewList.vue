@@ -85,7 +85,7 @@ export default defineComponent({
     align-items: center;
     border-bottom: 2px solid @primary_color;
 
-    height: 64px;
+    height: @header-height;
 }
 
 .searchbar {

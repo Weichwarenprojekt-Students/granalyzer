@@ -5,6 +5,7 @@ export const routeNames = {
     start: "/home",
     editor: "/editor",
     inventory: "/inventory",
+    schemes: "/schemes",
 };
 
 /**

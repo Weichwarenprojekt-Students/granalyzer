@@ -2,8 +2,8 @@ import { Diagram } from "@/models/Diagram";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET, getBrightness } from "@/utility";
-import ApiLabel from "@/modules/editor/models/ApiLabel";
-import ApiNode from "@/modules/editor/models/ApiNode";
+import ApiLabel from "@/models/ApiLabel";
+import ApiNode from "@/models/ApiNode";
 import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
 
 export class EditorState {
@@ -100,7 +100,6 @@ export const editor = {
         },
         /**
          * Extend the nodes
-         * @param context
          */
         async extendNodes(context: ActionContext<EditorState, RootState>): Promise<void> {
             const resNodes = await GET(`/api/nodes?limit=50&offset=${context.state.nodes.length}`);

@@ -11,7 +11,7 @@
             <router-link
                 v-for="item in items"
                 :key="item"
-                :to="'/' + item"
+                :to="routes[item]"
                 :class="{ isSelected: $route.path.startsWith(routes[item]) }"
                 v-tooltip="sidebarMinimized ? $t('global.' + item) : ''"
             >
@@ -33,7 +33,7 @@ export default defineComponent({
     data() {
         return {
             // The link items
-            items: ["start", "editor", "inventory"],
+            items: ["start", "editor", "inventory", "schemes"],
         };
     },
     watch: {
