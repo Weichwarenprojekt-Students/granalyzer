@@ -1,5 +1,12 @@
 import { Neo4jService } from "nest-neo4j/dist";
-import { Injectable, NotAcceptableException, NotFoundException } from "@nestjs/common";
+import {
+    HttpException,
+    Injectable,
+    InternalServerErrorException,
+    Logger,
+    NotAcceptableException,
+    NotFoundException,
+} from "@nestjs/common";
 
 @Injectable()
 export class UtilsNode {
@@ -10,6 +17,11 @@ export class UtilsNode {
      */
     private readonly database = process.env.DB_TOOL;
 
+    /**
+     * Logging instance with class context
+     * @private
+     */
+    private readonly logger = new Logger(Neo4jService.name);
     /**
      * Checks whether the element with the given id is an entity of a given type
      *
@@ -37,5 +49,18 @@ export class UtilsNode {
             }
             return;
         });
+    }
+
+    /**
+     * @param err
+     * @private
+     */
+    catchDbError(err: Error) {
+        // Pass Nestjs HttpException forward
+        if (err instanceof HttpException) throw err;
+
+        // Catch neo4j errors
+        this.logger.error(err.message, err.stack);
+        throw new InternalServerErrorException();
     }
 }

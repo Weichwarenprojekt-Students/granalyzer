@@ -5,6 +5,8 @@ import { RelationType } from "./models/relationType";
 import { Attribute } from "./models/attributes";
 import { Connection } from "./models/connection";
 import { LabelScheme } from "./models/labelScheme";
+import { UtilsNode } from "../util/utils.node";
+import { Label } from "../../dist/src/data-scheme/models/label";
 
 @Injectable()
 export class DataSchemeService {
@@ -13,13 +15,7 @@ export class DataSchemeService {
      */
     private readonly database = process.env.DB_TOOL;
 
-    /**
-     * Logging instance with class context
-     * @private
-     */
-    static readonly logger = new Logger(DataSchemeService.name);
-
-    constructor(private readonly neo4jService: Neo4jService) {}
+    constructor(private readonly neo4jService: Neo4jService, private readonly utilsNode: UtilsNode) {}
 
     /**
      * Parses the record to labels
@@ -65,7 +61,7 @@ export class DataSchemeService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(DataSchemeService.catchDbError);
+            .catch(this.utilsNode.catchDbError);
     }
 
     /**
@@ -90,7 +86,7 @@ export class DataSchemeService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(DataSchemeService.catchDbError);
+            .catch(this.utilsNode.catchDbError);
     }
 
     /**
@@ -127,7 +123,7 @@ export class DataSchemeService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(DataSchemeService.catchDbError);
+            .catch(this.utilsNode.catchDbError);
     }
 
     /**
@@ -150,20 +146,6 @@ export class DataSchemeService {
         };
 
         return this.neo4jService.read(cypher, params, this.database).then(resolveRead);
-    }
-
-    /**
-     * TODO: Move into util
-     * @param err
-     * @private
-     */
-    private static catchDbError(err: Error) {
-        // Pass Nestjs HttpException forward
-        if (err instanceof HttpException) throw err;
-
-        // Catch neo4j errors
-        DataSchemeService.logger.error(err.message, err.stack);
-        throw new InternalServerErrorException();
     }
 
     /**
