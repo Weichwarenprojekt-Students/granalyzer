@@ -2,7 +2,7 @@
  * @group unit/utils
  */
 
-import { NodeUtil } from "./node.util";
+import { DatabaseUtil } from "./database.util";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Neo4jService } from "nest-neo4j/dist";
 import MockNeo4jService from "../../test/mock-neo4j.service";
@@ -10,7 +10,7 @@ import { UtilsRepository } from "./utils.repository";
 import { NotAcceptableException, NotFoundException } from "@nestjs/common";
 
 describe("NodeUtils", () => {
-    let utilsNode: NodeUtil;
+    let utilsNode: DatabaseUtil;
     let neo4jService: Neo4jService;
 
     beforeEach(async () => {
@@ -20,12 +20,12 @@ describe("NodeUtils", () => {
                     provide: Neo4jService,
                     useValue: MockNeo4jService,
                 },
-                NodeUtil,
+                DatabaseUtil,
             ],
         }).compile();
 
         neo4jService = module.get<Neo4jService>(Neo4jService);
-        utilsNode = module.get<NodeUtil>(NodeUtil);
+        utilsNode = module.get<DatabaseUtil>(DatabaseUtil);
     });
 
     it("should be defined", () => {

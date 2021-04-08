@@ -5,7 +5,7 @@ import { RelationType } from "./models/relationType";
 import { Attribute } from "./models/attributes";
 import { Connection } from "./models/connection";
 import { LabelScheme } from "./models/labelScheme";
-import { NodeUtil } from "../util/node.util";
+import { DatabaseUtil } from "../util/database.util";
 import { Label } from "../../dist/src/data-scheme/models/label";
 
 @Injectable()
@@ -15,7 +15,7 @@ export class DataSchemeService {
      */
     private readonly database = process.env.DB_TOOL;
 
-    constructor(private readonly neo4jService: Neo4jService, private readonly nodeUtil: NodeUtil) {}
+    constructor(private readonly neo4jService: Neo4jService, private readonly databaseUtil: DatabaseUtil) {}
 
     /**
      * Parses the record to labels
@@ -61,7 +61,7 @@ export class DataSchemeService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -86,7 +86,7 @@ export class DataSchemeService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -123,7 +123,7 @@ export class DataSchemeService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**

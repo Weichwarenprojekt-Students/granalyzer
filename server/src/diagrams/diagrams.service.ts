@@ -3,7 +3,7 @@ import { Neo4jService } from "nest-neo4j/dist";
 import { Diagram } from "./diagram.model";
 import { Transaction } from "neo4j-driver";
 import Result from "neo4j-driver/types/result";
-import { NodeUtil } from "../util/node.util";
+import { DatabaseUtil } from "../util/database.util";
 
 @Injectable()
 export class DiagramsService {
@@ -12,7 +12,7 @@ export class DiagramsService {
      */
     private readonly database = process.env.DB_TOOL;
 
-    constructor(private readonly neo4jService: Neo4jService, private readonly nodeUtil: NodeUtil) {}
+    constructor(private readonly neo4jService: Neo4jService, private readonly databaseUtil: DatabaseUtil) {}
 
     /**
      * Fetches all diagrams from the db
@@ -33,7 +33,7 @@ export class DiagramsService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -55,7 +55,7 @@ export class DiagramsService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -84,7 +84,7 @@ export class DiagramsService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -108,7 +108,7 @@ export class DiagramsService {
         return this.neo4jService
             .write(cypher, params, this.database)
             .then(resolveWrite)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -140,7 +140,7 @@ export class DiagramsService {
         return this.neo4jService
             .write(cypher, params, this.database)
             .then(resolveWrite)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -171,7 +171,7 @@ export class DiagramsService {
         return this.neo4jService
             .write(cypher, params, this.database)
             .then(resolveWrite)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -195,7 +195,7 @@ export class DiagramsService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -225,7 +225,7 @@ export class DiagramsService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -263,7 +263,7 @@ export class DiagramsService {
         const child: Diagram = await this.neo4jService
             .write(cypher, params, transaction)
             .then(resolveWrite)
-            .catch(this.nodeUtil.catchDbError);
+            .catch(this.databaseUtil.catchDbError);
 
         // Commit the transaction
         await transaction.commit();
@@ -284,7 +284,7 @@ export class DiagramsService {
             return res.records[0].get("diagram");
         };
 
-        return this.deleteIsChildRelation(childId, this.database).then(resolveWrite).catch(this.nodeUtil.catchDbError);
+        return this.deleteIsChildRelation(childId, this.database).then(resolveWrite).catch(this.databaseUtil.catchDbError);
     }
 
     /**
