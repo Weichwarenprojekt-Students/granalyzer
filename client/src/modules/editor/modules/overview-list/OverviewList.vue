@@ -3,10 +3,8 @@
         <!-- Title -->
         <div class="title">{{ $t("editor.titleOverview") }}</div>
 
-        <!-- Searchbar -->
-        <label class="searchbar">
-            <input v-model="userInput" type="text" @keyup="handleSearch" placeholder="Search..." />
-        </label>
+        <!-- Search bar + Filter -->
+        <OverviewSearch></OverviewSearch>
 
         <!-- Scrolling content -->
         <ScrollPanel class="scroll-panel">
@@ -34,18 +32,17 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import OverviewItem from "@/modules/editor/modules/overview-list/components/OverviewItem.vue";
+import OverviewSearch from "@/modules/editor/modules/overview-list/components/OverviewSearch.vue";
 
 export default defineComponent({
     name: "OverviewList",
-    components: { OverviewItem },
+    components: { OverviewItem, OverviewSearch },
     data() {
         return {
             // Scroll panel for the overview
             scrollPanel: {} as Element,
             // Flag to prevent scroll event from loading too many times
             allowReload: true,
-            // Input in the searchbar
-            userInput: "",
         };
     },
     mounted() {
@@ -70,13 +67,6 @@ export default defineComponent({
                 await this.$store.dispatch("editor/extendNodes", true);
                 this.allowReload = true;
             }
-        },
-        /**
-         * Filters node list depending on user input
-         */
-        handleSearch(): void {
-            this.$store.state.editor.filter = this.userInput;
-            this.$store.dispatch("editor/loadLabelsAndNodes");
         },
     },
 });
@@ -103,11 +93,6 @@ export default defineComponent({
     border-bottom: 2px solid @primary_color;
 
     height: 64px;
-}
-
-.searchbar {
-    flex: 0 0 auto;
-    margin-top: 8px;
 }
 
 .scroll-panel {
