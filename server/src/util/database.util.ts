@@ -9,7 +9,7 @@ export class DatabaseUtil {
      * Logging instance with class context
      * @private
      */
-    private readonly logger = new Logger(Neo4jService.name);
+    private readonly logger = new Logger(DatabaseUtil.name);
 
     /**
      * Catch neo4j query errors, log and hide them with an InternalServerError
@@ -76,7 +76,7 @@ export class DatabaseUtil {
         const cypher = "MATCH (a) DETACH DELETE a RETURN a";
         const params = {};
 
-        await this.neo4jService.write(cypher, params, process.env.DB_TOOL).catch(this.catchDbError);
-        await this.neo4jService.write(cypher, params, process.env.DB_CUSTOMER).catch(this.catchDbError);
+        await this.neo4jService.write(cypher, params, process.env.DB_TOOL);
+        await this.neo4jService.write(cypher, params, process.env.DB_CUSTOMER);
     }
 }

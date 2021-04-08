@@ -82,7 +82,7 @@ export class DiagramsController {
         type: Diagram,
         description: "Returns the added diagram",
     })
-    addDiagram(@Body() body: Diagram) {
+    addDiagram(@Body() body) {
         return this.diagramsService.addDiagram(body.name, body.serialized);
     }
 
@@ -116,7 +116,7 @@ export class DiagramsController {
             },
         },
     })
-    updateDiagram(@Param("id") id: string, @Body() body: Diagram) {
+    updateDiagram(@Param("id") id: string, @Body() body) {
         return this.diagramsService.updateDiagram(id, body.name, body.serialized);
     }
 

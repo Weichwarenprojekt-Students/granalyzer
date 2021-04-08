@@ -2,17 +2,18 @@
  * @group db/data-scheme/controller
  */
 
-import { Test, TestingModule } from "@nestjs/testing";
+import { TestingModule } from "@nestjs/testing";
 import { DataSchemeController } from "./data-scheme.controller";
 import { DataSchemeService } from "./data-scheme.service";
-import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
+import { Neo4jService } from "nest-neo4j/dist";
 import { NotFoundException } from "@nestjs/common";
 import { LabelScheme } from "./models/labelScheme";
 import { ColorAttribute, NumberAttribute, StringAttribute } from "./models/attributes";
 import { RelationType } from "./models/relationType";
 import { Connection } from "./models/connection";
 import { Scheme } from "./data-scheme.model";
-import { ConfigModule } from "@nestjs/config";
+import TestUtil from "../util/test.util";
+import { DatabaseUtil } from "../util/database.util";
 
 describe("DataSchemeController", () => {
     let module: TestingModule;
@@ -20,6 +21,7 @@ describe("DataSchemeController", () => {
     let service: DataSchemeService;
     let neo4jService: Neo4jService;
     let controller: DataSchemeController;
+    let databaseUtil: DatabaseUtil;
 
     let movieLabel: LabelScheme;
     let personLabel: LabelScheme;
@@ -32,73 +34,17 @@ describe("DataSchemeController", () => {
     let followsRelationName: string;
 
     beforeAll(async () => {
-        module = await Test.createTestingModule({
-            imports: [
-                ConfigModule.forRoot(),
-                Neo4jModule.forRoot({
-                    scheme: "bolt",
-                    host: process.env.DB_HOST,
-                    port: process.env.DB_PORT,
-                    username: process.env.DB_USERNAME,
-                    password: process.env.DB_PASSWORD,
-                }),
-            ],
-            controllers: [DataSchemeController],
-            providers: [DataSchemeService],
-        }).compile();
+        module = await TestUtil.createTestingModule([DataSchemeService], [DataSchemeController]);
 
         neo4jService = module.get<Neo4jService>(Neo4jService);
         service = module.get<DataSchemeService>(DataSchemeService);
         controller = module.get<DataSchemeController>(DataSchemeController);
+        databaseUtil = module.get<DatabaseUtil>(DatabaseUtil);
 
-        // TODO: Move into utils
-        {
-            // language=cypher
-            await neo4jService.write(`CREATE DATABASE ${process.env.DB_TOOL} IF NOT exists`).catch(console.error);
-            // language=cypher
-            await neo4jService.write(`CREATE DATABASE ${process.env.DB_CUSTOMER} IF NOT exists`).catch(console.error);
-
-            // language=cypher
-            await neo4jService.write("MATCH (a) DETACH DELETE a RETURN a", {}, process.env.DB_TOOL);
-        }
+        await databaseUtil.initDatabase();
     });
 
     beforeEach(async () => {
-        function writeLabel(l): Promise<string> {
-            // language=cypher
-            const cypher = `
-              MERGE (l:LabelScheme {name: $labelName})
-              SET l.color = $color, l.attributes = $attribs
-              RETURN l {.*} AS label`;
-
-            const params = {
-                labelName: l.name,
-                color: l.color,
-                attribs: JSON.stringify(l.attributes),
-            };
-            return neo4jService
-                .write(cypher, params, process.env.DB_TOOL)
-                .then((res) => res.records[0].get("label").name);
-        }
-
-        function writeRelation(r): Promise<string> {
-            // language=cypher
-            const cypher = `
-              MERGE (r:RelationType {name: $labelName})
-              SET r.attributes = $attribs, r.connections = $connects
-              RETURN r {.*} AS relation`;
-
-            const params = {
-                labelName: r.name,
-                attribs: JSON.stringify(r.attributes),
-                connects: JSON.stringify(r.connections),
-            };
-
-            return neo4jService
-                .write(cypher, params, process.env.DB_TOOL)
-                .then((res) => res.records[0].get("relation").name);
-        }
-
         movieLabel = new LabelScheme("Movie", "#666", [
             new StringAttribute("title", true, "unknown"),
             new NumberAttribute("released"),
@@ -123,13 +69,7 @@ describe("DataSchemeController", () => {
     });
 
     afterEach(async () => {
-        // TODO: move into utils
-
-        // language=cypher
-        const cypher = "MATCH (a) DETACH DELETE a RETURN a";
-        const params = {};
-
-        await neo4jService.write(cypher, params, process.env.DB_TOOL);
+        await databaseUtil.clearDatabase();
     });
 
     it("should be defined", () => {
@@ -181,4 +121,37 @@ describe("DataSchemeController", () => {
             ).rejects.toThrowError(NotFoundException);
         });
     });
+
+    function writeLabel(l): Promise<string> {
+        // language=cypher
+        const cypher = `
+          MERGE (l:LabelScheme {name: $labelName})
+          SET l.color = $color, l.attributes = $attribs
+          RETURN l {. *} AS label`;
+
+        const params = {
+            labelName: l.name,
+            color: l.color,
+            attribs: JSON.stringify(l.attributes),
+        };
+        return neo4jService.write(cypher, params, process.env.DB_TOOL).then((res) => res.records[0].get("label").name);
+    }
+
+    function writeRelation(r): Promise<string> {
+        // language=cypher
+        const cypher = `
+          MERGE (r:RelationType {name: $labelName})
+          SET r.attributes = $attribs, r.connections = $connects
+          RETURN r {. *} AS relation`;
+
+        const params = {
+            labelName: r.name,
+            attribs: JSON.stringify(r.attributes),
+            connects: JSON.stringify(r.connections),
+        };
+
+        return neo4jService
+            .write(cypher, params, process.env.DB_TOOL)
+            .then((res) => res.records[0].get("relation").name);
+    }
 });

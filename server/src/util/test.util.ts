@@ -5,9 +5,17 @@ import { UtilModule } from "./util.module";
 
 export default class TestUtil {
     static createTestingModule(providers = [], controllers = [], imports = []) {
+        function suffixDatabases(config: Record<string, unknown>) {
+            config.DB_TOOL += "test";
+            config.DB_CUSTOMER += "test";
+            return config;
+        }
+
         return Test.createTestingModule({
             imports: [
-                ConfigModule.forRoot(),
+                ConfigModule.forRoot({
+                    validate: suffixDatabases,
+                }),
                 Neo4jModule.forRoot({
                     scheme: "bolt",
                     host: process.env.DB_HOST,
