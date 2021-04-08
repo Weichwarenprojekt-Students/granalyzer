@@ -37,7 +37,7 @@ export class GraphControls {
         shape.position(node.x, node.y);
 
         // Use default color if node has no color
-        const nodeColor = node.color ? node.color : "#70FF87";
+        const nodeColor = node.color ?? "#70FF87";
 
         // Style node
         shape.attr({

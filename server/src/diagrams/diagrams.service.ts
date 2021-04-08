@@ -102,9 +102,7 @@ export class DiagramsService {
     /**
      * Adds a new diagram to the db
      */
-    async addDiagram(name: string, serialized: string): Promise<Diagram> {
-        if (serialized == null) serialized = "";
-
+    async addDiagram(name: string, serialized = ""): Promise<Diagram> {
         // language=Cypher
         const cypher = `
           CREATE (d:Diagram {name: $name, serialized: $serialized})

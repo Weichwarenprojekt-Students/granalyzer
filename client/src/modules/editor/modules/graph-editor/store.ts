@@ -183,15 +183,13 @@ export const graphEditor = {
          * @return True if undo is available
          */
         undoAvailable(state: GraphEditorState): boolean {
-            if (state.graphHandler) return state.graphHandler.hasUndo();
-            else return false;
+            return !!state.graphHandler?.hasUndo();
         },
         /**
          * @return True if redo is available
          */
         redoAvailable(state: GraphEditorState): boolean {
-            if (state.graphHandler) return state.graphHandler.hasRedo();
-            else return false;
+            return !!state.graphHandler?.hasRedo();
         },
 
         /**

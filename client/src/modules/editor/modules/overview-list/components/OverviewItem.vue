@@ -32,8 +32,7 @@ export default defineComponent({
          * @return True if this item is currently selected
          */
         isSelected(): boolean {
-            if (!this.$store.state.editor.selectedNode) return false;
-            return this.$store.state.editor.selectedNode.id === this.node.id;
+            return this.$store.state.editor.selectedNode?.id === this.node.id;
         },
     },
     methods: {
