@@ -1,4 +1,4 @@
-export class Diagram {
+export class ApiDiagram {
     /**
      * Mock graph
      */
@@ -69,7 +69,7 @@ export class Diagram {
     /**
      * Copy a diagram
      */
-    public static copy(diagram: Diagram): Diagram {
-        return new Diagram(diagram.name, diagram.id);
+    public static copy(diagram: ApiDiagram): ApiDiagram {
+        return new ApiDiagram(diagram.name, diagram.id);
     }
 }

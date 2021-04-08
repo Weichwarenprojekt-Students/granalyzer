@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Diagram } from "@/models/Diagram";
+import { ApiDiagram } from "@/models/ApiDiagram";
 import CreationCard from "./components/CreationCard.vue";
 import InputDialog from "@/components/InputDialog.vue";
 import { routeNames } from "@/utility";
@@ -62,7 +62,7 @@ export default defineComponent({
             }
             this.dialogAddEmpty = false;
 
-            const response = await this.$store.dispatch("start/addDiagram", new Diagram(diagramName));
+            const response = await this.$store.dispatch("start/addDiagram", new ApiDiagram(diagramName));
             if (response.status === 201) {
                 this.$store.commit("editor/setDiagram", await response.json());
                 await this.$router.push(routeNames.editor);

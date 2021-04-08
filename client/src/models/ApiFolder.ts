@@ -1,6 +1,6 @@
-export class Folder {
+export class ApiFolder {
     /**
-     * Folder Model
+     * ApiFolder Model
      *
      * @param name Name of the specific folder
      * @param id Identifier
@@ -10,7 +10,7 @@ export class Folder {
     /**
      * Copy the folder
      */
-    public static copy(folder: Folder): Folder {
-        return new Folder(folder.name, folder.id);
+    public static copy(folder: ApiFolder): ApiFolder {
+        return new ApiFolder(folder.name, folder.id);
     }
 }

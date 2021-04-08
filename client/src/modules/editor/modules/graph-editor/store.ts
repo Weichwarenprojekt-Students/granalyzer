@@ -2,7 +2,7 @@ import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/Gra
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { Node } from "./controls/models/Node";
-import { Diagram } from "@/models/Diagram";
+import { ApiDiagram } from "@/models/ApiDiagram";
 import { CreateNodeCommand } from "./controls/commands/CreateNodeCommand";
 import { dia } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/RemoveNodeCommand";
@@ -40,7 +40,7 @@ export const graphEditor = {
         /**
          * Set the active diagram
          */
-        setDiagram(state: GraphEditorState, diagram: Diagram): void {
+        setDiagram(state: GraphEditorState, diagram: ApiDiagram): void {
             if (state.graphHandler) state.graphHandler.fromJSON(diagram.serialized);
         },
 

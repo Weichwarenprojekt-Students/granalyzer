@@ -94,8 +94,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Folder } from "@/models/Folder";
-import { Diagram } from "@/models/Diagram";
+import { ApiFolder } from "@/models/ApiFolder";
+import { ApiDiagram } from "@/models/ApiDiagram";
 import { isEmpty, routeNames } from "@/utility";
 import InputDialog from "@/components/InputDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
@@ -118,9 +118,9 @@ export default defineComponent({
             // True if the delete dialog should be shown
             deleteItemDialog: false,
             // The selected folder (empty if no folder is selected)
-            selectedFolder: {} as Folder,
+            selectedFolder: {} as ApiFolder,
             // The selected diagram (empty if no diagram is selected)
-            selectedDiagram: {} as Diagram,
+            selectedDiagram: {} as ApiDiagram,
         };
     },
     created() {
@@ -188,7 +188,7 @@ export default defineComponent({
 
             this.addFolderDialog = false;
             this.$store.dispatch("start/addFolder", {
-                folder: new Folder(folderName),
+                folder: new ApiFolder(folderName),
                 folderId: this.$route.params.id,
             });
         },
@@ -204,11 +204,11 @@ export default defineComponent({
             }
 
             if (!isEmpty(this.selectedFolder)) {
-                const copy = Folder.copy(this.selectedFolder);
+                const copy = ApiFolder.copy(this.selectedFolder);
                 copy.name = newName;
                 this.$store.dispatch("start/editFolder", copy);
             } else if (!isEmpty(this.selectedDiagram)) {
-                const copy = Diagram.copy(this.selectedDiagram);
+                const copy = ApiDiagram.copy(this.selectedDiagram);
                 copy.name = newName;
                 this.$store.dispatch("start/editDiagram", copy);
             } else this.showSelectionError();
@@ -266,18 +266,18 @@ export default defineComponent({
          *
          * @param folder The folder that was selected
          */
-        selectFolder(folder: Folder): void {
+        selectFolder(folder: ApiFolder): void {
             this.selectedFolder = folder;
-            this.selectedDiagram = {} as Diagram;
+            this.selectedDiagram = {} as ApiDiagram;
         },
         /**
          * Select a diagram
          *
          * @param diagram The diagram that was selected
          */
-        selectDiagram(diagram: Diagram): void {
+        selectDiagram(diagram: ApiDiagram): void {
             this.selectedDiagram = diagram;
-            this.selectedFolder = {} as Folder;
+            this.selectedFolder = {} as ApiFolder;
         },
         /**
          * Move a folder
@@ -297,8 +297,8 @@ export default defineComponent({
          * Clear the active selection
          */
         clearSelection(): void {
-            this.selectedDiagram = {} as Diagram;
-            this.selectedFolder = {} as Folder;
+            this.selectedDiagram = {} as ApiDiagram;
+            this.selectedFolder = {} as ApiFolder;
         },
         /**
          * Displays an error message for empty name input fields

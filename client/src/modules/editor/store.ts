@@ -1,4 +1,4 @@
-import { Diagram } from "@/models/Diagram";
+import { ApiDiagram } from "@/models/ApiDiagram";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET, getBrightness } from "@/utility";
@@ -10,7 +10,7 @@ export class EditorState {
     /**
      * The currently edited diagram
      */
-    public diagram = new Diagram("") as Diagram;
+    public diagram = new ApiDiagram("") as ApiDiagram;
 
     /**
      * Replication of the overview item that is dragged into the diagram
@@ -45,7 +45,7 @@ export const editor = {
         /**
          * Change the active diagram
          */
-        setDiagram(state: EditorState, diagram: Diagram): void {
+        setDiagram(state: EditorState, diagram: ApiDiagram): void {
             state.diagram = diagram;
         },
         /**
