@@ -60,10 +60,10 @@ export default defineComponent({
         /**
          * Filter nodes by labels and user-input
          */
-        handleFilter(filter: { userInput: string; labelsToFilterBy: Array<string> }): void {
+        handleFilter(filter: { userInput: string; labels: Array<string> }): void {
             console.log("Filter from Editor"); // TODO :: Backend call
             console.log(filter.userInput);
-            console.log(filter.labelsToFilterBy);
+            console.log(filter.labels);
         },
     },
 });
