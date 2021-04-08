@@ -33,6 +33,11 @@ export class EditorState {
     public labelColor = new Map() as Map<string, { color: string; fontColor: string }>;
 
     /**
+     * Filter
+     */
+    public filter = "";
+
+    /**
      * Graph editor state
      */
     public graphEditor?: GraphEditorState;
@@ -58,7 +63,9 @@ export const editor = {
          * Stores the nodes
          */
         storeNodes(state: EditorState, nodes: ApiNode[]): void {
-            state.nodes = nodes;
+            if (state.filter)
+                state.nodes = nodes.filter((node) => node.name.toLowerCase().includes(state.filter.toLowerCase()));
+            else state.nodes = nodes;
         },
         /**
          * Extend the existing nodes
@@ -89,7 +96,7 @@ export const editor = {
         /**
          * Loads the labels and the first load of nodes
          */
-        async loadLabels(context: ActionContext<EditorState, RootState>): Promise<void> {
+        async loadLabelsAndNodes(context: ActionContext<EditorState, RootState>): Promise<void> {
             const resNodes = await GET("/api/nodes?limit=50");
             const resLabels = await GET("/api/data-scheme/label");
 
@@ -100,7 +107,6 @@ export const editor = {
         },
         /**
          * Extend the nodes
-         * @param context
          */
         async extendNodes(context: ActionContext<EditorState, RootState>): Promise<void> {
             const resNodes = await GET(`/api/nodes?limit=50&offset=${context.state.nodes.length}`);

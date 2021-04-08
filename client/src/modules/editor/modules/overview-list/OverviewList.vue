@@ -1,16 +1,24 @@
 <template>
     <div class="content">
+        <!-- Title -->
         <div class="title">{{ $t("editor.titleOverview") }}</div>
+
+        <!-- Searchbar -->
         <label class="searchbar">
-            <input type="text" placeholder="Search..." />
+            <input v-model="userInput" type="text" @keyup="handleSearch" placeholder="Search..." />
         </label>
+
+        <!-- Scrolling content -->
         <ScrollPanel class="scroll-panel">
+            <!-- No nodes found -->
             <div v-if="!$store.getters['editor/nodesReady']" class="emptyList">
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
                 </svg>
                 <div class="message">{{ $t("editor.noNodes.description") }}</div>
             </div>
+
+            <!-- Nodes -->
             <OverviewItem
                 v-for="node in $store.state.editor.nodes"
                 :key="node.id"
@@ -36,11 +44,13 @@ export default defineComponent({
             scrollPanel: {} as Element,
             // Flag to prevent scroll event from loading too many times
             allowReload: true,
+            // Input in the searchbar
+            userInput: "",
         };
     },
     mounted() {
         // Load the labels with the first load of matching nodes
-        this.$store.dispatch("editor/loadLabels");
+        this.$store.dispatch("editor/loadLabelsAndNodes");
 
         // Watch for scroll events to load new nodes on demand
         this.scrollPanel = document.getElementsByClassName("p-scrollpanel-content")[0];
@@ -60,6 +70,13 @@ export default defineComponent({
                 await this.$store.dispatch("editor/extendNodes", true);
                 this.allowReload = true;
             }
+        },
+        /**
+         * Filters node list depending on user input
+         */
+        handleSearch(): void {
+            this.$store.state.editor.filter = this.userInput;
+            this.$store.dispatch("editor/loadLabelsAndNodes");
         },
     },
 });
