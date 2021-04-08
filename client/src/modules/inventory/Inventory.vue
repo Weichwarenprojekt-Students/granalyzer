@@ -5,7 +5,7 @@
             :nodes="$store.state.inventory.nodes"
             :labels="$store.state.inventory.labels"
             :labelColors="$store.state.inventory.labelColor"
-            :enableScrollEmit="toggleScrollEmit"
+            :toggleScrollEmit="toggleScrollEmit"
             :selectedItemId="$store.state.inventory.selectedNode?.id"
             class="overview"
             @extend-nodes="extendNodes"

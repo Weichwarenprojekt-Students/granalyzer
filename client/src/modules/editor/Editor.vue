@@ -5,7 +5,7 @@
             :nodes="$store.state.editor.nodes"
             :labels="$store.state.editor.labels"
             :labelColors="$store.state.editor.labelColor"
-            :enableScrollEmit="toggleScrollEmit"
+            :toggleScrollEmit="toggleScrollEmit"
             :selectedItemId="$store.state.editor.selectedNode?.id"
             class="overview"
             @extend-nodes="extendNodes"
