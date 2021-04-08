@@ -68,6 +68,42 @@
 }
 
 /**
+ * The underlined title (classic title for sub modules, e.g. overview list etc.)
+ */
+.underlined-title {
+  flex: 0 0 auto;
+  font-size: @h3;
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid @secondary_color;
+  height: @header-height;
+}
+
+/**
+ * The warning for lists (e.g. if there are no results to display)
+ */
+.empty-warning {
+  display: flex;
+  align-items: center;
+  margin-right: 18px;
+  flex-direction: column;
+
+  svg {
+    fill: @dark_grey;
+    height: 64px;
+    width: 64px;
+    margin-top: 32px;
+    margin-bottom: 16px;
+  }
+
+  .message {
+    color: @dark;
+    font-size: @h3;
+  }
+}
+
+/**
  * Searchbar
  */
 .searchbar {

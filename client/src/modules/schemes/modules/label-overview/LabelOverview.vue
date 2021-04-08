@@ -17,7 +17,7 @@
             </label>
 
             <!-- The warning if there are no labels -->
-            <div v-if="labels.length === 0" class="emptyList">
+            <div v-if="labels.length === 0" class="empty-warning">
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
                 </svg>
@@ -45,7 +45,7 @@
             </label>
 
             <!-- The warning if there are no relations -->
-            <div v-if="relations.length === 0" class="emptyList">
+            <div v-if="relations.length === 0" class="empty-warning">
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
                 </svg>
@@ -191,26 +191,6 @@ export default defineComponent({
 .searchbar {
     flex: 0 0 auto;
     margin-top: 8px;
-}
-
-.emptyList {
-    display: flex;
-    align-items: center;
-    margin-right: 18px;
-    flex-direction: column;
-
-    svg {
-        fill: @dark_grey;
-        height: 64px;
-        width: 64px;
-        margin-top: 32px;
-        margin-bottom: 16px;
-    }
-
-    .message {
-        color: @dark;
-        font-size: @h3;
-    }
 }
 
 .scroll-panel {

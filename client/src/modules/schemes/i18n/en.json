@@ -4,5 +4,15 @@
     "relations": "Relations",
     "noLabels": "No labels found!",
     "noRelations": "No relations found!"
+  },
+  "nothing-selected": "Select either a label or a relation to edit it here.",
+  "label-editor": {
+    "title": "Label Editor"
+  },
+  "relation-editor": {
+    "title": "Relation Editor"
+  },
+  "conflict-view": {
+    "title": "Conflicts"
   }
 }

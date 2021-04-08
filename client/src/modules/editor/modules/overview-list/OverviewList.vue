@@ -1,11 +1,11 @@
 <template>
     <div class="content">
-        <div class="title">{{ $t("editor.titleOverview") }}</div>
+        <div class="underlined-title">{{ $t("editor.titleOverview") }}</div>
         <label class="searchbar">
             <input type="text" placeholder="Search..." />
         </label>
         <ScrollPanel class="scroll-panel">
-            <div v-if="!$store.getters['editor/nodesReady']" class="emptyList">
+            <div v-if="!$store.getters['editor/nodesReady']" class="empty-warning">
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
                 </svg>
@@ -77,15 +77,8 @@ export default defineComponent({
     flex-flow: column;
 }
 
-.title {
-    flex: 0 0 auto;
-
-    font-size: @h2;
-    display: flex;
-    align-items: center;
-    border-bottom: 2px solid @primary_color;
-
-    height: @header-height;
+.underlined-title {
+    padding: 0;
 }
 
 .searchbar {
@@ -100,26 +93,6 @@ export default defineComponent({
 
     .space {
         padding-bottom: 48px;
-    }
-
-    .emptyList {
-        display: flex;
-        align-items: center;
-        margin-right: 18px;
-        flex-direction: column;
-
-        svg {
-            fill: @dark_grey;
-            height: 64px;
-            width: 64px;
-            margin-top: 32px;
-            margin-bottom: 16px;
-        }
-
-        .message {
-            color: @dark;
-            font-size: @h3;
-        }
     }
 }
 
