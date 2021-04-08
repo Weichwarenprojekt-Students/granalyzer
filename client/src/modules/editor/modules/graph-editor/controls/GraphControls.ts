@@ -37,12 +37,12 @@ export class GraphControls {
         shape.position(node.x, node.y);
 
         // Use default color if node has no color
-        const nodeColor = node.color ?? "#70FF87";
+        const nodeColor = this.store.getters["editor/labelColors"].get(node.label).color ?? "#70FF87";
 
         // Style node
         shape.attr({
             label: {
-                text: node.label,
+                text: node.text,
                 textAnchor: "middle",
                 textVerticalAnchor: "middle",
                 fill: getBrightness(nodeColor) > 170 ? "#333" : "#FFF",

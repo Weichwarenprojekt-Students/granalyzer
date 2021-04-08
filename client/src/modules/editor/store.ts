@@ -114,6 +114,10 @@ export const editor = {
         nodesReady(state: EditorState): boolean {
             return state.nodes.length > 0 && state.labels.length > 0;
         },
+
+        labelColors(state: EditorState): Map<string, { color: string; fontColor: string }> {
+            return state.labelColor;
+        },
     },
     modules: {
         graphEditor,
