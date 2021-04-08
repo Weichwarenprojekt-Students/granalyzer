@@ -3,7 +3,7 @@ import { Neo4jService } from "nest-neo4j/dist";
 import { Folder } from "./folder.model";
 import { Transaction } from "neo4j-driver";
 import Result from "neo4j-driver/types/result";
-import { UtilsNode } from "../util/utils.node";
+import { NodeUtil } from "../util/node.util";
 
 @Injectable()
 export class FoldersService {
@@ -12,7 +12,7 @@ export class FoldersService {
      */
     private readonly database = process.env.DB_TOOL;
 
-    constructor(private readonly neo4jService: Neo4jService, private readonly utilsNode: UtilsNode) {}
+    constructor(private readonly neo4jService: Neo4jService, private readonly nodeUtil: NodeUtil) {}
 
     /**
      * Return all folders
@@ -33,7 +33,7 @@ export class FoldersService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
     }
 
     /**
@@ -55,7 +55,7 @@ export class FoldersService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
     }
 
     /**
@@ -86,7 +86,7 @@ export class FoldersService {
         return this.neo4jService
             .read(cypher, param, this.database)
             .then(resolveRead)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
     }
 
     /**
@@ -109,7 +109,7 @@ export class FoldersService {
         return this.neo4jService
             .write(cypher, params, this.database)
             .then(resolveWrite)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
     }
 
     /**
@@ -144,7 +144,7 @@ export class FoldersService {
         return this.neo4jService
             .write(cypher, params, this.database)
             .then(resolveWrite)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
     }
 
     /**
@@ -177,7 +177,7 @@ export class FoldersService {
         return this.neo4jService
             .write(cypher, params, this.database)
             .then(resolveWrite)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
     }
 
     /**
@@ -202,7 +202,7 @@ export class FoldersService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
     }
 
     /**
@@ -233,7 +233,7 @@ export class FoldersService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
     }
 
     /**
@@ -271,7 +271,7 @@ export class FoldersService {
         const child = await this.neo4jService
             .write(cypher, params, transaction)
             .then(resolveWrite)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
 
         // Commit the transaction
         await transaction.commit();
@@ -302,7 +302,7 @@ export class FoldersService {
             return res.records[0].get("folder");
         };
 
-        return this.deleteIsChildRelation(childId, this.database).then(resolveWrite).catch(this.utilsNode.catchDbError);
+        return this.deleteIsChildRelation(childId, this.database).then(resolveWrite).catch(this.nodeUtil.catchDbError);
     }
 
     /**

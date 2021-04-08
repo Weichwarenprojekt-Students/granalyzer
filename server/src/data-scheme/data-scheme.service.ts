@@ -1,11 +1,11 @@
-import { HttpException, Injectable, InternalServerErrorException, Logger, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { Scheme } from "./data-scheme.model";
 import { RelationType } from "./models/relationType";
 import { Attribute } from "./models/attributes";
 import { Connection } from "./models/connection";
 import { LabelScheme } from "./models/labelScheme";
-import { UtilsNode } from "../util/utils.node";
+import { NodeUtil } from "../util/node.util";
 import { Label } from "../../dist/src/data-scheme/models/label";
 
 @Injectable()
@@ -15,7 +15,7 @@ export class DataSchemeService {
      */
     private readonly database = process.env.DB_TOOL;
 
-    constructor(private readonly neo4jService: Neo4jService, private readonly utilsNode: UtilsNode) {}
+    constructor(private readonly neo4jService: Neo4jService, private readonly nodeUtil: NodeUtil) {}
 
     /**
      * Parses the record to labels
@@ -61,7 +61,7 @@ export class DataSchemeService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
     }
 
     /**
@@ -86,7 +86,7 @@ export class DataSchemeService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
     }
 
     /**
@@ -104,7 +104,7 @@ export class DataSchemeService {
             if (!res.records.length) {
                 throw new NotFoundException("Label with name: " + name + " not found");
             }
-            return DataSchemeService.parseLabel(res.records[0]);
+            return DataSchemeService.parseLabelScheme(res.records[0]);
         });
     }
 
@@ -123,7 +123,7 @@ export class DataSchemeService {
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
-            .catch(this.utilsNode.catchDbError);
+            .catch(this.nodeUtil.catchDbError);
     }
 
     /**
@@ -164,7 +164,7 @@ export class DataSchemeService {
             if (!res.records.length) {
                 throw new NotFoundException("Label with name: " + name + " not found");
             }
-            return DataSchemeService.parseRelation(res.records[0]);
+            return DataSchemeService.parseRelationType(res.records[0]);
         });
     }
 }

@@ -9,7 +9,7 @@ import {
 } from "@nestjs/common";
 
 @Injectable()
-export class UtilsNode {
+export class NodeUtil {
     constructor(private readonly neo4jService: Neo4jService) {}
 
     /**
@@ -62,5 +62,8 @@ export class UtilsNode {
         // Catch neo4j errors
         this.logger.error(err.message, err.stack);
         throw new InternalServerErrorException();
+
+        // Necessary to avoid void return value of function
+        return null;
     }
 }

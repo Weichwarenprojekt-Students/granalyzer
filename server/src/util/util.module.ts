@@ -1,6 +1,6 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { DataSchemeUtil } from "./data-scheme.util";
-import { UtilsNode } from "./utils.node";
+import { NodeUtil } from "./node.util";
 import { DataSchemeService } from "../data-scheme/data-scheme.service";
 
 @Module({
@@ -11,8 +11,8 @@ export class UtilModule {
         return {
             module: UtilModule,
             global: true,
-            providers: [DataSchemeUtil, UtilsNode],
-            exports: [DataSchemeUtil, UtilsNode],
+            providers: [DataSchemeUtil, NodeUtil],
+            exports: [DataSchemeUtil, NodeUtil],
         };
     }
 }

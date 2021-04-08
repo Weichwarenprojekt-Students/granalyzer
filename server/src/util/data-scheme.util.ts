@@ -1,12 +1,12 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
-import { Label } from "../data-scheme/models/label";
 import { DataSchemeService } from "../data-scheme/data-scheme.service";
 import Node from "../nodes/node.model";
 import { Attribute } from "../data-scheme/models/attributes";
 import MandatoryAttributeMissingException from "./exceptions/MandatoryAttributeMissing.exception";
 import Relation from "../relations/relation.model";
 import { RelationType } from "../data-scheme/models/relationType";
+import { Label } from "../../dist/src/data-scheme/models/label";
 
 @Injectable()
 export class DataSchemeUtil {
