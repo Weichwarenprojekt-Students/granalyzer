@@ -2,20 +2,20 @@
  * @group db/nodes/controller
  */
 
-import { Test, TestingModule } from "@nestjs/testing";
+import { TestingModule } from "@nestjs/testing";
 import { NodesController } from "./nodes.controller";
-import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
+import { Neo4jService } from "nest-neo4j/dist";
 import { NodesService } from "./nodes.service";
 import Node from "./node.model";
-import * as dotenv from "dotenv";
-import { Label } from "../data-scheme/models/label";
 import { NumberAttribute, StringAttribute } from "../data-scheme/models/attributes";
-import { UtilModule } from "../util/util.module";
 import { InternalServerErrorException } from "@nestjs/common";
 import Relation from "../relations/relation.model";
 import { RelationType } from "../data-scheme/models/relationType";
 import { Connection } from "../data-scheme/models/connection";
 import { NodesRelationsService } from "./nodes-relations.service";
+import { Label } from "../../dist/src/data-scheme/models/label";
+import TestUtil from "../util/test.util";
+import { DatabaseUtil } from "../util/database.util";
 
 describe("NodesController", () => {
     let module: TestingModule;
@@ -23,44 +23,23 @@ describe("NodesController", () => {
     let service: NodesService;
     let neo4jService: Neo4jService;
     let controller: NodesController;
+    let databaseUtil: DatabaseUtil;
 
     let movieNodeId;
     let validNodeId;
     let nmNodeID;
 
     beforeAll(async () => {
-        // Get .env variables
-        dotenv.config();
-
-        module = await Test.createTestingModule({
-            imports: [
-                Neo4jModule.forRoot({
-                    scheme: "bolt",
-                    host: process.env.DB_HOST,
-                    port: process.env.DB_PORT,
-                    username: process.env.DB_USERNAME,
-                    password: process.env.DB_PASSWORD,
-                }),
-                UtilModule.forRoot(),
-            ],
-            controllers: [NodesController],
-            providers: [NodesService, NodesRelationsService],
-        }).compile();
+        // Create main module for testing
+        module = await TestUtil.createTestingModule([NodesService, NodesRelationsService], [NodesController]);
 
         controller = module.get<NodesController>(NodesController);
         service = module.get<NodesService>(NodesService);
         neo4jService = module.get<Neo4jService>(Neo4jService);
+        databaseUtil = module.get<DatabaseUtil>(DatabaseUtil);
 
-        // language=cypher
-        await neo4jService.write(`CREATE DATABASE ${process.env.DB_TOOL} IF NOT exists`).catch(console.error);
-        // language=cypher
-        await neo4jService.write(`CREATE DATABASE ${process.env.DB_CUSTOMER} IF NOT exists`).catch(console.error);
-
-        // language=cypher
-        const cypher = "MATCH (n) DETACH DELETE n RETURN n";
-
-        await neo4jService.write(cypher, {}, process.env.DB_TOOL);
-        await neo4jService.write(cypher, {}, process.env.DB_CUSTOMER);
+        await databaseUtil.clearDatabase();
+        await databaseUtil.initDatabase();
     });
 
     beforeEach(async () => {
@@ -111,11 +90,7 @@ describe("NodesController", () => {
     });
 
     afterEach(async () => {
-        // language=cypher
-        const cypher = "MATCH (n) DETACH DELETE n RETURN n";
-
-        await neo4jService.write(cypher, {}, process.env.DB_TOOL);
-        await neo4jService.write(cypher, {}, process.env.DB_CUSTOMER);
+        await databaseUtil.clearDatabase();
     });
 
     it("should be defined", () => {
@@ -219,12 +194,12 @@ describe("NodesController", () => {
             .then((res) => res.records[0].get("label").identity.toNumber());
     }
 
-    function writeRelationType(r: RelationType): Promise<number> {
+    function writeRelationType(r: RelationType): Promise<string> {
         // language=cypher
         const cypher = `
           MERGE (rt:RelationType {name: $relType})
           SET rt.attributes = $attribs, rt.connections = $connects
-          RETURN rt`;
+          RETURN rt {. *}`;
 
         const params = {
             relType: r.name,
@@ -232,17 +207,15 @@ describe("NodesController", () => {
             connects: JSON.stringify(r.connections),
         };
 
-        return neo4jService
-            .write(cypher, params, process.env.DB_TOOL)
-            .then((res) => res.records[0].get("rt").identity.toNumber());
+        return neo4jService.write(cypher, params, process.env.DB_TOOL).then((res) => res.records[0].get("rt").name);
     }
 
     function writeNode(node: Node): Promise<number> {
         // language=cypher
         const cypher = `
-              MERGE (m:${node.label} {name: $name})
-              SET m.attrOne = $attrOne, m.attrTwo = $attrTwo
-              RETURN m AS ${node.label}`;
+          MERGE (m:${node.label} {name: $name})
+          SET m.attrOne = $attrOne, m.attrTwo = $attrTwo
+          RETURN m AS ${node.label}`;
 
         const params = {
             name: node.name,
@@ -256,16 +229,19 @@ describe("NodesController", () => {
     }
 
     function writeRelation(relation: Relation) {
-        const cypher = `MATCH (start), (end) WHERE id(start) = $start AND id(end) = $end
-                        CREATE(start)-[r:${relation.type}]->(end) SET r.attrOne = $attrOne RETURN r`;
+        // language=Cypher
+        const cypher = `
+          MATCH (s), (e)
+            WHERE id(s) = $from AND id(e) = $to
+          CREATE(s)-[r:${relation.type}]->(e)
+          SET r.attrOne = $attrOne
+          RETURN r`;
         const params = {
-            start: neo4jService.int(relation.from),
-            end: neo4jService.int(relation.to),
+            from: neo4jService.int(relation.from),
+            to: neo4jService.int(relation.to),
             attrOne: relation.attributes.attrOne,
         };
 
-        return neo4jService
-            .write(cypher, params, process.env.DB_CUSTOMER)
-            .then((res) => res.records[0].get("r").identity.toNumber());
+        return neo4jService.write(cypher, params, process.env.DB_CUSTOMER).then((res) => res.records[0].get("r").name);
     }
 });
