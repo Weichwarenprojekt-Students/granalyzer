@@ -73,17 +73,15 @@ export const editor = {
         storeLabels(state: EditorState, labels: ApiLabel[]): void {
             state.labels = labels;
             labels.forEach((label) => {
-                if (label.name && label.color) {
-                    // Set the right font color depending on the brightness
-                    const brightness = getBrightness(label.color);
-                    const font = brightness > 170 ? "#333333" : "#FFFFFF";
+                // Set the right font color depending on the brightness
+                const brightness = getBrightness(label.color);
+                const font = brightness > 170 ? "#333333" : "#FFFFFF";
 
-                    // Add label color and the font color to the color map
-                    state.labelColor.set(label.name, {
-                        color: label.color,
-                        fontColor: font,
-                    });
-                }
+                // Add label color and the font color to the color map
+                state.labelColor.set(label.name, {
+                    color: label.color,
+                    fontColor: font,
+                });
             });
         },
     },

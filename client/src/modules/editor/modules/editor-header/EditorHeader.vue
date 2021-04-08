@@ -11,8 +11,6 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import "~@/styles/global.less";
-
 .header {
     display: flex;
     justify-content: center;

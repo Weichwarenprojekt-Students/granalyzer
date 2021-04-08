@@ -7,11 +7,5 @@ export default class ApiLabel {
      * @param attributes attributes of the label
      * @param id ID in the database
      */
-    // eslint-disable-next-line
-    constructor(public name?: string, public color?: string, public attributes?: any, public id?: number) {
-        this.name = name ?? "";
-        this.color = color ?? "#000";
-        this.attributes = attributes ?? [];
-        if (id) this.id = id;
-    }
+    constructor(public name = "", public color = "#000", public attributes = [], public id?: number) {}
 }
