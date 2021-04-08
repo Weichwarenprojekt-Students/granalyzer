@@ -94,8 +94,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Folder } from "@/modules/start/models/Folder";
-import { Diagram } from "@/modules/start/models/Diagram";
+import { Folder } from "@/models/Folder";
+import { Diagram } from "@/models/Diagram";
 import { isEmpty, routeNames } from "@/utility";
 import InputDialog from "@/components/InputDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
@@ -251,7 +251,7 @@ export default defineComponent({
          * Handle double click on diagram
          */
         doubleClickedDiagram(): void {
-            this.$store.dispatch("editor/setDiagram", this.selectedDiagram);
+            this.$store.commit("editor/setDiagram", this.selectedDiagram);
             this.$router.push(routeNames.editor);
         },
         /**
@@ -340,8 +340,8 @@ export default defineComponent({
     margin-left: 16px;
     border-bottom: 2px solid transparent;
     padding: 0 2px 2px 2px;
-    height: 24px;
-    width: 24px;
+    height: 28px;
+    width: 28px;
     fill: #333;
 
     &:hover {

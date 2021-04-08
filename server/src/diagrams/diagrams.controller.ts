@@ -71,6 +71,10 @@ export class DiagramsController {
                     type: "string",
                     description: "Name of the new diagram",
                 },
+                serialized: {
+                    type: "string",
+                    description: "Serialized JSON object of diagram",
+                },
             },
         },
     })
@@ -78,13 +82,8 @@ export class DiagramsController {
         type: Diagram,
         description: "Returns the added diagram",
     })
-    @ApiParam({
-        name: "name",
-        type: "string",
-        description: "The name of the diagram which should be created",
-    })
-    addDiagram(@Body("name") name: string) {
-        return this.diagramsService.addDiagram(name);
+    addDiagram(@Body() body: Diagram) {
+        return this.diagramsService.addDiagram(body.name, body.serialized);
     }
 
     @Put(":id")
@@ -110,11 +109,15 @@ export class DiagramsController {
                     type: "string",
                     description: "New name",
                 },
+                serialized: {
+                    type: "string",
+                    description: "New serialized diagram",
+                },
             },
         },
     })
-    updateDiagram(@Param("id") id: number, @Body("name") name: string) {
-        return this.diagramsService.updateDiagram(id, name);
+    updateDiagram(@Param("id") id: number, @Body() body: Diagram) {
+        return this.diagramsService.updateDiagram(id, body.name, body.serialized);
     }
 
     @Delete(":id")

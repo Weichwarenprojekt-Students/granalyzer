@@ -1,6 +1,8 @@
 <template>
-    <CreationSection></CreationSection>
-    <DiagramExplorer></DiagramExplorer>
+    <ScrollPanel class="content">
+        <CreationSection></CreationSection>
+        <DiagramExplorer></DiagramExplorer>
+    </ScrollPanel>
 </template>
 
 <script lang="ts">
@@ -16,3 +18,10 @@ export default defineComponent({
     },
 });
 </script>
+
+<style lang="less">
+.content {
+    height: 100%;
+    overflow: hidden;
+}
+</style>

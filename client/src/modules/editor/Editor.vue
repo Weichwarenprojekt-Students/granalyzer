@@ -1,32 +1,60 @@
 <template>
     <div class="content">
-        <h1>{{ title }}</h1>
+        <OverviewList class="overview"></OverviewList>
+        <div class="center">
+            <EditorHeader class="header"></EditorHeader>
+            <GraphEditor class="editor"></GraphEditor>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { isEmpty } from "@/utility";
+import EditorHeader from "@/modules/editor/modules/editor-header/EditorHeader.vue";
+import OverviewList from "@/modules/editor/modules/overview-list/OverviewList.vue";
+import GraphEditor from "@/modules/editor/modules/graph-editor/GraphEditor.vue";
 
 export default defineComponent({
     name: "Editor",
-    computed: {
-        title(): string {
-            const diagram = this.$store.state.editor.diagram;
-            if (!isEmpty(diagram)) return diagram;
-            else return this.$t("editor.title");
-        },
+    components: {
+        GraphEditor,
+        EditorHeader,
+        OverviewList,
     },
 });
 </script>
 
 <style lang="less" scoped>
-@import "~@/styles/styles.less";
+@import "~@/styles/global.less";
 
 .content {
     width: 100%;
     height: 100%;
     background: @light_grey;
-    padding: 32px;
+    display: flex;
+}
+
+.overview {
+    width: @inventory_width;
+    height: 100vh;
+    flex: 0 0 auto;
+    background: white;
+}
+
+.center {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    width: 100%;
+    height: @header-height;
+    background: white;
+    flex: 0 0 auto;
+}
+
+.editor {
+    flex: 1 1 auto;
 }
 </style>

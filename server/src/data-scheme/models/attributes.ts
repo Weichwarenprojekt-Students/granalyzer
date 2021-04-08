@@ -1,5 +1,7 @@
 // Deserialization of JSON objects with inheritance:
 // https://stackoverflow.com/questions/54427218/parsing-complex-json-objects-with-inheritance
+import * as neo4j from "neo4j-driver";
+
 type SerializableAttribute = new () => { readonly datatype: string };
 
 export abstract class Attribute {
@@ -52,6 +54,27 @@ export abstract class Attribute {
         typeof v === "object" && "datatype" in v && v.datatype in Attribute.typeRegistry
             ? Object.assign(new Attribute.typeRegistry[v.datatype](), v)
             : v;
+
+    /**
+     * Converts an element by the definition of a given attribute scheme
+     */
+    static applyOnElement(attribute: Attribute, element: any) {
+        // Convert Attributes by datatype
+        switch (attribute.datatype) {
+            case "number":
+                element = neo4j.integer.toNumber(element);
+                break;
+            case "string":
+                break;
+            default:
+                //If Element is an neo4j integer
+                if (neo4j.isInt(element)) {
+                    element = neo4j.integer.toString(element);
+                }
+        }
+
+        return element;
+    }
 }
 
 @Attribute.serializable

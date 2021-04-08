@@ -4,6 +4,8 @@ import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
 import { DiagramsModule } from "./diagrams/diagrams.module";
 import { DataSchemeModule } from "./data-scheme/data-scheme.module";
 import { FoldersModule } from "./folders/folders.module";
+import { NodesModule } from "./nodes/nodes.module";
+import { UtilModule } from "./util/util.module";
 
 @Module({
     imports: [
@@ -18,6 +20,8 @@ import { FoldersModule } from "./folders/folders.module";
         DiagramsModule,
         DataSchemeModule,
         FoldersModule,
+        NodesModule,
+        UtilModule.forRoot(),
     ],
 })
 export class AppModule {

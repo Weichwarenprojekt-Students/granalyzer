@@ -1,6 +1,6 @@
 import { createStore } from "vuex";
-import { start } from "@/modules/start/store";
-import { editor } from "@/modules/editor/store";
+import { start, StartState } from "@/modules/start/store";
+import { editor, EditorState } from "@/modules/editor/store";
 import { inventory } from "@/modules/inventory/store";
 import { Locales } from "@/i18n";
 import { VueI18n } from "vue-i18n";
@@ -14,6 +14,16 @@ export class RootState {
      * True if the sidebar is minimized
      */
     public sidebarMinimized = false;
+
+    /**
+     * Start state
+     */
+    public start?: StartState;
+
+    /**
+     * Editor state
+     */
+    public editor?: EditorState;
 }
 
 export default createStore({

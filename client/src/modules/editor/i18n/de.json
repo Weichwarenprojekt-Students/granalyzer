@@ -1,3 +1,16 @@
 {
-  "title": "Hier bist du im Editor!"
+  "titleOverview": "Eintragsübersicht",
+  "title": "Hier bist du im Editor!",
+  "toolbar": {
+    "undo": "Rückgängig (Strg + Z)",
+    "redo": "Wiederholen (Strg + Y)",
+    "delete": "Löschen"
+  },
+  "noDiagram": {
+    "title": "Kein Diagram",
+    "description": "Laden Sie erst ein Diagramm!"
+  },
+  "noNodes": {
+    "description": "Keine Einträge gefunden!"
+  }
 }

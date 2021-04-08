@@ -8,6 +8,26 @@ export const routeNames = {
 };
 
 /**
+ * Calculate the brightness for a given color
+ *
+ * @param color The color as a string in hex format
+ */
+export function getBrightness(color: string): number {
+    let brightness = 0;
+    const parsedHex = parseInt(color.substr(1), 16);
+    if (parsedHex) {
+        // Get R, G, B values from hex-code
+        const R = (parsedHex >> 16) & 255;
+        const G = (parsedHex >> 8) & 255;
+        const B = parsedHex & 255;
+
+        // Calculate color brightness from RGB-values
+        brightness = R * 0.299 + G * 0.587 + B * 0.114;
+    }
+    return brightness;
+}
+
+/**
  * Determine whether an object is empty
  *
  * @param object The object to be checked
@@ -16,6 +36,15 @@ export const routeNames = {
 // eslint-disable-next-line
 export function isEmpty(object: any): boolean {
     return Object.keys(object).length === 0;
+}
+
+/**
+ * Create a deep-copy of any object
+ *
+ * @param obj The object to be copied
+ */
+export function deepCopy<Type>(obj: Type): Type {
+    return JSON.parse(JSON.stringify(obj));
 }
 
 /**

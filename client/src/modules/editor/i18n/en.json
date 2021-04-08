@@ -1,3 +1,16 @@
 {
-  "title": "Here you are in the editor!"
+  "titleOverview": "Node Overview",
+  "title": "Here you are in the editor!",
+  "toolbar": {
+    "undo": "Undo (Ctrl + Z)",
+    "redo": "Redo (Ctrl + Y)",
+    "delete": "Delete"
+  },
+  "noDiagram": {
+    "title": "No Diagram",
+    "description": "You have to load a diagram first!"
+  },
+  "noNodes": {
+    "description": "No nodes found!"
+  }
 }

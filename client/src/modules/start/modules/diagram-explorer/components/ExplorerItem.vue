@@ -121,7 +121,7 @@ export default defineComponent({
     width: 0 !important;
     margin: 0 !important;
     padding: 0 !important;
-    transition-duration: 400ms;
+    transition-duration: @navbar_animation_time;
 
     p,
     svg {

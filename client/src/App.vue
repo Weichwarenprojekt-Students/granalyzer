@@ -23,7 +23,7 @@ export default defineComponent({
 
 .main-content {
     height: 100vh;
-    transition: margin 400ms;
+    transition: margin @navbar_animation_time;
     overflow: auto;
 }
 

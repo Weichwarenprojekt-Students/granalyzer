@@ -5,10 +5,17 @@
 @import "../assets/fonts/firasans/style.css";
 
 /**
+ * The dark tone for icons
+ */
+.icon {
+  fill: @dark;
+}
+
+/**
  * Button
  */
 .btn {
-  border-radius: @border-radius;
+  border-radius: @border_radius;
   padding: 8px;
   width: 160px;
   border: 1px solid @dark;
@@ -57,6 +64,20 @@
       border-color: @primary_color;
       background: transparent;
     }
+  }
+}
+
+/**
+ * Searchbar
+ */
+.searchbar {
+  padding: 6px 16px;
+  background: @light_grey;
+
+  input[type="text"] {
+    width: 100%;
+    background: transparent;
+    border: none;
   }
 }
 

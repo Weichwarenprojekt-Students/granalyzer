@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { Folder } from "@/modules/start/models/Folder";
-import { Diagram } from "@/modules/start/models/Diagram";
+import { Folder } from "@/models/Folder";
+import { Diagram } from "@/models/Diagram";
 import { DELETE, GET, POST, PUT } from "@/utility";
 
 export class StartState {
@@ -158,7 +158,7 @@ export const start = {
         ): Promise<void> {
             const res =
                 payload.parentId === undefined
-                    ? await DELETE(`/api/folders/${context.getters.parent.id}/diagrams/${payload.id}`)
+                    ? await DELETE(`/api/folders/${context.state.parent.id}/diagrams/${payload.id}`)
                     : await PUT(`/api/folders/${payload.parentId}/diagrams/${payload.id}`, "");
 
             if (res.status === 201) context.commit("moveDiagram", payload.id);
@@ -203,7 +203,7 @@ export const start = {
         async editDiagram(context: ActionContext<StartState, RootState>, diagram: Diagram): Promise<void> {
             const res = await PUT(`/api/diagrams/${diagram.id}`, JSON.stringify(diagram));
             if (res.status === 200) {
-                context.commit("editDiagram", diagram);
+                context.commit("editDiagram", await res.json());
                 context.commit("sortDiagrams");
             }
         },
@@ -213,7 +213,7 @@ export const start = {
         async editFolder(context: ActionContext<StartState, RootState>, folder: Folder): Promise<void> {
             const res = await PUT(`/api/folders/${folder.id}`, JSON.stringify(folder));
             if (res.status === 200) {
-                context.commit("editFolder", folder);
+                context.commit("editFolder", await res.json());
                 context.commit("sortFolders");
             }
         },
