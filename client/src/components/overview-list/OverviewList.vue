@@ -1,15 +1,15 @@
 <template>
     <div class="content">
         <!-- Title -->
-        <div class="title">{{ $t("editor.titleOverview") }}</div>
+        <div class="title">{{ $t("global.titleOverview") }}</div>
 
         <!-- Search bar + Filter -->
-        <OverviewSearch></OverviewSearch>
+        <OverviewSearch :labels="labels" @user-filter="handleFilter"></OverviewSearch>
 
         <!-- Scrolling content -->
         <ScrollPanel class="scroll-panel">
             <!-- No nodes found -->
-            <div v-if="!$store.getters['editor/nodesReady']" class="emptyList">
+            <div v-if="!nodesReady" class="emptyList">
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
                 </svg>
@@ -18,11 +18,13 @@
 
             <!-- Nodes -->
             <OverviewItem
-                v-for="node in $store.state.editor.nodes"
+                v-for="node in nodes"
                 :key="node.id"
                 :node="node"
-                :color="$store.state.editor.labelColor.get(node.label).color"
-                :font-color="$store.state.editor.labelColor.get(node.label).fontColor"
+                :color="labelColors.get(node.label).color"
+                :font-color="labelColors.get(node.label).fontColor"
+                :isSelected="node.id === selectedItemId"
+                @clicked-on-node="clickedOnNode"
             />
             <div class="space" />
         </ScrollPanel>
@@ -31,12 +33,22 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import OverviewItem from "@/modules/editor/modules/overview-list/components/OverviewItem.vue";
-import OverviewSearch from "@/modules/editor/modules/overview-list/components/OverviewSearch.vue";
+import OverviewItem from "@/components/overview-list/components/OverviewItem.vue";
+import OverviewSearch from "@/components/overview-list/components/OverviewSearch.vue";
+import ApiNode from "@/modules/editor/models/ApiNode";
 
 export default defineComponent({
     name: "OverviewList",
     components: { OverviewItem, OverviewSearch },
+    emits: ["extend-nodes", "clicked-on-node", "user-filter"],
+    props: {
+        nodesReady: Boolean,
+        nodes: Array,
+        labels: Array,
+        labelColors: Object,
+        toggleScrollEmit: Boolean,
+        selectedItemId: Number,
+    },
     data() {
         return {
             // Scroll panel for the overview
@@ -45,10 +57,15 @@ export default defineComponent({
             allowReload: true,
         };
     },
+    watch: {
+        /**
+         * Watch scrolling property to enable reloading after nodes were extended
+         */
+        toggleScrollEmit() {
+            this.allowReload = true;
+        },
+    },
     mounted() {
-        // Load the labels with the first load of matching nodes
-        this.$store.dispatch("editor/loadLabelsAndNodes");
-
         // Watch for scroll events to load new nodes on demand
         this.scrollPanel = document.getElementsByClassName("p-scrollpanel-content")[0];
         this.scrollPanel.addEventListener("scroll", this.handleScroll);
@@ -57,16 +74,27 @@ export default defineComponent({
         /**
          * Reload new nodes, when user is scrolling down
          */
-        async handleScroll() {
+        async handleScroll(): Promise<void> {
             const clientHeight = this.scrollPanel.clientHeight;
             const scrollTop = this.scrollPanel.scrollTop;
             const scrollHeight = this.scrollPanel.scrollHeight;
 
             if (this.allowReload && scrollTop + clientHeight * 1.4 > scrollHeight) {
                 this.allowReload = false;
-                await this.$store.dispatch("editor/extendNodes", true);
-                this.allowReload = true;
+                this.$emit("extend-nodes");
             }
+        },
+        /**
+         * Emit the selected node to the editor/inventory
+         */
+        clickedOnNode(node: ApiNode) {
+            this.$emit("clicked-on-node", node);
+        },
+        /**
+         * Emit the labels and user input to filter by to the editor/inventory
+         */
+        handleFilter(filter: { userInput: string; labels: Array<string> }): void {
+            this.$emit("user-filter", filter);
         },
     },
 });

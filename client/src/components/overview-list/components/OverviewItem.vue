@@ -19,6 +19,7 @@ import ApiNode from "@/modules/editor/models/ApiNode";
 
 export default defineComponent({
     name: "OverviewItem",
+    emits: ["clicked-on-node"],
     props: {
         node: {
             type: Object,
@@ -26,21 +27,14 @@ export default defineComponent({
         },
         color: String,
         fontColor: String,
-    },
-    computed: {
-        /**
-         * @return True if this item is currently selected
-         */
-        isSelected(): boolean {
-            return this.$store.state.editor.selectedNode?.id === this.node.id;
-        },
+        isSelected: Boolean,
     },
     methods: {
         /**
          * Handles click event on an item in the node overview
          */
         onClick() {
-            this.$store.commit("editor/setSelectedNode", { ...this.node, color: this.color });
+            this.$emit("clicked-on-node", { ...this.node, color: this.color });
         },
         /**
          * Event function to start dragging elements

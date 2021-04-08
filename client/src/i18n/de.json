@@ -2,6 +2,7 @@
   "start": "Start",
   "editor": "Editor",
   "inventory": "Inventar",
+  "titleOverview": "Eintragsübersicht",
   "dialog": {
     "confirm": "Bestätigen",
     "cancel": "Abbrechen"

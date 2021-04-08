@@ -1,7 +1,7 @@
 <template>
     <!-- Searchbar -->
     <label class="searchbar">
-        <input v-model="filter.userInput" type="text" @keyup="handleSearch" placeholder="Search..." />
+        <input v-model="filter.userInput" type="text" @keyup.="handleFilter" placeholder="Search..." />
         <svg @click="showFilter = !showFilter">
             <use :xlink:href="require('@/assets/img/icons.svg') + '#filter'"></use>
         </svg>
@@ -9,7 +9,7 @@
 
     <!-- Filtering window -->
     <div class="filter" v-if="showFilter">
-        <div class="label" v-for="label in $store.state.editor.labels" :key="label.id">
+        <div class="label" v-for="label in labels" :key="label.id">
             <label :for="label.id">
                 <input
                     type="checkbox"
@@ -29,7 +29,11 @@
 import { defineComponent } from "vue";
 
 export default defineComponent({
-    name: "OverviewFilter",
+    name: "OverviewSearch",
+    emits: ["user-filter"],
+    props: {
+        labels: Array,
+    },
     data() {
         return {
             // True if filter dialog is shown
@@ -48,27 +52,18 @@ export default defineComponent({
          * Watch filter property for changes to trigger label filtering
          */
         filter: {
-            handler(filter) {
-                this.handleFilter(filter.labelsToFilterBy);
+            handler() {
+                this.handleFilter();
             },
             deep: true,
         },
     },
     methods: {
         /**
-         * Filters node list depending on user input
+         * Emit the labels and user input to filter by to the overview list
          */
-        handleSearch(): void {
-            // TODO :: Filter by names
-            this.$store.state.editor.filter = this.filter.userInput;
-            this.$store.dispatch("editor/loadLabelsAndNodes");
-        },
-        /**
-         * Filters the nodes by labels
-         */
-        handleFilter(labelsToFilterBy: Array<string>): void {
-            // TODO :: Filter by label
-            console.log(labelsToFilterBy);
+        handleFilter(): void {
+            this.$emit("user-filter", { userInput: this.filter.userInput, labels: this.filter.labelsToFilterBy });
         },
     },
 });
