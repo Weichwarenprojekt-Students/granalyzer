@@ -1,32 +1,70 @@
 <template>
     <div class="content">
+        <!-- The navigation bar -->
         <div class="tabs">
-            <div @click="labelsOpen = !labelsOpen" :class="{ 'selected-tab': labelsOpen }">Labels</div>
-            <div @click="labelsOpen = !labelsOpen" :class="{ 'selected-tab': !labelsOpen }">Relations</div>
+            <div @click="labelsOpen = !labelsOpen" :class="{ 'selected-tab': labelsOpen }">
+                {{ $t("schemes.overview.labels") }}
+            </div>
+            <div @click="labelsOpen = !labelsOpen" :class="{ 'selected-tab': !labelsOpen }">
+                {{ $t("schemes.overview.relations") }}
+            </div>
         </div>
-        <label class="searchbar">
-            <input type="text" placeholder="Search..." />
-        </label>
-        <ScrollPanel v-if="labelsOpen" class="scroll-panel">
-            <div
-                :class="['item', { 'selected-item': isLabelSelected(label) }]"
-                v-for="label in $store.state.schemes.labels"
-                :key="label.name"
-                @click="selectLabel(label)"
-            >
-                {{ label.name }}
+
+        <!-- The labels tab -->
+        <div v-if="labelsOpen" class="tab-content">
+            <label class="searchbar">
+                <input v-model="labelFilter" type="text" placeholder="Search..." />
+            </label>
+
+            <!-- The warning if there are no labels -->
+            <div v-if="labels.length === 0" class="emptyList">
+                <svg>
+                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
+                </svg>
+                <div class="message">{{ $t("schemes.overview.noLabels") }}</div>
             </div>
-        </ScrollPanel>
-        <ScrollPanel v-if="!labelsOpen" class="scroll-panel">
-            <div
-                :class="['item', { 'selected-item': isRelationSelected(relation) }]"
-                v-for="relation in $store.state.schemes.relations"
-                :key="relation.name"
-                @click="selectRelation(relation)"
-            >
-                {{ relation.name }}
+
+            <!-- The actual list -->
+            <ScrollPanel class="scroll-panel">
+                <div
+                    :class="['item', { 'selected-item': isLabelSelected(label) }]"
+                    v-for="label in labels"
+                    :key="label.name"
+                    @click="selectLabel(label)"
+                >
+                    {{ label.name }}
+                </div>
+                <div class="space" />
+            </ScrollPanel>
+        </div>
+
+        <!-- The relations tab -->
+        <div v-if="!labelsOpen" class="tab-content">
+            <label class="searchbar">
+                <input v-model="relationFilter" type="text" placeholder="Search..." />
+            </label>
+
+            <!-- The warning if there are no relations -->
+            <div v-if="relations.length === 0" class="emptyList">
+                <svg>
+                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
+                </svg>
+                <div class="message">{{ $t("schemes.overview.noRelations") }}</div>
             </div>
-        </ScrollPanel>
+
+            <!-- The actual list -->
+            <ScrollPanel class="scroll-panel">
+                <div
+                    :class="['item', { 'selected-item': isRelationSelected(relation) }]"
+                    v-for="relation in relations"
+                    :key="relation.name"
+                    @click="selectRelation(relation)"
+                >
+                    {{ relation.name }}
+                </div>
+                <div class="space" />
+            </ScrollPanel>
+        </div>
     </div>
 </template>
 
@@ -39,11 +77,40 @@ export default defineComponent({
     name: "LabelOverview",
     data() {
         return {
+            // True if the labels tab is active
             labelsOpen: true,
+            // The filtered labels
+            labels: new Array<ApiLabel>(),
+            // The filtered relations
+            relations: new Array<ApiRelation>(),
+            // The filter string for the labels
+            labelFilter: "",
+            // The filter string for the relations
+            relationFilter: "",
         };
     },
-    beforeCreate() {
-        this.$store.dispatch("schemes/loadLabelsAndRelations");
+    async beforeCreate() {
+        await this.$store.dispatch("schemes/loadLabelsAndRelations");
+        this.labels = this.$store.state.schemes.labels;
+        this.relations = this.$store.state.schemes.relations;
+    },
+    watch: {
+        /**
+         * Filter the labels as soon as the label filter changes
+         */
+        labelFilter() {
+            this.labels = this.$store.state.schemes.labels.filter((label: ApiLabel) =>
+                label.name.toLowerCase().includes(this.labelFilter.toLowerCase()),
+            );
+        },
+        /**
+         * Filter the relations as soon as the relation filter changes
+         */
+        relationFilter() {
+            this.relations = this.$store.state.schemes.relations.filter((relation: ApiRelation) =>
+                relation.name.toLowerCase().includes(this.relationFilter.toLowerCase()),
+            );
+        },
     },
     methods: {
         /**
@@ -114,15 +181,46 @@ export default defineComponent({
     color: white;
 }
 
+.tab-content {
+    overflow: hidden;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
 .searchbar {
     flex: 0 0 auto;
     margin-top: 8px;
+}
+
+.emptyList {
+    display: flex;
+    align-items: center;
+    margin-right: 18px;
+    flex-direction: column;
+
+    svg {
+        fill: @dark_grey;
+        height: 64px;
+        width: 64px;
+        margin-top: 32px;
+        margin-bottom: 16px;
+    }
+
+    .message {
+        color: @dark;
+        font-size: @h3;
+    }
 }
 
 .scroll-panel {
     margin-top: 8px !important;
     overflow: hidden !important;
     flex: 1 1 auto !important;
+
+    .space {
+        padding-bottom: 48px;
+    }
 }
 
 .item {

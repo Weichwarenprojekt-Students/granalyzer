@@ -99,7 +99,7 @@ export default defineComponent({
     flex: 1 1 auto !important;
 
     .space {
-        padding-bottom: 24px;
+        padding-bottom: 48px;
     }
 
     .emptyList {
