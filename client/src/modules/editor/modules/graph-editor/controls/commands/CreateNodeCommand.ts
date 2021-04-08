@@ -30,17 +30,27 @@ export class CreateNodeCommand implements ICommand {
         this.relations.forEach((rel: Relation) => {
             if (rel.from.uuid === this.node.ref.uuid) {
                 // If the new node is the start point of the relation
-                this.graphHandler.nodes.forEach((value: Node, key: dia.Element) => {
+                this.graphHandler.nodes.forEach((node, id) => {
                     // Connect relation to all end nodes that are in the diagram
-                    if (rel.to.uuid == value.ref.uuid && this.diagElement)
-                        this.graphHandler.controls.addRelation(this.diagElement, key, rel.uuid, rel.type);
+                    if (rel.to.uuid == node.ref.uuid && this.diagElement)
+                        this.graphHandler.controls.addRelation(
+                            this.diagElement,
+                            this.graphHandler.getCellById(id),
+                            rel.uuid,
+                            rel.type,
+                        );
                 });
             } else if (rel.to.uuid === this.node.ref.uuid) {
                 // Else if the new node is the endpoint of the relation
-                this.graphHandler.nodes.forEach((value: Node, key: dia.Element) => {
+                this.graphHandler.nodes.forEach((node, id) => {
                     // Connect relation to all start nodes that are in the diagram
-                    if (rel.from.uuid == value.ref.uuid && this.diagElement)
-                        this.graphHandler.controls.addRelation(key, this.diagElement, rel.uuid, rel.type);
+                    if (rel.from.uuid == node.ref.uuid && this.diagElement)
+                        this.graphHandler.controls.addRelation(
+                            this.graphHandler.getCellById(id),
+                            this.diagElement,
+                            rel.uuid,
+                            rel.type,
+                        );
                 });
             }
         });

@@ -24,7 +24,7 @@ export class RemoveNodeCommand implements ICommand {
      */
     constructor(private graphHandler: GraphHandler, private readonly diagElement: dia.Element) {
         // Create deep copy of the given node and exit if node is not set
-        const node = graphHandler.nodes.get(diagElement);
+        const node = graphHandler.nodes.get(diagElement.id);
         if (!node) return;
         this.node = deepCopy(node);
 
@@ -55,9 +55,11 @@ export class RemoveNodeCommand implements ICommand {
             let targetElement = {} as dia.Element;
 
             // Find diagram elements which are connected to restored diagram element
-            this.graphHandler.nodes.forEach((value, key) => {
-                if (relation.from.uuid == value.ref.uuid && relation.from.index == value.ref.index) sourceElement = key;
-                if (relation.to.uuid == value.ref.uuid && relation.to.index == value.ref.index) targetElement = key;
+            this.graphHandler.nodes.forEach((node, id) => {
+                if (relation.from.uuid == node.ref.uuid && relation.from.index == node.ref.index)
+                    sourceElement = this.graphHandler.getCellById(id);
+                if (relation.to.uuid == node.ref.uuid && relation.to.index == node.ref.index)
+                    targetElement = this.graphHandler.getCellById(id);
             });
             if (sourceElement && targetElement)
                 this.graphHandler.controls.addRelation(sourceElement, targetElement, relation.uuid, relation.type);

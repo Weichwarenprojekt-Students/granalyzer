@@ -1,4 +1,4 @@
-import { dia, shapes } from "jointjs";
+import { dia } from "jointjs";
 import { Relation } from "./models/Relation";
 import { Node } from "./models/Node";
 import { SerializableGraph } from "@/modules/editor/modules/graph-editor/controls/models/SerializableGraph";
@@ -12,11 +12,11 @@ export class GraphHandler {
     /**
      * The nodes/elements of the diagram
      */
-    public nodes = new Map<dia.Element, Node>();
+    public nodes = new Map<string | number, Node>();
     /**
      * The relations between the nodes of the diagram
      */
-    public relations = new Map<shapes.standard.Link, Relation>();
+    public relations = new Map<string | number, Relation>();
     /**
      * The extended controls for the graph
      */
@@ -61,7 +61,7 @@ export class GraphHandler {
         const mappedNodes = new Map<string, dia.Element>();
         nodes.forEach((node) => {
             const newNode = this.controls.addNode(node);
-            const ref = this.nodes.get(newNode);
+            const ref = this.nodes.get(newNode.id);
             if (ref) mappedNodes.set(`${ref.ref.uuid}-${ref.ref.index}`, newNode);
         });
 
@@ -73,8 +73,8 @@ export class GraphHandler {
         });
 
         // Add the elements to the graph
-        this.nodes.forEach((ref, diagElement) => diagElement.addTo(this.graph.graph));
-        this.relations.forEach((relation, link) => link.addTo(this.graph.graph));
+        this.nodes.forEach((node, id) => this.getCellById(id).addTo(this.graph.graph));
+        this.relations.forEach((relation, id) => this.getCellById(id).addTo(this.graph.graph));
     }
 
     /**
@@ -82,30 +82,37 @@ export class GraphHandler {
      */
     public toJSON(): string {
         // Prepare the serialization object for each node
-        const nodes = new Array<Node>();
-        this.nodes.forEach((value, key) => {
-            nodes.push({
-                label: value.label,
+        const nodes = Array.from(this.nodes, ([id, node]) => {
+            const diagEl = this.getCellById(id);
+            return {
+                label: node.label,
                 ref: {
-                    index: value.ref.index,
-                    uuid: value.ref.uuid,
+                    index: node.ref.index,
+                    uuid: node.ref.uuid,
                 },
-                color: value.color,
-                shape: value.shape,
-                x: key.attributes.position.x,
-                y: key.attributes.position.y,
-            });
+                color: node.color,
+                shape: node.shape,
+                x: diagEl.attributes.position.x,
+                y: diagEl.attributes.position.y,
+            };
         });
 
         // Load the relations from the nodes
-        const relations = new Array<Relation>();
-        this.relations.forEach((value) => relations.push(value));
+        const relations = Array.from(this.relations.values());
 
         // Compose the serializable graph and return the JSON string
         return JSON.stringify({
             nodes,
             relations,
         });
+    }
+
+    /**
+     * Get cell from the graph by id
+     * @param id uuid of the cell
+     */
+    public getCellById(id: string | number): dia.Element {
+        return this.graph.graph.getCell(id) as dia.Element;
     }
 
     /**

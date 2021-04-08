@@ -62,7 +62,7 @@ export class GraphControls {
         });
 
         // Add the shape to the graph and to the other nodes
-        this.graphHandler.nodes.set(shape, node);
+        this.graphHandler.nodes.set(shape.id, node);
         shape.addTo(this.graphHandler.graph.graph);
 
         // Update some svg attribute, so that style gets shown correctly from the beginning
@@ -79,7 +79,7 @@ export class GraphControls {
      * @param diagElement The existing dia.Element of the node
      */
     public addExistingNode(node: Node, diagElement: dia.Element): void {
-        this.graphHandler.nodes.set(diagElement, node);
+        this.graphHandler.nodes.set(diagElement.id, node);
         diagElement.addTo(this.graphHandler.graph.graph);
 
         // Update some svg attribute, so that style gets shown correctly from the beginning
@@ -94,13 +94,13 @@ export class GraphControls {
      * @param diagElement The element to be removed
      */
     public removeNode(diagElement: dia.Element): void {
-        const nodeRef = this.graphHandler.nodes.get(diagElement);
+        const nodeRef = this.graphHandler.nodes.get(diagElement.id);
         if (!nodeRef) return;
 
         // Remove node and relations from the graph handler
-        this.graphHandler.nodes.delete(diagElement);
-        this.graphHandler.relations.forEach((value, key) => {
-            if (value.from == nodeRef.ref || value.to == nodeRef.ref) this.graphHandler.relations.delete(key);
+        this.graphHandler.nodes.delete(diagElement.id);
+        this.graphHandler.relations.forEach((rel, id) => {
+            if (rel.from == nodeRef.ref || rel.to == nodeRef.ref) this.graphHandler.relations.delete(id);
         });
 
         // Remove node and relations from the diagram
@@ -117,8 +117,8 @@ export class GraphControls {
      */
     public addRelation(source: dia.Element, target: dia.Element, uuid?: string, labelText?: string): void {
         // Check if the nodes exist
-        const from = this.graphHandler.nodes.get(source);
-        const to = this.graphHandler.nodes.get(target);
+        const from = this.graphHandler.nodes.get(source.id);
+        const to = this.graphHandler.nodes.get(target.id);
         if (!from || !to) return;
 
         // Create the node relation
@@ -161,7 +161,7 @@ export class GraphControls {
 
         // Add the relation to the graph and to the other links
         link.addTo(this.graphHandler.graph.graph);
-        this.graphHandler.relations.set(link, relation);
+        this.graphHandler.relations.set(link.id, relation);
     }
 
     /**
@@ -170,7 +170,7 @@ export class GraphControls {
      * @param relation The relation to be removed
      */
     public removeRelation(relation: shapes.standard.Link): void {
-        this.graphHandler.relations.delete(relation);
+        this.graphHandler.relations.delete(relation.id);
         relation.remove();
     }
 

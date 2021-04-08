@@ -33,7 +33,7 @@ export class MoveNodeCommand implements ICommand {
      * Constructor
      */
     constructor(private graphHandler: GraphHandler, private diagElement: dia.Element) {
-        this.node = graphHandler.nodes.get(diagElement);
+        this.node = graphHandler.nodes.get(diagElement.id);
         this.startXPos = diagElement.attributes.position.x;
         this.startYPos = diagElement.attributes.position.y;
     }
