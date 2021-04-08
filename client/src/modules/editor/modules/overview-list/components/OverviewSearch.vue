@@ -7,10 +7,17 @@
         </svg>
     </label>
 
+    <!-- Filtering window -->
     <div class="filter" v-if="showFilter">
         <div class="label" v-for="label in $store.state.editor.labels" :key="label.id">
             <label :for="label.id">
-                <input type="checkbox" v-model="filter.labels" :id="label.id" :value="label.name" checked="checked" />
+                <input
+                    type="checkbox"
+                    v-model="filter.labelsToFilterBy"
+                    :id="label.id"
+                    :value="label.name"
+                    checked="checked"
+                />
                 <span class="checkmark"></span>
                 <span class="labelName">{{ label.name }}</span>
             </label>
@@ -27,27 +34,41 @@ export default defineComponent({
         return {
             // True if filter dialog is shown
             showFilter: false,
+            // Filtering data
             filter: {
                 // Input in the searchbar
                 userInput: "",
                 // Labels to filter by
-                labels: [] as Array<string>,
+                labelsToFilterBy: [] as Array<string>,
             },
         };
+    },
+    watch: {
+        /**
+         * Watch filter property for changes to trigger label filtering
+         */
+        filter: {
+            handler(filter) {
+                this.handleFilter(filter.labelsToFilterBy);
+            },
+            deep: true,
+        },
     },
     methods: {
         /**
          * Filters node list depending on user input
          */
         handleSearch(): void {
+            // TODO :: Filter by names
             this.$store.state.editor.filter = this.filter.userInput;
             this.$store.dispatch("editor/loadLabelsAndNodes");
         },
         /**
          * Filters the nodes by labels
          */
-        handleFilter(): void {
-            console.log("Clicked Filter: " + this.filter.labels);
+        handleFilter(labelsToFilterBy: Array<string>): void {
+            // TODO :: Filter by label
+            console.log(labelsToFilterBy);
         },
     },
 });

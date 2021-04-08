@@ -33,9 +33,9 @@ export class EditorState {
     public labelColor = new Map() as Map<string, { color: string; fontColor: string }>;
 
     /**
-     * Filter
+     * Filter for node names
      */
-    public filter = "";
+    public nodeFilter = "";
 
     /**
      * Graph editor state
@@ -63,8 +63,8 @@ export const editor = {
          * Stores the nodes
          */
         storeNodes(state: EditorState, nodes: ApiNode[]): void {
-            if (state.filter)
-                state.nodes = nodes.filter((node) => node.name.toLowerCase().includes(state.filter.toLowerCase()));
+            if (state.nodeFilter)
+                state.nodes = nodes.filter((node) => node.name.toLowerCase().includes(state.nodeFilter.toLowerCase()));
             else state.nodes = nodes;
         },
         /**
