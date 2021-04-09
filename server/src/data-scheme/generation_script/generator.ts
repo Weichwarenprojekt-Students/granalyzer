@@ -186,14 +186,19 @@ export class SchemeGenerator {
      * @param session
      */
     private static async createCustomerLabelConstraint(labelScheme: LabelScheme, session: Session) {
+        // Automatically create the uuids with apoc
+        // language=cypher
+        const createNodeUuidQuery = `
+        MATCH (node:${labelScheme.name})
+        WHERE NOT exists(node.nodeId)
+        SET node.nodeId = apoc.create.uuid()
+        `;
+
+        await session.run(createNodeUuidQuery, {}).catch(console.error);
         // Create the unique constraints for the specific label
         const createConstraintQuery = `CREATE CONSTRAINT ${labelScheme.name}Key IF NOT exists
         ON (n:${labelScheme.name})
-        ASSERT (n.nodeId) IS UNIQUE`;
+        ASSERT (n.nodeId) IS NODE KEY`;
         await session.run(createConstraintQuery).catch(console.error);
-
-        // Automatically create the uuids with apoc
-        const createNodeUuidQuery = `CALL apoc.uuid.install("${labelScheme.name}", {addToExistingNodes: true, uuidProperty: 'nodeId'}) yield label, installed, properties`;
-        await session.run(createNodeUuidQuery, {}).catch(console.error);
     }
 }
