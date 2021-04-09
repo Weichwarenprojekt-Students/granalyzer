@@ -6,7 +6,6 @@ import { Attribute } from "../data-scheme/models/attributes";
 import MandatoryAttributeMissingException from "./exceptions/MandatoryAttributeMissing.exception";
 import Relation from "../relations/relation.model";
 import { RelationType } from "../data-scheme/models/relationType";
-import { Label } from "../../dist/src/data-scheme/models/label";
 import { LabelScheme } from "../data-scheme/models/labelScheme";
 
 @Injectable()
@@ -64,7 +63,7 @@ export class DataSchemeUtil {
      * @param originalAttributes The original attributes of the node or relation
      * @private
      */
-    private transformAttributes(scheme: Label | RelationType, originalAttributes) {
+    private transformAttributes(scheme: LabelScheme | RelationType, originalAttributes) {
         const attributes = {};
 
         try {

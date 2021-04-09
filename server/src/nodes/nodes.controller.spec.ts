@@ -13,7 +13,6 @@ import Relation from "../relations/relation.model";
 import { RelationType } from "../data-scheme/models/relationType";
 import { Connection } from "../data-scheme/models/connection";
 import { NodesRelationsService } from "./nodes-relations.service";
-import { Label } from "../../dist/src/data-scheme/models/label";
 import TestUtil from "../util/test.util";
 import { DatabaseUtil } from "../util/database.util";
 import { LabelScheme } from "../data-scheme/models/labelScheme";
@@ -177,7 +176,7 @@ describe("NodesController", () => {
      * Helper functions
      */
 
-    function writeLabel(l: Label): Promise<string> {
+    function writeLabel(l: LabelScheme): Promise<string> {
         // language=cypher
         const cypher = `
           CREATE (l:LabelScheme {name: $labelName})
