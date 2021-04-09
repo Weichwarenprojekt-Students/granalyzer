@@ -157,11 +157,11 @@ export const start = {
             payload: { parentId: string; id: string },
         ): Promise<void> {
             const res =
-                payload.parentId === undefined
+                payload.parentId === null
                     ? await DELETE(`/api/folders/${context.state.parent.folderId}/diagrams/${payload.id}`)
                     : await PUT(`/api/folders/${payload.parentId}/diagrams/${payload.id}`, "");
 
-            if (res.status === 201) context.commit("moveDiagram", payload.id);
+            if (res.status === 200) context.commit("moveDiagram", payload.id);
         },
         /**
          * Move a folder into a folder
@@ -171,11 +171,11 @@ export const start = {
             payload: { parentId: string; id: string },
         ): Promise<void> {
             const res =
-                payload.parentId === undefined
+                payload.parentId === null
                     ? await DELETE(`/api/folders/${context.state.parent.folderId}/folders/${payload.id}`)
                     : await PUT(`/api/folders/${payload.parentId}/folders/${payload.id}`, "");
 
-            if (res.status === 201) context.commit("moveFolder", payload.id);
+            if (res.status === 200) context.commit("moveFolder", payload.id);
         },
         /**
          * Delete a diagram

@@ -259,7 +259,7 @@ export default defineComponent({
          */
         doubleClickedBack(): void {
             const parentId = this.$store.state.start.parent.parentId;
-            this.$router.push(parentId === undefined ? routeNames.start : `${routeNames.start}/${parentId}`);
+            this.$router.push(parentId === null ? routeNames.start : `${routeNames.start}/${parentId}`);
         },
         /**
          * Select a folder

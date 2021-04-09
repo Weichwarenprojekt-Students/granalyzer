@@ -284,7 +284,9 @@ export class DiagramsService {
             return res.records[0].get("diagram");
         };
 
-        return this.deleteIsChildRelation(childId, this.database).then(resolveWrite).catch(this.databaseUtil.catchDbError);
+        return this.deleteIsChildRelation(childId, this.database)
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
