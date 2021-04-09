@@ -87,5 +87,6 @@ export default defineComponent({
 
 .text-input {
     padding: 6px 12px;
+    background: @light_grey;
 }
 </style>

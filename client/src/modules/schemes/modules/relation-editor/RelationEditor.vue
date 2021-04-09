@@ -30,7 +30,9 @@
 
             <!-- The save button --->
             <div class="bottom-bar">
-                <button v-if="isModified" class="btn btn-normal">{{ $t("schemes.relation-editor.save") }}</button>
+                <button v-if="isModified" class="btn btn-secondary" @click="saveRelation">
+                    {{ $t("schemes.relation-editor.save") }}
+                </button>
             </div>
 
             <div class="space"></div>
@@ -97,6 +99,12 @@ export default defineComponent({
          */
         addAttribute(): void {
             this.modifiedRelation.attributes.push(new ApiAttribute(this.$t("schemes.attribute.new")));
+        },
+        /**
+         * Save the changed relation
+         */
+        saveRelation(): void {
+            this.$store.dispatch("schemes/updateRelation", this.relation);
         },
     },
 });

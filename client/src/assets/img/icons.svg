@@ -41,6 +41,14 @@
             <title id="delete-title">icon delete</title>
             <path d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/>
         </symbol>
+        <symbol viewBox="0 0 24 24" id="check" aria-labelledby="check-title" fill-rule="evenodd" clip-rule="evenodd">
+            <title id="check-title">icon check</title>
+            <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"/>
+        </symbol>
+        <symbol viewBox="0 0 24 24" id="revert" aria-labelledby="revert-title" fill-rule="evenodd" clip-rule="evenodd">
+            <title id="revert-title">icon revert</title>
+            <path d="M13.427 3.021h-7.427v-3.021l-6 5.39 6 5.61v-3h7.427c3.071 0 5.561 2.356 5.561 5.427 0 3.071-2.489 5.573-5.561 5.573h-7.427v5h7.427c5.84 0 10.573-4.734 10.573-10.573s-4.733-10.406-10.573-10.406z"/>
+        </symbol>
         <symbol viewBox="0 0 24 24" id="arrow" aria-labelledby="arrow-title" fill-rule="evenodd" clip-rule="evenodd">
             <title id="arrow-title">icon arrow</title>
             <path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z"/>

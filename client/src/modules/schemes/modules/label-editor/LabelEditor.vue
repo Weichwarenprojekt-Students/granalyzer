@@ -34,7 +34,9 @@
 
             <!-- The save button --->
             <div class="bottom-bar">
-                <button v-if="isModified" class="btn btn-normal">{{ $t("schemes.label-editor.save") }}</button>
+                <button v-if="isModified" class="btn btn-secondary" @click="saveChange">
+                    {{ $t("schemes.label-editor.save") }}
+                </button>
             </div>
 
             <div class="space"></div>
@@ -103,6 +105,12 @@ export default defineComponent({
          */
         addAttribute(): void {
             this.modifiedLabel.attributes.push(new ApiAttribute(this.$t("schemes.attribute.new")));
+        },
+        /**
+         * Save the changed label
+         */
+        saveChange(): void {
+            this.$store.dispatch("schemes/updateLabel", this.label);
         },
     },
 });

@@ -49,6 +49,7 @@ export default defineComponent({
     width: @input_width;
     position: relative;
     display: inline-block;
+    background: @light_grey;
     cursor: pointer;
     border-bottom: 1px solid @dark;
 }
@@ -72,15 +73,15 @@ export default defineComponent({
 }
 
 .dropdown-content {
-    background: white;
+    background: @light_grey;
     position: fixed;
     width: @input_width;
     z-index: 1;
-    border: 1px solid @dark;
+    border-top: 1px solid @dark;
 }
 
 .dropdown-content * {
-    padding: 6px 16px;
+    padding: 6px 12px;
 
     &:hover {
         background: @accent_color;

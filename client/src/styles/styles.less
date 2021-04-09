@@ -12,6 +12,19 @@
 }
 
 /**
+ * Scroll panel (often used settings)
+ */
+.scroll-panel {
+  margin-top: 8px !important;
+  overflow: hidden !important;
+  flex: 1 1 auto !important;
+
+  .space {
+    padding-bottom: 48px;
+  }
+}
+
+/**
  * Button
  */
 .btn {
@@ -42,6 +55,26 @@
 
     &:hover {
       border-color: @dark;
+      background: transparent;
+    }
+  }
+}
+
+.btn-secondary {
+  color: @dark;
+  border-color: @secondary_color;
+  background: @secondary_color;
+
+  &:hover {
+    border-color: @accent_color;
+    background: @accent_color;
+  }
+
+  &:disabled {
+    color: @secondary_color;
+
+    &:hover {
+      border-color: @secondary_color;
       background: transparent;
     }
   }

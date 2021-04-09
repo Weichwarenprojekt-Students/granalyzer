@@ -104,6 +104,7 @@
   width: 124px !important;
   border-bottom: 1px solid @dark !important;
   color: @dark !important;
+  background: @light_grey !important;
 }
 .p-inputnumber-button {
   background: @dark !important;
@@ -154,14 +155,23 @@
  * Checkbox
  */
 .p-checkbox-box {
-  border: 1px solid @dark !important;
+  border: 0 solid @dark !important;
+  background: @light_grey !important;
   border-radius: 0 !important;
   outline: 0 !important;
-  background: white !important;
   box-shadow: none !important;
+  border-bottom: 1px solid @dark !important;
+
+  &:hover {
+    background: @accent_color !important;
+  }
 }
+.p-checkbox-box.p-highlight {
+  background: @secondary_color !important;
+}
+
 .p-checkbox-icon {
-  color: @primary_color !important;
-  font-size: 18px !important;
+  color: @dark !important;
+  font-size: 16px !important;
   font-weight: bold !important;
 }

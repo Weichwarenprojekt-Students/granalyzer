@@ -32,6 +32,8 @@
     }
   },
   "conflict-view": {
-    "title": "Conflicts"
+    "title": "Conflicts",
+    "revert": "Revert",
+    "check": "Confirm"
   }
 }
