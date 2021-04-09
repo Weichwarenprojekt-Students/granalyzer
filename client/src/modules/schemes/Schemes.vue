@@ -3,7 +3,10 @@
         <Overview class="overview" />
         <div class="mid-content">
             <LabelEditor v-if="$store.state.schemes.selectedLabel" :label="$store.state.schemes.selectedLabel" />
-            <RelationEditor v-else-if="$store.state.schemes.selectedRelation" />
+            <RelationEditor
+                v-else-if="$store.state.schemes.selectedRelation"
+                :relation="$store.state.schemes.selectedRelation"
+            />
             <div v-else class="empty-warning">
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>

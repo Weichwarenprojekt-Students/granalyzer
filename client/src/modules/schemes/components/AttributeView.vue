@@ -30,7 +30,7 @@
             </div>
             <div class="attribute-modification-row">
                 <span>{{ $t("schemes.attribute.mandatory") }}</span>
-                <Checkbox v-model="modifiedAttribute.mandatory" :binary="true" />
+                <Checkbox class="attribute-checkbox" v-model="modifiedAttribute.mandatory" :binary="true" />
             </div>
             <div class="attribute-modification-row">
                 <span>{{ $t("schemes.attribute.default") }}</span>
@@ -133,8 +133,8 @@ export default defineComponent({
 .attribute-collapse-icon {
     line-height: inherit;
     cursor: pointer;
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     padding: 12px;
     fill: @dark;
     transition: transform 400ms;
@@ -157,10 +157,14 @@ export default defineComponent({
 }
 
 .attribute-delete-icon {
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
     fill: @dark;
     cursor: pointer;
+}
+
+.attribute-checkbox {
+    margin-right: 124px;
 }
 
 .attribute-expanded {

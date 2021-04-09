@@ -81,7 +81,6 @@ export default defineComponent({
          * @return True if the label was modified
          */
         isModified(): boolean {
-            if (!this.modifiedLabel) return false;
             if (this.label.attributes.length != this.modifiedLabel.attributes.length) return true;
             for (let i = 0; i < this.modifiedLabel.attributes.length; i++)
                 if (!ApiAttribute.isEqual(this.modifiedLabel.attributes[i], this.label.attributes[i])) return true;

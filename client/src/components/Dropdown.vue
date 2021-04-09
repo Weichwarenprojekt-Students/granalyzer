@@ -49,25 +49,24 @@ export default defineComponent({
     width: @input_width;
     position: relative;
     display: inline-block;
-    background: @dark;
     cursor: pointer;
-    border-radius: @border_radius;
+    border-bottom: 1px solid @dark;
 }
 
 .dropdown-value {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 6px 16px;
+    padding: 6px 12px;
     gap: 24px;
 
     span {
-        color: white;
+        color: @dark;
     }
 }
 
 .dropdown-icon {
-    fill: white;
+    fill: @dark;
     width: 10px;
     height: 10px;
 }
@@ -77,15 +76,14 @@ export default defineComponent({
     position: fixed;
     width: @input_width;
     z-index: 1;
-    border: 1px solid @grey;
-    border-radius: @border_radius;
+    border: 1px solid @dark;
 }
 
 .dropdown-content * {
     padding: 6px 16px;
 
     &:hover {
-        background: @grey;
+        background: @accent_color;
     }
 }
 </style>

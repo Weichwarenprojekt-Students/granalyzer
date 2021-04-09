@@ -14,7 +14,10 @@
     "save": "Save Changes"
   },
   "relation-editor": {
-    "title": "Relation Editor"
+    "title": "Relation Editor",
+    "name": "Name:",
+    "attributes": "Attributes",
+    "save": "Save Changes"
   },
   "attribute": {
     "new": "new",
