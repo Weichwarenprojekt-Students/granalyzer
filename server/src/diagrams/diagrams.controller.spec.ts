@@ -79,15 +79,19 @@ describe("DiagramsController", () => {
 
         describe("getDiagrams", () => {
             it("should return all diagrams", async () => {
-                expect((await diagramsController.getAllDiagrams()).sort()).toEqual(
-                    [diagram1, { ...diagram2, parentId: null }, { ...diagram3, parentId: null }].sort(),
+                expect((await diagramsController.getAllDiagrams()).sort(TestUtil.getSortOrder("diagramId"))).toEqual(
+                    [diagram1, { ...diagram2, parentId: null }, { ...diagram3, parentId: null }].sort(
+                        TestUtil.getSortOrder("diagramId"),
+                    ),
                 );
             });
         });
 
         describe("getAllRootDiagrams", () => {
             it("should return all diagrams in root", async () => {
-                expect((await diagramsController.getAllRootDiagrams()).sort()).toEqual([diagram2, diagram3].sort());
+                expect(
+                    (await diagramsController.getAllRootDiagrams()).sort(TestUtil.getSortOrder("diagramId")),
+                ).toEqual([diagram2, diagram3].sort(TestUtil.getSortOrder("diagramId")));
             });
         });
 

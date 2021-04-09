@@ -40,7 +40,6 @@ describe("NodesController", () => {
         databaseUtil = module.get<DatabaseUtil>(DatabaseUtil);
 
         await databaseUtil.initDatabase();
-        await databaseUtil.clearDatabase();
     });
 
     beforeEach(async () => {

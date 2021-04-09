@@ -99,7 +99,7 @@ describe("FoldersController", () => {
 
         describe("getAllRootFolders", () => {
             it("should return all folders in root", async () => {
-                expect((await foldersController.getAllRootFolders()).sort()).toEqual([folder1, folder2].sort());
+                expect((await foldersController.getAllRootFolders()).sort(TestUtil.getSortOrder("folderId"))).toEqual([folder1, folder2].sort(TestUtil.getSortOrder("folderId")));
             });
         });
 
