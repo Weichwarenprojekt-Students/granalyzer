@@ -71,9 +71,17 @@ export const inventory = {
         /**
          * Loads the labels and the first load of nodes
          */
-        async loadLabelsAndNodes(context: ActionContext<InventoryState, RootState>): Promise<void> {
+        async loadLabelsAndNodes(
+            context: ActionContext<InventoryState, RootState>,
+            filter: { userInput: string; labelsToFilterBy: Array<string> },
+        ): Promise<void> {
             const resNodes = await GET("/api/nodes?limit=50");
             const resLabels = await GET("/api/data-scheme/label");
+
+            if (filter) {
+                console.log("Load Inventory: " + filter.userInput); // TODO :: Load new labels with filter
+                console.log(filter.labelsToFilterBy);
+            }
 
             if (resLabels.status === 200 && resNodes.status === 200) {
                 context.commit("storeLabels", await resLabels.json());
@@ -83,7 +91,15 @@ export const inventory = {
         /**
          * Extend the nodes
          */
-        async extendNodes(context: ActionContext<InventoryState, RootState>): Promise<void> {
+        async extendNodes(
+            context: ActionContext<InventoryState, RootState>,
+            filter: { userInput: string; labelsToFilterBy: Array<string> },
+        ): Promise<void> {
+            if (filter) {
+                console.log("Extend Inventory: " + filter.userInput); // TODO :: Consider filter when extending
+                console.log(filter.labelsToFilterBy);
+            }
+
             const resNodes = await GET(`/api/nodes?limit=50&offset=${context.state.nodes.length}`);
             if (resNodes.status === 200) context.commit("extendNodes", await resNodes.json());
         },

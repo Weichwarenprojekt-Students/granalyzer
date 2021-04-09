@@ -1,10 +1,20 @@
 <template>
     <div class="content">
         <!-- Title -->
-        <div class="title">{{ $t("global.titleOverview") }}</div>
+        <div class="title">
+            {{ $t("global.titleOverview") }}
+            <svg @click="showFilter = !showFilter">
+                <use :xlink:href="require('@/assets/img/icons.svg') + '#filter'"></use>
+            </svg>
+        </div>
 
         <!-- Search bar + Filter -->
-        <OverviewSearch :labels="labels" @user-filter="handleFilter"></OverviewSearch>
+        <OverviewSearch
+            :labels="labels"
+            @user-filter="handleFilter"
+            :labelColors="labelColors"
+            :showFilter="showFilter"
+        ></OverviewSearch>
 
         <!-- Scrolling content -->
         <ScrollPanel class="scroll-panel">
@@ -42,11 +52,17 @@ export default defineComponent({
     components: { OverviewItem, OverviewSearch },
     emits: ["extend-nodes", "clicked-on-node", "user-filter"],
     props: {
+        // True, if list of nodes has length > 0
         nodesReady: Boolean,
+        // Nodes to display
         nodes: Array,
+        // Labels for the node visualization
         labels: Array,
+        // Colors for the label visualization
         labelColors: Object,
+        // True, if scrolling should expand the overview list further
         toggleScrollEmit: Boolean,
+        // Id of the item that is selected in the overview
         selectedItemId: Number,
     },
     data() {
@@ -55,6 +71,8 @@ export default defineComponent({
             scrollPanel: {} as Element,
             // Flag to prevent scroll event from loading too many times
             allowReload: true,
+            // True if filter is shown
+            showFilter: false,
         };
     },
     watch: {
@@ -67,7 +85,7 @@ export default defineComponent({
     },
     mounted() {
         // Watch for scroll events to load new nodes on demand
-        this.scrollPanel = document.getElementsByClassName("p-scrollpanel-content")[0];
+        this.scrollPanel = document.getElementsByClassName("p-scrollpanel-content")[1];
         this.scrollPanel.addEventListener("scroll", this.handleScroll);
     },
     methods: {
@@ -93,7 +111,7 @@ export default defineComponent({
         /**
          * Emit the labels and user input to filter by to the editor/inventory
          */
-        handleFilter(filter: { userInput: string; labels: Array<string> }): void {
+        handleFilter(filter: { userInput: string; labelsToFilterBy: Array<string> }): void {
             this.$emit("user-filter", filter);
         },
     },
@@ -117,14 +135,23 @@ export default defineComponent({
 
     font-size: @h2;
     display: flex;
+    justify-content: space-between;
     align-items: center;
     border-bottom: 2px solid @primary_color;
 
     height: 64px;
+
+    svg {
+        cursor: pointer;
+        fill: @dark;
+        width: 24px;
+        height: 24px;
+        margin-right: 8px;
+    }
 }
 
 .scroll-panel {
-    margin-top: 8px !important;
+    margin-top: 0 !important;
     overflow: hidden !important;
     flex: 1 1 auto !important;
 

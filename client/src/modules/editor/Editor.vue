@@ -37,6 +37,13 @@ export default defineComponent({
         return {
             // Toggle reloading of nodes for the overview list
             toggleScrollEmit: true,
+            // Filter for node reloading
+            filter: {
+                // Input in the searchbar
+                userInput: "",
+                // Labels to filter by
+                labelsToFilterBy: [] as Array<string>,
+            },
         };
     },
     mounted() {
@@ -48,7 +55,7 @@ export default defineComponent({
          * Extend the node list
          */
         async extendNodes(): Promise<void> {
-            await this.$store.dispatch("editor/extendNodes", true);
+            await this.$store.dispatch("editor/extendNodes", this.filter);
             this.toggleScrollEmit = !this.toggleScrollEmit;
         },
         /**
@@ -60,10 +67,11 @@ export default defineComponent({
         /**
          * Filter nodes by labels and user-input
          */
-        handleFilter(filter: { userInput: string; labels: Array<string> }): void {
-            console.log("Filter from Editor"); // TODO :: Backend call
-            console.log(filter.userInput);
-            console.log(filter.labels);
+        handleFilter(filter: { userInput: string; labelsToFilterBy: Array<string> }): void {
+            this.filter.userInput = filter.userInput;
+            this.filter.labelsToFilterBy = filter.labelsToFilterBy;
+
+            this.$store.dispatch("editor/loadLabelsAndNodes", filter);
         },
     },
 });
