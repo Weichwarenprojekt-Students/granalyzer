@@ -6,5 +6,7 @@
   "dialog": {
     "confirm": "Confirm",
     "cancel": "Cancel"
-  }
+  },
+  "searchPlaceholder": "Search...",
+  "filterIcon": "Filter"
 }

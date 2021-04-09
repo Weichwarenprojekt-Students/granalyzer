@@ -10,7 +10,6 @@
                 checked="checked"
             />
             <span class="checkmark"></span>
-            <!-- :style="{ background: color, color: fontColor }" -->
             <span class="color" :style="{ background: labelColors.get(label.name).color }"></span>
             <span class="labelName">{{ label.name }}</span>
         </label>
@@ -19,7 +18,12 @@
 
     <!-- Searchbar -->
     <label class="searchbar">
-        <input v-model="filter.userInput" type="text" @keyup.="handleFilter" placeholder="Search..." />
+        <input
+            v-model="filter.userInput"
+            type="text"
+            @keyup.="handleFilter"
+            :placeholder="$t('global.searchPlaceholder')"
+        />
     </label>
 </template>
 
