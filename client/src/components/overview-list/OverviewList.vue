@@ -3,9 +3,11 @@
         <!-- Title -->
         <div class="title">
             {{ $t("global.titleOverview") }}
-            <svg @click="showFilter = !showFilter">
-                <use :xlink:href="require('@/assets/img/icons.svg') + '#filter'"></use>
-            </svg>
+            <div v-tooltip="$t('global.filterIcon')">
+                <svg @click="showFilter = !showFilter">
+                    <use :xlink:href="require('@/assets/img/icons.svg') + '#filter'"></use>
+                </svg>
+            </div>
         </div>
 
         <!-- Search bar + Filter -->
@@ -43,8 +45,8 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import OverviewItem from "@/components/overview-list/components/OverviewItem.vue";
-import OverviewSearch from "@/components/overview-list/components/OverviewSearch.vue";
+import OverviewItem from "@/components/overview-list/OverviewItem.vue";
+import OverviewSearch from "@/components/overview-list/OverviewSearch.vue";
 import ApiNode from "@/modules/editor/models/ApiNode";
 
 export default defineComponent({
@@ -141,12 +143,17 @@ export default defineComponent({
 
     height: 64px;
 
-    svg {
+    div {
         cursor: pointer;
-        fill: @dark;
         width: 24px;
         height: 24px;
         margin-right: 8px;
+
+        svg {
+            fill: @dark;
+            width: 100%;
+            height: 100%;
+        }
     }
 }
 

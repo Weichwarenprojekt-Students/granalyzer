@@ -24,6 +24,9 @@
             @keyup.="handleFilter"
             :placeholder="$t('global.searchPlaceholder')"
         />
+        <svg v-if="filter.userInput.length > 0" @click="filter.userInput = ''">
+            <use xlink:href="@/assets/img/icons.svg#delete"></use>
+        </svg>
     </label>
 </template>
 
@@ -92,7 +95,7 @@ export default defineComponent({
     .label {
         display: flex;
         align-items: center;
-        padding: 10px 4px;
+        padding: 10px 0;
         cursor: pointer;
         width: 100%;
 
@@ -137,7 +140,7 @@ export default defineComponent({
                 display: none;
                 width: 5px;
                 height: 10px;
-                border: solid white;
+                border: solid @dark;
                 border-width: 0 2px 2px 0;
                 transform: rotate(45deg);
             }
@@ -165,5 +168,12 @@ export default defineComponent({
     align-items: center;
     flex: 0 0 auto;
     margin: 8px 0;
+
+    svg {
+        cursor: pointer;
+        height: 14px;
+        width: 14px;
+        fill: @dark_grey;
+    }
 }
 </style>

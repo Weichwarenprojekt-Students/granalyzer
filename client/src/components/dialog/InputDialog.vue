@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import BaseDialog from "@/components/BaseDialog.vue";
+import BaseDialog from "@/components/dialog/BaseDialog.vue";
 
 export default defineComponent({
     name: "InputDialog",
