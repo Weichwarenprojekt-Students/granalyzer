@@ -1,3 +1,5 @@
+import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
+
 export default class ApiRelation {
     /**
      * Model for the relation from the api
@@ -15,7 +17,6 @@ export default class ApiRelation {
         public id: string,
         public name: string,
         public type: string,
-        // eslint-disable-next-line
-        public attributes?: any,
+        public attributes = new Array<ApiAttribute>(),
     ) {}
 }

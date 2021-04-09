@@ -33,6 +33,22 @@
             <title id="circle-plus-title">icon circle-plus</title>
             <path d="M11.5 0c6.347 0 11.5 5.153 11.5 11.5s-5.153 11.5-11.5 11.5-11.5-5.153-11.5-11.5 5.153-11.5 11.5-11.5zm0 1c5.795 0 10.5 4.705 10.5 10.5s-4.705 10.5-10.5 10.5-10.5-4.705-10.5-10.5 4.705-10.5 10.5-10.5zm.5 10h6v1h-6v6h-1v-6h-6v-1h6v-6h1v6z"/>
         </symbol>
+        <symbol viewBox="0 0 24 24" id="plus-bold" aria-labelledby="plus-bold-title" fill-rule="evenodd" clip-rule="evenodd">
+            <title id="plus-bold-title">icon plus-bold</title>
+            <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/>
+        </symbol>
+        <symbol viewBox="0 0 24 24" id="delete" aria-labelledby="delete-title" fill-rule="evenodd" clip-rule="evenodd">
+            <title id="delete-title">icon delete</title>
+            <path d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/>
+        </symbol>
+        <symbol viewBox="0 0 24 24" id="arrow" aria-labelledby="arrow-title" fill-rule="evenodd" clip-rule="evenodd">
+            <title id="arrow-title">icon arrow</title>
+            <path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z"/>
+        </symbol>
+        <symbol viewBox="0 0 24 24" id="dropdown" aria-labelledby="dropdown-title" fill-rule="evenodd" clip-rule="evenodd">
+            <title id="dropdown-title">icon dropdown</title>
+            <path d="M12 21l-12-18h24z"/>
+        </symbol>
         <symbol viewBox="0 0 24 24" id="diagram" aria-labelledby="diagram-title" fill-rule="evenodd" clip-rule="evenodd">
             <title id="diagram-title">icon diagram</title>
             <path d="M16.272 5.451c-.176-.45-.272-.939-.272-1.451 0-2.208 1.792-4 4-4s4 1.792 4 4-1.792 4-4 4c-1.339 0-2.525-.659-3.251-1.67l-7.131 3.751c.246.591.382 1.239.382 1.919 0 .681-.136 1.33-.384 1.922l7.131 3.751c.726-1.013 1.913-1.673 3.253-1.673 2.208 0 4 1.792 4 4s-1.792 4-4 4-4-1.792-4-4c0-.51.096-.999.27-1.447l-7.129-3.751c-.9 1.326-2.419 2.198-4.141 2.198-2.76 0-5-2.24-5-5s2.24-5 5-5c1.723 0 3.243.873 4.143 2.201l7.129-3.75zm3.728 11.549c1.656 0 3 1.344 3 3s-1.344 3-3 3-3-1.344-3-3 1.344-3 3-3zm-15-9c2.208 0 4 1.792 4 4s-1.792 4-4 4-4-1.792-4-4 1.792-4 4-4zm15-7c1.656 0 3 1.344 3 3s-1.344 3-3 3-3-1.344-3-3 1.344-3 3-3z"/>

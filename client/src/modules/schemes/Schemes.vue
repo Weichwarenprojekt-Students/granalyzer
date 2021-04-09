@@ -1,8 +1,8 @@
 <template>
     <div class="content">
-        <LabelOverview class="overview" />
+        <Overview class="overview" />
         <div class="mid-content">
-            <LabelEditor v-if="$store.state.schemes.selectedLabel" />
+            <LabelEditor v-if="$store.state.schemes.selectedLabel" :label="$store.state.schemes.selectedLabel" />
             <RelationEditor v-else-if="$store.state.schemes.selectedRelation" />
             <div v-else class="empty-warning">
                 <svg>
@@ -17,14 +17,14 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import LabelOverview from "@/modules/schemes/modules/label-overview/LabelOverview.vue";
+import Overview from "@/modules/schemes/modules/overview/Overview.vue";
 import LabelEditor from "@/modules/schemes/modules/label-editor/LabelEditor.vue";
 import ConflictView from "@/modules/schemes/modules/conflict-view/ConflictView.vue";
 import RelationEditor from "@/modules/schemes/modules/relation-editor/RelationEditor.vue";
 
 export default defineComponent({
     name: "Schemes",
-    components: { RelationEditor, ConflictView, LabelEditor, LabelOverview },
+    components: { RelationEditor, ConflictView, LabelEditor, Overview },
 });
 </script>
 
@@ -46,6 +46,8 @@ export default defineComponent({
 .mid-content {
     flex: 1 1 auto;
     padding: 0 16px;
+    display: flex;
+    justify-content: center;
 }
 
 .conflict-view {

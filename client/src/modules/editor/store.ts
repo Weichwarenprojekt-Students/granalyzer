@@ -2,8 +2,8 @@ import { ApiDiagram } from "@/models/ApiDiagram";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET, getBrightness } from "@/utility";
-import ApiLabel from "@/models/ApiLabel";
-import ApiNode from "@/models/ApiNode";
+import ApiLabel from "@/models/data-scheme/ApiLabel";
+import ApiNode from "@/models/data-scheme/ApiNode";
 import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
 
 export class EditorState {

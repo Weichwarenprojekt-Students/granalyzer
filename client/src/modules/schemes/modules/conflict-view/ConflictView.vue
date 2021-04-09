@@ -27,4 +27,14 @@ export default defineComponent({
 .underlined-title {
     border-bottom: 2px solid @red;
 }
+
+.scroll-panel {
+    margin-top: 8px !important;
+    overflow: hidden !important;
+    flex: 1 1 auto !important;
+
+    .space {
+        padding-bottom: 48px;
+    }
+}
 </style>

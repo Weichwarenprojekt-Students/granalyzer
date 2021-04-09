@@ -1,0 +1,84 @@
+@import "~@/styles/global.less";
+
+/**
+ * The height of an attribute
+ */
+@line_height: 40px;
+
+/**
+ * The max width of the content
+ */
+@max_width: 600px;
+
+/**
+ * The main container
+ */
+.content {
+  height: 100%;
+  max-width: @max_width;
+  display: flex;
+  flex-flow: column;
+  position: relative;
+}
+
+/**
+ * The main attributes
+ */
+.main-attribute {
+  border-bottom: 1px solid @grey;
+  display: flex;
+  margin-top: 16px;
+  padding: 0 12px;
+  width: 300px;
+
+  span {
+    width: 64px;
+    height: @line_height;
+    line-height: @line_height;
+  }
+
+  input,
+  div {
+    flex: 1 1 auto;
+    height: @line_height;
+    line-height: @line_height;
+    border: 0;
+  }
+}
+
+/**
+ * The title for the attributes
+ */
+.attributes-action-bar {
+  margin-top: 32px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+
+  h4 {
+    height: 24px;
+    line-height: 24px;
+  }
+}
+
+.add-attribute {
+  cursor: pointer;
+  margin-left: 16px;
+  border-bottom: 2px solid transparent;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  height: 22px;
+  width: 22px;
+  fill: @dark;
+
+  &:hover {
+    border-bottom: 2px solid @primary_color;
+  }
+}
+
+.bottom-bar {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+  margin-right: 18px;
+}

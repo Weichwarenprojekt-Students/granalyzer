@@ -7,10 +7,26 @@
   },
   "nothing-selected": "Select either a label or a relation to edit it here.",
   "label-editor": {
-    "title": "Label Editor"
+    "title": "Label Editor",
+    "name": "Name:",
+    "color": "Color:",
+    "attributes": "Attributes",
+    "save": "Save Changes"
   },
   "relation-editor": {
     "title": "Relation Editor"
+  },
+  "attribute": {
+    "new": "new",
+    "delete": "Delete",
+    "type": "Type",
+    "mandatory": "Mandatory",
+    "default": "Default Value",
+    "datatype": {
+      "string": "Text",
+      "number": "Number",
+      "color": "Color"
+    }
   },
   "conflict-view": {
     "title": "Conflicts"

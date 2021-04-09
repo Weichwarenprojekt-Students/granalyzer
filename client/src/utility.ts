@@ -9,6 +9,18 @@ export const routeNames = {
 };
 
 /**
+ * Check if string is a color
+ *
+ * @param color The string that shall be checked
+ * @return True if a given string is a color
+ */
+export function isColor(color: string): boolean {
+    const s = new Option().style;
+    s.color = color;
+    return s.color !== "";
+}
+
+/**
  * Calculate the brightness for a given color
  *
  * @param color The color as a string in hex format

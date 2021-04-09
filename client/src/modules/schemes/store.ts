@@ -1,5 +1,5 @@
-import ApiLabel from "@/models/ApiLabel";
-import ApiRelation from "@/models/ApiRelation";
+import ApiLabel from "@/models/data-scheme/ApiLabel";
+import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";

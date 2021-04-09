@@ -1,3 +1,5 @@
+import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
+
 export default class ApiLabel {
     /**
      * Label model
@@ -7,5 +9,10 @@ export default class ApiLabel {
      * @param attributes attributes of the label
      * @param id ID in the database
      */
-    constructor(public name = "", public color = "#000", public attributes = [], public id?: number) {}
+    constructor(
+        public name = "",
+        public color = "#000",
+        public attributes = new Array<ApiAttribute>(),
+        public id?: number,
+    ) {}
 }

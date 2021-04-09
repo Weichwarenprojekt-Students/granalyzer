@@ -9,7 +9,7 @@ import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/control
 import { GET, PUT } from "@/utility";
 import { Relation } from "./controls/models/Relation";
 import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/MoveNodeCommand";
-import ApiRelation from "@/models/ApiRelation";
+import ApiRelation from "@/models/data-scheme/ApiRelation";
 
 export class GraphEditorState {
     /**

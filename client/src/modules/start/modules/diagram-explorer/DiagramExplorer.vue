@@ -342,7 +342,7 @@ export default defineComponent({
     padding: 0 2px 2px 2px;
     height: 28px;
     width: 28px;
-    fill: #333;
+    fill: @dark;
 
     &:hover {
         border-bottom: 2px solid @primary_color;

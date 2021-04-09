@@ -70,11 +70,11 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import ApiLabel from "@/models/ApiLabel";
-import ApiRelation from "@/models/ApiRelation";
+import ApiLabel from "@/models/data-scheme/ApiLabel";
+import ApiRelation from "@/models/data-scheme/ApiRelation";
 
 export default defineComponent({
-    name: "LabelOverview",
+    name: "Overview",
     data() {
         return {
             // True if the labels tab is active
@@ -178,7 +178,6 @@ export default defineComponent({
 
 .selected-tab {
     background: @secondary_color;
-    color: white;
 }
 
 .tab-content {

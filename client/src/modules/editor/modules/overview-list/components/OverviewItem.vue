@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import ApiNode from "@/models/ApiNode";
+import ApiNode from "@/models/data-scheme/ApiNode";
 
 export default defineComponent({
     name: "OverviewItem",

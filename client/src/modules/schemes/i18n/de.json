@@ -7,10 +7,26 @@
   },
   "nothing-selected": "Wählen Sie entweder ein Label oder eine Relation aus um diese hier zu editieren.",
   "label-editor": {
-    "title": "Label Editor"
+    "title": "Label Editor",
+    "name": "Name:",
+    "color": "Farbe:",
+    "attributes": "Attribute",
+    "save": "Speichern"
   },
   "relation-editor": {
     "title": "Relationen Editor"
+  },
+  "attribute": {
+    "new": "neu",
+    "delete": "Löschen",
+    "type": "Type",
+    "mandatory": "Pflichtfeld",
+    "default": "Standardwert",
+    "datatype": {
+      "string": "Text",
+      "number": "Zahl",
+      "color": "Farbe"
+    }
   },
   "conflict-view": {
     "title": "Konflikte"

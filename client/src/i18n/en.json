@@ -6,5 +6,8 @@
   "dialog": {
     "confirm": "Confirm",
     "cancel": "Cancel"
+  },
+  "input": {
+    "placeholder": "Here..."
   }
 }
