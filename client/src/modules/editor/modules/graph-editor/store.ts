@@ -40,7 +40,7 @@ export const graphEditor = {
         /**
          * Set the active diagram
          */
-        setDiagram(state: GraphEditorState, diagram: Diagram): void {
+        generateDiagramFromJSON(state: GraphEditorState, diagram: Diagram): void {
             if (state.graphHandler) state.graphHandler.fromJSON(diagram.serialized);
         },
 

@@ -8,9 +8,9 @@ import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-ed
 
 export class EditorState {
     /**
-     * The currently edited diagram
+     * The currently active diagram object
      */
-    public diagram = new Diagram("") as Diagram;
+    public diagram?: Diagram;
 
     /**
      * Replication of the overview item that is dragged into the diagram
@@ -43,11 +43,14 @@ export const editor = {
     state: new EditorState(),
     mutations: {
         /**
-         * Change the active diagram
+         * Set the active diagram object
          */
-        setDiagram(state: EditorState, diagram: Diagram): void {
+        setActiveDiagram(state: EditorState, diagram: Diagram): void {
             state.diagram = diagram;
+            // Store the active diagram ID in LocalStorage
+            localStorage.setItem("current-diag-id", diagram.id.toString());
         },
+
         /**
          * Set selected item
          */
@@ -105,6 +108,30 @@ export const editor = {
         async extendNodes(context: ActionContext<EditorState, RootState>): Promise<void> {
             const resNodes = await GET(`/api/nodes?limit=50&offset=${context.state.nodes.length}`);
             if (resNodes.status === 200) context.commit("extendNodes", await resNodes.json());
+        },
+
+        /**
+         * Loads the ID of the most recently opened diagram from LocalStorage,
+         * fetches the diagram from the REST backend and sets it as the
+         * active diagram
+         */
+        async fetchActiveDiagram(context: ActionContext<EditorState, RootState>): Promise<void> {
+            // Get active diagram ID
+            const id = localStorage.getItem("current-diag-id");
+            if (!id || id == "") return;
+
+            // Fetch the diagram model from the REST backend
+            const result = await GET(`/api/diagrams/${id}`);
+
+            // Unable to fetch diagram, remove ID from LocalStorage
+            if (result.status != 200) {
+                localStorage.removeItem("current-diag-id");
+                return;
+            }
+
+            // Set the active diagram
+            const diagram: Diagram = await result.json();
+            context.commit("setActiveDiagram", diagram);
         },
     },
     getters: {

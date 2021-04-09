@@ -18,7 +18,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { GraphHandler } from "./controls/GraphHandler";
-import { isEmpty } from "@/utility";
 import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
 import { GraphControls } from "./controls/GraphControls";
@@ -35,12 +34,15 @@ export default defineComponent({
         };
     },
     async mounted(): Promise<void> {
+        // Load the currently opened diagram from REST backend
+        await this.$store.dispatch("editor/fetchActiveDiagram");
+
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
 
-        // Load the active diagram
-        if (isEmpty(this.$store.state.editor.diagram)) {
+        // Generate the active diagram if available
+        if (!this.$store.state.editor.diagram) {
             this.$toast.add({
                 severity: "error",
                 summary: this.$t("editor.noDiagram.title"),
@@ -48,7 +50,8 @@ export default defineComponent({
                 life: 3000,
             });
         } else {
-            this.$store.commit("editor/setDiagram", this.$store.state.editor.diagram);
+            // Generate the diagram from fetched JSON
+            this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
     },
     methods: {
