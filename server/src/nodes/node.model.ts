@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Attribute } from "../data-scheme/models/attributes";
 
 export default class Node {
     @ApiProperty({

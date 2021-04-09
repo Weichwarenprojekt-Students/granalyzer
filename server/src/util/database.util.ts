@@ -38,7 +38,7 @@ export class DatabaseUtil {
 
         const setupFolderKey = `
             CREATE CONSTRAINT FolderKey IF NOT EXISTS
-            ON (f:Folder) 
+            ON (f:Folder)
             ASSERT (f.folderId) IS NODE KEY
         `;
         await this.neo4jService.write(setupFolderKey, {}, process.env.DB_TOOL).catch(this.catchDbError);

@@ -109,6 +109,8 @@ export class SchemeGenerator {
             // Generate a new string attribute key and add the current attribute key to the current label
             newLabel.attributes = labelAttributes.map((attr) => new StringAttribute(attr));
 
+            await this.createCustomerLabelConstraint(newLabel, session);
+
             labels.push(newLabel);
         }
 
@@ -164,7 +166,8 @@ export class SchemeGenerator {
      */
     private static async getConnections(relationName: string, session: Session): Promise<Connection[]> {
         // language=cypher
-        const query = `MATCH(startNode)-[relation]->(endNode)
+        const query = `
+          MATCH(startNode)-[relation]->(endNode)
             WHERE type(relation) = $relationName
           UNWIND labels(startNode) AS froms
           UNWIND labels(endNode) AS tos
@@ -174,5 +177,23 @@ export class SchemeGenerator {
 
         // By default, connections always have M:N cardinalities
         return result.records.map((record) => new Connection(record.get("froms"), record.get("tos")));
+    }
+
+    /**
+     *  Creates constraints and apoc uuids for each label in the customer database
+     *
+     * @param labelScheme
+     * @param session
+     */
+    private static async createCustomerLabelConstraint(labelScheme: LabelScheme, session: Session) {
+        // Create the unique constraints for the specific label
+        const createConstraintQuery = `CREATE CONSTRAINT ${labelScheme.name}Key IF NOT exists
+        ON (n:${labelScheme.name})
+        ASSERT (n.nodeId) IS UNIQUE`;
+        await session.run(createConstraintQuery).catch(console.error);
+
+        // Automatically create the uuids with apoc
+        const createNodeUuidQuery = `CALL apoc.uuid.install("${labelScheme.name}", {addToExistingNodes: true, uuidProperty: 'nodeId'}) yield label, installed, properties`;
+        await session.run(createNodeUuidQuery, {}).catch(console.error);
     }
 }
