@@ -26,7 +26,7 @@ export default defineComponent({
         title: String,
         isSelected: Boolean,
         isFolder: Boolean,
-        itemId: Number,
+        itemId: String,
     },
     methods: {
         /**
