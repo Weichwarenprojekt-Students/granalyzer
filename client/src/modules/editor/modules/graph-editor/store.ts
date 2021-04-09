@@ -174,7 +174,7 @@ export const graphEditor = {
                 if (!diagram) return;
                 diagram.serialized = graph;
 
-                await PUT("/api/diagrams/" + diagram.id, JSON.stringify(diagram));
+                await PUT("/api/diagrams/" + diagram.diagramId, JSON.stringify(diagram));
             }
         },
     },

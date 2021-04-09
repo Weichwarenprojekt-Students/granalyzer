@@ -140,7 +140,7 @@ export const start = {
          */
         async addFolder(
             context: ActionContext<StartState, RootState>,
-            payload: { folder: Folder; folderId: number },
+            payload: { folder: Folder; folderId: string },
         ): Promise<void> {
             const path = payload.folderId ? `folders/${payload.folderId}/folders` : "folders";
             const res = await POST(`/api/${path}`, JSON.stringify(payload.folder));
@@ -154,11 +154,11 @@ export const start = {
          */
         async moveDiagram(
             context: ActionContext<StartState, RootState>,
-            payload: { parentId: number; id: number },
+            payload: { parentId: string; id: string },
         ): Promise<void> {
             const res =
                 payload.parentId === undefined
-                    ? await DELETE(`/api/folders/${context.state.parent.id}/diagrams/${payload.id}`)
+                    ? await DELETE(`/api/folders/${context.state.parent.folderId}/diagrams/${payload.id}`)
                     : await PUT(`/api/folders/${payload.parentId}/diagrams/${payload.id}`, "");
 
             if (res.status === 201) context.commit("moveDiagram", payload.id);
