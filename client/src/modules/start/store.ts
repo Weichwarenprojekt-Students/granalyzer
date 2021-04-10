@@ -185,6 +185,12 @@ export const start = {
             if (res.status === 200) {
                 context.commit("deleteDiagram", diagram);
                 context.commit("sortDiagrams");
+
+                // Check if diagram was recently used in the editor
+                if (localStorage.getItem("current-diag-id") === diagram.id.toString()) {
+                    localStorage.removeItem("current-diag-id");
+                    if (context.rootState.editor) context.rootState.editor.diagram = undefined;
+                }
             }
         },
         /**
@@ -195,6 +201,16 @@ export const start = {
             if (res.status === 200) {
                 context.commit("deleteFolder", folder);
                 context.commit("sortFolders");
+
+                // Check if a diagram in the deleted folder hierarchy was being used in the editor
+                const storageId = localStorage.getItem("current-diag-id");
+                const editor = context.rootState.editor;
+                const resDiagram = await GET(`/api/diagrams/${storageId}`);
+
+                if (resDiagram.status === 404 && editor && storageId === editor.diagram?.id.toString()) {
+                    editor.diagram = undefined;
+                    localStorage.removeItem("current-diag-id");
+                }
             }
         },
         /**

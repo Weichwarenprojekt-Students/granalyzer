@@ -118,13 +118,13 @@ export const editor = {
         async fetchActiveDiagram(context: ActionContext<EditorState, RootState>): Promise<void> {
             // Get active diagram ID
             const id = localStorage.getItem("current-diag-id");
-            if (!id || id == "") return;
+            if (!id) return;
 
             // Fetch the diagram model from the REST backend
             const result = await GET(`/api/diagrams/${id}`);
 
             // Unable to fetch diagram, remove ID from LocalStorage
-            if (result.status != 200) {
+            if (result.status !== 200) {
                 localStorage.removeItem("current-diag-id");
                 return;
             }
