@@ -9,11 +9,12 @@ export default class ApiNode {
      * @param color Color of the label type
      */
     constructor(
-        public name: string,
-        public label: string,
+        public name: string = "",
+        public label: string = "",
         public id: number = 0,
-        // eslint-disable-next-line
-        public attributes?: any,
-        public color?: string,
+        public attributes: {
+            [key: string]: unknown;
+        } = {},
+        public color: string = "#333",
     ) {}
 }

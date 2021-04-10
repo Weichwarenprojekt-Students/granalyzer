@@ -22,7 +22,7 @@ export default defineComponent({
     props: {
         node: {
             type: Object,
-            default: new ApiNode("", ""),
+            default: new ApiNode(),
         },
         color: String,
         fontColor: String,

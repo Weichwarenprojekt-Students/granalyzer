@@ -5,6 +5,7 @@
             <EditorHeader class="header"></EditorHeader>
             <GraphEditor class="editor"></GraphEditor>
         </div>
+        <Inspector class="inspector"></Inspector>
     </div>
 </template>
 
@@ -13,6 +14,7 @@ import { defineComponent } from "vue";
 import EditorHeader from "@/modules/editor/modules/editor-header/EditorHeader.vue";
 import OverviewList from "@/modules/editor/modules/overview-list/OverviewList.vue";
 import GraphEditor from "@/modules/editor/modules/graph-editor/GraphEditor.vue";
+import Inspector from "@/modules/editor/modules/inspector/Inspector.vue";
 
 export default defineComponent({
     name: "Editor",
@@ -20,6 +22,10 @@ export default defineComponent({
         GraphEditor,
         EditorHeader,
         OverviewList,
+        Inspector,
+    },
+    unmounted() {
+        this.$store.commit("editor/setInspectorVisibility", false);
     },
 });
 </script>
@@ -36,6 +42,13 @@ export default defineComponent({
 
 .overview {
     width: @inventory_width;
+    height: 100vh;
+    flex: 0 0 auto;
+    background: white;
+}
+
+.inspector {
+    width: @inspector_width;
     height: 100vh;
     flex: 0 0 auto;
     background: white;

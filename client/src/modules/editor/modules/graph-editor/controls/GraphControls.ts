@@ -178,21 +178,40 @@ export class GraphControls {
      * Listen for node move events
      */
     private registerNodeInteraction(): void {
-        // No element selected
-        this.graphHandler.graph.paper.on("blank:pointerdown", () =>
-            this.store.commit("editor/setSelectedElement", undefined),
-        );
+        // Nothing selected
+        this.graphHandler.graph.paper.on("blank:pointerdown", () => {
+            this.store.commit("editor/setSelectedElement", undefined);
+            // Hide the inspector on background click
+            this.store.commit("editor/setInspectorVisibility", false);
+        });
+
+        // Node or relation selected
+        this.graphHandler.graph.paper.on("cell:pointerdown", (cell) => {
+            // Show inspector on node click
+            this.store.commit("editor/setInspectorVisibility", true);
+        });
 
         // The move command instance
         let moveCommand: MoveNodeCommand;
 
-        // Save the clicked element and the position of it
-        this.graphHandler.graph.paper.on("element:pointerdown", (cell) => {
+        // Node selected
+        this.graphHandler.graph.paper.on("element:pointerdown", async (cell) => {
             this.store.commit("editor/setSelectedElement", cell.model);
             moveCommand = new MoveNodeCommand(this.graphHandler, cell.model);
+
+            // Set the currently selected node for inspector
+            const node = this.graphHandler.nodes.get(cell.model.id);
+            await this.store.dispatch("editor/viewNodeInInspector", node?.ref.uuid);
         });
 
-        // Check if a node was moved
+        // Relation selected
+        this.graphHandler.graph.paper.on("link:pointerdown", async (cell) => {
+            // Set the currently selected relation for inspector
+            const relation = this.graphHandler.relations.get(cell.model.id);
+            await this.store.dispatch("editor/viewRelationInInspector", relation);
+        });
+
+        // Node unselected
         this.graphHandler.graph.paper.on("element:pointerup", async () => {
             if (!moveCommand || !moveCommand.positionChanged()) return;
             moveCommand.updateStopPosition();

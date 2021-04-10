@@ -1,7 +1,6 @@
 import { dia } from "jointjs";
 
 class GraphOptions implements dia.Paper.Options {
-    // eslint-disable-next-line no-undef
     [key: string]: unknown;
 }
 

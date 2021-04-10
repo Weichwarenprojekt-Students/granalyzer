@@ -5,6 +5,7 @@ import { GET, getBrightness } from "@/utility";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
+import { inspector, InspectorState } from "@/modules/editor/modules/inspector/store";
 
 export class EditorState {
     /**
@@ -36,6 +37,8 @@ export class EditorState {
      * Graph editor state
      */
     public graphEditor?: GraphEditorState;
+
+    public inspector?: InspectorState;
 }
 
 export const editor = {
@@ -116,5 +119,6 @@ export const editor = {
     },
     modules: {
         graphEditor,
+        inspector,
     },
 };

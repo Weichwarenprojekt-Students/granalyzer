@@ -3,6 +3,7 @@
   "editor": "Editor",
   "inventory": "Inventory",
   "schemes": "Schemes",
+  "inspector": "Inspector",
   "dialog": {
     "confirm": "Confirm",
     "cancel": "Cancel"
