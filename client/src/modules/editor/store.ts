@@ -6,6 +6,8 @@ import ApiLabel from "@/modules/editor/models/ApiLabel";
 import ApiNode from "@/modules/editor/models/ApiNode";
 import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
 
+const currentDiagramKey = "current-diag-id";
+
 export class EditorState {
     /**
      * The currently active diagram object
@@ -45,10 +47,9 @@ export const editor = {
         /**
          * Set the active diagram object
          */
-        setActiveDiagram(state: EditorState, diagram: Diagram): void {
+        setActiveDiagram(state: EditorState, diagram?: Diagram): void {
             state.diagram = diagram;
-            // Store the active diagram ID in LocalStorage
-            localStorage.setItem("current-diag-id", diagram.id.toString());
+            if (diagram) localStorage.setItem(currentDiagramKey, diagram.id.toString());
         },
 
         /**
@@ -117,7 +118,7 @@ export const editor = {
          */
         async fetchActiveDiagram(context: ActionContext<EditorState, RootState>): Promise<void> {
             // Get active diagram ID
-            const id = localStorage.getItem("current-diag-id");
+            const id = localStorage.getItem(currentDiagramKey);
             if (!id) return;
 
             // Fetch the diagram model from the REST backend
@@ -125,7 +126,8 @@ export const editor = {
 
             // Unable to fetch diagram, remove ID from LocalStorage
             if (result.status !== 200) {
-                localStorage.removeItem("current-diag-id");
+                context.commit("setActiveDiagram");
+                localStorage.removeItem(currentDiagramKey);
                 return;
             }
 
