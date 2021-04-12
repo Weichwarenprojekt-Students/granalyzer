@@ -18,7 +18,7 @@ export class DataSchemeUtil {
      */
     async parseRecordByLabel(node: Node) {
         // Gets the label scheme which matches the nodes label name
-        const label: LabelScheme = await this.dataSchemeService.getLabelByName(node.label);
+        const label: LabelScheme = await this.dataSchemeService.getLabelScheme(node.label);
         // Deep copy all attributes from the node
         const nodeAttributes = JSON.parse(JSON.stringify(node.attributes));
         // Deletes the node Attributes
@@ -34,7 +34,7 @@ export class DataSchemeUtil {
      */
     async parseRecordByRelationType(relation: Relation) {
         // Get the scheme of the relation type
-        const relationType: RelationType = await this.dataSchemeService.getRelationTypeByName(relation.type);
+        const relationType: RelationType = await this.dataSchemeService.getRelationType(relation.type);
 
         const [from, to] = await this.getLabelsForRelation(relation);
 

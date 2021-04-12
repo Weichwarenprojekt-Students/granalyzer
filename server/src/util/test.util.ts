@@ -3,7 +3,17 @@ import { ConfigModule } from "@nestjs/config";
 import { Neo4jModule } from "nest-neo4j/dist";
 import { UtilModule } from "./util.module";
 
+/**
+ * Helper utils for automated tests
+ */
 export default class TestUtil {
+    /**
+     * Creates the testing module required to mock the app in the integration tests
+     *
+     * @param providers
+     * @param controllers
+     * @param imports
+     */
     static createTestingModule(providers = [], controllers = [], imports = []) {
         function suffixDatabases(config: Record<string, unknown>) {
             config.DB_TOOL += "test";

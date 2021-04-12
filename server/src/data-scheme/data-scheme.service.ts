@@ -95,31 +95,6 @@ export class DataSchemeService {
     }
 
     /**
-     * Returns the label with the name name
-     * @param name
-     */
-    async getLabelByName(name: string): Promise<LabelScheme> {
-        // language=cypher
-        const cypher = "MATCH (ls:LabelScheme) WHERE ls.name = $name RETURN ls {.* } AS dataScheme";
-        const params = {
-            name: name,
-        };
-
-        // Callback with is applied on the database response
-        const resolveRead = (res) => {
-            if (!res.records.length) {
-                throw new NotFoundException("Labelscheme with name: " + name + " not found");
-            }
-            return DataSchemeService.parseLabelScheme(res.records[0]);
-        };
-
-        return this.neo4jService
-            .read(cypher, params, this.database)
-            .then(resolveRead)
-            .catch(this.databaseUtil.catchDbError);
-    }
-
-    /**
      * Fetch all relations
      */
     async getAllRelationTypes() {
@@ -155,26 +130,9 @@ export class DataSchemeService {
             return DataSchemeService.parseRelationType(res.records[0]);
         };
 
-        return this.neo4jService.read(cypher, params, this.database).then(resolveRead);
-    }
-
-    /**
-     * Acquire the desired relation type
-     *
-     * @param name The name of the desired relation type
-     */
-    async getRelationTypeByName(name: string): Promise<RelationType> {
-        // language=cypher
-        const cypher = "MATCH (rt:RelationType) WHERE rt.name = $name RETURN rt {.*} AS dataScheme";
-        const params = {
-            name,
-        };
-
-        return this.neo4jService.read(cypher, params, this.database).then((res) => {
-            if (!res.records.length) {
-                throw new NotFoundException("Label with name: " + name + " not found");
-            }
-            return DataSchemeService.parseRelationType(res.records[0]);
-        });
+        return this.neo4jService
+            .read(cypher, params, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
     }
 }
