@@ -105,22 +105,6 @@ export function DELETE(path: string): Promise<Response> {
 }
 
 /**
- * Fetch nodes and labels from backend
- *
- * @param filter Filter containing the name and labels to filter nodes by
- */
-export async function loadFilteredNodes(filter: {
-    userInput: string;
-    labelsToFilterBy: Array<string>;
-}): Promise<Response[]> {
-    const filterString = generateFilterString(filter);
-
-    const resNodes = await GET(`/api/nodes?limit=50${filterString}`);
-    const resLabels = await GET("/api/data-scheme/label");
-    return [resNodes, resLabels];
-}
-
-/**
  * Generate a string from the filter parameters that can be used in backend requests
  *
  * @param filter Filter containing the name and labels to filter nodes by

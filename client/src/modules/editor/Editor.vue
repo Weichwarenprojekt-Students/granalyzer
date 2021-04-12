@@ -1,10 +1,10 @@
 <template>
     <div class="content">
         <OverviewList
-            :nodesReady="$store.getters['editor/nodesReady']"
-            :nodes="$store.state.editor.nodes"
-            :labels="$store.state.editor.labels"
-            :labelColors="$store.state.editor.labelColor"
+            :nodesReady="$store.getters['nodesReady']"
+            :nodes="$store.state.nodes"
+            :labels="$store.state.labels"
+            :labelColors="$store.state.labelColor"
             :toggleScrollEmit="toggleScrollEmit"
             :selectedItemId="$store.state.editor.selectedNode?.id"
             class="overview"
@@ -48,14 +48,14 @@ export default defineComponent({
     },
     mounted() {
         // Load the labels with the first load of matching nodes
-        this.$store.dispatch("editor/loadLabelsAndNodes");
+        this.$store.dispatch("loadLabelsAndNodes");
     },
     methods: {
         /**
          * Extend the node list
          */
         async extendNodes(): Promise<void> {
-            await this.$store.dispatch("editor/extendNodes", this.filter);
+            await this.$store.dispatch("extendNodes", this.filter);
             this.toggleScrollEmit = !this.toggleScrollEmit;
         },
         /**
@@ -71,7 +71,7 @@ export default defineComponent({
             this.filter.userInput = filter.userInput;
             this.filter.labelsToFilterBy = filter.labelsToFilterBy;
 
-            this.$store.dispatch("editor/loadLabelsAndNodes", filter);
+            this.$store.dispatch("loadLabelsAndNodes", filter);
         },
     },
 });
