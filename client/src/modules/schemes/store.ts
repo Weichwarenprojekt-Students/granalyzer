@@ -1,5 +1,5 @@
 import ApiLabel from "@/models/data-scheme/ApiLabel";
-import ApiRelation from "@/models/data-scheme/ApiRelation";
+import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
@@ -13,7 +13,7 @@ export class SchemesState {
     /**
      * All the relations from the backend
      */
-    public relations = new Array<ApiRelation>();
+    public relations = new Array<ApiRelationType>();
     /**
      * The currently selected label
      */
@@ -21,7 +21,7 @@ export class SchemesState {
     /**
      * The currently selected relation
      */
-    public selectedRelation?: ApiRelation;
+    public selectedRelation?: ApiRelationType;
     /**
      * The shown conflicts
      */
@@ -53,7 +53,7 @@ export const schemes = {
         /**
          * Update a relation
          */
-        updateRelation(state: SchemesState, relation: ApiRelation): void {
+        updateRelation(state: SchemesState, relation: ApiRelationType): void {
             state.relations = state.relations.map((r) => (r.id == relation.id ? relation : r));
         },
         /**
@@ -65,7 +65,7 @@ export const schemes = {
         /**
          * Set the labels
          */
-        setRelations(state: SchemesState, relations: Array<ApiRelation>): void {
+        setRelations(state: SchemesState, relations: Array<ApiRelationType>): void {
             state.relations = relations;
         },
         /**
@@ -78,7 +78,7 @@ export const schemes = {
         /**
          * Select a relation
          */
-        selectRelation(state: SchemesState, relation: ApiRelation): void {
+        selectRelation(state: SchemesState, relation: ApiRelationType): void {
             state.selectedLabel = undefined;
             state.selectedRelation = relation;
         },
@@ -103,7 +103,10 @@ export const schemes = {
         /**
          * Update a relation
          */
-        async updateRelation(context: ActionContext<SchemesState, RootState>, relation: ApiRelation): Promise<void> {
+        async updateRelation(
+            context: ActionContext<SchemesState, RootState>,
+            relation: ApiRelationType,
+        ): Promise<void> {
             context.commit("updateRelation", relation);
             context.commit("addConflict", new Conflict("Relation changed!", "This lead to a conflict in 420 nodes."));
         },

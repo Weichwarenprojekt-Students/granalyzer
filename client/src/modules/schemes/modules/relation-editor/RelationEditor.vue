@@ -45,7 +45,7 @@ import { defineComponent } from "vue";
 import { deepCopy } from "@/utility";
 import AttributeView from "@/modules/schemes/components/AttributeView.vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
-import ApiRelation from "@/models/data-scheme/ApiRelation";
+import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
 
 export default defineComponent({
     name: "RelationEditor",
@@ -54,23 +54,23 @@ export default defineComponent({
         // The relation that will be modified
         relation: {
             type: Object,
-            default: new ApiRelation(),
+            default: new ApiRelationType(),
         },
     },
     data() {
         return {
-            modifiedRelation: new ApiRelation(),
+            modifiedRelation: new ApiRelationType(),
         };
     },
     created() {
-        this.modifiedRelation = deepCopy(this.relation) as ApiRelation;
+        this.modifiedRelation = deepCopy(this.relation) as ApiRelationType;
     },
     watch: {
         /**
          * Check if the input changed
          */
         relation() {
-            this.modifiedRelation = deepCopy(this.relation) as ApiRelation;
+            this.modifiedRelation = deepCopy(this.relation) as ApiRelationType;
         },
     },
     computed: {

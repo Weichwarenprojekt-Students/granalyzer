@@ -1,6 +1,6 @@
 export class ApiAttribute {
     /**
-     * The model for an attribute (e.g. of a label)
+     * The model for an attribute (e.g. of a label) from the API
      *
      * @param datatype The datatype of the attribute
      * @param name The name

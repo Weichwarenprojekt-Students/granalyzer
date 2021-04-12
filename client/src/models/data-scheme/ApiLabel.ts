@@ -2,7 +2,7 @@ import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 
 export default class ApiLabel {
     /**
-     * Label model
+     * Label model from the API
      *
      * @param name name of the label
      * @param color color of the label

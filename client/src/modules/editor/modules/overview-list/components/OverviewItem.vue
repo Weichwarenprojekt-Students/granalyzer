@@ -39,8 +39,9 @@ export default defineComponent({
         /**
          * Handles click event on an item in the node overview
          */
-        onClick() {
+        async onClick() {
             this.$store.commit("editor/setSelectedNode", { ...this.node, color: this.color });
+            await this.$store.dispatch("editor/viewNodeInInspector", (this.node as ApiNode)?.id);
         },
         /**
          * Event function to start dragging elements

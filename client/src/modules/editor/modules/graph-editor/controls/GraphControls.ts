@@ -185,12 +185,6 @@ export class GraphControls {
             this.store.commit("editor/setInspectorVisibility", false);
         });
 
-        // Node or relation selected
-        this.graphHandler.graph.paper.on("cell:pointerdown", (cell) => {
-            // Show inspector on node click
-            this.store.commit("editor/setInspectorVisibility", true);
-        });
-
         // The move command instance
         let moveCommand: MoveNodeCommand;
 
@@ -208,7 +202,7 @@ export class GraphControls {
         this.graphHandler.graph.paper.on("link:pointerdown", async (cell) => {
             // Set the currently selected relation for inspector
             const relation = this.graphHandler.relations.get(cell.model.id);
-            await this.store.dispatch("editor/viewRelationInInspector", relation);
+            await this.store.dispatch("editor/viewRelationInInspector", relation?.uuid);
         });
 
         // Node unselected

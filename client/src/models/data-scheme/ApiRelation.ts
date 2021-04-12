@@ -1,8 +1,6 @@
-import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
-
 export default class ApiRelation {
     /**
-     * Model for the relation from the api
+     * Model for the relation from the API
      *
      * @param name Name of the relation
      * @param type Type of the relation
@@ -17,6 +15,8 @@ export default class ApiRelation {
         public from: string = "",
         public to: string = "",
         public id: string = "",
-        public attributes = new Array<ApiAttribute>(),
+        public attributes: {
+            [key: string]: unknown;
+        } = {},
     ) {}
 }

@@ -1,11 +1,12 @@
 import { InspectorAttribute } from "@/modules/editor/modules/inspector/models/InspectorAttribute";
-import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
 import ApiNode from "@/models/data-scheme/ApiNode";
+import ApiRelation from "@/models/data-scheme/ApiRelation";
+import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
 
 export class InspectorState {
     /**
@@ -30,9 +31,9 @@ export const inspector = {
         },
 
         /**
-         * Set the inspector items
+         * Set the inspector items for nodes
          */
-        setInspectorItems(state: InspectorState, payload: { node: ApiNode; label: ApiLabel }) {
+        setInspectorNodeItems(state: InspectorState, payload: { node: ApiNode; label: ApiLabel }): void {
             // Clear the attribute-items array
             state.attributes = new Array<InspectorAttribute>();
 
@@ -47,6 +48,28 @@ export const inspector = {
                 );
             });
         },
+
+        /**
+         * Set the inspector items for relations
+         */
+        setInspectorRelationItems(
+            state: InspectorState,
+            payload: { relation: ApiRelation; relType: ApiRelationType },
+        ): void {
+            // Clear the attribute-items array
+            state.attributes = new Array<InspectorAttribute>();
+
+            // Fill attributes from relation and relation-type data
+            payload.relType.attributes.forEach((attribute) => {
+                state.attributes.push(
+                    new InspectorAttribute(
+                        attribute.name,
+                        payload.relation.attributes[attribute.name] as string,
+                        attribute.datatype,
+                    ),
+                );
+            });
+        },
     },
 
     actions: {
@@ -54,12 +77,19 @@ export const inspector = {
          * Set the clicked node
          */
         async viewNodeInInspector(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
-            // Fetch the node data
+            if (!uuid) return;
+
+            // Fetch node data
             let result = await GET(`/api/nodes/${uuid}`);
             if (result.status != 200) return;
             const node: ApiNode = await result.json();
 
-            // TODO: After backend refactor: Only fetch relevant scheme for specific label
+            // // Fetch scheme for the label of this node
+            // result = await GET(`/api/data-scheme/label/${node.label}`);
+            // if (result.status != 200) return;
+            // context.commit("setInspectorNodeItems", {node, label:(await result.json())})
+
+            // TODO: Remove below implementation and uncomment upper one after backend refactor
             // Get data scheme for the label of this node
             result = await GET("/api/data-scheme/label");
             if (result.status != 200) return;
@@ -71,14 +101,28 @@ export const inspector = {
             });
             if (label.length != 1) return;
 
-            context.commit("setInspectorItems", { node, label: label[0] });
+            context.commit("setInspectorNodeItems", { node, label: label[0] });
+            context.commit("setInspectorVisibility", true);
         },
 
         /**
          * Set the clicked relation
          */
-        viewRelationInInspector(context: ActionContext<InspectorState, RootState>, relation: Relation): void {
-            // TODO: Implement inspector for relations after backend refactor
+        async viewRelationInInspector(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
+            if (!uuid) return;
+
+            // Fetch the relation data
+            let result = await GET(`/api/relations/${uuid}`);
+            if (result.status != 200) return;
+            const relation: ApiRelation = await result.json();
+
+            // Fetch scheme for the type of this relation
+            result = await GET(`/api/data-scheme/relation/${uuid}`);
+            if (result.status != 200) return;
+            const relType: ApiRelationType = await result.json();
+
+            context.commit("setInspectorRelationItems", { relation, relType });
+            context.commit("setInspectorVisibility", true);
         },
     },
 };

@@ -71,7 +71,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
-import ApiRelation from "@/models/data-scheme/ApiRelation";
+import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
 
 export default defineComponent({
     name: "Overview",
@@ -82,7 +82,7 @@ export default defineComponent({
             // The filtered labels
             labels: new Array<ApiLabel>(),
             // The filtered relations
-            relations: new Array<ApiRelation>(),
+            relations: new Array<ApiRelationType>(),
             // The filter string for the labels
             labelFilter: "",
             // The filter string for the relations
@@ -107,7 +107,7 @@ export default defineComponent({
          * Filter the relations as soon as the relation filter changes
          */
         relationFilter() {
-            this.relations = this.$store.state.schemes.relations.filter((relation: ApiRelation) =>
+            this.relations = this.$store.state.schemes.relations.filter((relation: ApiRelationType) =>
                 relation.name.toLowerCase().includes(this.relationFilter.toLowerCase()),
             );
         },
@@ -126,7 +126,7 @@ export default defineComponent({
          *
          * @param relation The label that shall be checked
          */
-        isRelationSelected(relation: ApiRelation): boolean {
+        isRelationSelected(relation: ApiRelationType): boolean {
             return this.$store.state.schemes.selectedRelation?.name === relation.name;
         },
         /**

@@ -1,6 +1,6 @@
 export default class ApiNode {
     /**
-     * Node model
+     * Node model from the API
      *
      * @param name Name of the node
      * @param label Label the node is related to
