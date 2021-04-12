@@ -18,7 +18,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { GraphHandler } from "./controls/GraphHandler";
-import { isEmpty } from "@/utility";
 import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
 import { GraphControls } from "./controls/GraphControls";
@@ -35,12 +34,18 @@ export default defineComponent({
         };
     },
     async mounted(): Promise<void> {
+        // Load the currently opened diagram from REST backend
+        await this.$store.dispatch("editor/fetchActiveDiagram");
+
+        // Load the labels with the first load of matching nodes
+        await this.$store.dispatch("editor/loadLabels");
+
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
 
-        // Load the active diagram
-        if (isEmpty(this.$store.state.editor.diagram)) {
+        // Generate the active diagram if available
+        if (!this.$store.state.editor.diagram) {
             this.$toast.add({
                 severity: "error",
                 summary: this.$t("editor.noDiagram.title"),
@@ -48,7 +53,7 @@ export default defineComponent({
                 life: 3000,
             });
         } else {
-            this.$store.commit("editor/setDiagram", this.$store.state.editor.diagram);
+            this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
     },
     methods: {
@@ -67,10 +72,10 @@ export default defineComponent({
                 x: point.x,
                 y: point.y,
                 shape: "rectangle",
-                color: node.color,
-                label: node.name,
+                label: node.label,
+                name: node.name,
                 ref: {
-                    uuid: node.id,
+                    uuid: node.nodeId,
                     index: 0,
                 },
             });

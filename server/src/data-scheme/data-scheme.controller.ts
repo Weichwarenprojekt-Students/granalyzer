@@ -9,7 +9,7 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 import { Scheme } from "./data-scheme.model";
-import { Label } from "./models/label";
+import { LabelScheme } from "./models/labelScheme";
 import { RelationType } from "./models/relationType";
 
 @ApiTags("data-scheme")
@@ -35,24 +35,24 @@ export class DataSchemeController {
     })
     @ApiOkResponse({
         description: "Returns the schemes for all labels",
-        type: [Label],
+        type: [LabelScheme],
     })
-    getAllLabels() {
-        return this.dataSchemeService.getAllLabel();
+    getAllLabelSchemes() {
+        return this.dataSchemeService.getAllLabelSchemes();
     }
 
-    @Get("/label/:id")
+    @Get("/label/:name")
     @ApiOperation({
         description: "Returns a specific scheme for a label",
     })
     @ApiParam({
-        name: "id",
-        type: "number",
-        description: "Identifier of the label scheme",
+        name: "name",
+        type: "string",
+        description: "Unique name of the label scheme",
     })
     @ApiOkResponse({
         description: "Returns a specific scheme for a label",
-        type: Label,
+        type: LabelScheme,
     })
     @ApiNotAcceptableResponse({
         description: "Requested resource is not a scheme for a label",
@@ -60,8 +60,8 @@ export class DataSchemeController {
     @ApiNotFoundResponse({
         description: "Requested resource does not exist",
     })
-    getLabel(@Param("id") id: number) {
-        return this.dataSchemeService.getLabel(id);
+    getLabelScheme(@Param("name") name: string) {
+        return this.dataSchemeService.getLabelScheme(name);
     }
 
     @Get("relation")
@@ -72,17 +72,17 @@ export class DataSchemeController {
         description: "Returns the schemes for all relations",
         type: [RelationType],
     })
-    getAllRelations() {
-        return this.dataSchemeService.getAllRelations();
+    getAllRelationTypes() {
+        return this.dataSchemeService.getAllRelationTypes();
     }
 
-    @Get("/relation/:id")
+    @Get("/relation/:name")
     @ApiOperation({
         description: "Returns a specific scheme for a relation",
     })
     @ApiParam({
-        name: "id",
-        type: "number",
+        name: "name",
+        type: "string",
         description: "Identifier of the relation scheme",
     })
     @ApiOkResponse({
@@ -95,7 +95,7 @@ export class DataSchemeController {
     @ApiNotFoundResponse({
         description: "Requested resource does not exist",
     })
-    getRelation(@Param("id") id: number) {
-        return this.dataSchemeService.getRelation(id);
+    getRelationType(@Param("name") name: string) {
+        return this.dataSchemeService.getRelationType(name);
     }
 }

@@ -3,11 +3,11 @@ import { ApiProperty } from "@nestjs/swagger";
 export class Folder {
     @ApiProperty({
         required: true,
-        type: "number",
-        name: "id",
+        type: "string",
+        name: "folderId",
         description: "Id of the folder",
     })
-    id: number;
+    folderId: string;
 
     @ApiProperty({
         required: true,
@@ -23,5 +23,5 @@ export class Folder {
         name: "parentId",
         description: "The Id of the parent folder",
     })
-    parentId?: number;
+    parentId?: string;
 }

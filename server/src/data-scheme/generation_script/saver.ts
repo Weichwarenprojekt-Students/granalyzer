@@ -1,6 +1,6 @@
 import * as neo4j from "neo4j-driver";
 import { Driver, Session } from "neo4j-driver";
-import { Label } from "../models/label";
+import { LabelScheme } from "../models/labelScheme";
 import { RelationType } from "../models/relationType";
 import { Scheme } from "../data-scheme.model";
 
@@ -34,7 +34,7 @@ export class SchemeSaver {
      * @param sess the session that is used to write into the database
      * @private
      */
-    private static async writeLabel(l: Label, sess: Session) {
+    private static async writeLabel(l: LabelScheme, sess: Session) {
         // language=Cypher
         const query = `
           MERGE (l:LabelScheme {name: $labelName})

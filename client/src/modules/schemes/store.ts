@@ -48,13 +48,13 @@ export const schemes = {
          * Update a label
          */
         updateLabel(state: SchemesState, label: ApiLabel): void {
-            state.labels = state.labels.map((l) => (l.id == label.id ? label : l));
+            state.labels = state.labels.map((l) => (l.name == label.name ? label : l));
         },
         /**
          * Update a relation
          */
         updateRelation(state: SchemesState, relation: ApiRelationType): void {
-            state.relations = state.relations.map((r) => (r.id == relation.id ? relation : r));
+            state.relations = state.relations.map((r) => (r.name == relation.name ? relation : r));
         },
         /**
          * Set the labels

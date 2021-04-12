@@ -63,14 +63,14 @@
         <!-- The folders -->
         <ExplorerItem
             v-for="folder in $store.state.start.folders"
-            :key="folder.id"
+            :key="folder.folderId"
             @mousedown="selectFolder(folder)"
             v-on:dblclick="doubleClickedFolder"
             :icon-id="'folder'"
             :title="folder.name"
-            :is-selected="folder.id === selectedFolder.id"
+            :is-selected="folder.folderId === selectedFolder.folderId"
             :is-folder="true"
-            :itemId="folder.id"
+            :itemId="folder.folderId"
             @dragover.prevent
             @drop.stop.prevent
             @folder-drop="moveFolder"
@@ -80,14 +80,14 @@
         <!-- The diagrams -->
         <ExplorerItem
             v-for="diagram in $store.state.start.diagrams"
-            :key="diagram.id"
+            :key="diagram.diagramId"
             @mousedown="selectDiagram(diagram)"
             v-on:dblclick="doubleClickedDiagram"
             :icon-id="'diagram'"
             :title="diagram.name"
-            :is-selected="diagram.id === selectedDiagram.id"
+            :is-selected="diagram.diagramId === selectedDiagram.diagramId"
             :is-folder="false"
-            :itemId="diagram.id"
+            :itemId="diagram.diagramId"
         />
     </div>
 </template>
@@ -96,7 +96,7 @@
 import { defineComponent } from "vue";
 import { ApiFolder } from "@/models/ApiFolder";
 import { ApiDiagram } from "@/models/ApiDiagram";
-import { isEmpty, routeNames } from "@/utility";
+import { deepCopy, isEmpty, routeNames } from "@/utility";
 import InputDialog from "@/components/InputDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import ExplorerItem from "./components/ExplorerItem.vue";
@@ -155,9 +155,9 @@ export default defineComponent({
             // Search for the name (name has to be searched because the name
             // of the selected folder can be outdated due to a rename event)
             for (let i = 0; i < folders.length; i++)
-                if (folders[i].id == this.selectedFolder.id) return folders[i].name;
+                if (folders[i].folderId === this.selectedFolder.folderId) return folders[i].name;
             for (let i = 0; i < diagrams.length; i++)
-                if (diagrams[i].id == this.selectedDiagram.id) return diagrams[i].name;
+                if (diagrams[i].diagramId === this.selectedDiagram.diagramId) return diagrams[i].name;
             return "";
         },
     },
@@ -204,11 +204,11 @@ export default defineComponent({
             }
 
             if (!isEmpty(this.selectedFolder)) {
-                const copy = ApiFolder.copy(this.selectedFolder);
+                const copy = deepCopy(this.selectedFolder);
                 copy.name = newName;
                 this.$store.dispatch("start/editFolder", copy);
             } else if (!isEmpty(this.selectedDiagram)) {
-                const copy = ApiDiagram.copy(this.selectedDiagram);
+                const copy = deepCopy(this.selectedDiagram);
                 copy.name = newName;
                 this.$store.dispatch("start/editDiagram", copy);
             } else this.showSelectionError();
@@ -244,14 +244,14 @@ export default defineComponent({
          * Handle double click on folder
          */
         doubleClickedFolder(): void {
-            this.$router.push(`${routeNames.start}/${this.selectedFolder.id}`);
+            this.$router.push(`${routeNames.start}/${this.selectedFolder.folderId}`);
             this.clearSelection();
         },
         /**
          * Handle double click on diagram
          */
         doubleClickedDiagram(): void {
-            this.$store.commit("editor/setDiagram", this.selectedDiagram);
+            this.$store.commit("editor/setActiveDiagram", this.selectedDiagram);
             this.$router.push(routeNames.editor);
         },
         /**
@@ -259,7 +259,7 @@ export default defineComponent({
          */
         doubleClickedBack(): void {
             const parentId = this.$store.state.start.parent.parentId;
-            this.$router.push(parentId === undefined ? routeNames.start : `${routeNames.start}/${parentId}`);
+            this.$router.push(parentId === null ? routeNames.start : `${routeNames.start}/${parentId}`);
         },
         /**
          * Select a folder
@@ -283,14 +283,14 @@ export default defineComponent({
          * Move a folder
          */
         moveFolder(event: ItemDragEvent): void {
-            this.$store.dispatch("start/moveFolder", { parentId: event.newParent, id: event.currentDragItem });
+            this.$store.dispatch("start/moveFolder", { parentId: event.newParent, folderId: event.currentDragItem });
             this.clearSelection();
         },
         /**
          * Move a diagram
          */
         moveDiagram(event: ItemDragEvent): void {
-            this.$store.dispatch("start/moveDiagram", { parentId: event.newParent, id: event.currentDragItem });
+            this.$store.dispatch("start/moveDiagram", { parentId: event.newParent, diagramId: event.currentDragItem });
             this.clearSelection();
         },
         /**

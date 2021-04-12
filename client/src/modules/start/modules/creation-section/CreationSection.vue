@@ -64,7 +64,7 @@ export default defineComponent({
 
             const response = await this.$store.dispatch("start/addDiagram", new ApiDiagram(diagramName));
             if (response.status === 201) {
-                this.$store.commit("editor/setDiagram", await response.json());
+                this.$store.commit("editor/setActiveDiagram", await response.json());
                 await this.$router.push(routeNames.editor);
             }
         },

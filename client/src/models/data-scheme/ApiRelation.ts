@@ -6,7 +6,7 @@ export default class ApiRelation {
      * @param type Type of the relation
      * @param from UUID of the start node of the relation
      * @param to UUID of the end node of the relation
-     * @param id UUID of the relation
+     * @param relationId UUID of the relation
      * @param attributes Attributes of the relation
      */
     constructor(
@@ -14,7 +14,7 @@ export default class ApiRelation {
         public type: string = "",
         public from: string = "",
         public to: string = "",
-        public id: string = "",
+        public relationId: string = "",
         public attributes: {
             [key: string]: unknown;
         } = {},

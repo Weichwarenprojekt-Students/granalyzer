@@ -4,14 +4,14 @@ export default class ApiNode {
      *
      * @param name Name of the node
      * @param label Label the node is related to
-     * @param id Id of the node
+     * @param nodeId Id of the node
      * @param attributes Additional attributes of the node
      * @param color Color of the label type
      */
     constructor(
         public name: string = "",
         public label: string = "",
-        public id: number = 0,
+        public nodeId: string = "",
         public attributes: {
             [key: string]: unknown;
         } = {},
