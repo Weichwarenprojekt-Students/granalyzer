@@ -6,6 +6,9 @@ import ApiLabel from "@/modules/editor/models/ApiLabel";
 import ApiNode from "@/modules/editor/models/ApiNode";
 import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
 
+/**
+ * The local storage key for the opened diagram in the editor
+ */
 const currentDiagramKey = "current-diag-id";
 
 export class EditorState {
@@ -51,7 +54,6 @@ export const editor = {
             state.diagram = diagram;
             if (diagram) localStorage.setItem(currentDiagramKey, diagram.id.toString());
         },
-
         /**
          * Set selected item
          */
