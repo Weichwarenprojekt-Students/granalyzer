@@ -201,7 +201,6 @@ export const start = {
          * Change the name of a diagram
          */
         async editDiagram(context: ActionContext<StartState, RootState>, diagram: Diagram): Promise<void> {
-            console.log(diagram);
             const res = await PUT(`/api/diagrams/${diagram.diagramId}`, JSON.stringify(diagram));
             if (res.status === 200) {
                 context.commit("editDiagram", await res.json());
