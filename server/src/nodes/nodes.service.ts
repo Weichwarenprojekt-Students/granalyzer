@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import Node from "./node.model";
 import { DataSchemeUtil } from "../util/data-scheme.util";
+import { DatabaseUtil } from "../util/database.util";
 
 @Injectable()
 export class NodesService {
@@ -10,7 +11,11 @@ export class NodesService {
      */
     private database = process.env.DB_CUSTOMER;
 
-    constructor(private readonly neo4jService: Neo4jService, private readonly dataSchemeUtil: DataSchemeUtil) {}
+    constructor(
+        private readonly neo4jService: Neo4jService,
+        private readonly dataSchemeUtil: DataSchemeUtil,
+        private readonly databaseUtil: DatabaseUtil,
+    ) {}
 
     /**
      * Return all nodes with limit and offset (pagination) from the neo4j db
@@ -19,26 +24,50 @@ export class NodesService {
      */
     async getAllNodes(limit, offset): Promise<Node[]> {
         // language=Cypher
-        const query = "MATCH (n) RETURN n ORDER BY n.name SKIP $offset LIMIT $limit";
+        const query = `
+          MATCH (n)
+          WITH labels(n) AS lbls, n
+          UNWIND lbls AS label
+          RETURN n {. *, label:label} AS node
+            ORDER BY n.name
+            SKIP $offset
+            LIMIT $limit`;
         const params = {
             limit: this.neo4jService.int(limit),
             offset: this.neo4jService.int(offset),
         };
-        const result = await this.neo4jService.read(query, params, this.database);
-        return Promise.all(result.records.map((el) => this.parseNode.call(this, el)));
+
+        // Callback which is applied on the database response
+        const resolveRead = (result) => Promise.all(result.records.map((el) => this.parseNode.call(this, el)));
+
+        return this.neo4jService
+            .read(query, params, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
      * Returns a specific node by id
      */
-    async getNode(id: number): Promise<Node> {
+    async getNode(id: string): Promise<Node> {
         // language=Cypher
-        const query = "MATCH (n) WHERE id(n) = $id RETURN n";
+        const query = `
+          MATCH (n)
+            WHERE n.nodeId = $id
+          WITH labels(n) AS lbls, n
+          UNWIND lbls AS label
+          RETURN n {. *, label:label} AS node`;
         const params = {
-            id: this.neo4jService.int(id),
+            id,
         };
-        const result = await this.neo4jService.read(query, params, this.database);
-        return this.parseNode.call(this, result.records[0]);
+
+        // Callback which parses the received data
+        const resolveRead = async (res) => await this.parseNode.call(this, res.records[0]);
+
+        return this.neo4jService
+            .read(query, params, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -47,13 +76,23 @@ export class NodesService {
      */
     async searchNode(needle: string): Promise<Node[]> {
         // language=Cypher
-        const query = "MATCH(n) WHERE toLower(n.name) CONTAINS toLower($needle) RETURN n";
+        const query = `
+          MATCH(n)
+            WHERE toLower(n.name) CONTAINS toLower($needle)
+          WITH labels(n) AS lbls, n
+          UNWIND lbls AS label
+          RETURN n {. *, label:label} AS node`;
         const params = {
             needle,
         };
 
-        const result = await this.neo4jService.read(query, params, this.database);
-        return Promise.all(result.records.map((el) => this.parseNode.call(this, el)));
+        // Callback which is applied on the database response
+        const resolveRead = (result) => Promise.all(result.records.map((el) => this.parseNode.call(this, el)));
+
+        return this.neo4jService
+            .read(query, params, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -62,12 +101,12 @@ export class NodesService {
      * @private
      */
     private async parseNode(record): Promise<Node> {
-        const attributes = record.get("n").properties;
+        const attributes = record.get("node");
 
         const node = {
-            id: record.get("n").identity.toNumber(),
-            name: record.get("n").properties.name,
-            label: record.get("n").labels[0],
+            id: record.get("node").nodeId,
+            name: record.get("node").name,
+            label: record.get("node").label,
             attributes: attributes,
         } as Node;
 

@@ -70,38 +70,38 @@ export const start = {
         /**
          * Move a diagram
          */
-        moveDiagram(state: StartState, diagramId: number): void {
-            state.diagrams = state.diagrams.filter((item) => item.id !== diagramId);
+        moveDiagram(state: StartState, diagramId: string): void {
+            state.diagrams = state.diagrams.filter((item) => item.diagramId !== diagramId);
         },
         /**
          * Move a folder
          */
-        moveFolder(state: StartState, folderId: number): void {
-            state.folders = state.folders.filter((item) => item.id !== folderId);
+        moveFolder(state: StartState, folderId: string): void {
+            state.folders = state.folders.filter((item) => item.folderId !== folderId);
         },
         /**
          * Delete a diagram
          */
         deleteDiagram(state: StartState, diagram: Diagram): void {
-            state.diagrams = state.diagrams.filter((item) => item.id != diagram.id);
+            state.diagrams = state.diagrams.filter((item) => item.diagramId != diagram.diagramId);
         },
         /**
          * Delete a folder
          */
         deleteFolder(state: StartState, folder: Folder): void {
-            state.folders = state.folders.filter((item) => item.id != folder.id);
+            state.folders = state.folders.filter((item) => item.folderId != folder.folderId);
         },
         /**
          * Edit a diagram and updates the name
          */
         editDiagram(state: StartState, diagram: Diagram): void {
-            state.diagrams = state.diagrams.map((item) => (item.id === diagram.id ? diagram : item));
+            state.diagrams = state.diagrams.map((item) => (item.diagramId === diagram.diagramId ? diagram : item));
         },
         /**
          * Edit a folder and updates the name
          */
         editFolder(state: StartState, folder: Folder): void {
-            state.folders = state.folders.map((item) => (item.id === folder.id ? folder : item));
+            state.folders = state.folders.map((item) => (item.folderId === folder.folderId ? folder : item));
         },
         /**
          * Load the folders for the current parent folder
@@ -140,7 +140,7 @@ export const start = {
          */
         async addFolder(
             context: ActionContext<StartState, RootState>,
-            payload: { folder: Folder; folderId: number },
+            payload: { folder: Folder; folderId: string },
         ): Promise<void> {
             const path = payload.folderId ? `folders/${payload.folderId}/folders` : "folders";
             const res = await POST(`/api/${path}`, JSON.stringify(payload.folder));
@@ -154,34 +154,34 @@ export const start = {
          */
         async moveDiagram(
             context: ActionContext<StartState, RootState>,
-            payload: { parentId: number; id: number },
+            payload: { parentId: string; id: string },
         ): Promise<void> {
             const res =
-                payload.parentId === undefined
-                    ? await DELETE(`/api/folders/${context.state.parent.id}/diagrams/${payload.id}`)
+                payload.parentId === null
+                    ? await DELETE(`/api/folders/${context.state.parent.folderId}/diagrams/${payload.id}`)
                     : await PUT(`/api/folders/${payload.parentId}/diagrams/${payload.id}`, "");
 
-            if (res.status === 201) context.commit("moveDiagram", payload.id);
+            if (res.status === 200) context.commit("moveDiagram", payload.id);
         },
         /**
          * Move a folder into a folder
          */
         async moveFolder(
             context: ActionContext<StartState, RootState>,
-            payload: { parentId: number; id: number },
+            payload: { parentId: string; id: string },
         ): Promise<void> {
             const res =
-                payload.parentId === undefined
-                    ? await DELETE(`/api/folders/${context.state.parent.id}/folders/${payload.id}`)
+                payload.parentId === null
+                    ? await DELETE(`/api/folders/${context.state.parent.folderId}/folders/${payload.id}`)
                     : await PUT(`/api/folders/${payload.parentId}/folders/${payload.id}`, "");
 
-            if (res.status === 201) context.commit("moveFolder", payload.id);
+            if (res.status === 200) context.commit("moveFolder", payload.id);
         },
         /**
          * Delete a diagram
          */
         async deleteDiagram(context: ActionContext<StartState, RootState>, diagram: Diagram): Promise<void> {
-            const res = await DELETE(`/api/diagrams/${diagram.id}`);
+            const res = await DELETE(`/api/diagrams/${diagram.diagramId}`);
             if (res.status === 200) {
                 context.commit("deleteDiagram", diagram);
                 context.commit("sortDiagrams");
@@ -191,7 +191,7 @@ export const start = {
          * Delete a folder
          */
         async deleteFolder(context: ActionContext<StartState, RootState>, folder: Folder): Promise<void> {
-            const res = await DELETE(`/api/folders/${folder.id}`);
+            const res = await DELETE(`/api/folders/${folder.folderId}`);
             if (res.status === 200) {
                 context.commit("deleteFolder", folder);
                 context.commit("sortFolders");
@@ -201,7 +201,8 @@ export const start = {
          * Change the name of a diagram
          */
         async editDiagram(context: ActionContext<StartState, RootState>, diagram: Diagram): Promise<void> {
-            const res = await PUT(`/api/diagrams/${diagram.id}`, JSON.stringify(diagram));
+            console.log(diagram);
+            const res = await PUT(`/api/diagrams/${diagram.diagramId}`, JSON.stringify(diagram));
             if (res.status === 200) {
                 context.commit("editDiagram", await res.json());
                 context.commit("sortDiagrams");
@@ -211,7 +212,7 @@ export const start = {
          * Change the name of a folder
          */
         async editFolder(context: ActionContext<StartState, RootState>, folder: Folder): Promise<void> {
-            const res = await PUT(`/api/folders/${folder.id}`, JSON.stringify(folder));
+            const res = await PUT(`/api/folders/${folder.folderId}`, JSON.stringify(folder));
             if (res.status === 200) {
                 context.commit("editFolder", await res.json());
                 context.commit("sortFolders");
@@ -220,7 +221,7 @@ export const start = {
         /**
          * Load the folders and items for the current folder
          */
-        async loadItems(context: ActionContext<StartState, RootState>, routeId: number): Promise<void> {
+        async loadItems(context: ActionContext<StartState, RootState>, routeId: string): Promise<void> {
             // Load the items
             context.commit("setLoadingState", true);
             const resDiagrams = await GET(routeId ? `/api/folders/${routeId}/diagrams` : "/api/diagrams/root");

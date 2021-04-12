@@ -3,11 +3,11 @@ import { ApiProperty } from "@nestjs/swagger";
 export default class Relation {
     @ApiProperty({
         required: false,
-        type: "number",
-        name: "id",
+        type: "string",
+        name: "relationId",
         description: "Id of the relation",
     })
-    public id?: number;
+    public relationId?: string;
 
     @ApiProperty({
         required: true,
@@ -27,19 +27,19 @@ export default class Relation {
 
     @ApiProperty({
         required: true,
-        type: "number",
+        type: "string",
         name: "from",
         description: "Id of the node where the relation starts",
     })
-    public from: number;
+    public from: string;
 
     @ApiProperty({
         required: true,
-        type: "number",
+        type: "string",
         name: "to",
         description: "Id of the node where the relation ends",
     })
-    public to: number;
+    public to: string;
 
     /**
      * Constructor
@@ -50,11 +50,11 @@ export default class Relation {
      * @param attributes Attributes of the relation
      * @param id Id of the relation
      */
-    constructor(type: string, from: number, to: number, attributes: any, id?: number) {
+    constructor(type: string, from: string, to: string, attributes: any, id = "") {
         this.type = type;
         this.from = from;
         this.to = to;
         this.attributes = attributes;
-        this.id = id;
+        this.relationId = id;
     }
 }
