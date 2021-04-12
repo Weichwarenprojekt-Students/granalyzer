@@ -90,10 +90,10 @@ export default defineComponent({
             // Check if the folder was dropped on itself
             if (dragId != this.itemId) {
                 if (isFolder) {
-                    this.$store.commit("start/deleteFolder", { id: dragId });
+                    this.$store.commit("start/deleteFolder", { folderId: dragId });
                     this.$emit("folder-drop", new ItemDragEvent(dragId, this.itemId));
                 } else {
-                    this.$store.commit("start/deleteDiagram", { id: dragId });
+                    this.$store.commit("start/deleteDiagram", { diagramId: dragId });
                     this.$emit("diagram-drop", new ItemDragEvent(dragId, this.itemId));
                 }
             }

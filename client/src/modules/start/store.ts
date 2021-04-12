@@ -154,28 +154,28 @@ export const start = {
          */
         async moveDiagram(
             context: ActionContext<StartState, RootState>,
-            payload: { parentId: string; id: string },
+            payload: { parentId: string; diagramId: string },
         ): Promise<void> {
             const res =
                 payload.parentId === null
-                    ? await DELETE(`/api/folders/${context.state.parent.folderId}/diagrams/${payload.id}`)
-                    : await PUT(`/api/folders/${payload.parentId}/diagrams/${payload.id}`, "");
+                    ? await DELETE(`/api/folders/${context.state.parent.folderId}/diagrams/${payload.diagramId}`)
+                    : await PUT(`/api/folders/${payload.parentId}/diagrams/${payload.diagramId}`, "");
 
-            if (res.status === 200) context.commit("moveDiagram", payload.id);
+            if (res.status === 200) context.commit("moveDiagram", payload.diagramId);
         },
         /**
          * Move a folder into a folder
          */
         async moveFolder(
             context: ActionContext<StartState, RootState>,
-            payload: { parentId: string; id: string },
+            payload: { parentId: string; folderId: string },
         ): Promise<void> {
             const res =
                 payload.parentId === null
-                    ? await DELETE(`/api/folders/${context.state.parent.folderId}/folders/${payload.id}`)
-                    : await PUT(`/api/folders/${payload.parentId}/folders/${payload.id}`, "");
+                    ? await DELETE(`/api/folders/${context.state.parent.folderId}/folders/${payload.folderId}`)
+                    : await PUT(`/api/folders/${payload.parentId}/folders/${payload.folderId}`, "");
 
-            if (res.status === 200) context.commit("moveFolder", payload.id);
+            if (res.status === 200) context.commit("moveFolder", payload.folderId);
         },
         /**
          * Delete a diagram
@@ -201,7 +201,6 @@ export const start = {
          * Change the name of a diagram
          */
         async editDiagram(context: ActionContext<StartState, RootState>, diagram: Diagram): Promise<void> {
-            console.log(diagram);
             const res = await PUT(`/api/diagrams/${diagram.diagramId}`, JSON.stringify(diagram));
             if (res.status === 200) {
                 context.commit("editDiagram", await res.json());

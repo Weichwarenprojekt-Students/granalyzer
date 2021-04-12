@@ -13,7 +13,7 @@
             </div>
             <OverviewItem
                 v-for="node in $store.state.editor.nodes"
-                :key="node.id"
+                :key="node.nodeId"
                 :node="node"
                 :color="$store.state.editor.labelColor.get(node.label).color"
                 :font-color="$store.state.editor.labelColor.get(node.label).fontColor"

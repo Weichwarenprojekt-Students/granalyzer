@@ -74,7 +74,7 @@ export default defineComponent({
                 label: node.label,
                 name: node.name,
                 ref: {
-                    uuid: node.id,
+                    uuid: node.nodeId,
                     index: 0,
                 },
             });
