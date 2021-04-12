@@ -26,6 +26,11 @@ export class GraphEditorState {
      * True if the graph editor is currently loading
      */
     public editorLoading = false;
+
+    /**
+     * True if the relation edit mode is active
+     */
+    public relationModeActive = false;
 }
 
 export const graphEditor = {
@@ -94,6 +99,24 @@ export const graphEditor = {
          */
         setEditorLoading(state: GraphEditorState, loading: boolean): void {
             state.editorLoading = loading;
+        },
+        /**
+         * Activate/Deactivate the relation edit mode
+         */
+        setRelationMode(state: GraphEditorState, value: boolean): void {
+            if (!state.graphHandler) {
+                state.relationModeActive = false;
+                return;
+            }
+
+            // Deselect elements
+            state.selectedElement = undefined;
+            state.graphHandler.graph.deselectElements();
+            state.relationModeActive = value;
+
+            // Disable interactivity of cells in the graph
+            // TODO: decide behaviour of interactivity
+            // state.graphHandler.graph.setInteractivity(!value);
         },
     },
     actions: {
@@ -177,6 +200,12 @@ export const graphEditor = {
                 await PUT("/api/diagrams/" + diagram.id, JSON.stringify(diagram));
             }
         },
+        /**
+         * Toggle the relation edit mode
+         */
+        async toggleRelationMode(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
+            context.commit("setRelationMode", !context.state.relationModeActive);
+        },
     },
     getters: {
         /**
@@ -197,6 +226,12 @@ export const graphEditor = {
          */
         itemSelected(state: GraphEditorState): boolean {
             return state.selectedElement !== undefined;
+        },
+        /**
+         * @return True if relation edit mode is active
+         */
+        relationModeActive(state: GraphEditorState): boolean {
+            return state.relationModeActive;
         },
     },
 };

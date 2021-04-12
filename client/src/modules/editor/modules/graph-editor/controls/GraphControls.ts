@@ -3,10 +3,11 @@ import { RootState } from "@/store";
 import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/MoveNodeCommand";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
-import { dia, shapes } from "jointjs";
+import { dia, linkTools, shapes } from "jointjs";
 import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/models/NodeShapes";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
-import { getBrightness } from "@/utility";
+import { GET, getBrightness } from "@/utility";
+import ApiRelation from "@/modules/editor/models/ApiRelation";
 
 export class GraphControls {
     /**
@@ -114,8 +115,15 @@ export class GraphControls {
      * @param target The target element
      * @param uuid An optional uuid for the relation
      * @param labelText An optional label for the relation
+     * @param asFaintRelation True if the relation should be added as a faint relation
      */
-    public addRelation(source: dia.Element, target: dia.Element, uuid?: string, labelText?: string): void {
+    public addRelation(
+        source: dia.Element,
+        target: dia.Element,
+        uuid?: string,
+        labelText?: string,
+        asFaintRelation?: boolean,
+    ): void {
         // Check if the nodes exist
         const from = this.graphHandler.nodes.get(source.id);
         const to = this.graphHandler.nodes.get(target.id);
@@ -143,7 +151,7 @@ export class GraphControls {
         if (labelText)
             link.appendLabel({
                 attrs: {
-                    text: { text: labelText, textAnchor: "middle", textVerticalAnchor: "middle" },
+                    text: { text: labelText, textAnchor: "middle", textVerticalAnchor: "middle", fill: "#fff" },
                     rect: {
                         ref: "text",
                         fill: "#333",
@@ -161,7 +169,26 @@ export class GraphControls {
 
         // Add the relation to the graph and to the other links
         link.addTo(this.graphHandler.graph.graph);
-        this.graphHandler.relations.set(link.id, relation);
+
+        // Check if relation should be added as faint relation
+        if (asFaintRelation) {
+            link.attr({ rect: { fill: "#bbb" }, line: { stroke: "#bbb" } });
+            this.graphHandler.faintRelations.set(link.id, relation);
+        } else {
+            this.graphHandler.relations.set(link.id, relation);
+        }
+
+        // Prepare link tools for modifying vertices and segments
+        const verticesTool = new linkTools.Vertices();
+        const segmentsTool = new linkTools.Segments();
+        const toolsView = new dia.ToolsView({
+            tools: [verticesTool, segmentsTool],
+        });
+
+        // Add these tools to the link
+        const linkView = link.findView(this.graphHandler.graph.paper);
+        linkView.addTools(toolsView);
+        linkView.hideTools();
     }
 
     /**
@@ -169,9 +196,143 @@ export class GraphControls {
      *
      * @param relation The relation to be removed
      */
-    public removeRelation(relation: shapes.standard.Link): void {
+    public removeRelation(relation: dia.Element): void {
         this.graphHandler.relations.delete(relation.id);
+        this.graphHandler.faintRelations.delete(relation.id);
+        this.graphHandler.visualRelations.delete(relation.id);
         relation.remove();
+    }
+
+    /**
+     * Process all relations for an activated relation edit mode
+     */
+    public async switchRelationsForActiveRelationMode(): Promise<void> {
+        // Generate a set of all node uuids
+        const uniqueNodeIds = new Set(
+            Array.from(this.graphHandler.nodes.values(), (node) => {
+                return node.ref.uuid;
+            }),
+        );
+
+        // Send api requests all at once to get all relations directly connected to all nodes
+        const apiRelations = await Promise.all(
+            [...uniqueNodeIds].map(
+                async (id) => (await (await GET(`/api/nodes/${id}/relations`)).json()) as ApiRelation,
+            ),
+        );
+
+        // Filter out duplicate relations by assigning them by their uuid to a map
+        const relationMap = new Map<string, ApiRelation>();
+        apiRelations.flat().forEach((rel) => {
+            relationMap.set(rel.id, rel);
+        });
+
+        // Prepare a set which will be filled with all DB relations which are already present in the graph
+        const alreadyPresentRelations = new Set<string>();
+
+        this.graphHandler.relations.forEach((relation, id) => {
+            if (!relation.uuid) {
+                // If the relation has no uuid, it can't be synchronized with the DB and is a visual relation
+                this.switchVisualRelation(id);
+                return;
+            }
+            const apiRel = relationMap.get(relation.uuid);
+            if (apiRel && apiRel.from === relation.from.uuid && apiRel.to === relation.to.uuid) {
+                // If the api relation with the same uuid has the same start and end node, register it as found db relation
+                alreadyPresentRelations.add(
+                    `${relation.uuid}-${relation.from.uuid}.${relation.from.index}-${relation.to.uuid}.${relation.to.index}`,
+                );
+            } else {
+                // If it doesn't have the same start and end nodes, it's a visual relation
+                this.switchVisualRelation(id);
+            }
+        });
+
+        // Add all api relations as faint db relations that are not present in the graph yet
+        // TODO: for loop nested three-fold, not very good for performance
+        relationMap.forEach((rel, id) => {
+            // For each api relation
+            this.graphHandler.nodes.forEach((nodeFrom, jointUuidFrom) => {
+                // Find nodes with start uuid
+                if (rel.from === nodeFrom.ref.uuid) {
+                    const fromElement = this.graphHandler.getCellById(jointUuidFrom);
+                    this.graphHandler.nodes.forEach((nodeTo, jointUuidTo) => {
+                        // Find nodes with end uuid
+                        if (
+                            rel.to === nodeTo.ref.uuid &&
+                            !alreadyPresentRelations.has(
+                                `${rel.id}-${nodeFrom.ref.uuid}.${nodeFrom.ref.index}-${nodeTo.ref.uuid}.${nodeTo.ref.index}`,
+                            )
+                        ) {
+                            // If relation not yet present in diagram, add it
+                            const toElement = this.graphHandler.getCellById(jointUuidTo);
+                            this.addRelation(fromElement, toElement, id, rel.type, true);
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    /**
+     * Switch all relations back from an active relation edit mode
+     */
+    public switchRelationsForInactiveRelationMode(): void {
+        // Remove all faint relations
+        this.graphHandler.faintRelations.forEach((node, id) => {
+            this.removeRelation(this.graphHandler.getCellById(id));
+        });
+
+        // Switch visual relations to normally displayed relations
+        this.graphHandler.visualRelations.forEach((node, id) => {
+            this.switchVisualRelation(id);
+        });
+    }
+
+    /**
+     * Switch a DB relation to be faint or not
+     * @param diagEl The object from the graph to switch
+     */
+    public switchDbRelation(diagEl: dia.Element): void {
+        // TODO: Refactor to remove duplicate code
+        if (this.graphHandler.relations.has(diagEl.id)) {
+            const rel = this.graphHandler.relations.get(diagEl.id);
+            this.graphHandler.relations.delete(diagEl.id);
+            if (rel) this.graphHandler.faintRelations.set(diagEl.id, rel);
+
+            diagEl.attr({ rect: { fill: "#bbb" }, line: { stroke: "#bbb" } });
+        } else if (this.graphHandler.faintRelations.has(diagEl.id)) {
+            const rel = this.graphHandler.faintRelations.get(diagEl.id);
+            this.graphHandler.faintRelations.delete(diagEl.id);
+            if (rel) this.graphHandler.relations.set(diagEl.id, rel);
+
+            diagEl.attr({ rect: { fill: "#333" }, line: { stroke: "#333" } });
+        }
+    }
+
+    /**
+     * Switch a visual relation to be colored or not
+     * @param id The id of the relation to switch
+     */
+    public switchVisualRelation(id: string | number): void {
+        const diagEl = this.graphHandler.getCellById(id);
+
+        if (!diagEl) return;
+
+        // TODO: Refactor duplicate code
+        if (this.graphHandler.relations.has(id)) {
+            const rel = this.graphHandler.relations.get(id);
+            this.graphHandler.relations.delete(id);
+            if (rel) this.graphHandler.visualRelations.set(id, rel);
+
+            diagEl.attr({ rect: { fill: "#b33" }, line: { stroke: "#b33" } });
+        } else if (this.graphHandler.visualRelations.has(id)) {
+            const rel = this.graphHandler.visualRelations.get(id);
+            this.graphHandler.visualRelations.delete(id);
+            if (rel) this.graphHandler.relations.set(id, rel);
+
+            diagEl.attr({ rect: { fill: "#333" }, line: { stroke: "#333" } });
+        }
     }
 
     /**
@@ -179,24 +340,47 @@ export class GraphControls {
      */
     private registerNodeInteraction(): void {
         // No element selected
-        this.graphHandler.graph.paper.on("blank:pointerdown", () =>
-            this.store.commit("editor/setSelectedElement", undefined),
-        );
+        this.graphHandler.graph.paper.on("blank:pointerdown", () => {
+            this.graphHandler.graph.deselectElements();
+            this.store.commit("editor/setSelectedElement", undefined);
+        });
 
         // The move command instance
-        let moveCommand: MoveNodeCommand;
+        let moveCommand: MoveNodeCommand | undefined;
 
         // Save the clicked element and the position of it
         this.graphHandler.graph.paper.on("element:pointerdown", (cell) => {
-            this.store.commit("editor/setSelectedElement", cell.model);
-            moveCommand = new MoveNodeCommand(this.graphHandler, cell.model);
+            // TODO: enable move command but not selection
+            if (!this.store.getters["editor/relationModeActive"]) {
+                this.graphHandler.graph.selectElement(cell);
+                this.store.commit("editor/setSelectedElement", cell.model);
+                moveCommand = new MoveNodeCommand(this.graphHandler, cell.model);
+            }
         });
 
         // Check if a node was moved
         this.graphHandler.graph.paper.on("element:pointerup", async () => {
-            if (!moveCommand || !moveCommand.positionChanged()) return;
-            moveCommand.updateStopPosition();
-            await this.store.dispatch("editor/addMoveCommand", moveCommand);
+            if (moveCommand && moveCommand.positionChanged()) {
+                moveCommand.updateStopPosition();
+                await this.store.dispatch("editor/addMoveCommand", moveCommand);
+            }
+            moveCommand = undefined;
+        });
+
+        // Switch db relations on mouse click
+        this.graphHandler.graph.paper.on("link:pointerdown", (cell) => {
+            if (this.store.getters["editor/relationModeActive"]) {
+                this.switchDbRelation(cell.model);
+            }
+        });
+
+        // Show and hide tools for moving links
+        this.graphHandler.graph.paper.on("link:mouseenter", (linkView) => {
+            if (!this.store.getters["editor/relationModeActive"]) linkView.showTools();
+        });
+
+        this.graphHandler.graph.paper.on("link:mouseleave", (linkView) => {
+            if (!this.store.getters["editor/relationModeActive"]) linkView.hideTools();
         });
     }
 }

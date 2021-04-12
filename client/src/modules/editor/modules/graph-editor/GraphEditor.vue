@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, watch } from "vue";
 import { GraphHandler } from "./controls/GraphHandler";
 import { isEmpty } from "@/utility";
 import Toolbar from "./components/Toolbar.vue";
@@ -35,6 +35,8 @@ export default defineComponent({
         };
     },
     async mounted(): Promise<void> {
+        this.$store.commit("editor/setRelationMode", false);
+
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
@@ -43,6 +45,7 @@ export default defineComponent({
         if (isEmpty(this.$store.state.editor.diagram)) {
             this.$toast.add({
                 severity: "error",
+                // TODO: Improve german translation
                 summary: this.$t("editor.noDiagram.title"),
                 detail: this.$t("editor.noDiagram.description"),
                 life: 3000,
@@ -50,6 +53,21 @@ export default defineComponent({
         } else {
             this.$store.commit("editor/setDiagram", this.$store.state.editor.diagram);
         }
+
+        // TODO: Move to watch: {} block
+        // Watch if the relation mode is active and then execute the correct controls
+        watch(
+            () => this.relationModeActive,
+            (state, oldState) => {
+                if (oldState === state) return;
+
+                if (state) {
+                    this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForActiveRelationMode();
+                } else {
+                    this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForInactiveRelationMode();
+                }
+            },
+        );
     },
     methods: {
         /**
@@ -57,6 +75,17 @@ export default defineComponent({
          */
         // eslint-disable-next-line
         onNodeDrop(evt: any): void {
+            // Disable adding nodes in relation edit mode
+            if (this.relationModeActive) {
+                this.$toast.add({
+                    severity: "warn",
+                    summary: this.$t("editor.relationModeToast.title"),
+                    detail: this.$t("editor.relationModeToast.description"),
+                    life: 4000,
+                });
+                return;
+            }
+
             // Get the selected node
             const node = this.$store.state.editor.selectedNode;
             if (!node) return;
@@ -74,6 +103,11 @@ export default defineComponent({
                     index: 0,
                 },
             });
+        },
+    },
+    computed: {
+        relationModeActive(): boolean {
+            return this.$store.getters["editor/relationModeActive"];
         },
     },
 });
@@ -116,10 +150,8 @@ export default defineComponent({
     cursor: pointer;
 
     text {
-        fill: white;
-
         tspan {
-            font-size: 14px;
+            font-size: 16px;
         }
     }
 }

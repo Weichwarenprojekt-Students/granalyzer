@@ -7,6 +7,7 @@ export class Diagram {
       "nodes":[
         {"label":"A League of Their Own","ref":{"index":0,"uuid":160},"color":"#753780","shape":"rectangle","x":-239,"y":4},
         {"label":"Bill Paxton","ref":{"index":0,"uuid":144},"color":"#55a962","shape":"rectangle","x":-245,"y":187},
+        {"label":"Bill Paxton","ref":{"index":1,"uuid":144},"color":"#55a962","shape":"rectangle","x":-445,"y":187},
         {"label":"The Matrix","ref":{"index":0,"uuid":0},"color":"#753780","shape":"rectangle","x":331.6666564941406,"y":-119.99999237060547},
         {"label":"The Matrix Reloaded","ref":{"index":0,"uuid":9},"color":"#753780","shape":"rectangle","x":491,"y":-123},
         {"label":"The Matrix Revolutions","ref":{"index":0,"uuid":10},"color":"#753780","shape":"rectangle","x":692,"y":-119},
@@ -27,6 +28,7 @@ export class Diagram {
       ],
       "relations":[
         {"uuid":237,"type":"ACTED_IN","from":{"uuid":144,"index":0},"to":{"uuid":160,"index":0}},
+        {"uuid":237,"type":"ACTED_IN","from":{"uuid":144,"index":1},"to":{"uuid":160,"index":0}},
         {"uuid":16,"type":"ACTED_IN","from":{"uuid":2,"index":0},"to":{"uuid":10,"index":0}},
         {"uuid":9,"type":"ACTED_IN","from":{"uuid":2,"index":0},"to":{"uuid":9,"index":0}},
         {"uuid":1,"type":"ACTED_IN","from":{"uuid":2,"index":0},"to":{"uuid":0,"index":0}},
@@ -54,7 +56,8 @@ export class Diagram {
         {"uuid":113,"type":"DIRECTED","from":{"uuid":71,"index":0},"to":{"uuid":85,"index":0}},
         {"uuid":221,"type":"PRODUCED","from":{"uuid":154,"index":0},"to":{"uuid":152,"index":0}},
         {"uuid":222,"type":"WROTE","from":{"uuid":154,"index":0},"to":{"uuid":152,"index":0}},
-        {"uuid":220,"type":"DIRECTED","from":{"uuid":154,"index":0},"to":{"uuid":152,"index":0}}
+        {"uuid":220,"type":"DIRECTED","from":{"uuid":154,"index":0},"to":{"uuid":152,"index":0}},
+        {"uuid":420,"type":"DIRECTED","from":{"uuid":154,"index":0},"to":{"uuid":9,"index":0}}
       ]
     }`;
 

@@ -1,6 +1,11 @@
 <template>
     <!-- The extra divs are necessary for the tooltips to work -->
     <div class="container">
+        <div class="item" v-tooltip.bottom="$t('editor.toolbar.relation')" @click="toggleRelationMode">
+            <svg :class="['icon', $store.getters['editor/relationModeActive'] ? 'selected' : '']">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#relation`"></use>
+            </svg>
+        </div>
         <div
             :class="['item', $store.getters['editor/undoAvailable'] ? '' : 'item-disabled']"
             @click="undo"
@@ -69,6 +74,12 @@ export default defineComponent({
         redo(): void {
             this.$store.dispatch("editor/redo");
         },
+        /**
+         * Toggle the relation edit mode
+         */
+        toggleRelationMode(): void {
+            this.$store.dispatch("editor/toggleRelationMode");
+        },
     },
 });
 </script>
@@ -97,6 +108,14 @@ export default defineComponent({
 
         &:hover {
             background: @accent_color;
+        }
+    }
+
+    svg.selected {
+        background: @secondary_color;
+
+        &:hover {
+            background: @secondary_color;
         }
     }
 }

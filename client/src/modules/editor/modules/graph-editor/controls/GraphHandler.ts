@@ -18,6 +18,14 @@ export class GraphHandler {
      */
     public relations = new Map<string | number, Relation>();
     /**
+     * Relations from the DB that are not "in" the diagram, but are shown in relation edit mode
+     */
+    public faintRelations = new Map<string | number, Relation>();
+    /**
+     * Relations that have no counterpart in the DB are moved here during relation mode and displayed in a different color
+     */
+    visualRelations = new Map<string | number, Relation>();
+    /**
      * The extended controls for the graph
      */
     public controls: GraphControls;
