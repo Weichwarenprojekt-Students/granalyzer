@@ -70,7 +70,7 @@ export default defineComponent({
                 color: node.color,
                 label: node.name,
                 ref: {
-                    uuid: node.id,
+                    uuid: node.nodeId,
                     index: 0,
                 },
             });

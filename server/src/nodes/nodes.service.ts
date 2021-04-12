@@ -104,11 +104,13 @@ export class NodesService {
         const attributes = record.get("node");
 
         const node = {
-            id: record.get("node").nodeId,
+            nodeId: record.get("node").nodeId,
             name: record.get("node").name,
             label: record.get("node").label,
             attributes: attributes,
         } as Node;
+
+        delete node["attributes"]["nodeId"];
 
         return this.dataSchemeUtil.parseRecordByLabel(node);
     }
