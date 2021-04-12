@@ -21,6 +21,10 @@ export interface Node {
      */
     label: string;
     /**
+     * The name of the node
+     */
+    name: string;
+    /**
      * The type
      */
     shape: string;

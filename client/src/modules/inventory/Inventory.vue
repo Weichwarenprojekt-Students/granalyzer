@@ -6,7 +6,7 @@
             :labels="$store.state.labels"
             :labelColors="$store.state.labelColor"
             :toggleScrollEmit="toggleScrollEmit"
-            :selectedItemId="$store.state.inventory.selectedNode?.id"
+            :selectedItemId="$store.state.inventory.selectedNode?.nodeId"
             class="overview"
             @extend-nodes="extendNodes"
             @clicked-on-node="clickedOnNode"

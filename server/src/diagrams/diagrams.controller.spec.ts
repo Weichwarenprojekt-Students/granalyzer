@@ -1,118 +1,146 @@
 /**
- * @group unit/diagrams/controller
+ * @group db/data-scheme/controller
  */
 
-import { Test, TestingModule } from "@nestjs/testing";
-import { DiagramsController } from "./diagrams.controller";
-import { DiagramsService } from "./diagrams.service";
+import { TestingModule } from "@nestjs/testing";
 import { Neo4jService } from "nest-neo4j/dist";
-import { DiagramsRepository } from "./diagrams.repository";
-import MockNeo4jService from "../../test/mock-neo4j.service";
-import { UtilsRepository } from "../util/utils.repository";
-import { UtilsNode } from "../util/utils.node";
+import { NotFoundException } from "@nestjs/common";
+import { DiagramsService } from "./diagrams.service";
+import { DiagramsController } from "./diagrams.controller";
+import { Diagram } from "./diagram.model";
+import { Folder } from "../folders/folder.model";
+import { DatabaseUtil } from "../util/database.util";
+import TestUtil from "../util/test.util";
 import { FoldersService } from "../folders/folders.service";
 
 describe("DiagramsController", () => {
-    let service: DiagramsService;
-    let foldersService: FoldersService;
-    let neo4jService: Neo4jService;
-    let controller: DiagramsController;
+    let module: TestingModule;
 
-    beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            controllers: [DiagramsController],
-            providers: [
-                DiagramsService,
-                FoldersService,
-                {
-                    provide: Neo4jService,
-                    useValue: MockNeo4jService,
-                },
-                UtilsNode,
-            ],
-        }).compile();
+    let diagramsService: DiagramsService;
+    let neo4jService: Neo4jService;
+    let diagramsController: DiagramsController;
+    let databaseUtil: DatabaseUtil;
+    let foldersService: FoldersService;
+
+    let diagram1: Diagram;
+    let diagram2: Diagram;
+    let diagram3: Diagram;
+
+    let folder1: Folder;
+    let folder2: Folder;
+
+    beforeAll(async () => {
+        module = await TestUtil.createTestingModule([DiagramsService, FoldersService], [DiagramsController]);
 
         neo4jService = module.get<Neo4jService>(Neo4jService);
-        service = module.get<DiagramsService>(DiagramsService);
+        diagramsService = module.get<DiagramsService>(DiagramsService);
+        diagramsController = module.get<DiagramsController>(DiagramsController);
+        databaseUtil = module.get<DatabaseUtil>(DatabaseUtil);
         foldersService = module.get<FoldersService>(FoldersService);
-        controller = module.get<DiagramsController>(DiagramsController);
+
+        await databaseUtil.initDatabase();
+    });
+
+    afterEach(async () => {
+        await databaseUtil.clearDatabase();
     });
 
     it("should be defined", () => {
-        expect(service).toBeDefined();
-        expect(foldersService).toBeDefined();
+        expect(diagramsService).toBeDefined();
         expect(neo4jService).toBeDefined();
-        expect(controller).toBeDefined();
-    });
-
-    describe("getDiagrams", () => {
-        it("should return all diagrams", async () => {
-            jest.spyOn(neo4jService, "read").mockImplementation(() => DiagramsRepository.mockGetDiagrams());
-
-            expect(await controller.getAllDiagrams()).toStrictEqual(DiagramsRepository.resultGetDiagrams());
-        });
-    });
-
-    describe("getRootDiagrams", () => {
-        it("should return all root diagrams", async () => {
-            jest.spyOn(neo4jService, "read").mockImplementation(() => DiagramsRepository.mockGetDiagrams());
-
-            expect(await controller.getAllRootDiagrams()).toStrictEqual(DiagramsRepository.resultGetDiagrams());
-        });
-    });
-
-    describe("getDiagram", () => {
-        it("should return one diagram", async () => {
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Diagram"),
-            );
-            jest.spyOn(neo4jService, "read").mockImplementation(() => DiagramsRepository.mockGetDiagram());
-
-            expect(await controller.getDiagram(0)).toStrictEqual(DiagramsRepository.resultGetDiagram());
-        });
+        expect(diagramsController).toBeDefined();
+        expect(databaseUtil).toBeDefined();
     });
 
     describe("addDiagram", () => {
-        it("should return the added diagram", async () => {
-            jest.spyOn(neo4jService, "write").mockImplementation(() => DiagramsRepository.mockAddDiagram());
+        const bodyObject = {
+            name: "Diagram Name",
+            serialized: "Serialized",
+        };
+        it("should return one diagram", async () => {
+            expect((await diagramsController.addDiagram(bodyObject))["name"]).toEqual(bodyObject["name"]);
+        });
 
-            const bodyObject = {
-                name: "my name",
-                serialized: "string",
-            };
-
-            expect(await controller.addDiagram(bodyObject)).toStrictEqual(DiagramsRepository.resultAddDiagram());
+        it("non-existing id should return not found exception", async () => {
+            await expect(diagramsController.getDiagram("xxx")).rejects.toThrowError(NotFoundException);
         });
     });
 
-    describe("updateDiagram", () => {
-        it("should return the updated diagram", async () => {
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Diagram"),
-            );
+    describe("Further tests", () => {
+        beforeEach(async () => {
+            folder1 = await foldersService.addFolder("Folder 1");
+            folder2 = await foldersService.addFolder("Folder 2");
+            diagram1 = await diagramsService.addDiagram("Diagram 1");
+            diagram2 = await diagramsService.addDiagram("Diagram 2");
+            diagram3 = await diagramsService.addDiagram("Diagram 3");
 
-            jest.spyOn(neo4jService, "write").mockImplementation(() => DiagramsRepository.mockUpdateDiagram());
+            diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
+        });
 
+        describe("getDiagrams", () => {
+            it("should return all diagrams", async () => {
+                expect((await diagramsController.getAllDiagrams()).sort(TestUtil.getSortOrder("diagramId"))).toEqual(
+                    [diagram1, { ...diagram2, parentId: null }, { ...diagram3, parentId: null }].sort(
+                        TestUtil.getSortOrder("diagramId"),
+                    ),
+                );
+            });
+        });
+
+        describe("getAllRootDiagrams", () => {
+            it("should return all diagrams in root", async () => {
+                expect(
+                    (await diagramsController.getAllRootDiagrams()).sort(TestUtil.getSortOrder("diagramId")),
+                ).toEqual([diagram2, diagram3].sort(TestUtil.getSortOrder("diagramId")));
+            });
+        });
+
+        describe("getDiagram", () => {
+            it("should return one diagram", async () => {
+                expect(await diagramsController.getDiagram(diagram2["diagramId"])).toEqual({
+                    ...diagram2,
+                    parentId: null,
+                });
+            });
+
+            it("non-existing id should return not found exception", async () => {
+                await expect(diagramsController.getDiagram("xxx")).rejects.toThrowError(NotFoundException);
+            });
+        });
+
+        describe("updateDiagram", () => {
             const bodyObject = {
                 name: "changed name",
                 serialized: ",changed string",
             };
-
-            expect(await controller.updateDiagram(0, bodyObject)).toStrictEqual(
-                DiagramsRepository.resultUpdateDiagram(),
-            );
+            it("should return the updated diagram", async () => {
+                expect(await diagramsController.updateDiagram(diagram2["diagramId"], bodyObject)).toEqual({
+                    diagramId: diagram2["diagramId"],
+                    ...bodyObject,
+                    parentId: null,
+                });
+            });
+            it("non-existing id should return not found exception", async () => {
+                await expect(diagramsController.updateDiagram("xxx", bodyObject)).rejects.toThrowError(
+                    NotFoundException,
+                );
+            });
         });
-    });
 
-    describe("deleteDiagram", () => {
-        it("should return the deleted diagram", async () => {
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Diagram"),
-            );
+        describe("deleteDiagram", () => {
+            it("should delete one diagram", async () => {
+                expect(await diagramsController.deleteDiagram(diagram2["diagramId"])).toEqual({
+                    ...diagram2,
+                    parentId: null,
+                });
+                await expect(diagramsController.getDiagram(diagram2["diagramId"])).rejects.toThrowError(
+                    NotFoundException,
+                );
+            });
 
-            jest.spyOn(neo4jService, "write").mockImplementation(() => DiagramsRepository.mockDeleteDiagram());
-
-            expect(await controller.deleteDiagram(0)).toStrictEqual(DiagramsRepository.resultDeleteDiagram());
+            it("non-existing id should return not found exception", async () => {
+                await expect(diagramsController.deleteDiagram("xxx")).rejects.toThrowError(NotFoundException);
+            });
         });
     });
 });

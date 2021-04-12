@@ -1,12 +1,12 @@
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
-import { Label } from "../data-scheme/models/label";
 import { DataSchemeService } from "../data-scheme/data-scheme.service";
 import Node from "../nodes/node.model";
 import { Attribute } from "../data-scheme/models/attributes";
 import MandatoryAttributeMissingException from "./exceptions/MandatoryAttributeMissing.exception";
 import Relation from "../relations/relation.model";
 import { RelationType } from "../data-scheme/models/relationType";
+import { LabelScheme } from "../data-scheme/models/labelScheme";
 
 @Injectable()
 export class DataSchemeUtil {
@@ -18,7 +18,7 @@ export class DataSchemeUtil {
      */
     async parseRecordByLabel(node: Node) {
         // Gets the label scheme which matches the nodes label name
-        const label: Label = await this.dataSchemeService.getLabelByName(node.label);
+        const label: LabelScheme = await this.dataSchemeService.getLabelScheme(node.label);
         // Deep copy all attributes from the node
         const nodeAttributes = JSON.parse(JSON.stringify(node.attributes));
         // Deletes the node Attributes
@@ -34,7 +34,7 @@ export class DataSchemeUtil {
      */
     async parseRecordByRelationType(relation: Relation) {
         // Get the scheme of the relation type
-        const relationType: RelationType = await this.dataSchemeService.getRelationTypeByName(relation.type);
+        const relationType: RelationType = await this.dataSchemeService.getRelationType(relation.type);
 
         const [from, to] = await this.getLabelsForRelation(relation);
 
@@ -44,7 +44,6 @@ export class DataSchemeUtil {
         // If not, throw exception
         if (!hasValidConnection) {
             const message = "Relation doesn't have a valid connection";
-            console.error(message);
             throw new InternalServerErrorException(message);
         }
 
@@ -64,7 +63,7 @@ export class DataSchemeUtil {
      * @param originalAttributes The original attributes of the node or relation
      * @private
      */
-    private transformAttributes(scheme: Label | RelationType, originalAttributes) {
+    private transformAttributes(scheme: LabelScheme | RelationType, originalAttributes) {
         const attributes = {};
 
         try {
@@ -83,7 +82,6 @@ export class DataSchemeUtil {
         } catch (e) {
             // Catch the Error if a Mandatory field is Empty
             if (e instanceof MandatoryAttributeMissingException) {
-                console.error(e.message);
                 throw new InternalServerErrorException("Mandatory attribute is missing");
             }
             throw e;
@@ -100,9 +98,9 @@ export class DataSchemeUtil {
      */
     private async getLabelsForRelation(relation: Relation): Promise<[string, string]> {
         // language=cypher
-        const cypher = "MATCH (s)-[r]->(e) WHERE id(r) = $id RETURN s, e";
+        const cypher = "MATCH (s)-[r]->(e) WHERE r.relationId = $id RETURN s, e";
         const params = {
-            id: this.neo4jService.int(relation.id),
+            id: relation.relationId,
         };
 
         const result = await this.neo4jService.read(cypher, params, process.env.DB_CUSTOMER);

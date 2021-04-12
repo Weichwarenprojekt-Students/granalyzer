@@ -1,252 +1,187 @@
 /**
- * @group unit/folders/controller
+ * @group db/data-scheme/controller
  */
 
-import { Test, TestingModule } from "@nestjs/testing";
-import { FoldersService } from "./folders.service";
+import { TestingModule } from "@nestjs/testing";
 import { Neo4jService } from "nest-neo4j/dist";
-import { FoldersRepository } from "./folders.repository";
-import MockNeo4jService from "../../test/mock-neo4j.service";
+import { NotFoundException } from "@nestjs/common";
 import { FoldersController } from "./folders.controller";
-import { UtilsRepository } from "../util/utils.repository";
-import { UtilsNode } from "../util/utils.node";
+import { Folder } from "./folder.model";
+import { FoldersService } from "./folders.service";
+import { Diagram } from "../diagrams/diagram.model";
 import { DiagramsService } from "../diagrams/diagrams.service";
+import TestUtil from "../util/test.util";
+import { DatabaseUtil } from "../util/database.util";
 
 describe("FoldersController", () => {
-    let service: FoldersService;
+    let module: TestingModule;
+
+    let foldersService: FoldersService;
     let neo4jService: Neo4jService;
-    let controller: FoldersController;
+    let foldersController: FoldersController;
+    let databaseUtil: DatabaseUtil;
     let diagramsService: DiagramsService;
 
-    beforeEach(async () => {
-        const module: TestingModule = await Test.createTestingModule({
-            controllers: [FoldersController],
-            providers: [
-                FoldersService,
-                DiagramsService,
-                {
-                    provide: Neo4jService,
-                    useValue: MockNeo4jService,
-                },
-                UtilsNode,
-            ],
-        }).compile();
+    let diagram1: Diagram;
+
+    let folder1: Folder;
+    let folder2: Folder;
+    let folder3: Folder;
+    let folder4: Folder;
+
+    beforeAll(async () => {
+        module = await TestUtil.createTestingModule([FoldersService, DiagramsService], [FoldersController]);
 
         neo4jService = module.get<Neo4jService>(Neo4jService);
-        service = module.get<FoldersService>(FoldersService);
+        foldersService = module.get<FoldersService>(FoldersService);
+        foldersController = module.get<FoldersController>(FoldersController);
         diagramsService = module.get<DiagramsService>(DiagramsService);
-        controller = module.get<FoldersController>(FoldersController);
+        databaseUtil = module.get<DatabaseUtil>(DatabaseUtil);
+
+        // Prepare database
+        await databaseUtil.initDatabase();
+    });
+
+    afterEach(async () => {
+        await databaseUtil.clearDatabase();
     });
 
     it("should be defined", () => {
-        expect(service).toBeDefined();
-        expect(diagramsService).toBeDefined();
+        expect(foldersService).toBeDefined();
         expect(neo4jService).toBeDefined();
-        expect(controller).toBeDefined();
-    });
-
-    describe("getFolders", () => {
-        it("should return all folders", async () => {
-            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockGetFolders());
-
-            expect(await controller.getAllFolders()).toStrictEqual(FoldersRepository.resultGetFolders());
-        });
-    });
-
-    describe("getAllRootElements", () => {
-        it("Should return all root folders", async () => {
-            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockGetAllRootFolders());
-
-            expect(await controller.getAllRootFolders()).toStrictEqual(FoldersRepository.resultGetAllRootFolders());
-        });
-    });
-
-    describe("getFolder", () => {
-        it("should return one Folder", async () => {
-            // First call checks whether id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-
-            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockGetFolder());
-
-            expect(await controller.getFolder(0)).toStrictEqual(FoldersRepository.resultGetFolder());
-        });
+        expect(foldersController).toBeDefined();
+        expect(diagramsService).toBeDefined();
     });
 
     describe("addFolder", () => {
-        it("should return the added Folder", async () => {
-            jest.spyOn(neo4jService, "write").mockImplementation(() => FoldersRepository.mockAddFolder());
-
-            expect(await controller.addFolder("added Folder")).toStrictEqual(FoldersRepository.resultAddFolder());
+        it("should return one folder", async () => {
+            expect((await foldersController.addFolder("Folder 4"))["name"]).toEqual("Folder 4");
         });
     });
 
-    describe("updateFolder", () => {
-        it("should return the updated Folder", async () => {
-            // First call checks whether id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-
-            jest.spyOn(neo4jService, "write").mockImplementation(() => FoldersRepository.mockUpdateFolder());
-
-            expect(await controller.updateFolder(0, "update Folder")).toStrictEqual(
-                FoldersRepository.resultUpdateFolder(),
-            );
+    describe("moveFolderToFolder", () => {
+        it("should move a folder into another folder", async () => {
+            const parentFolder = await foldersService.addFolder("parentFolder");
+            const childFolder = await foldersService.addFolder("childFolder");
+            expect(
+                await foldersController.moveFolderToFolder(parentFolder["folderId"], childFolder["folderId"]),
+            ).toEqual({
+                ...childFolder,
+                parentId: parentFolder["folderId"],
+            });
         });
     });
 
-    describe("deleteFolder", () => {
-        it("should return the deleted Folder", async () => {
-            // First call checks whether id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
+    describe("Further tests", () => {
+        beforeEach(async () => {
+            folder1 = await foldersService.addFolder("Folder 1");
+            folder2 = await foldersService.addFolder("Folder 2");
+            folder3 = await foldersService.addFolder("Folder 3");
+            folder4 = await foldersService.addFolder("Folder 4");
+            diagram1 = await diagramsService.addDiagram("Diagram 1");
+            await diagramsService.addDiagram("Diagram 2");
+            await diagramsService.addDiagram("Diagram 3");
 
-            jest.spyOn(neo4jService, "write").mockImplementation(() => FoldersRepository.mockDeleteFolder());
-
-            expect(await controller.deleteFolder(0)).toStrictEqual(FoldersRepository.resultDeleteFolder());
+            folder3 = await foldersService.moveFolderToFolder(folder1["folderId"], folder3["folderId"]);
+            folder4 = await foldersService.moveFolderToFolder(folder1["folderId"], folder4["folderId"]);
+            diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
         });
-    });
 
-    describe("getFoldersInFolder", () => {
-        it("should return all children of the given folder", async () => {
-            // First call checks whether id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-
-            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockGetFoldersInFolder());
-
-            expect(await controller.getFoldersInFolder(1)).toStrictEqual(FoldersRepository.resultGetFoldersInFolder());
+        describe("getAllFolders", () => {
+            it("should return all folders", async () => {
+                expect((await foldersController.getAllFolders()).sort(TestUtil.getSortOrder("folderId"))).toEqual(
+                    [folder3, { ...folder1, parentId: null }, { ...folder2, parentId: null }, folder4].sort(
+                        TestUtil.getSortOrder("folderId"),
+                    ),
+                );
+            });
         });
-    });
 
-    describe("getFolderInFolder", () => {
-        it("should return the child with the given id", async () => {
-            // First call checks whether parent id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-            // Checks whether child id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-
-            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockGetFolderInFolder());
-
-            expect(await controller.getFolderInFolder(1, 2)).toStrictEqual(FoldersRepository.resultGetFolderInFolder());
+        describe("getAllRootFolders", () => {
+            it("should return all folders in root", async () => {
+                expect((await foldersController.getAllRootFolders()).sort(TestUtil.getSortOrder("folderId"))).toEqual(
+                    [folder1, folder2].sort(TestUtil.getSortOrder("folderId")),
+                );
+            });
         });
-    });
 
-    describe("addFolderToFolder", () => {
-        it("should return the added child", async () => {
-            // First call checks whether parent id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-            // Checks whether child id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
+        describe("getFolder", () => {
+            it("should return one folder", async () => {
+                expect(await foldersController.getFolder(folder1["folderId"])).toEqual({ ...folder1, parentId: null });
+            });
 
-            jest.spyOn(neo4jService, "write").mockImplementation(() => FoldersRepository.mockAddFolderToFolder());
-
-            expect(await controller.moveFolderToFolder(5, 2)).toStrictEqual(
-                FoldersRepository.resultAddFolderToFolder(),
-            );
+            it("non-existing id should return not found exception", async () => {
+                await expect(foldersController.getFolder("xxx")).rejects.toThrowError(NotFoundException);
+            });
         });
-    });
 
-    describe("removeChildFromFolder", () => {
-        it("should return the removed child", async () => {
-            // First call checks whether parent id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-            // Checks whether child id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-
-            jest.spyOn(neo4jService, "write").mockImplementation(() => FoldersRepository.mockRemoveFolderFromFolder());
-
-            expect(await controller.removeFolderFromFolder(5, 2)).toStrictEqual(
-                FoldersRepository.resultRemoveFolderFromFolder(),
-            );
+        describe("updateFolder", () => {
+            it("should update one folder", async () => {
+                expect((await foldersController.updateFolder(folder1["folderId"], "updated folder"))["name"]).toEqual(
+                    "updated folder",
+                );
+                expect((await foldersController.getFolder(folder1["folderId"]))["name"]).toEqual("updated folder");
+            });
         });
-    });
 
-    describe("getDiagramsInFolder", () => {
-        it("should return all diagrams which are inside given folder", async () => {
-            // First call checks whether id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-
-            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockGetDiagramsInFolder());
-
-            expect(await controller.getDiagramsInFolder(1)).toStrictEqual(
-                FoldersRepository.resultGetDiagramsInFolder(),
-            );
+        describe("deleteFolder", () => {
+            it("should delete one folder", async () => {
+                expect(await foldersController.deleteFolder(folder1["folderId"])).toEqual({
+                    ...folder1,
+                    parentId: null,
+                });
+                await expect(foldersController.getFolder(folder1["folderId"])).rejects.toThrowError(NotFoundException);
+                await expect(foldersController.getFolder(diagram1["diagramId"])).rejects.toThrowError(
+                    NotFoundException,
+                );
+                await expect(foldersController.getFolder(folder3["folderId"])).rejects.toThrowError(NotFoundException);
+            });
         });
-    });
 
-    describe("getDiagramInFolder", () => {
-        it("should return the child diagram with the given id", async () => {
-            // First call checks whether parent id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-            // Checks whether child id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Diagram"),
-            );
-
-            jest.spyOn(neo4jService, "read").mockImplementation(() => FoldersRepository.mockGetDiagramInFolder());
-
-            expect(await controller.getDiagramInFolder(1, 2)).toStrictEqual(
-                FoldersRepository.resultGetDiagramInFolder(),
-            );
+        describe("getFoldersInFolder", () => {
+            it("should return folders inside of given folder", async () => {
+                expect(
+                    (await foldersController.getFoldersInFolder(folder1["folderId"])).sort(
+                        TestUtil.getSortOrder("folderId"),
+                    ),
+                ).toEqual([folder3, folder4].sort(TestUtil.getSortOrder("folderId")));
+            });
         });
-    });
 
-    describe("addDiagramToFolder", () => {
-        it("should return the added child", async () => {
-            // First call checks whether parent id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-            // Checks whether child id belongs to a diagram
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Diagram"),
-            );
+        describe("getFolderInFolder", () => {
+            it("should return folders inside of given folder", async () => {
+                expect(await foldersController.getFolderInFolder(folder1["folderId"], folder3["folderId"])).toEqual(
+                    folder3,
+                );
+            });
 
-            jest.spyOn(neo4jService, "write").mockImplementation(() => FoldersRepository.mockAddDiagramToFolder());
-
-            expect(await controller.moveDiagramToFolder(5, 2)).toStrictEqual(
-                FoldersRepository.resultAddDiagramToFolder(),
-            );
+            it("non-existing id should return not found exception", async () => {
+                await expect(foldersController.getFolderInFolder("xxx", "xxx")).rejects.toThrowError(NotFoundException);
+            });
         });
-    });
 
-    describe("removeDiagramFromFolder", () => {
-        it("should return the removed child", async () => {
-            // First call checks whether parent id belongs to a folder
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Folder"),
-            );
-            // Checks whether child id belongs to a diagram
-            jest.spyOn(neo4jService, "read").mockImplementationOnce(() =>
-                UtilsRepository.mockCheckElementForLabel("Diagram"),
-            );
+        describe("addFolderInFolder", () => {
+            it("should create a new folder inside of another folder", async () => {
+                expect((await foldersController.createFolderInFolder("Folder 4", folder2["folderId"]))["name"]).toEqual(
+                    "Folder 4",
+                );
+                expect((await foldersController.getFoldersInFolder(folder2["folderId"]))[0]["name"]).toEqual(
+                    "Folder 4",
+                );
+            });
+        });
 
-            jest.spyOn(neo4jService, "write").mockImplementation(() => FoldersRepository.mockRemoveDiagramFromFolder());
-
-            expect(await controller.removeDiagramFromFolder(5, 2)).toStrictEqual(
-                FoldersRepository.resultRemoveDiagramFromFolder(),
-            );
+        describe("removeFolderFromFolder", () => {
+            it("should remove a folder from another folder", async () => {
+                expect(
+                    await foldersController.removeFolderFromFolder(folder1["folderId"], folder3["folderId"]),
+                ).toEqual(folder3);
+                expect(await foldersController.getFolder(folder3["folderId"])).toEqual({
+                    folderId: folder3["folderId"],
+                    name: folder3["name"],
+                    parentId: null,
+                });
+            });
         });
     });
 });

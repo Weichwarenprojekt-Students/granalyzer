@@ -1,7 +1,14 @@
 import { Controller, Get, Param, Query } from "@nestjs/common";
 import { NodesService } from "./nodes.service";
 import Node from "./node.model";
-import { ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation, ApiQuery, ApiTags } from "@nestjs/swagger";
+import {
+    ApiInternalServerErrorResponse,
+    ApiOkResponse,
+    ApiOperation,
+    ApiParam,
+    ApiQuery,
+    ApiTags,
+} from "@nestjs/swagger";
 import { NodesRelationsService } from "./nodes-relations.service";
 import Relation from "../relations/relation.model";
 
@@ -48,13 +55,18 @@ export class NodesController {
         type: Node,
     })
     @ApiInternalServerErrorResponse()
-    getNode(@Param("id") id: number) {
+    getNode(@Param("id") id: string) {
         return this.nodesService.getNode(id);
     }
 
     @Get("/search/:needle")
     @ApiOperation({
         description: "Returns all nodes from the customer DB where the name contains the needle",
+    })
+    @ApiParam({
+        name: "id",
+        type: "string",
+        description: "Identifier of the node which is requested",
     })
     @ApiOkResponse({
         description: "Return the nodes matching the needle",
@@ -69,11 +81,16 @@ export class NodesController {
     @ApiOperation({
         description: "Return all relations that are connected to a node matching id",
     })
+    @ApiParam({
+        name: "id",
+        type: "string",
+        description: "Identifier of the node which relations are requested",
+    })
     @ApiOkResponse({
         description: "Return the all relations of a node",
         type: [Relation],
     })
-    getRelationsOfNode(@Param("id") id: number) {
+    getRelationsOfNode(@Param("id") id: string) {
         return this.nodesRelationsService.getRelationsOfNode(id);
     }
 }

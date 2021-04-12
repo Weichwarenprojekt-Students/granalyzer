@@ -31,11 +31,11 @@
             <!-- Nodes -->
             <OverviewItem
                 v-for="node in nodes"
-                :key="node.id"
+                :key="node.nodeId"
                 :node="node"
                 :color="labelColors.get(node.label).color"
                 :font-color="labelColors.get(node.label).fontColor"
-                :isSelected="node.id === selectedItemId"
+                :isSelected="node.nodeId === selectedItemId"
                 @clicked-on-node="clickedOnNode"
             />
             <div class="space" />
@@ -65,7 +65,7 @@ export default defineComponent({
         // True, if scrolling should expand the overview list further
         toggleScrollEmit: Boolean,
         // Id of the item that is selected in the overview
-        selectedItemId: Number,
+        selectedItemId: String,
     },
     data() {
         return {
