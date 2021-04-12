@@ -16,20 +16,27 @@ export class NodesController {
     @Get()
     @ApiQuery({ name: "limit", type: "number" })
     @ApiQuery({ name: "offset", type: "number" })
+    @ApiQuery({ name: "nameFilter", type: "string" })
+    @ApiQuery({ name: "labelFilter", type: "string[]" })
     @ApiOperation({
-        description:
-            "Returns all the node from the customer db with applying a limit and offset, default limit is 20, " +
-            "default offset is 0",
+        description: `Returns all the node from the customer db with applying a limit, offset and filter - default limit is 20, default offset is 0`,
     })
     @ApiOkResponse({
         description: "Return the nodes",
         type: [Node],
     })
     @ApiInternalServerErrorResponse()
-    getAllNodes(@Query("limit") limit?: number, @Query("offset") offset?: number) {
+    getAllNodes(
+        @Query("limit") limit?: number,
+        @Query("offset") offset?: number,
+        @Query("nameFilter") nameFilter?: string,
+        @Query("labelFilter") labelFilter?: Array<string>,
+    ) {
         limit = limit ?? 20;
         offset = offset ?? 0;
-        return this.nodesService.getAllNodes(limit, offset);
+        nameFilter = nameFilter ?? "";
+        labelFilter = labelFilter ?? [];
+        return this.nodesService.getAllNodes(limit, offset, nameFilter, labelFilter);
     }
 
     @Get(":id")

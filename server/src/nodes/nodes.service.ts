@@ -16,13 +16,23 @@ export class NodesService {
      * Return all nodes with limit and offset (pagination) from the neo4j db
      * @param limit
      * @param offset
+     * @param nameFilter
+     * @param labelFilter
      */
-    async getAllNodes(limit, offset): Promise<Node[]> {
+    async getAllNodes(
+        limit: number,
+        offset: number,
+        nameFilter?: string,
+        labelFilter?: Array<string>,
+    ): Promise<Node[]> {
+        const filter = this.generateFilterString(nameFilter, labelFilter);
+
         // language=Cypher
-        const query = "MATCH (n) RETURN n ORDER BY n.name SKIP $offset LIMIT $limit";
+        const query = `MATCH (n) ${filter}RETURN n ORDER BY n.name SKIP $offset LIMIT $limit`;
         const params = {
             limit: this.neo4jService.int(limit),
             offset: this.neo4jService.int(offset),
+            nameFilter: nameFilter,
         };
         const result = await this.neo4jService.read(query, params, this.database);
         return Promise.all(result.records.map((el) => this.parseNode.call(this, el)));
@@ -72,5 +82,30 @@ export class NodesService {
         } as Node;
 
         return this.dataSchemeUtil.parseRecordByLabel(node);
+    }
+
+    /**
+     * Generate a string to filter nodes by
+     *
+     * @param nameFilter Name to filter by
+     * @param labelFilter Labels to filter by
+     * @private
+     */
+    private generateFilterString(nameFilter?: string, labelFilter?: Array<string>): string {
+        let filter = "";
+
+        if (nameFilter) filter += "WHERE toLower(n.name) CONTAINS toLower($nameFilter) ";
+
+        if (labelFilter.length !== 0) {
+            filter += nameFilter ? "AND " : "WHERE ";
+            if (Array.isArray(labelFilter)) {
+                filter += "(";
+                labelFilter.forEach((label, index) => {
+                    if (index == labelFilter.length - 1) filter += `n:${label}) `;
+                    else filter += `n:${label} OR `;
+                });
+            } else filter += `n:${labelFilter} `;
+        }
+        return filter;
     }
 }

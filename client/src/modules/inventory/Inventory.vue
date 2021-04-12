@@ -47,7 +47,7 @@ export default defineComponent({
          * Extend the node list
          */
         async extendNodes(): Promise<void> {
-            await this.$store.dispatch("inventory/extendNodes");
+            await this.$store.dispatch("inventory/extendNodes", this.filter);
             this.toggleScrollEmit = !this.toggleScrollEmit;
         },
         /**

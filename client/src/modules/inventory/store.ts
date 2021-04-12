@@ -2,7 +2,7 @@ import ApiNode from "@/modules/editor/models/ApiNode";
 import ApiLabel from "@/modules/editor/models/ApiLabel";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { GET, getBrightness } from "@/utility";
+import { generateFilterString, GET, getBrightness, loadFilteredNodes } from "@/utility";
 
 export class InventoryState {
     /**
@@ -75,13 +75,7 @@ export const inventory = {
             context: ActionContext<InventoryState, RootState>,
             filter: { userInput: string; labelsToFilterBy: Array<string> },
         ): Promise<void> {
-            const resNodes = await GET("/api/nodes?limit=50");
-            const resLabels = await GET("/api/data-scheme/label");
-
-            if (filter) {
-                console.log("Load Inventory: " + filter.userInput); // TODO :: Load new labels with filter
-                console.log(filter.labelsToFilterBy);
-            }
+            const [resNodes, resLabels] = await loadFilteredNodes(filter);
 
             if (resLabels.status === 200 && resNodes.status === 200) {
                 context.commit("storeLabels", await resLabels.json());
@@ -95,12 +89,9 @@ export const inventory = {
             context: ActionContext<InventoryState, RootState>,
             filter: { userInput: string; labelsToFilterBy: Array<string> },
         ): Promise<void> {
-            if (filter) {
-                console.log("Extend Inventory: " + filter.userInput); // TODO :: Consider filter when extending
-                console.log(filter.labelsToFilterBy);
-            }
+            const filterString = generateFilterString(filter);
 
-            const resNodes = await GET(`/api/nodes?limit=50&offset=${context.state.nodes.length}`);
+            const resNodes = await GET(`/api/nodes?limit=50&offset=${context.state.nodes.length}${filterString}`);
             if (resNodes.status === 200) context.commit("extendNodes", await resNodes.json());
         },
     },
