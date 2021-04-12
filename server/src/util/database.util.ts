@@ -27,6 +27,8 @@ export class DatabaseUtil {
 
     /**
      * Creates the databases and the necessary constraints
+     *
+     * Its not possible to create a key constraint on the relationship uuids, but we are asserting them as unique
      */
     async initDatabase() {
         // language=cypher

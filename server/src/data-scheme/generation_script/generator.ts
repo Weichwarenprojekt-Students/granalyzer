@@ -152,6 +152,9 @@ export class SchemeGenerator {
 
             // Get all connections for the current relation
             newType.connections = await this.getConnections(relationName, session);
+
+            await this.createCustomerRelationIds(newType, session);
+
             relationTypes.push(newType);
         }
 
@@ -193,12 +196,27 @@ export class SchemeGenerator {
         WHERE NOT exists(node.nodeId)
         SET node.nodeId = apoc.create.uuid()
         `;
-
         await session.run(createNodeUuidQuery, {}).catch(console.error);
+
         // Create the unique constraints for the specific label
         const createConstraintQuery = `CREATE CONSTRAINT ${labelScheme.name}Key IF NOT exists
         ON (n:${labelScheme.name})
         ASSERT (n.nodeId) IS NODE KEY`;
         await session.run(createConstraintQuery).catch(console.error);
+    }
+
+    /**
+     * Creates UUIDs for each relation.
+     * There is no possibility to create a key constrain on relations, but we assert them to be unique.
+     */
+    private static async createCustomerRelationIds(relationType: RelationType, session: Session) {
+        // Create UUID for each relation
+        // language=cypher
+        const createRelationUuidQuery = `
+        MATCH ()-[rel:${relationType.name}]-()
+        WHERE NOT exists(rel.relationId)
+        SET rel.relationId = apoc.create.uuid()
+        `;
+        await session.run(createRelationUuidQuery, {}).catch(console.error);
     }
 }
