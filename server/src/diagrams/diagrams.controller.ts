@@ -2,6 +2,7 @@ import { Controller, Get, Param, Post, Body, Put, Delete } from "@nestjs/common"
 import { DiagramsService } from "./diagrams.service";
 import {
     ApiBody,
+    ApiCreatedResponse,
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
@@ -78,7 +79,7 @@ export class DiagramsController {
             },
         },
     })
-    @ApiOkResponse({
+    @ApiCreatedResponse({
         type: Diagram,
         description: "Returns the added diagram",
     })

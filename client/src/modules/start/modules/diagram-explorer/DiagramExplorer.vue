@@ -96,7 +96,7 @@
 import { defineComponent } from "vue";
 import { Folder } from "@/models/Folder";
 import { Diagram } from "@/models/Diagram";
-import { isEmpty, routeNames } from "@/utility";
+import { deepCopy, isEmpty, routeNames } from "@/utility";
 import InputDialog from "@/components/InputDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import ExplorerItem from "./components/ExplorerItem.vue";
@@ -155,9 +155,9 @@ export default defineComponent({
             // Search for the name (name has to be searched because the name
             // of the selected folder can be outdated due to a rename event)
             for (let i = 0; i < folders.length; i++)
-                if (folders[i].id == this.selectedFolder.folderId) return folders[i].name;
+                if (folders[i].folderId === this.selectedFolder.folderId) return folders[i].name;
             for (let i = 0; i < diagrams.length; i++)
-                if (diagrams[i].id == this.selectedDiagram.diagramId) return diagrams[i].name;
+                if (diagrams[i].diagramId === this.selectedDiagram.diagramId) return diagrams[i].name;
             return "";
         },
     },
@@ -204,11 +204,11 @@ export default defineComponent({
             }
 
             if (!isEmpty(this.selectedFolder)) {
-                const copy = Folder.copy(this.selectedFolder);
+                const copy = deepCopy(this.selectedFolder);
                 copy.name = newName;
                 this.$store.dispatch("start/editFolder", copy);
             } else if (!isEmpty(this.selectedDiagram)) {
-                const copy = Diagram.copy(this.selectedDiagram);
+                const copy = deepCopy(this.selectedDiagram);
                 copy.name = newName;
                 this.$store.dispatch("start/editDiagram", copy);
             } else this.showSelectionError();

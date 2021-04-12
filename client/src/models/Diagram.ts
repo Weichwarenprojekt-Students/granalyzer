@@ -65,11 +65,4 @@ export class Diagram {
      * @param diagramId Identifier
      */
     constructor(public name: string, public diagramId: string = "") {}
-
-    /**
-     * Copy a diagram
-     */
-    public static copy(diagram: Diagram): Diagram {
-        return new Diagram(diagram.name, diagram.diagramId);
-    }
 }
