@@ -35,6 +35,9 @@ export default defineComponent({
         };
     },
     async mounted(): Promise<void> {
+        // Load the labels with the first load of matching nodes
+        await this.$store.dispatch("editor/loadLabels");
+
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
@@ -68,7 +71,8 @@ export default defineComponent({
                 y: point.y,
                 shape: "rectangle",
                 color: node.color,
-                label: node.name,
+                label: node.label,
+                name: node.name,
                 ref: {
                     uuid: node.id,
                     index: 0,
