@@ -283,14 +283,14 @@ export default defineComponent({
          * Move a folder
          */
         moveFolder(event: ItemDragEvent): void {
-            this.$store.dispatch("start/moveFolder", { parentId: event.newParent, id: event.currentDragItem });
+            this.$store.dispatch("start/moveFolder", { parentId: event.newParent, folderId: event.currentDragItem });
             this.clearSelection();
         },
         /**
          * Move a diagram
          */
         moveDiagram(event: ItemDragEvent): void {
-            this.$store.dispatch("start/moveDiagram", { parentId: event.newParent, id: event.currentDragItem });
+            this.$store.dispatch("start/moveDiagram", { parentId: event.newParent, diagramId: event.currentDragItem });
             this.clearSelection();
         },
         /**
