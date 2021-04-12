@@ -50,8 +50,6 @@ export default defineComponent({
     margin-right: 18px;
     margin-bottom: 8px;
     gap: 24px;
-
-    align-items: center;
     border-bottom: 1px solid @grey;
 }
 
@@ -68,6 +66,5 @@ export default defineComponent({
 .attribute-value {
     display: flex;
     gap: 12px;
-    align-items: center;
 }
 </style>
