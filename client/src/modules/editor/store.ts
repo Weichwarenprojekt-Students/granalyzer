@@ -114,13 +114,6 @@ export const editor = {
         nodesReady(state: EditorState): boolean {
             return state.nodes.length > 0 && state.labels.length > 0;
         },
-        /**
-         * @return The map with the label colors
-         * @param state
-         */
-        labelColors(state: EditorState): Map<string, { color: string; fontColor: string }> {
-            return state.labelColor;
-        },
     },
     modules: {
         graphEditor,

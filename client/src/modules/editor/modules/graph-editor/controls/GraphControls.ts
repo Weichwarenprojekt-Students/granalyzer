@@ -36,8 +36,8 @@ export class GraphControls {
         const shape = NodeShapes.parseType(node.shape);
         shape.position(node.x, node.y);
 
-        // Use default color if node has no color
-        const nodeColor = this.store.getters["editor/labelColors"].get(node.label).color ?? "#70FF87";
+        // Try to find the matching label color and use default otherwise
+        const nodeColor = this.store.state.editor?.labelColor.get(node.label)?.color ?? "#70FF87";
 
         // Style node
         shape.attr({
