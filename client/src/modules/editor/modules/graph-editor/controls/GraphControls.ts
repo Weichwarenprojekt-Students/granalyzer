@@ -42,7 +42,7 @@ export class GraphControls {
         // Style node
         shape.attr({
             label: {
-                text: node.text,
+                text: node.name,
                 textAnchor: "middle",
                 textVerticalAnchor: "middle",
                 fill: getBrightness(nodeColor) > 170 ? "#333" : "#FFF",

@@ -23,7 +23,7 @@ export interface Node {
     /**
      * The name of the node
      */
-    text: string;
+    name: string;
     /**
      * The type
      */

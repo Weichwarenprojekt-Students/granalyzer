@@ -71,7 +71,8 @@ export default defineComponent({
                 y: point.y,
                 shape: "rectangle",
                 color: node.color,
-                label: node.name,
+                label: node.label,
+                name: node.name,
                 ref: {
                     uuid: node.id,
                     index: 0,

@@ -40,7 +40,7 @@ export default defineComponent({
          * Handles click event on an item in the node overview
          */
         onClick() {
-            this.$store.commit("editor/setSelectedNode", { ...this.node, color: this.color });
+            this.$store.commit("editor/setSelectedNode", this.node);
         },
         /**
          * Event function to start dragging elements
