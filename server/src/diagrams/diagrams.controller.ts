@@ -2,6 +2,7 @@ import { Controller, Get, Param, Post, Body, Put, Delete } from "@nestjs/common"
 import { DiagramsService } from "./diagrams.service";
 import {
     ApiBody,
+    ApiCreatedResponse,
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
@@ -46,7 +47,7 @@ export class DiagramsController {
     })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "Identifier of the diagram which is requested",
     })
     @ApiOkResponse({
@@ -55,7 +56,7 @@ export class DiagramsController {
     })
     @ApiNotAcceptableResponse({ description: "Requested resource is not a diagram" })
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
-    getDiagram(@Param("id") id: number) {
+    getDiagram(@Param("id") id: string) {
         return this.diagramsService.getDiagram(id);
     }
 
@@ -78,11 +79,11 @@ export class DiagramsController {
             },
         },
     })
-    @ApiOkResponse({
+    @ApiCreatedResponse({
         type: Diagram,
         description: "Returns the added diagram",
     })
-    addDiagram(@Body() body: Diagram) {
+    addDiagram(@Body() body) {
         return this.diagramsService.addDiagram(body.name, body.serialized);
     }
 
@@ -98,7 +99,7 @@ export class DiagramsController {
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "Identifier of the diagram which should be updated",
     })
     @ApiBody({
@@ -116,7 +117,7 @@ export class DiagramsController {
             },
         },
     })
-    updateDiagram(@Param("id") id: number, @Body() body: Diagram) {
+    updateDiagram(@Param("id") id: string, @Body() body) {
         return this.diagramsService.updateDiagram(id, body.name, body.serialized);
     }
 
@@ -126,7 +127,7 @@ export class DiagramsController {
     })
     @ApiParam({
         name: "id",
-        type: "number",
+        type: "string",
         description: "Identifier of the diagram which should be deleted",
     })
     @ApiOkResponse({
@@ -135,7 +136,7 @@ export class DiagramsController {
     })
     @ApiNotAcceptableResponse({ description: "Requested resource is not a diagram" })
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
-    deleteDiagram(@Param("id") id: number) {
+    deleteDiagram(@Param("id") id: string) {
         return this.diagramsService.deleteDiagram(id);
     }
 }

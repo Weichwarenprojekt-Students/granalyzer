@@ -1,7 +1,7 @@
 import * as neo4j from "neo4j-driver";
 import { Driver, Session } from "neo4j-driver";
 import { Scheme } from "../data-scheme.model";
-import { Label } from "../models/label";
+import { LabelScheme } from "../models/labelScheme";
 import { StringAttribute } from "../models/attributes";
 import { RelationType } from "../models/relationType";
 import { Connection } from "../models/connection";
@@ -78,7 +78,7 @@ export class SchemeGenerator {
      * @param session Database session
      * @private
      */
-    private static async generateLabelScheme(session: Session): Promise<Label[]> {
+    private static async generateLabelScheme(session: Session): Promise<LabelScheme[]> {
         // Get all label names
         // language=cypher
         let query = `
@@ -90,11 +90,11 @@ export class SchemeGenerator {
 
         const labelNames = await this.fetchData(query, {}, "label", session);
 
-        const labels: Label[] = [];
+        const labels: LabelScheme[] = [];
 
         for (const labelName of labelNames) {
             // Generate a new named label with a random color
-            const newLabel = new Label(labelName, SchemeGenerator.getRandomColor());
+            const newLabel = new LabelScheme(labelName, SchemeGenerator.getRandomColor());
 
             // Get all existing keys of properties/attributes of the current label
             // language=cypher
@@ -108,6 +108,8 @@ export class SchemeGenerator {
 
             // Generate a new string attribute key and add the current attribute key to the current label
             newLabel.attributes = labelAttributes.map((attr) => new StringAttribute(attr));
+
+            await this.createCustomerLabelConstraint(newLabel, session);
 
             labels.push(newLabel);
         }
@@ -150,6 +152,9 @@ export class SchemeGenerator {
 
             // Get all connections for the current relation
             newType.connections = await this.getConnections(relationName, session);
+
+            await this.createCustomerRelationIds(newType, session);
+
             relationTypes.push(newType);
         }
 
@@ -164,7 +169,8 @@ export class SchemeGenerator {
      */
     private static async getConnections(relationName: string, session: Session): Promise<Connection[]> {
         // language=cypher
-        const query = `MATCH(startNode)-[relation]->(endNode)
+        const query = `
+          MATCH(startNode)-[relation]->(endNode)
             WHERE type(relation) = $relationName
           UNWIND labels(startNode) AS froms
           UNWIND labels(endNode) AS tos
@@ -174,5 +180,43 @@ export class SchemeGenerator {
 
         // By default, connections always have M:N cardinalities
         return result.records.map((record) => new Connection(record.get("froms"), record.get("tos")));
+    }
+
+    /**
+     *  Creates constraints and apoc uuids for each label in the customer database
+     *
+     * @param labelScheme
+     * @param session
+     */
+    private static async createCustomerLabelConstraint(labelScheme: LabelScheme, session: Session) {
+        // Automatically create the uuids with apoc
+        // language=cypher
+        const createNodeUuidQuery = `
+        MATCH (node:${labelScheme.name})
+        WHERE NOT exists(node.nodeId)
+        SET node.nodeId = apoc.create.uuid()
+        `;
+        await session.run(createNodeUuidQuery, {}).catch(console.error);
+
+        // Create the unique constraints for the specific label
+        const createConstraintQuery = `CREATE CONSTRAINT ${labelScheme.name}Key IF NOT exists
+        ON (n:${labelScheme.name})
+        ASSERT (n.nodeId) IS NODE KEY`;
+        await session.run(createConstraintQuery).catch(console.error);
+    }
+
+    /**
+     * Creates UUIDs for each relation.
+     * There is no possibility to create a key constrain on relations, but we assert them to be unique.
+     */
+    private static async createCustomerRelationIds(relationType: RelationType, session: Session) {
+        // Create UUID for each relation
+        // language=cypher
+        const createRelationUuidQuery = `
+        MATCH ()-[rel:${relationType.name}]-()
+        WHERE NOT exists(rel.relationId)
+        SET rel.relationId = apoc.create.uuid()
+        `;
+        await session.run(createRelationUuidQuery, {}).catch(console.error);
     }
 }

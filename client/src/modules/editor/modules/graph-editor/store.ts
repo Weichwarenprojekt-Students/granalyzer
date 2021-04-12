@@ -132,7 +132,7 @@ export const graphEditor = {
                 return {
                     from: { uuid: rel.from, index: 0 },
                     to: { uuid: rel.to, index: 0 },
-                    uuid: rel.id,
+                    uuid: rel.relationId,
                     type: rel.type,
                 };
             });
@@ -174,7 +174,7 @@ export const graphEditor = {
                 if (!diagram) return;
                 diagram.serialized = graph;
 
-                await PUT("/api/diagrams/" + diagram.id, JSON.stringify(diagram));
+                await PUT("/api/diagrams/" + diagram.diagramId, JSON.stringify(diagram));
             }
         },
     },

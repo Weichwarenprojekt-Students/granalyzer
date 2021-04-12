@@ -32,7 +32,7 @@ export default defineComponent({
          * @return True if this item is currently selected
          */
         isSelected(): boolean {
-            return this.$store.state.editor.selectedNode?.id === this.node.id;
+            return this.$store.state.editor.selectedNode?.nodeId === this.node.nodeId;
         },
     },
     methods: {
@@ -40,7 +40,7 @@ export default defineComponent({
          * Handles click event on an item in the node overview
          */
         onClick() {
-            this.$store.commit("editor/setSelectedNode", { ...this.node, color: this.color });
+            this.$store.commit("editor/setSelectedNode", this.node);
         },
         /**
          * Event function to start dragging elements

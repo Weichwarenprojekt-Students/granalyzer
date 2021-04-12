@@ -37,6 +37,9 @@ export default defineComponent({
         // Load the currently opened diagram from REST backend
         await this.$store.dispatch("editor/fetchActiveDiagram");
 
+        // Load the labels with the first load of matching nodes
+        await this.$store.dispatch("editor/loadLabels");
+
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
@@ -50,7 +53,6 @@ export default defineComponent({
                 life: 3000,
             });
         } else {
-            // Generate the diagram from fetched JSON
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
     },
@@ -70,10 +72,10 @@ export default defineComponent({
                 x: point.x,
                 y: point.y,
                 shape: "rectangle",
-                color: node.color,
-                label: node.name,
+                label: node.label,
+                name: node.name,
                 ref: {
-                    uuid: node.id,
+                    uuid: node.nodeId,
                     index: 0,
                 },
             });

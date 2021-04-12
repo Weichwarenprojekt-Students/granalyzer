@@ -13,7 +13,7 @@
             </div>
             <OverviewItem
                 v-for="node in $store.state.editor.nodes"
-                :key="node.id"
+                :key="node.nodeId"
                 :node="node"
                 :color="$store.state.editor.labelColor.get(node.label).color"
                 :font-color="$store.state.editor.labelColor.get(node.label).fontColor"
@@ -39,9 +39,6 @@ export default defineComponent({
         };
     },
     mounted() {
-        // Load the labels with the first load of matching nodes
-        this.$store.dispatch("editor/loadLabels");
-
         // Watch for scroll events to load new nodes on demand
         this.scrollPanel = document.getElementsByClassName("p-scrollpanel-content")[0];
         this.scrollPanel.addEventListener("scroll", this.handleScroll);

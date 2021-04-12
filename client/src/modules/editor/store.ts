@@ -52,7 +52,7 @@ export const editor = {
          */
         setActiveDiagram(state: EditorState, diagram?: Diagram): void {
             state.diagram = diagram;
-            if (diagram) localStorage.setItem(currentDiagramKey, diagram.id.toString());
+            if (diagram) localStorage.setItem(currentDiagramKey, diagram.diagramId);
         },
         /**
          * Set selected item
