@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, watch } from "vue";
+import { defineComponent } from "vue";
 import { GraphHandler } from "./controls/GraphHandler";
 import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
@@ -57,21 +57,17 @@ export default defineComponent({
         } else {
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
+    },
+    watch: {
+        relationModeActive(state, oldState) {
+            if (oldState === state) return;
 
-        // TODO: Move to watch: {} block
-        // Watch if the relation mode is active and then execute the correct controls
-        watch(
-            () => this.relationModeActive,
-            (state, oldState) => {
-                if (oldState === state) return;
-
-                if (state) {
-                    this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForActiveRelationMode();
-                } else {
-                    this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForInactiveRelationMode();
-                }
-            },
-        );
+            if (state) {
+                this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForActiveRelationMode();
+            } else {
+                this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForInactiveRelationMode();
+            }
+        },
     },
     methods: {
         /**
@@ -83,7 +79,6 @@ export default defineComponent({
             if (this.relationModeActive) {
                 this.$toast.add({
                     severity: "warn",
-                  // TODO: Improve german translation
                     summary: this.$t("editor.relationModeToast.title"),
                     detail: this.$t("editor.relationModeToast.description"),
                     life: 4000,

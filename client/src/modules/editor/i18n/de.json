@@ -15,7 +15,7 @@
     "description": "Keine Einträge gefunden!"
   },
   "relationModeToast": {
-    "title": "Beziehungseditiermodus is aktiv!",
-    "description": "Im Beziehungseditiermodus können keine keine neuen Nodes hinzugefügt werden"
+    "title": "Beziehungsmodus is aktiv!",
+    "description": "Im Beziehungsmodus können keine keine neuen Nodes hinzugefügt werden"
   }
 }
