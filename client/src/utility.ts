@@ -103,3 +103,18 @@ export function DELETE(path: string): Promise<Response> {
         method: "DELETE",
     });
 }
+
+/**
+ * Generate a string from the filter parameters that can be used in backend requests
+ *
+ * @param filter Filter containing the name and labels to filter nodes by
+ */
+export function generateFilterString(filter: { userInput: string; labelsToFilterBy: Array<string> }): string {
+    let filterString = "";
+    if (filter) {
+        filterString = "&nameFilter=" + filter.userInput;
+        filter.labelsToFilterBy.forEach((label) => (filterString += "&labelFilter=" + label));
+    }
+
+    return filterString;
+}
