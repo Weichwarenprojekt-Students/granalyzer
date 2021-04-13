@@ -290,31 +290,49 @@ export class GraphControls {
         });
 
         // Add all api relations as faint db relations that are not present in the graph yet
-        // TODO: for loop nested three-fold, not very good for performance
-        relationMap.forEach((rel, id) => {
-            // For each api relation
-            this.graphHandler.nodes.forEach((nodeFrom, jointUuidFrom) => {
-                // Find nodes with start uuid
-                if (rel.from === nodeFrom.ref.uuid) {
-                    const fromElement = this.graphHandler.getCellById(jointUuidFrom);
-                    this.graphHandler.nodes.forEach((nodeTo, jointUuidTo) => {
-                        // Find nodes with end uuid
-                        if (
-                            rel.to === nodeTo.ref.uuid &&
-                            !alreadyPresentRelations.has(
-                                `${rel.relationId}-${nodeFrom.ref.uuid}.${nodeFrom.ref.index}-${nodeTo.ref.uuid}.${nodeTo.ref.index}`,
-                            )
-                        ) {
-                            // If relation not yet present in diagram, add it
-                            const toElement = this.graphHandler.getCellById(jointUuidTo);
-                            this.addRelation(fromElement, toElement, id, rel.type, true);
-                        }
-                    });
-                }
-            });
-        });
+        this.addFaintRelations(relationMap, alreadyPresentRelations);
 
         this._relationModeActive = true;
+    }
+
+    /**
+     * Add api relations as faint relations if they are not present in the graph yet
+     *
+     * @param relationMap The relations from the api
+     * @param alreadyPresentRelations The relations that are already present in the graph
+     * @private
+     */
+    private addFaintRelations(relationMap: Map<string, ApiRelation>, alreadyPresentRelations: Set<string>) {
+        relationMap.forEach((rel, id) => {
+            const fromNodes = [] as Array<[Node, string | number]>;
+            const toNodes = [] as Array<[Node, string | number]>;
+
+            // Get all possible start and end nodes for this relation
+            this.graphHandler.nodes.forEach((node, jointUuid) => {
+                // Find nodes with start uuid
+                if (rel.from === node.ref.uuid) {
+                    fromNodes.push([node, jointUuid]);
+                } else if (rel.to === node.ref.uuid) {
+                    toNodes.push([node, jointUuid]);
+                }
+            });
+
+            // Add this faint relation to all nodes, where it is not present yet
+            fromNodes.forEach(([nodeFrom, jointUuidFrom]) => {
+                const fromElement = this.graphHandler.getCellById(jointUuidFrom);
+                toNodes.forEach(([nodeTo, jointUuidTo]) => {
+                    if (
+                        rel.to === nodeTo.ref.uuid &&
+                        !alreadyPresentRelations.has(
+                            `${rel.relationId}-${nodeFrom.ref.uuid}.${nodeFrom.ref.index}-${nodeTo.ref.uuid}.${nodeTo.ref.index}`,
+                        )
+                    ) {
+                        const toElement = this.graphHandler.getCellById(jointUuidTo);
+                        this.addRelation(fromElement, toElement, id, rel.type, true);
+                    }
+                });
+            });
+        });
     }
 
     /**
