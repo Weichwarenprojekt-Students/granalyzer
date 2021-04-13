@@ -97,8 +97,8 @@ import { defineComponent } from "vue";
 import { Folder } from "@/models/Folder";
 import { Diagram } from "@/models/Diagram";
 import { deepCopy, isEmpty, routeNames } from "@/utility";
-import InputDialog from "@/components/InputDialog.vue";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import InputDialog from "@/components/dialog/InputDialog.vue";
+import ConfirmDialog from "@/components/dialog/ConfirmDialog.vue";
 import ExplorerItem from "./components/ExplorerItem.vue";
 import { ItemDragEvent } from "@/modules/start/modules/diagram-explorer/models/ItemDragEvent";
 

@@ -136,16 +136,6 @@ describe("NodesController", () => {
         });
     });
 
-    describe("searchNode", () => {
-        it("should return the searched node", async () => {
-            expect((await controller.searchNode("ave")).length).toEqual(1);
-        });
-
-        it("should return no node", async () => {
-            expect((await controller.searchNode("zxy")).length).toEqual(0);
-        });
-    });
-
     describe("getAllNodes", () => {
         it("should return more than one node", async () => {
             expect((await controller.getAllNodes()).length).toBeGreaterThan(1);
@@ -153,6 +143,10 @@ describe("NodesController", () => {
 
         it("should return one node", async () => {
             expect((await controller.getAllNodes(1, 1)).length).toBe(1);
+        });
+
+        it("should return the node with given search term", async () => {
+            expect((await controller.getAllNodes(20, 0, "Avengers", ["Movie", "validLabel"])).length).toBe(1);
         });
     });
 

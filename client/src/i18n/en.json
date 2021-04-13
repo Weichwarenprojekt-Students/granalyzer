@@ -2,8 +2,11 @@
   "start": "Home",
   "editor": "Editor",
   "inventory": "Inventory",
+  "titleOverview": "Node Overview",
   "dialog": {
     "confirm": "Confirm",
     "cancel": "Cancel"
-  }
+  },
+  "searchPlaceholder": "Search...",
+  "filterIcon": "Filter"
 }
