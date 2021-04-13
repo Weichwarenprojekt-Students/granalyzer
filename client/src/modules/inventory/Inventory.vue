@@ -12,18 +12,26 @@
             @clicked-on-node="clickedOnNode"
             @user-filter="handleFilter"
         ></OverviewList>
+        <div class="center">
+            <InventoryHeader class="header"></InventoryHeader>
+            <NeighborView class="editor" :selectedNode="$store.state.inventory.selectedNode"></NeighborView>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import OverviewList from "@/components/overview-list/OverviewList.vue";
+import InventoryHeader from "@/modules/inventory/modules/inventory-header/InventoryHeader.vue";
+import NeighborView from "@/modules/inventory/modules/neighbor-view/NeighborView.vue";
 import ApiNode from "@/modules/editor/models/ApiNode";
 
 export default defineComponent({
     name: "Inventory",
     components: {
         OverviewList,
+        NeighborView,
+        InventoryHeader,
     },
     data() {
         return {
@@ -55,6 +63,7 @@ export default defineComponent({
          */
         clickedOnNode(node: ApiNode): void {
             this.$store.commit("inventory/setSelectedNode", node);
+            this.$store.dispatch("inventory/loadRelationsAndNeighbors", node);
         },
         /**
          * Filter nodes by labels
@@ -76,13 +85,30 @@ export default defineComponent({
     width: 100%;
     height: 100%;
     background: @light_grey;
-    position: relative;
+    display: flex;
+}
 
-    .overview {
-        width: @inventory_width;
-        height: 100vh;
-        position: relative;
-        background: white;
-    }
+.overview {
+    width: @inventory_width;
+    height: 100vh;
+    flex: 0 0 auto;
+    background: white;
+}
+
+.center {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    width: 100%;
+    height: @header-height;
+    background: white;
+    flex: 0 0 auto;
+}
+
+.editor {
+    flex: 1 1 auto;
 }
 </style>
