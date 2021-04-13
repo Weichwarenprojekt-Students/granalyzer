@@ -50,13 +50,13 @@ export class GraphControls {
         const shape = NodeShapes.parseType(node.shape);
         shape.position(node.x, node.y);
 
-        // Use default color if node has no color
-        const nodeColor = node.color ?? "#70FF87";
+        // Try to find the matching label color and use default otherwise
+        const nodeColor = this.store.state.editor?.labelColor.get(node.label)?.color ?? "#70FF87";
 
         // Style node
         shape.attr({
             label: {
-                text: node.label,
+                text: node.name,
                 textAnchor: "middle",
                 textVerticalAnchor: "middle",
                 fill: getBrightness(nodeColor) > 170 ? "#333" : "#FFF",
@@ -264,7 +264,7 @@ export class GraphControls {
         // Filter out duplicate relations by assigning them by their uuid to a map
         const relationMap = new Map<string, ApiRelation>();
         apiRelations.flat().forEach((rel) => {
-            relationMap.set(rel.id, rel);
+            relationMap.set(rel.relationId, rel);
         });
 
         // Prepare a set which will be filled with all DB relations which are already present in the graph
@@ -305,7 +305,7 @@ export class GraphControls {
                         if (
                             rel.to === nodeTo.ref.uuid &&
                             !alreadyPresentRelations.has(
-                                `${rel.id}-${nodeFrom.ref.uuid}.${nodeFrom.ref.index}-${nodeTo.ref.uuid}.${nodeTo.ref.index}`,
+                                `${rel.relationId}-${nodeFrom.ref.uuid}.${nodeFrom.ref.index}-${nodeTo.ref.uuid}.${nodeTo.ref.index}`,
                             )
                         ) {
                             // If relation not yet present in diagram, add it

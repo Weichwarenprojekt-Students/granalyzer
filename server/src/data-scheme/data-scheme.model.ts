@@ -1,15 +1,15 @@
-import { Label } from "./models/label";
+import { LabelScheme } from "./models/labelScheme";
 import { RelationType } from "./models/relationType";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class Scheme {
     @ApiProperty({
         required: true,
-        type: [Label],
+        type: [LabelScheme],
         name: "labels",
         description: "Array containing all label schemes",
     })
-    labels: Label[];
+    labels: LabelScheme[];
 
     @ApiProperty({
         required: true,
@@ -25,7 +25,7 @@ export class Scheme {
      * @param labels Labels of the scheme
      * @param relationTypes Relation types of the scheme
      */
-    constructor(labels: Label[], relationTypes: RelationType[]) {
+    constructor(labels: LabelScheme[], relationTypes: RelationType[]) {
         this.labels = labels;
         this.relationTypes = relationTypes;
     }

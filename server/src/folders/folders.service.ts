@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { Folder } from "./folder.model";
 import { Transaction } from "neo4j-driver";
 import Result from "neo4j-driver/types/result";
-import { UtilsNode } from "../util/utils.node";
+import { DatabaseUtil } from "../util/database.util";
 
 @Injectable()
 export class FoldersService {
@@ -12,80 +12,81 @@ export class FoldersService {
      */
     private readonly database = process.env.DB_TOOL;
 
-    constructor(private readonly neo4jService: Neo4jService, private readonly utilsNode: UtilsNode) {}
-
-    /**
-     * Restructure the response of the db
-     */
-    static parseFolder(record: Record<any, any>): Folder {
-        const folder: Folder = {
-            ...record.get("folder").properties,
-            id: record.get("folder").identity.toNumber(),
-        };
-
-        // Append parentId if available
-        if (record.keys.indexOf("parentId") > -1) {
-            folder.parentId = record.get("parentId")?.toNumber();
-        }
-
-        return folder;
-    }
+    constructor(private readonly neo4jService: Neo4jService, private readonly databaseUtil: DatabaseUtil) {}
 
     /**
      * Return all folders
      */
-    async getAllFolders(): Promise<Folder[]> {
+    async getAllFolders(): Promise<Folder[] | undefined> {
         // language=Cypher
         const cypher = `
           MATCH (f:Folder)
-          OPTIONAL MATCH (f:Folder)-[:IS_CHILD]->(p:Folder)
-          RETURN f AS folder, id(p) AS parentId`;
+          OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
+          RETURN f {. *, parentId:p.folderId} AS folder
+        `;
 
         const params = {};
 
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => res.records.map((rec) => rec.get("folder"));
+
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map(FoldersService.parseFolder));
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
      * Return all folders at top level (which are not nested into another folder)
      */
-    async getAllRootFolders(): Promise<Folder[]> {
+    async getAllRootFolders(): Promise<Folder[] | undefined> {
         // language=Cypher
         const cypher = `
           MATCH (f:Folder)
             WHERE NOT (f)-[:IS_CHILD]->()
-          RETURN f AS folder`;
+          RETURN f {. *} AS folder
+        `;
 
         const params = {};
 
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => res.records.map((rec) => rec.get("folder"));
+
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then((res) => res.records.map(FoldersService.parseFolder));
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
      * Return a specific folder by id
      */
-    async getFolder(id: number): Promise<Folder> {
-        // Check whether id belongs to a folder
-        await this.utilsNode.checkElementForLabel(id, "Folder");
-
+    async getFolder(id: string): Promise<Folder> {
         // language=Cypher
         const cypher = `
           MATCH (f:Folder)
-            WHERE id(f) = $id
+            WHERE f.folderId = $id
           OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
-          RETURN f AS folder, id(p) AS parentId`;
+          RETURN f {. *, parentId:p.folderId} AS folder
+        `;
 
         const param = {
-            id: this.neo4jService.int(id),
+            id,
         };
 
-        return this.neo4jService.read(cypher, param, this.database).then((res) => {
-            return FoldersService.parseFolder(res.records[0]);
-        });
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => {
+            // Check if the folder exists
+            if (!res.records[0]) {
+                throw new NotFoundException(`Folder with id ${id} not found.`);
+            }
+            return res.records[0].get("folder");
+        };
+
+        return this.neo4jService
+            .read(cypher, param, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -94,122 +95,151 @@ export class FoldersService {
     async addFolder(name: string): Promise<Folder> {
         // language=Cypher
         const cypher = `
-          CREATE (f:Folder {name: $name})
-          RETURN f AS folder`;
+          CREATE (f:Folder {name: $name, folderId: apoc.create.uuid()})
+          RETURN f {. *} AS folder
+        `;
 
         const params = {
             name,
         };
 
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => res.records[0].get("folder");
+
         return this.neo4jService
             .write(cypher, params, this.database)
-            .then((res) => FoldersService.parseFolder(res.records[0]));
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
      * Delete an existing folder
      */
-    async deleteFolder(id: number): Promise<Folder> {
-        // Check whether id belongs to a folder
-        await this.utilsNode.checkElementForLabel(id, "Folder");
-
+    async deleteFolder(id: string): Promise<Folder> {
         // Deletes the folder and all contained children (recursively)
         // language=Cypher
         const cypher = `
-          MATCH (f:Folder)<-[:IS_CHILD*0..]-(c)
-            WHERE id(f) = $id
+          MATCH (f:Folder), (c)
+            WHERE f.folderId = $id AND (c:Diagram OR c:Folder)
+          MATCH (c)-[:IS_CHILD*0..]->(f)
           OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
+          WITH c, p.folderId AS parentId, properties(f) AS props
           DETACH DELETE c
-          RETURN f AS folder, id(p) AS parentId`;
+          RETURN props {. *, parentId:parentId} AS folder
+        `;
 
         const params = {
-            id: this.neo4jService.int(id),
+            id,
         };
 
-        return this.neo4jService.write(cypher, params, this.database).then((res) => {
-            return FoldersService.parseFolder(res.records[0]);
-        });
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            // Check if the element which should be deleted did exist
+            if (!res.records[0]) {
+                throw new NotFoundException(`Folder with id ${id} not found.`);
+            }
+            return res.records[0].get("folder");
+        };
+
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
      * Update an existing folder
      */
-    async updateFolder(id: number, name: string): Promise<Folder> {
-        // Check whether id belongs to a folder
-        await this.utilsNode.checkElementForLabel(id, "Folder");
-
+    async updateFolder(id: string, name: string): Promise<Folder> {
         // language=Cypher
         const cypher = `
           MATCH (f:Folder)
-            WHERE id(f) = $id
+            WHERE f.folderId = $id
           OPTIONAL MATCH (f)-[:IS_CHILD]->(p:Folder)
           SET f.name = $name
-          RETURN f AS folder, id(p) AS parentId`;
+          RETURN f {. *, parentId:p.folderId} AS folder
+        `;
 
         const params = {
-            id: this.neo4jService.int(id),
+            id,
             name,
         };
 
-        return this.neo4jService.write(cypher, params, this.database).then((res) => {
-            return FoldersService.parseFolder(res.records[0]);
-        });
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            // Check if the element which should be updated did exist
+            if (!res.records[0]) {
+                throw new NotFoundException(`Folder with id ${id} not found.`);
+            }
+            return res.records[0].get("folder");
+        };
+
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
-     * Returns all folders which are assign to the folder as a IS_CHILD relation
+     * Returns all folders which are assigned to the folder as IS_CHILD relation
      */
-    async getFoldersInFolder(id: number): Promise<Folder[]> {
-        // Check whether id belongs to a folder
-        await this.utilsNode.checkElementForLabel(id, "Folder");
-
+    async getFoldersInFolder(id: string): Promise<Folder[] | undefined> {
         // language=Cypher
         const cypher = `
-          MATCH (cf:Folder)-[r:IS_CHILD]->(pf:Folder)
-            WHERE id(pf) = $id
-          RETURN cf AS folder, id(pf) AS parentId`;
+          MATCH (c:Folder)-[:IS_CHILD]->(p:Folder)
+            WHERE p.folderId = $id
+          RETURN c {. *, parentId:p.folderId} AS folder
+        `;
 
         const params = {
-            id: this.neo4jService.int(id),
+            id,
         };
 
-        return this.neo4jService.read(cypher, params, this.database).then((res) => {
-            return res.records.map(FoldersService.parseFolder);
-        });
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => res.records.map((rec) => rec.get("folder"));
+
+        // Will return empty array if folder with id does not exist
+        return this.neo4jService
+            .read(cypher, params, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
      * Returns a specific child of a given folder
      */
-    async getFolderInFolder(parentId: number, childId: number): Promise<Folder> {
-        // Check whether id belongs to a folder
-        await this.utilsNode.checkElementForLabel(parentId, "Folder");
-        await this.utilsNode.checkElementForLabel(childId, "Folder");
-
+    async getFolderInFolder(parentId: string, childId: string): Promise<Folder> {
         // language=Cypher
         const cypher = `
-          MATCH (cf:Folder)-[r:IS_CHILD]->(pf:Folder)
-            WHERE id(pf) = $parentId AND id(cf) = $childId
-          RETURN cf AS folder, id(pf) AS parentId`;
+          MATCH (c:Folder)-[:IS_CHILD]->(p:Folder)
+            WHERE c.folderId = $childId AND p.folderId = $parentId
+          RETURN c {. *, parentId:p.folderId} AS folder
+        `;
 
         const params = {
-            parentId: this.neo4jService.int(parentId),
-            childId: this.neo4jService.int(childId),
+            parentId,
+            childId,
         };
 
-        return this.neo4jService.read(cypher, params, this.database).then((res) => {
-            return FoldersService.parseFolder(res.records[0]);
-        });
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => {
+            // Catch child or parent not found
+            if (!res.records[0]) {
+                throw new NotFoundException("Child or parent element not found.");
+            }
+            return res.records[0].get("folder");
+        };
+
+        return this.neo4jService
+            .read(cypher, params, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
      * Creates a IS_CHILD relation child-IS_CHILD->parent
      */
-    async moveFolderToFolder(parentId: number, childId: number): Promise<Folder> {
-        // Check whether id and child id belongs to a folder
-        await this.utilsNode.checkElementForLabel(parentId, "Folder");
-        await this.utilsNode.checkElementForLabel(childId, "Folder");
-
+    async moveFolderToFolder(parentId: string, childId: string): Promise<Folder> {
         // Start a new transaction to keep deletion of old relationship and adding the new one persistent
         const transaction = this.neo4jService.beginTransaction(this.database);
 
@@ -219,17 +249,29 @@ export class FoldersService {
         //language=Cypher
         const cypher = `
           MATCH (p:Folder), (c:Folder)
-            WHERE id(p) = $parentId AND id(c) = $childId
-          CREATE (c)-[r:IS_CHILD]->(p)
-          RETURN c AS folder, id(p) AS parentId`;
+            WHERE c.folderId = $childId AND p.folderId = $parentId
+          MERGE (c)-[r:IS_CHILD]->(p)
+          RETURN c {. *, parentId:p.folderId} AS folder
+        `;
 
         const params = {
-            parentId: this.neo4jService.int(parentId),
-            childId: this.neo4jService.int(childId),
+            parentId,
+            childId,
         };
+
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            // Check if elements were found
+            if (!res.records[0]) {
+                throw new NotFoundException("Child or parent element has not been found.");
+            }
+            return res.records[0].get("folder");
+        };
+
         const child = await this.neo4jService
             .write(cypher, params, transaction)
-            .then((res) => FoldersService.parseFolder(res.records[0]));
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
 
         // Commit the transaction
         await transaction.commit();
@@ -241,24 +283,28 @@ export class FoldersService {
     /**
      * Adds a new folder inside of the folder with the given parent id
      */
-    async addFolderInFolder(parentId: number, childName: string): Promise<Folder> {
-        await this.utilsNode.checkElementForLabel(parentId, "Folder");
+    async addFolderInFolder(parentId: string, childName: string): Promise<Folder> {
         const folder = await this.addFolder(childName);
 
-        return this.moveFolderToFolder(parentId, folder["id"]);
+        return this.moveFolderToFolder(parentId, folder["folderId"]);
     }
 
     /**
      * Deletes the IS_CHILD relation between the given parent and child
      */
-    async removeFolderFromFolder(parentId: number, childId: number): Promise<Folder> {
-        // Check whether id belongs to a folder
-        await this.utilsNode.checkElementForLabel(parentId, "Folder");
-        await this.utilsNode.checkElementForLabel(childId, "Folder");
+    async removeFolderFromFolder(parentId: string, childId: string): Promise<Folder> {
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            // Check if elements were found
+            if (!res.records[0]) {
+                throw new NotFoundException("Child or parent element has not been found.");
+            }
+            return res.records[0].get("folder");
+        };
 
-        return this.deleteIsChildRelation(childId, this.database).then((res) =>
-            FoldersService.parseFolder(res.records[0]),
-        );
+        return this.deleteIsChildRelation(childId, this.database)
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -269,17 +315,17 @@ export class FoldersService {
      * @param childId Id of the node whose relations should be deleted
      * @param databaseOrTransaction The current database or a neo4j transaction
      */
-    deleteIsChildRelation(childId: number, databaseOrTransaction?: string | Transaction): Result {
+    deleteIsChildRelation(childId: string, databaseOrTransaction?: string | Transaction): Result {
         //language=Cypher
         const cypher = `
           MATCH (c:Folder)-[r:IS_CHILD]->(p:Folder)
-            WHERE id(c) = $childId
+            WHERE c.folderId = $childId
           DELETE r
-          REMOVE c.parentId
-          RETURN c AS folder, id(p) AS parentId`;
+          RETURN c {. *, parentId:p.folderId} AS folder
+        `;
 
         const params = {
-            childId: this.neo4jService.int(childId),
+            childId,
         };
 
         return this.neo4jService.write(cypher, params, databaseOrTransaction);

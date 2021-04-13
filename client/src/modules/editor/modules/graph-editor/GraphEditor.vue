@@ -18,7 +18,6 @@
 <script lang="ts">
 import { defineComponent, watch } from "vue";
 import { GraphHandler } from "./controls/GraphHandler";
-import { isEmpty } from "@/utility";
 import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
 import { GraphControls } from "./controls/GraphControls";
@@ -37,21 +36,26 @@ export default defineComponent({
     async mounted(): Promise<void> {
         this.$store.dispatch("editor/setRelationMode", false);
 
+        // Load the currently opened diagram from REST backend
+        await this.$store.dispatch("editor/fetchActiveDiagram");
+
+        // Load the labels with the first load of matching nodes
+        await this.$store.dispatch("editor/loadLabels");
+
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
 
-        // Load the active diagram
-        if (isEmpty(this.$store.state.editor.diagram)) {
+        // Generate the active diagram if available
+        if (!this.$store.state.editor.diagram) {
             this.$toast.add({
                 severity: "error",
-                // TODO: Improve german translation
                 summary: this.$t("editor.noDiagram.title"),
                 detail: this.$t("editor.noDiagram.description"),
                 life: 3000,
             });
         } else {
-            this.$store.commit("editor/setDiagram", this.$store.state.editor.diagram);
+            this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
 
         // TODO: Move to watch: {} block
@@ -79,6 +83,7 @@ export default defineComponent({
             if (this.relationModeActive) {
                 this.$toast.add({
                     severity: "warn",
+                  // TODO: Improve german translation
                     summary: this.$t("editor.relationModeToast.title"),
                     detail: this.$t("editor.relationModeToast.description"),
                     life: 4000,
@@ -96,10 +101,10 @@ export default defineComponent({
                 x: point.x,
                 y: point.y,
                 shape: "rectangle",
-                color: node.color,
-                label: node.name,
+                label: node.label,
+                name: node.name,
                 ref: {
-                    uuid: node.id,
+                    uuid: node.nodeId,
                     index: 0,
                 },
             });

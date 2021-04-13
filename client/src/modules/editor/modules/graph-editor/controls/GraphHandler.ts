@@ -86,7 +86,7 @@ export class GraphHandler {
      */
     public toJSON(): string {
         // Prepare the serialization object for each node
-        const nodes = Array.from(this.nodes, ([id, node]) => {
+        const nodes: Array<Node> = Array.from(this.nodes, ([id, node]) => {
             const diagEl = this.getCellById(id);
             return {
                 label: node.label,
@@ -94,6 +94,7 @@ export class GraphHandler {
                     index: node.ref.index,
                     uuid: node.ref.uuid,
                 },
+                name: node.name,
                 color: node.color,
                 shape: node.shape,
                 x: diagEl.attributes.position.x,
