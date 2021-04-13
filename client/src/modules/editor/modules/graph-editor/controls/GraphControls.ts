@@ -271,10 +271,7 @@ export class GraphControls {
         const alreadyPresentRelations = new Set<string>();
 
         this.graphHandler.relations.forEach((relation, id) => {
-            // FIXME: Don't compare with 0, as soon as neo4j refactoring has been merged!!!
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            if (!relation.uuid && relation.uuid !== 0) {
+            if (!relation.uuid) {
                 console.log(relation.uuid, typeof relation.uuid);
                 // If the relation has no uuid, it can't be synchronized with the DB and is a visual relation
                 this.switchVisualRelation(id);
