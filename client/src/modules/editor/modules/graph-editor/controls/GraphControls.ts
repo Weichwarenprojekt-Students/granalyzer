@@ -354,23 +354,20 @@ export class GraphControls {
 
     /**
      * Switch a DB relation to be faint or not
-     * @param diagEl The object from the graph to switch
+     * @param id The id of the relation to switch
      */
-    public switchDbRelation(diagEl: dia.Element): void {
-        // TODO: Refactor to remove duplicate code
-        if (this.graphHandler.relations.has(diagEl.id)) {
-            const rel = this.graphHandler.relations.get(diagEl.id);
-            this.graphHandler.relations.delete(diagEl.id);
-            if (rel) this.graphHandler.faintRelations.set(diagEl.id, rel);
+    public switchDbRelation(id: string | number): void {
+        // Set up variables
+        let deleteFrom = this.graphHandler.relations;
+        let addTo = this.graphHandler.faintRelations;
+        let color = "#bbb";
 
-            diagEl.attr({ rect: { fill: "#bbb" }, line: { stroke: "#bbb" } });
-        } else if (this.graphHandler.faintRelations.has(diagEl.id)) {
-            const rel = this.graphHandler.faintRelations.get(diagEl.id);
-            this.graphHandler.faintRelations.delete(diagEl.id);
-            if (rel) this.graphHandler.relations.set(diagEl.id, rel);
+        if (this.graphHandler.faintRelations.has(id)) {
+            // Change values of variables, if necessary
+            [deleteFrom, addTo, color] = [addTo, deleteFrom, "#333"];
+        } else if (!this.graphHandler.relations.has(id)) return;
 
-            diagEl.attr({ rect: { fill: "#333" }, line: { stroke: "#333" } });
-        }
+        this.switchRelation(id, deleteFrom, addTo, color);
     }
 
     /**
@@ -378,24 +375,44 @@ export class GraphControls {
      * @param id The id of the relation to switch
      */
     public switchVisualRelation(id: string | number): void {
-        const diagEl = this.graphHandler.getCellById(id);
+        // Set up variables
+        let deleteFrom = this.graphHandler.relations;
+        let addTo = this.graphHandler.visualRelations;
+        let color = "#b33";
 
+        if (this.graphHandler.visualRelations.has(id)) {
+            // Change values of variables, if necessary
+            [deleteFrom, addTo, color] = [addTo, deleteFrom, "#333"];
+        } else if (!this.graphHandler.relations.has(id)) return;
+
+        this.switchRelation(id, deleteFrom, addTo, color);
+    }
+
+    /**
+     * Switch a relation from one state to another
+     *
+     * @param id Id of the relation
+     * @param deleteFrom Where to delete the relation from
+     * @param addTo Where to add the relation to
+     * @param color The color of the switched relation
+     * @private
+     */
+    private switchRelation(
+        id: string | number,
+        deleteFrom: Map<string | number, Relation>,
+        addTo: Map<string | number, Relation>,
+        color: string,
+    ) {
+        const diagEl = this.graphHandler.getCellById(id);
         if (!diagEl) return;
 
-        // TODO: Refactor duplicate code
-        if (this.graphHandler.relations.has(id)) {
-            const rel = this.graphHandler.relations.get(id);
-            this.graphHandler.relations.delete(id);
-            if (rel) this.graphHandler.visualRelations.set(id, rel);
+        // Switch the relation
+        const rel = deleteFrom.get(id);
+        deleteFrom.delete(id);
+        if (rel) addTo.set(id, rel);
 
-            diagEl.attr({ rect: { fill: "#b33" }, line: { stroke: "#b33" } });
-        } else if (this.graphHandler.visualRelations.has(id)) {
-            const rel = this.graphHandler.visualRelations.get(id);
-            this.graphHandler.visualRelations.delete(id);
-            if (rel) this.graphHandler.relations.set(id, rel);
-
-            diagEl.attr({ rect: { fill: "#333" }, line: { stroke: "#333" } });
-        }
+        // Set new style
+        diagEl.attr({ rect: { fill: color }, line: { stroke: color } });
     }
 
     /**
