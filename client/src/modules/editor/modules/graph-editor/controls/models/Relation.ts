@@ -1,4 +1,5 @@
 import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/models/NodeReference";
+import { dia } from "jointjs";
 
 /**
  * The data for a single relation
@@ -20,4 +21,8 @@ export interface Relation {
      * The type of the relation
      */
     type?: string;
+    /**
+     * Vertices of the relation
+     */
+    vertices?: dia.Link.Vertex[];
 }

@@ -77,7 +77,11 @@ export class GraphHandler {
         relations.forEach((relation) => {
             const source = mappedNodes.get(`${relation.from.uuid}-${relation.from.index}`);
             const target = mappedNodes.get(`${relation.to.uuid}-${relation.to.index}`);
-            if (source && target) this.controls.addRelation(source, target, relation.uuid, relation.type);
+            if (source && target) {
+                const newRelId = this.controls.addRelation(source, target, relation.uuid, relation.type);
+                if (newRelId && relation.vertices !== undefined)
+                    this.getLinkById(newRelId)?.vertices(relation.vertices);
+            }
         });
     }
 
@@ -102,9 +106,18 @@ export class GraphHandler {
             };
         });
 
-        // Load the relations from the nodes
-        const relations = Array.from(this.relations.values());
-        relations.push(...Array.from(this.visualRelations.values()));
+        // Define lambda for mapping relations
+        const relationMapFn = (param: [number | string, Relation]) => {
+            const [id, relation] = param;
+            return {
+                ...relation,
+                vertices: this.getLinkById(id)?.vertices(),
+            };
+        };
+
+        // Map normal and visual relations to an array
+        const relations: Relation[] = Array.from(this.relations, relationMapFn);
+        relations.push(...Array.from(this.visualRelations, relationMapFn));
 
         // Compose the serializable graph and return the JSON string
         return JSON.stringify({
@@ -119,6 +132,14 @@ export class GraphHandler {
      */
     public getCellById(id: string | number): dia.Element {
         return this.graph.graph.getCell(id) as dia.Element;
+    }
+
+    /**
+     * Get link from graph by id
+     * @param id The id of the link
+     */
+    public getLinkById(id: string | number): dia.Link {
+        return this.graph.graph.getCell(id) as dia.Link;
     }
 
     /**
@@ -178,7 +199,7 @@ export class GraphHandler {
      * @param element Node of the jointjs diagram
      * @param rearrangeAll Ff false the rearrangement does not apply on links which were already positioned
      */
-    public adjustSiblingRelations(element: dia.Element, rearrangeAll = true) {
+    public adjustSiblingRelations(element: dia.Element, rearrangeAll = true): void {
         // Get the first link from the element
         const firstConnectedLink = this.graph.graph.getConnectedLinks(element)[0];
 
