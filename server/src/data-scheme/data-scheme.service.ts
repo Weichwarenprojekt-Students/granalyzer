@@ -6,6 +6,7 @@ import { Attribute } from "./models/attributes";
 import { Connection } from "./models/connection";
 import { LabelScheme } from "./models/labelScheme";
 import { DatabaseUtil } from "../util/database.util";
+import Relation from "../relations/relation.model";
 
 @Injectable()
 export class DataSchemeService {
@@ -48,16 +49,18 @@ export class DataSchemeService {
     /**
      * Fetch all entries of the scheme
      */
-    async getScheme() {
+    async getScheme(): Promise<Scheme> {
         return new Scheme(await this.getAllLabelSchemes(), await this.getAllRelationTypes());
     }
 
     /**
      * Fetch all labels of the scheme
      */
-    async getAllLabelSchemes() {
+    async getAllLabelSchemes(): Promise<Array<LabelScheme>> {
         // language=cypher
-        const cypher = "MATCH (ls:LabelScheme) RETURN ls {.*} AS dataScheme";
+        const cypher = `
+          MATCH (ls:LabelScheme)
+          RETURN ls {. *} AS dataScheme`;
         const params = {};
 
         // Callback function which is applied on the neo4j response
@@ -71,20 +74,20 @@ export class DataSchemeService {
 
     /**
      * Fetch the label with specific name
-     * @param name
      */
-    async getLabelScheme(name: string) {
+    async getLabelScheme(name: string): Promise<LabelScheme> {
         // language=cypher
-        const cypher = "MATCH (ls:LabelScheme) WHERE ls.name = $name RETURN ls {.*} AS dataScheme";
+        const cypher = `
+          MATCH (ls:LabelScheme)
+            WHERE ls.name = $name
+          RETURN ls {. *} AS dataScheme`;
         const params = {
             name,
         };
 
         // Callback function which is applied on the neo4j response
         const resolveRead = (res) => {
-            if (!res.records.length) {
-                throw new NotFoundException("LabelScheme: " + name + " not found");
-            }
+            if (!res.records.length) throw new NotFoundException("LabelScheme: " + name + " not found");
             return DataSchemeService.parseLabelScheme(res.records[0]);
         };
 
@@ -95,9 +98,89 @@ export class DataSchemeService {
     }
 
     /**
+     * Adds a new label scheme to the db
+     */
+    async addLabelScheme(label: LabelScheme): Promise<LabelScheme> {
+        // language=Cypher
+        const cypher = `
+          CREATE (ls:LabelScheme {name: $name, color: $color, attributes: $attributes})
+          RETURN ls {. *} AS dataScheme`;
+
+        const params = {
+            name: label.name,
+            color: label.color,
+            attributes: JSON.stringify(label.attributes),
+        };
+
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            return DataSchemeService.parseLabelScheme(res.records[0]);
+        };
+
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
+    }
+
+    /**
+     * Adds a new label scheme to the db
+     */
+    async updateLabelScheme(name: string, label: LabelScheme): Promise<LabelScheme> {
+        // language=Cypher
+        const cypher = `
+          MATCH (ls:LabelScheme {name: $name})
+          SET ls.color = $color, ls.attributes = $attributes
+          RETURN ls {. *} AS dataScheme`;
+
+        const params = {
+            name,
+            color: label.color,
+            attributes: JSON.stringify(label.attributes),
+        };
+
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            return DataSchemeService.parseLabelScheme(res.records[0]);
+        };
+
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
+    }
+
+    /**
+     * Deletes a label scheme from the db
+     */
+    async deleteLabelScheme(name: string): Promise<LabelScheme> {
+        // language=cypher
+        const cypher = `
+          MATCH (ls:LabelScheme {name: $name})
+          WITH ls, properties(ls) AS copyLs
+          DETACH DELETE ls
+          RETURN copyLs {. *} AS dataScheme`;
+
+        const params = {
+            name,
+        };
+
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            if (!res.records[0]) throw new NotFoundException(`The label ${name} has not been found`);
+            return DataSchemeService.parseLabelScheme(res.records[0]);
+        };
+
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
+    }
+
+    /**
      * Fetch all relations
      */
-    async getAllRelationTypes() {
+    async getAllRelationTypes(): Promise<Array<RelationType>> {
         // language=cypher
         const cypher = "MATCH (rt:RelationType) RETURN rt {.*} AS dataScheme";
         const params = {};
@@ -113,26 +196,105 @@ export class DataSchemeService {
 
     /**
      * Fetch the relation with specific name
-     * @param name
      */
-    async getRelationType(name: string) {
+    async getRelationType(name: string): Promise<RelationType> {
         // language=cypher
-        const cypher = "MATCH (rt:RelationType) WHERE rt.name = $name RETURN rt {.*} AS dataScheme";
+        const cypher = `
+          MATCH (rt:RelationType)
+            WHERE rt.name = $name
+          RETURN rt {. *} AS dataScheme`;
+
         const params = {
             name,
         };
 
         // Callback function which is applied on the neo4j response
         const resolveRead = (res) => {
-            if (!res.records.length) {
-                throw new NotFoundException("Relation: " + name + " not found");
-            }
+            if (!res.records.length) throw new NotFoundException("Relation: " + name + " not found");
             return DataSchemeService.parseRelationType(res.records[0]);
         };
 
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
+    }
+
+    /**
+     * Adds a new relation type
+     */
+    async addRelationType(relationType: RelationType): Promise<RelationType> {
+        // language=Cypher
+        const cypher = `
+          CREATE (rt:RelationType {name: $name, attributes: $attributes})
+          RETURN rt {. *} AS dataScheme`;
+
+        const params = {
+            name: relationType.name,
+            attributes: relationType.attributes,
+        };
+
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            return DataSchemeService.parseRelationType(res.records[0]);
+        };
+
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
+    }
+
+    /**
+     * Adds a new label scheme to the db
+     */
+    async updateRelationType(name: string, relationType: RelationType): Promise<LabelScheme> {
+        // language=Cypher
+        const cypher = `
+          MATCH (rt:RelationType {name: $name})
+          SET rt.attributes = $attributes
+          RETURN rt {. *} AS dataScheme`;
+
+        const params = {
+            name,
+            attributes: JSON.stringify(relationType.attributes),
+        };
+
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            return DataSchemeService.parseRelationType(res.records[0]);
+        };
+
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
+    }
+
+    /**
+     * Deletes a relation type from the db
+     */
+    async deleteRelationType(name: string): Promise<Relation> {
+        // language=cypher
+        const cypher = `
+          MATCH (rt:relationType {name: $name})
+          WITH rt, properties(rt) AS copyRt
+          DETACH DELETE rt
+          RETURN copyRt {. *} AS dataScheme`;
+
+        const params = {
+            name,
+        };
+
+        // Callback function which is applied on the neo4j response
+        const resolveWrite = (res) => {
+            if (!res.records[0]) throw new NotFoundException(`The relation type ${name} has not been found`);
+            return DataSchemeService.parseRelationType(res.records[0]);
+        };
+
+        return this.neo4jService
+            .write(cypher, params, this.database)
+            .then(resolveWrite)
             .catch(this.databaseUtil.catchDbError);
     }
 }

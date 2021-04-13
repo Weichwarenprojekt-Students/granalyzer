@@ -1,6 +1,8 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import { DataSchemeService } from "./data-scheme.service";
 import {
+    ApiBody,
+    ApiCreatedResponse,
     ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
@@ -60,8 +62,65 @@ export class DataSchemeController {
     @ApiNotFoundResponse({
         description: "Requested resource does not exist",
     })
-    getLabelScheme(@Param("name") name: string) {
+    getLabelScheme(@Param("name") name) {
         return this.dataSchemeService.getLabelScheme(name);
+    }
+
+    @Post("/label")
+    @ApiOperation({
+        description: "Adds a new label",
+    })
+    @ApiBody({
+        type: LabelScheme,
+        description: "The label that should be added",
+    })
+    @ApiCreatedResponse({
+        type: LabelScheme,
+        description: "Returns the new label",
+    })
+    addLabelScheme(@Body() body) {
+        return this.dataSchemeService.addLabelScheme(body);
+    }
+
+    @Put("/label/:name")
+    @ApiOperation({
+        description: "Updates a label",
+    })
+    @ApiParam({
+        name: "name",
+        type: "string",
+        description: "Unique name of the label scheme",
+    })
+    @ApiBody({
+        type: LabelScheme,
+        description: "The updated label",
+    })
+    @ApiCreatedResponse({
+        type: LabelScheme,
+        description: "Returns the updated label",
+    })
+    updateLabelScheme(@Param("name") name, @Body() body) {
+        return this.dataSchemeService.updateLabelScheme(name, body);
+    }
+
+    @Delete("/label/:name")
+    @ApiOperation({
+        description: "Deletes the label with the given name",
+    })
+    @ApiParam({
+        name: "name",
+        type: "string",
+        description: "Identifier of the label",
+    })
+    @ApiCreatedResponse({
+        type: LabelScheme,
+        description: "Returns the deleted label",
+    })
+    @ApiNotFoundResponse({
+        description: "The label does not exist",
+    })
+    deleteLabelScheme(@Param("name") name) {
+        return this.dataSchemeService.deleteLabelScheme(name);
     }
 
     @Get("relation")
@@ -95,7 +154,64 @@ export class DataSchemeController {
     @ApiNotFoundResponse({
         description: "Requested resource does not exist",
     })
-    getRelationType(@Param("name") name: string) {
+    getRelationType(@Param("name") name) {
         return this.dataSchemeService.getRelationType(name);
+    }
+
+    @Post("/relation")
+    @ApiOperation({
+        description: "Adds a new relation type",
+    })
+    @ApiBody({
+        type: RelationType,
+        description: "The relation type that should be added",
+    })
+    @ApiCreatedResponse({
+        type: RelationType,
+        description: "Returns the added relation type",
+    })
+    addRelationType(@Body() body) {
+        return this.dataSchemeService.addLabelScheme(body);
+    }
+
+    @Put("/relation/:name")
+    @ApiOperation({
+        description: "Updates a relation type",
+    })
+    @ApiParam({
+        name: "name",
+        type: "string",
+        description: "Unique name of the relation type scheme",
+    })
+    @ApiBody({
+        type: RelationType,
+        description: "The updated relation type",
+    })
+    @ApiCreatedResponse({
+        type: RelationType,
+        description: "Returns the updated relation type",
+    })
+    updateRelationType(@Param("name") name, @Body() body) {
+        return this.dataSchemeService.updateRelationType(name, body);
+    }
+
+    @Delete("/relation/:name")
+    @ApiOperation({
+        description: "Deletes the relation type with the given name",
+    })
+    @ApiParam({
+        name: "name",
+        type: "string",
+        description: "Identifier of the relation type",
+    })
+    @ApiCreatedResponse({
+        type: RelationType,
+        description: "Returns the deleted relation type",
+    })
+    @ApiNotFoundResponse({
+        description: "The relation type does not exist",
+    })
+    deleteRelationType(@Param("name") name) {
+        return this.dataSchemeService.deleteRelationType(name);
     }
 }
