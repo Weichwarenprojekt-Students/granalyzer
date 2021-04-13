@@ -1,4 +1,4 @@
-import { dia } from "jointjs";
+import { dia, g } from "jointjs";
 import { Relation } from "./models/Relation";
 import { Node } from "./models/Node";
 import { SerializableGraph } from "@/modules/editor/modules/graph-editor/controls/models/SerializableGraph";
@@ -168,6 +168,86 @@ export class GraphHandler {
         if (command) {
             command.redo();
             this.undoStack.push(command);
+        }
+    }
+
+    /**
+     * Takes care of overlapping relations
+     * From: https://resources.jointjs.com/tutorial/multiple-links-between-elements
+     *
+     * @param element Node of the jointjs diagram
+     * @param rearrangeAll Ff false the rearrangement does not apply on links which were already positioned
+     */
+    public adjustSiblingRelations(element: dia.Element, rearrangeAll = true) {
+        // Get the first link from the element
+        const firstConnectedLink = this.graph.graph.getConnectedLinks(element)[0];
+
+        // Exit if node has no relation
+        if (!firstConnectedLink) return;
+
+        const link = firstConnectedLink;
+
+        // Get the start and end node id of the relation
+        const startId = link.get("source").id || link.previous("source").id;
+        const endId = link.get("target").id || link.previous("target").id;
+
+        // Exit if not both endpoints of the relation are set
+        if (!startId || !endId) return;
+
+        // identify link siblings
+        const siblings = this.graph.graph.getLinks().filter((sibling) => {
+            const siblingStartId = sibling.source().id;
+            const siblingEndId = sibling.target().id;
+
+            // if source and target are the same
+            // or if source and target are reversed
+            return (
+                (siblingStartId === startId && siblingEndId === endId) ||
+                (siblingStartId === endId && siblingEndId === startId)
+            );
+        });
+
+        // Get the amount of
+        const numSiblings = siblings.length;
+
+        // Prevent overlapping if more than one relation
+        if (numSiblings > 1) {
+            // Get the middle point of the link
+            const sourceCenter = this.graph.graph.getCell(startId).getBBox().center();
+            const targetCenter = this.graph.graph.getCell(endId).getBBox().center();
+            const midPoint = new g.Line(sourceCenter, targetCenter).midpoint();
+
+            // Get the angle between start and end node
+            const theta = sourceCenter.theta(targetCenter);
+
+            // The maximum distance between two sibling links
+            const GAP = 120;
+
+            siblings.forEach((sibling, index) => {
+                // Ignore already moved relations if flag is false
+                if (!rearrangeAll && sibling.vertices().length !== 0) return;
+
+                // Offset values like 0, 20, 20, 40, 40, 60, 60 ...
+                let offset = GAP * Math.ceil(index / 2);
+
+                // Alternate the direction in which the relation is moved (right/left)
+                const sign = index % 2 ? 1 : -1;
+
+                // Keep even numbers of relations symmetric
+                if (numSiblings % 2 === 0) {
+                    offset -= (GAP / 2) * sign;
+                }
+
+                // Make reverse links count the same as non-reverse
+                const reverse = theta < 180 ? 1 : -1;
+
+                // Apply the shifted relation
+                const angle = g.toRad(theta + sign * reverse * 90);
+                const vertex = g.Point.fromPolar(offset, angle, midPoint);
+
+                // Replace vertices
+                sibling.vertices([vertex]);
+            });
         }
     }
 }

@@ -89,6 +89,8 @@ export class GraphControls {
     /**
      * Add an existing node with a diag element to the graph
      *
+     * Used by undo redo
+     *
      * @param node The node to be added
      * @param diagElement The existing dia.Element of the node
      */
@@ -320,6 +322,10 @@ export class GraphControls {
             // Add this faint relation to all nodes, where it is not present yet
             fromNodes.forEach(([nodeFrom, jointUuidFrom]) => {
                 const fromElement = this.graphHandler.getCellById(jointUuidFrom);
+
+                // Detect if there is a new relation appended to the current node
+                let addedNewRelation = false;
+
                 toNodes.forEach(([nodeTo, jointUuidTo]) => {
                     if (
                         rel.to === nodeTo.ref.uuid &&
@@ -329,8 +335,14 @@ export class GraphControls {
                     ) {
                         const toElement = this.graphHandler.getCellById(jointUuidTo);
                         this.addRelation(fromElement, toElement, id, rel.type, true);
+                        addedNewRelation = true;
                     }
                 });
+
+                // Rearrange overlapping relations if it has a added sibling and is not yet manually positioned
+                if (addedNewRelation) {
+                    this.graphHandler.adjustSiblingRelations(fromElement, false);
+                }
             });
         });
     }

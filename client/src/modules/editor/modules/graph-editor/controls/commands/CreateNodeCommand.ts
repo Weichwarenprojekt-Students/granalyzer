@@ -71,6 +71,8 @@ export class CreateNodeCommand implements ICommand {
                 this.graphHandler.controls.addExistingRelation(link, relation);
             });
         }
+
+        this.graphHandler.adjustSiblingRelations(this.diagElement);
     }
 
     /**
