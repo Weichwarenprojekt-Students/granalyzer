@@ -16,6 +16,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import ApiNode from "@/modules/editor/models/ApiNode";
+
 export default defineComponent({
     name: "OverviewItem",
     emits: ["clicked-on-node"],
@@ -58,6 +59,7 @@ export default defineComponent({
 
 <style lang="less" scoped>
 @import "~@/styles/global.less";
+
 .node {
     padding: 12px 24px 12px 16px;
     display: flex;
@@ -65,21 +67,26 @@ export default defineComponent({
     align-items: center;
     border-bottom: 1px solid @grey;
     cursor: pointer;
+
     .label {
         font-size: @description;
         padding: 4px 8px;
         border-radius: @border_radius;
     }
+
     &:hover {
         background: @accent_color;
     }
 }
+
 .selected {
     background: @secondary_color;
+
     &:hover {
         background: @secondary_color;
     }
 }
+
 .dragged {
     border-radius: @border_radius;
     width: fit-content;
@@ -88,6 +95,7 @@ export default defineComponent({
     display: flex;
     flex-direction: row;
     justify-content: center;
+
     .label {
         display: none;
     }

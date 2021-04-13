@@ -1,11 +1,11 @@
 <template>
     <!-- Filtering window -->
     <ScrollPanel :class="!showFilter ? 'filterHidden' : 'filterShown'">
-        <label class="label" v-for="label in labels" :key="label.id" :for="label.id">
+        <label class="label" v-for="label in labels" :key="label.name" :for="label.name">
             <input
                 type="checkbox"
                 v-model="filter.labelsToFilterBy"
-                :id="label.id"
+                :id="label.name"
                 :value="label.name"
                 checked="checked"
             />
