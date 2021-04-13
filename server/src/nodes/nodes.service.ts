@@ -81,31 +81,6 @@ export class NodesService {
     }
 
     /**
-     * Returns all nodes with the name like name
-     * @param needle
-     */
-    async searchNode(needle: string): Promise<Node[]> {
-        // language=Cypher
-        const query = `
-          MATCH(n)
-            WHERE toLower(n.name) CONTAINS toLower($needle)
-          WITH labels(n) AS lbls, n
-          UNWIND lbls AS label
-          RETURN n {. *, label:label} AS node`;
-        const params = {
-            needle,
-        };
-
-        // Callback which is applied on the database response
-        const resolveRead = (result) => Promise.all(result.records.map((el) => this.parseNode.call(this, el)));
-
-        return this.neo4jService
-            .read(query, params, this.database)
-            .then(resolveRead)
-            .catch(this.databaseUtil.catchDbError);
-    }
-
-    /**
      * Parse the db response into a Node
      * @param record single record response from db
      * @private
@@ -135,15 +110,14 @@ export class NodesService {
     private generateFilterString(nameFilter?: string, labelFilter?: Array<string>): string {
         let filter = "";
 
-        if (nameFilter) filter += "WHERE toLower(n.name) CONTAINS toLower($nameFilter) ";
+        if (nameFilter) filter = "WHERE toLower(n.name) CONTAINS toLower($nameFilter) ";
 
         if (labelFilter.length !== 0) {
             filter += nameFilter ? "AND " : "WHERE ";
             if (Array.isArray(labelFilter)) {
                 filter += "(";
                 labelFilter.forEach((label, index) => {
-                    if (index == labelFilter.length - 1) filter += `n:${label}) `;
-                    else filter += `n:${label} OR `;
+                    filter += index == labelFilter.length - 1 ? `n:${label}) ` : `n:${label} OR `;
                 });
             } else filter += `n:${labelFilter} `;
         }

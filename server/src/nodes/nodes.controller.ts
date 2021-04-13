@@ -59,24 +59,6 @@ export class NodesController {
         return this.nodesService.getNode(id);
     }
 
-    @Get("/search/:needle")
-    @ApiOperation({
-        description: "Returns all nodes from the customer DB where the name contains the needle",
-    })
-    @ApiParam({
-        name: "id",
-        type: "string",
-        description: "Identifier of the node which is requested",
-    })
-    @ApiOkResponse({
-        description: "Return the nodes matching the needle",
-        type: [Node],
-    })
-    @ApiInternalServerErrorResponse()
-    searchNode(@Param("needle") name: string) {
-        return this.nodesService.searchNode(name);
-    }
-
     @Get(":id/relations")
     @ApiOperation({
         description: "Return all relations that are connected to a node matching id",
