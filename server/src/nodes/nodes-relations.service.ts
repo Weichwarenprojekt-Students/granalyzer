@@ -25,8 +25,8 @@ export class NodesRelationsService {
     async getRelationsOfNode(id: string): Promise<Relation[]> {
         // language=Cypher
         const cypher = `
-          MATCH (n)-[r]-(e)
-            WHERE n.nodeId = $id
+          MATCH (n)-[r]->(e)
+            WHERE n.nodeId = $id OR e.nodeId = $id
           RETURN DISTINCT r {. *, type:type(r), from:n.nodeId, to:e.nodeId} AS r`;
         const params = {
             id,
