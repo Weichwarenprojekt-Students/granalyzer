@@ -7,6 +7,7 @@ import { FoldersModule } from "./folders/folders.module";
 import { NodesModule } from "./nodes/nodes.module";
 import { UtilModule } from "./util/util.module";
 import { DatabaseUtil } from "./util/database.util";
+import { RelationsModule } from "./relations/relations.module";
 
 @Module({
     imports: [
@@ -22,6 +23,7 @@ import { DatabaseUtil } from "./util/database.util";
         DataSchemeModule,
         FoldersModule,
         NodesModule,
+        RelationsModule,
         UtilModule.forRoot(),
     ],
 })

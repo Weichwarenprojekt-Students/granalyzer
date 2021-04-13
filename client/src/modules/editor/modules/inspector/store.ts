@@ -84,24 +84,11 @@ export const inspector = {
             if (result.status != 200) return;
             const node: ApiNode = await result.json();
 
-            // // Fetch scheme for the label of this node
-            // result = await GET(`/api/data-scheme/label/${node.label}`);
-            // if (result.status != 200) return;
-            // context.commit("setInspectorNodeItems", {node, label:(await result.json())})
-
-            // TODO: Remove below implementation and uncomment upper one after backend refactor
-            // Get data scheme for the label of this node
-            result = await GET("/api/data-scheme/label");
+            // Fetch scheme for the label of this node
+            result = await GET(`/api/data-scheme/label/${node.label}`);
             if (result.status != 200) return;
 
-            // Get the scheme for the current label only!
-            let label: Array<ApiLabel> = await result.json();
-            label = label.filter((label) => {
-                return label.name === node.label;
-            });
-            if (label.length != 1) return;
-
-            context.commit("setInspectorNodeItems", { node, label: label[0] });
+            context.commit("setInspectorNodeItems", { node, label: await result.json() });
             context.commit("setInspectorVisibility", true);
         },
 
@@ -117,7 +104,7 @@ export const inspector = {
             const relation: ApiRelation = await result.json();
 
             // Fetch scheme for the type of this relation
-            result = await GET(`/api/data-scheme/relation/${uuid}`);
+            result = await GET(`/api/data-scheme/relation/${relation.type}`);
             if (result.status != 200) return;
             const relType: ApiRelationType = await result.json();
 
