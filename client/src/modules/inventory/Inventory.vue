@@ -62,6 +62,8 @@ export default defineComponent({
          * Store node that was selected
          */
         clickedOnNode(node: ApiNode): void {
+            if (this.$store.state.inventory.selectedNode?.nodeId === node.nodeId) return;
+
             this.$store.commit("inventory/setSelectedNode", node);
             this.$store.dispatch("inventory/loadRelationsAndNeighbors", node);
         },
