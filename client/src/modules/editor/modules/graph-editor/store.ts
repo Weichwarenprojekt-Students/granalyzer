@@ -12,6 +12,7 @@ import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/
 import ApiRelation from "@/modules/editor/models/ApiRelation";
 import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/EnableDbRelationCommand";
 import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/DisableDbRelationCommand";
+import { ChangeRelationVertexCommand } from "@/modules/editor/modules/graph-editor/controls/commands/ChangeRelationVertexCommand";
 
 export class GraphEditorState {
     /**
@@ -59,7 +60,7 @@ export const graphEditor = {
         },
 
         /**
-         * Set the unselected diagram element
+         * Add command for changed vertices to the undo redo stack
          */
         addMoveCommand(state: GraphEditorState, moveCommand: MoveNodeCommand): void {
             if (state.graphHandler) state.graphHandler.addCommand(moveCommand);
@@ -139,6 +140,13 @@ export const graphEditor = {
                 }
             }
         },
+
+        /**
+         * Add command for changed vertices to the undo redo stack
+         */
+        addChangeRelationVerticesCommand(state: GraphEditorState, verticesCommand: ChangeRelationVertexCommand): void {
+            if (state.graphHandler) state.graphHandler.addCommand(verticesCommand);
+        },
     },
     actions: {
         /**
@@ -199,7 +207,7 @@ export const graphEditor = {
         },
 
         /**
-         * Set the unselected diagram element
+         * Add move command to the undo redo stack
          */
         async addMoveCommand(
             context: ActionContext<GraphEditorState, RootState>,
@@ -270,6 +278,17 @@ export const graphEditor = {
 
             context.commit("setEditorLoading", false);
 
+            await context.dispatch("saveChange");
+        },
+
+        /**
+         * Add command for changed vertices to the undo redo stack
+         */
+        async addChangeRelationVerticesCommand(
+            context: ActionContext<GraphEditorState, RootState>,
+            verticesCommand: ChangeRelationVertexCommand,
+        ): Promise<void> {
+            context.commit("addChangeRelationVerticesCommand", verticesCommand);
             await context.dispatch("saveChange");
         },
     },

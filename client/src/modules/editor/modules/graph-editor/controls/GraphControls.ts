@@ -8,6 +8,7 @@ import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/model
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 import { GET, getBrightness } from "@/utility";
 import ApiRelation from "@/modules/editor/models/ApiRelation";
+import { ChangeRelationVertexCommand } from "@/modules/editor/modules/graph-editor/controls/commands/ChangeRelationVertexCommand";
 
 export class GraphControls {
     /**
@@ -221,8 +222,8 @@ export class GraphControls {
      */
     private addLinkTools(link: dia.Element | shapes.standard.Link) {
         // Prepare link tools for modifying vertices and segments
-        const verticesTool = new linkTools.Vertices();
-        const segmentsTool = new linkTools.Segments();
+        const verticesTool = new linkTools.Vertices({ stopPropagation: false });
+        const segmentsTool = new linkTools.Segments({ stopPropagation: false });
         const toolsView = new dia.ToolsView({
             tools: [verticesTool, segmentsTool],
         });
@@ -458,14 +459,27 @@ export class GraphControls {
             moveCommand = undefined;
         });
 
+        let verticesCommand: ChangeRelationVertexCommand | undefined;
+
         // Switch db relations on mouse click
         this.graphHandler.graph.paper.on("link:pointerdown", async (cell) => {
+            verticesCommand = new ChangeRelationVertexCommand(this.graphHandler, cell.model);
+
             if (this.store.getters["editor/relationModeActive"]) {
                 if (this.graphHandler.relations.has(cell.model.id)) {
                     await this.store.dispatch("editor/disableDbRelation", cell.model);
                 } else if (this.graphHandler.faintRelations.has(cell.model.id)) {
                     await this.store.dispatch("editor/enableDbRelation", cell.model);
                 }
+            }
+        });
+
+        // If the vertices of a relation have changed, add a command to undo/redo
+        this.graphHandler.graph.paper.on("link:pointerup", async () => {
+            console.log("oh");
+            if (verticesCommand && verticesCommand.verticesHaveChanged()) {
+                console.log("yeah");
+                await this.store.dispatch("editor/addChangeRelationVerticesCommand", verticesCommand);
             }
         });
 
