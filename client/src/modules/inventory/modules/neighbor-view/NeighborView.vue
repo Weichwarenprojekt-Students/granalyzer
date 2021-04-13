@@ -56,7 +56,8 @@ export default defineComponent({
             if (Object.keys(this.selectedElement).length !== 0) {
                 this.selectedElement.remove();
                 this.$store.state.inventory.mappedNodes.forEach((value: number | string) => {
-                    this.graph.graph.getCell(value).remove();
+                    const element = this.graph.graph.getCell(value);
+                    if (element) element.remove();
                 });
             }
 
