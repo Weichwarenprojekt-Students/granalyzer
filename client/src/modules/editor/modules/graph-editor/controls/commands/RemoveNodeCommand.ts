@@ -14,7 +14,7 @@ export class RemoveNodeCommand implements ICommand {
     /**
      * The relations that affect this node
      */
-    private relations = new Array<Relation>();
+    private relations = new Array<[Relation, dia.Element]>();
 
     /**
      * Constructor
@@ -29,8 +29,9 @@ export class RemoveNodeCommand implements ICommand {
         this.node = deepCopy(node);
 
         // Create deep copy of all relations
-        this.graphHandler.relations.forEach((value) => {
-            if (value.from == node.ref || value.to == node.ref) this.relations.push(deepCopy(value));
+        this.graphHandler.relations.forEach((value, id) => {
+            if (value.from == node.ref || value.to == node.ref)
+                this.relations.push([value, this.graphHandler.getCellById(id)]);
         });
     }
 
@@ -50,19 +51,8 @@ export class RemoveNodeCommand implements ICommand {
         this.graphHandler.controls.addExistingNode(this.node, this.diagElement);
 
         // Restore the deleted relations from the relations copy
-        this.relations.forEach((relation) => {
-            let sourceElement = {} as dia.Element;
-            let targetElement = {} as dia.Element;
-
-            // Find diagram elements which are connected to restored diagram element
-            this.graphHandler.nodes.forEach((node, id) => {
-                if (relation.from.uuid == node.ref.uuid && relation.from.index == node.ref.index)
-                    sourceElement = this.graphHandler.getCellById(id);
-                if (relation.to.uuid == node.ref.uuid && relation.to.index == node.ref.index)
-                    targetElement = this.graphHandler.getCellById(id);
-            });
-            if (sourceElement && targetElement)
-                this.graphHandler.controls.addRelation(sourceElement, targetElement, relation.uuid, relation.type);
+        this.relations.forEach(([relation, link]) => {
+            this.graphHandler.controls.addExistingRelation(link, relation);
         });
     }
 }

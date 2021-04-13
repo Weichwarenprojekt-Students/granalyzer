@@ -10,6 +10,8 @@ import { GET, PUT } from "@/utility";
 import { Relation } from "./controls/models/Relation";
 import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/MoveNodeCommand";
 import ApiRelation from "@/modules/editor/models/ApiRelation";
+import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/EnableDbRelationCommand";
+import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/DisableDbRelationCommand";
 
 export class GraphEditorState {
     /**
@@ -110,13 +112,32 @@ export const graphEditor = {
             }
 
             // Deselect elements
-            state.selectedElement = undefined;
             state.graphHandler.graph.deselectElements();
             state.relationModeActive = value;
-
-            // Disable interactivity of cells in the graph
-            // TODO: decide behaviour of interactivity
-            // state.graphHandler.graph.setInteractivity(!value);
+        },
+        /**
+         * Enable a DB relation
+         */
+        enableDbRelation(state: GraphEditorState, link: dia.Element): void {
+            if (state.graphHandler) {
+                const relation = state.graphHandler.faintRelations.get(link.id);
+                if (relation) {
+                    const command = new EnableDbRelationCommand(state.graphHandler, link, relation);
+                    state.graphHandler.addCommand(command);
+                }
+            }
+        },
+        /**
+         * Disable a DB relation
+         */
+        disableDbRelation(state: GraphEditorState, link: dia.Element): void {
+            if (state.graphHandler) {
+                const relation = state.graphHandler.relations.get(link.id);
+                if (relation) {
+                    const command = new DisableDbRelationCommand(state.graphHandler, link, relation);
+                    state.graphHandler.addCommand(command);
+                }
+            }
         },
     },
     actions: {
@@ -125,6 +146,7 @@ export const graphEditor = {
          */
         async undo(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
+            await context.dispatch("setRelationMode", false);
             context.commit("undo");
             context.commit("setEditorLoading", false);
 
@@ -135,6 +157,7 @@ export const graphEditor = {
          */
         async redo(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
+            await context.dispatch("setRelationMode", false);
             context.commit("redo");
             context.commit("setEditorLoading", false);
 
@@ -200,11 +223,54 @@ export const graphEditor = {
                 await PUT("/api/diagrams/" + diagram.id, JSON.stringify(diagram));
             }
         },
+
+        /**
+         * Set the relation edit mode to a certain value
+         */
+        async setRelationMode(context: ActionContext<GraphEditorState, RootState>, value: boolean): Promise<void> {
+            context.commit("setEditorLoading", true);
+            context.commit("setSelectedElement", undefined);
+            context.commit("setRelationMode", value);
+            context.commit("setEditorLoading", false);
+        },
+
         /**
          * Toggle the relation edit mode
          */
         async toggleRelationMode(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
-            context.commit("setRelationMode", !context.state.relationModeActive);
+            await context.dispatch("setRelationMode", !context.state.relationModeActive);
+        },
+
+        /**
+         * Enable a DB relation
+         */
+        async enableDbRelation(
+            context: ActionContext<GraphEditorState, RootState>,
+            relation: dia.Element,
+        ): Promise<void> {
+            context.commit("setEditorLoading", true);
+
+            context.commit("enableDbRelation", relation);
+
+            context.commit("setEditorLoading", false);
+
+            await context.dispatch("saveChange");
+        },
+
+        /**
+         * Disable a DB relation
+         */
+        async disableDbRelation(
+            context: ActionContext<GraphEditorState, RootState>,
+            relation: dia.Element,
+        ): Promise<void> {
+            context.commit("setEditorLoading", true);
+
+            context.commit("disableDbRelation", relation);
+
+            context.commit("setEditorLoading", false);
+
+            await context.dispatch("saveChange");
         },
     },
     getters: {

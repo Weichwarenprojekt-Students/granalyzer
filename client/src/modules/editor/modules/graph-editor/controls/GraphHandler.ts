@@ -79,10 +79,6 @@ export class GraphHandler {
             const target = mappedNodes.get(`${relation.to.uuid}-${relation.to.index}`);
             if (source && target) this.controls.addRelation(source, target, relation.uuid, relation.type);
         });
-
-        // Add the elements to the graph
-        this.nodes.forEach((node, id) => this.getCellById(id).addTo(this.graph.graph));
-        this.relations.forEach((relation, id) => this.getCellById(id).addTo(this.graph.graph));
     }
 
     /**

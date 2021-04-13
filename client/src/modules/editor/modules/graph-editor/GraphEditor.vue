@@ -35,7 +35,7 @@ export default defineComponent({
         };
     },
     async mounted(): Promise<void> {
-        this.$store.commit("editor/setRelationMode", false);
+        this.$store.dispatch("editor/setRelationMode", false);
 
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");

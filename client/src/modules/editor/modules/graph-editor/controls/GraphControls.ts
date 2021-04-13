@@ -11,6 +11,19 @@ import ApiRelation from "@/modules/editor/models/ApiRelation";
 
 export class GraphControls {
     /**
+     * Is set in the methods switchRelationsForActiveRelationMode() and ...ForInactiveRelationMode(), to indicate
+     * if the relation edit mode is active
+     */
+    private _relationModeActive = false;
+
+    /**
+     * True if the relation mode is active
+     */
+    public get relationModeActive(): boolean {
+        return this._relationModeActive;
+    }
+
+    /**
      * Constructor
      *
      * @param graphHandler The graph handler object
@@ -123,11 +136,11 @@ export class GraphControls {
         uuid?: string,
         labelText?: string,
         asFaintRelation?: boolean,
-    ): void {
+    ): string | number | undefined {
         // Check if the nodes exist
         const from = this.graphHandler.nodes.get(source.id);
         const to = this.graphHandler.nodes.get(target.id);
-        if (!from || !to) return;
+        if (!from || !to) return undefined;
 
         // Create the node relation
         const relation: Relation = {
@@ -178,6 +191,33 @@ export class GraphControls {
             this.graphHandler.relations.set(link.id, relation);
         }
 
+        this.addLinkTools(link);
+
+        return link.id;
+    }
+
+    /**
+     * Add an already existing relation object to the graph
+     *
+     * @param link The link object to add
+     * @param relation The corresponding relation object to add
+     */
+    public addExistingRelation(link: dia.Element, relation: Relation): void {
+        link.addTo(this.graphHandler.graph.graph);
+
+        link.attr({ rect: { fill: "#333" }, line: { stroke: "#333" } });
+        this.graphHandler.relations.set(link.id, relation);
+
+        this.addLinkTools(link);
+    }
+
+    /**
+     * Add link tools to a link, so that vertices and segments can be manipulated
+     *
+     * @param link The link to add the link tools to
+     * @private
+     */
+    private addLinkTools(link: dia.Element | shapes.standard.Link) {
         // Prepare link tools for modifying vertices and segments
         const verticesTool = new linkTools.Vertices();
         const segmentsTool = new linkTools.Segments();
@@ -231,7 +271,11 @@ export class GraphControls {
         const alreadyPresentRelations = new Set<string>();
 
         this.graphHandler.relations.forEach((relation, id) => {
-            if (!relation.uuid) {
+            // FIXME: Don't compare with 0, as soon as neo4j refactoring has been merged!!!
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            if (!relation.uuid && relation.uuid !== 0) {
+                console.log(relation.uuid, typeof relation.uuid);
                 // If the relation has no uuid, it can't be synchronized with the DB and is a visual relation
                 this.switchVisualRelation(id);
                 return;
@@ -272,6 +316,8 @@ export class GraphControls {
                 }
             });
         });
+
+        this._relationModeActive = true;
     }
 
     /**
@@ -287,6 +333,8 @@ export class GraphControls {
         this.graphHandler.visualRelations.forEach((node, id) => {
             this.switchVisualRelation(id);
         });
+
+        this._relationModeActive = false;
     }
 
     /**
@@ -350,11 +398,10 @@ export class GraphControls {
 
         // Save the clicked element and the position of it
         this.graphHandler.graph.paper.on("element:pointerdown", (cell) => {
-            // TODO: enable move command but not selection
+            moveCommand = new MoveNodeCommand(this.graphHandler, cell.model);
             if (!this.store.getters["editor/relationModeActive"]) {
                 this.graphHandler.graph.selectElement(cell);
                 this.store.commit("editor/setSelectedElement", cell.model);
-                moveCommand = new MoveNodeCommand(this.graphHandler, cell.model);
             }
         });
 
@@ -368,9 +415,13 @@ export class GraphControls {
         });
 
         // Switch db relations on mouse click
-        this.graphHandler.graph.paper.on("link:pointerdown", (cell) => {
+        this.graphHandler.graph.paper.on("link:pointerdown", async (cell) => {
             if (this.store.getters["editor/relationModeActive"]) {
-                this.switchDbRelation(cell.model);
+                if (this.graphHandler.relations.has(cell.model.id)) {
+                    await this.store.dispatch("editor/disableDbRelation", cell.model);
+                } else if (this.graphHandler.faintRelations.has(cell.model.id)) {
+                    await this.store.dispatch("editor/enableDbRelation", cell.model);
+                }
             }
         });
 
