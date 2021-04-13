@@ -164,12 +164,6 @@ describe("NodesController", () => {
             expect(relations[0].from).toEqual(movieNodeId);
             expect(relations[0].to).toEqual(validNodeId);
         });
-
-        it("should throw an exception", async () => {
-            const invalidRelation = new Relation("isHobbitOf", movieNodeId, nmNodeID, { attrOne: "Smaug" });
-            invalidRelation.relationId = await writeRelation(invalidRelation);
-            await expect(controller.getRelationsOfNode(movieNodeId)).rejects.toThrowError(InternalServerErrorException);
-        });
     });
 
     /**

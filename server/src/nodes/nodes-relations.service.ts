@@ -34,7 +34,9 @@ export class NodesRelationsService {
 
         // Callback parsing the received data from the db write call
         const resolveRead = (result) => {
-            return Promise.all(result.records.map(async (rec) => await this.parseRelation.call(this, rec)));
+            const relations = result.records.map(async (rec) => await this.parseRelation.call(this, rec));
+            // Filter relations which are not allowed by the scheme
+            return Promise.all(relations).then((res) => res.filter((el) => !!el));
         };
 
         return this.neo4jService
