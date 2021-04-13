@@ -104,6 +104,7 @@ export class GraphHandler {
 
         // Load the relations from the nodes
         const relations = Array.from(this.relations.values());
+        relations.push(...Array.from(this.visualRelations.values()));
 
         // Compose the serializable graph and return the JSON string
         return JSON.stringify({
