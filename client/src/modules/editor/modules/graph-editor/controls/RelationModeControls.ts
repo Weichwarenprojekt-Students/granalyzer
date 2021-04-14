@@ -18,22 +18,16 @@ export class RelationModeControls {
     }
 
     /**
-     * Is set in the methods switchRelationsForActiveRelationMode() and ...ForInactiveRelationMode(), to indicate
-     * if the relation edit mode is active
-     */
-    private _relationModeActive = false;
-
-    /**
      * True if the relation mode is active
      */
-    public get relationModeActive(): boolean {
-        return this._relationModeActive;
+    public get active(): boolean {
+        return !!this.store.state.editor?.graphEditor?.relationModeActive;
     }
 
     /**
      * Process all relations for an activated relation edit mode
      */
-    public async switchRelationsForActiveRelationMode(): Promise<void> {
+    public async enable(): Promise<void> {
         // Generate a set of all node uuids
         const uniqueNodeIds = new Set(
             Array.from(this.graphHandler.nodes.values(), (node) => {
@@ -77,14 +71,12 @@ export class RelationModeControls {
 
         // Add all api relations as faint db relations that are not present in the graph yet
         this.addFaintRelations(relationMap, alreadyPresentRelations);
-
-        this._relationModeActive = true;
     }
 
     /**
      * Switch all relations back from an active relation edit mode
      */
-    public switchRelationsForInactiveRelationMode(): void {
+    public disable(): void {
         // Remove all faint relations
         this.graphHandler.faintRelations.forEach((node, id) => {
             this.graphHandler.controls.removeRelation(this.graphHandler.getCellById(id));
@@ -94,8 +86,6 @@ export class RelationModeControls {
         this.graphHandler.visualRelations.forEach((node, id) => {
             this.switchVisualRelation(id);
         });
-
-        this._relationModeActive = false;
     }
 
     /**
@@ -217,7 +207,7 @@ export class RelationModeControls {
     private registerNodeInteraction(): void {
         // Switch db relations on mouse click
         this.graphHandler.graph.paper.on("link:pointerdown", async (cell) => {
-            if (this.store.getters["editor/relationModeActive"]) {
+            if (this.store.state.editor?.graphEditor?.relationModeActive) {
                 if (this.graphHandler.relations.has(cell.model.id)) {
                     await this.store.dispatch("editor/disableDbRelation", cell.model);
                 } else if (this.graphHandler.faintRelations.has(cell.model.id)) {

@@ -2,7 +2,7 @@ import { ICommand } from "@/modules/editor/modules/graph-editor/controls/command
 import { GraphHandler } from "../GraphHandler";
 import { dia } from "jointjs";
 
-export class ChangeRelationVertexCommand implements ICommand {
+export class BendRelationCommand implements ICommand {
     /**
      * Original vertices of the link
      */

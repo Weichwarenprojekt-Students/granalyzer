@@ -17,8 +17,8 @@ export class DisableDbRelationCommand implements ICommand {
      * The redo action which disables a db relation
      */
     redo(): void {
-        if (this.graphHandler.relationModeControls.relationModeActive) {
-            this.graphHandler.relationModeControls.switchDbRelation(this.link.id);
+        if (this.graphHandler.relationMode.active) {
+            this.graphHandler.relationMode.switchDbRelation(this.link.id);
         } else {
             this.graphHandler.controls.removeRelation(this.link);
         }

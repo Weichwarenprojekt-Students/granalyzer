@@ -59,16 +59,14 @@ export default defineComponent({
         }
     },
     watch: {
-        async relationModeActive(state, oldState) {
-            if (oldState === state) return;
-
-            if (state) {
+        async "$store.state.editor.graphEditor.relationModeActive"() {
+            if (this.$store.state.editor.graphEditor.relationModeActive) {
                 this.$store.commit("editor/setEditorLoading", true);
-                await this.$store.state.editor.graphEditor.graphHandler.relationModeControls.switchRelationsForActiveRelationMode();
+                await this.$store.state.editor.graphEditor.graphHandler.relationMode.enable();
                 this.$store.commit("editor/setEditorLoading", false);
             } else {
                 this.$store.commit("editor/setEditorLoading", true);
-                await this.$store.state.editor.graphEditor.graphHandler.relationModeControls.switchRelationsForInactiveRelationMode();
+                await this.$store.state.editor.graphEditor.graphHandler.relationMode.disable();
                 this.$store.commit("editor/setEditorLoading", false);
             }
         },
@@ -80,7 +78,7 @@ export default defineComponent({
         // eslint-disable-next-line
         onNodeDrop(evt: any): void {
             // Disable adding nodes in relation edit mode
-            if (this.relationModeActive) {
+            if (this.$store.state.editor.graphEditor.relationModeActive) {
                 this.$toast.add({
                     severity: "warn",
                     summary: this.$t("editor.relationModeToast.title"),
@@ -107,11 +105,6 @@ export default defineComponent({
                     index: 0,
                 },
             });
-        },
-    },
-    computed: {
-        relationModeActive(): boolean {
-            return this.$store.getters["editor/relationModeActive"];
         },
     },
 });

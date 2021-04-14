@@ -2,14 +2,14 @@
     <!-- The extra divs are necessary for the tooltips to work -->
     <div class="container">
         <div
-            :class="['item', $store.getters['editor/relationModeActive'] ? 'selected' : '']"
+            :class="['item', $store.state.editor.graphEditor.relationModeActive ? 'selected' : '']"
             v-tooltip.bottom="$t('editor.toolbar.relation')"
             @click="toggleRelationMode"
         >
             <svg class="icon">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#relation`"></use>
             </svg>
-            <span class="addon" v-show="$store.getters['editor/relationModeActive']">
+            <span class="addon" v-show="$store.state.editor.graphEditor.relationModeActive">
                 {{ $t("editor.toolbar.active") }}
             </span>
         </div>

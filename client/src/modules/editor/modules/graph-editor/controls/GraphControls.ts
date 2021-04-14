@@ -7,7 +7,7 @@ import { dia, linkTools, shapes } from "jointjs";
 import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/models/NodeShapes";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 import { getBrightness } from "@/utility";
-import { ChangeRelationVertexCommand } from "@/modules/editor/modules/graph-editor/controls/commands/ChangeRelationVertexCommand";
+import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/BendRelationCommand";
 
 export class GraphControls {
     /**
@@ -248,7 +248,7 @@ export class GraphControls {
         // Save the clicked element and the position of it
         this.graphHandler.graph.paper.on("element:pointerdown", (cell) => {
             moveCommand = new MoveNodeCommand(this.graphHandler, cell.model);
-            if (!this.store.getters["editor/relationModeActive"]) {
+            if (!this.store.state.editor?.graphEditor?.relationModeActive) {
                 this.graphHandler.graph.selectElement(cell);
                 this.store.commit("editor/setSelectedElement", cell.model);
             }
@@ -263,33 +263,33 @@ export class GraphControls {
             moveCommand = undefined;
         });
 
-        let verticesCommand: ChangeRelationVertexCommand | undefined;
+        let bendCommand: BendRelationCommand | undefined;
 
         // Start dragging the vertex of a relation
         this.graphHandler.graph.paper.on("link:pointerdown", async (cell) => {
-            verticesCommand = new ChangeRelationVertexCommand(this.graphHandler, cell.model);
+            bendCommand = new BendRelationCommand(this.graphHandler, cell.model);
         });
 
         // If the vertices of a relation have changed, add a command to undo/redo
         this.graphHandler.graph.paper.on("link:pointerup", async () => {
-            if (verticesCommand && verticesCommand.verticesHaveChanged()) {
-                await this.store.dispatch("editor/addChangeRelationVerticesCommand", verticesCommand);
+            if (bendCommand && bendCommand.verticesHaveChanged()) {
+                await this.store.dispatch("editor/addBendRelationCommand", bendCommand);
             }
         });
 
         this.graphHandler.graph.paper.on("link:pointerdblclick", async () => {
-            if (verticesCommand && verticesCommand.verticesHaveChanged()) {
-                await this.store.dispatch("editor/addChangeRelationVerticesCommand", verticesCommand);
+            if (bendCommand && bendCommand.verticesHaveChanged()) {
+                await this.store.dispatch("editor/addBendRelationCommand", bendCommand);
             }
         });
 
         // Show and hide tools for moving links
         this.graphHandler.graph.paper.on("link:mouseenter", (linkView) => {
-            if (!this.store.getters["editor/relationModeActive"]) linkView.showTools();
+            if (!this.store.state.editor?.graphEditor?.relationModeActive) linkView.showTools();
         });
 
         this.graphHandler.graph.paper.on("link:mouseleave", (linkView) => {
-            if (!this.store.getters["editor/relationModeActive"]) linkView.hideTools();
+            if (!this.store.state.editor?.graphEditor?.relationModeActive) linkView.hideTools();
         });
     }
 }

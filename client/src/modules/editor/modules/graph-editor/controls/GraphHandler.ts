@@ -33,7 +33,7 @@ export class GraphHandler {
     /**
      * The controls for the relation mode
      */
-    public relationModeControls: RelationModeControls;
+    public relationMode: RelationModeControls;
     /**
      * The actual graph object from joint
      */
@@ -56,7 +56,7 @@ export class GraphHandler {
     constructor(store: Store<RootState>, graph: JointGraph) {
         this.graph = graph;
         this.controls = new GraphControls(this, store);
-        this.relationModeControls = new RelationModeControls(this, store);
+        this.relationMode = new RelationModeControls(this, store);
     }
 
     /**
