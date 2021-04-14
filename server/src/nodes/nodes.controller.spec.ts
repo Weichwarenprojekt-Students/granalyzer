@@ -103,8 +103,8 @@ describe("NodesController", () => {
             expect((await controller.getNode(movieNodeId)).name).toBe("Avengers");
         });
 
-        it("should throw an exception", async () => {
-            // Create specific data which should cause the failure
+        it("should return the node with the default value because attribute it is missing", async () => {
+            // Create specific data which causes the default value replacement
             const threePropsLabel = new LabelScheme("ThreeProps", "#333", [
                 new NumberAttribute("attrOne", true, 1900),
                 new StringAttribute("attrTwo", true, "empty"),
@@ -115,9 +115,10 @@ describe("NodesController", () => {
             const missingAttributeNode = new Node("MissingNode", "ThreeProps", { attrOne: 1234, attrTwo: "Alfons" });
             missingAttributeNode.nodeId = await writeNode(missingAttributeNode);
 
-            await expect(controller.getNode(missingAttributeNode.nodeId)).rejects.toThrowError(
-                InternalServerErrorException,
-            );
+            missingAttributeNode.attributes["attrThree"] = "empty";
+            expect(await controller.getNode(missingAttributeNode.nodeId)).toEqual({
+                ...missingAttributeNode,
+            });
         });
 
         it("should return the attribute the right datatypes", async () => {
