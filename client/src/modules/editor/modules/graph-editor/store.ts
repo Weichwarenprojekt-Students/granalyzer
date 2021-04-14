@@ -145,7 +145,7 @@ export const graphEditor = {
          * Add command for changed vertices to the undo redo stack
          */
         addChangeRelationVerticesCommand(state: GraphEditorState, verticesCommand: ChangeRelationVertexCommand): void {
-            if (state.graphHandler) state.graphHandler.addCommand(verticesCommand);
+            state.graphHandler?.addCommand(verticesCommand);
         },
     },
     actions: {

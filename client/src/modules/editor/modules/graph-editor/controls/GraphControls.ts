@@ -275,7 +275,6 @@ export class GraphControls {
 
         this.graphHandler.relations.forEach((relation, id) => {
             if (!relation.uuid) {
-                console.log(relation.uuid, typeof relation.uuid);
                 // If the relation has no uuid, it can't be synchronized with the DB and is a visual relation
                 this.switchVisualRelation(id);
                 return;

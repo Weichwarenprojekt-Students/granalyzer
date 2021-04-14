@@ -277,11 +277,6 @@ export class GraphHandler {
 
                     // Check if there is a relation at the same position
                     siblings.map((s) => s.vertices()).filter((v) => v.length != 0).forEach((v) => {
-                        console.log("vertex", vertex);
-                        console.log("distance to", v[0]);
-                        console.log("distance to", new g.Point(v[0]));
-                        console.log("= ", vertex.distance(new g.Point(v[0])));
-
                         if (vertex.distance(new g.Point(v[0])) < 10) {
                             atCorrectPosition = false;
                         }
