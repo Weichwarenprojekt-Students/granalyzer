@@ -18,7 +18,7 @@ export class InventoryState {
     /**
      * Relations for the currently displayed graph
      */
-    public directRelations = [] as Array<ApiRelation>;
+    public relations = [] as Array<ApiRelation>;
 
     /**
      * Maps the uuid of a node to the id of a diagram shape
@@ -58,7 +58,7 @@ export const inventory = {
          * Set direct relations from the selected node
          */
         addRelations(state: InventoryState, relations: Array<ApiRelation>): void {
-            state.directRelations.push(...relations);
+            state.relations.push(...relations);
         },
 
         /**
@@ -86,9 +86,10 @@ export const inventory = {
          * Reset state for neighbor relations
          */
         reset(state: InventoryState): void {
-            state.directRelations = [];
+            state.relations = [];
             state.neighbors = [];
             state.mappedNodes.clear();
+            state.mappedRelations.clear();
         },
     },
     actions: {

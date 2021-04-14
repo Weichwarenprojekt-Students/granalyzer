@@ -22,7 +22,7 @@ export default defineComponent({
             // Graph of the inventory view
             graph: {} as JointGraph,
             // Root element that is currently displayed in the inventory
-            selectedElement: {} as dia.Element,
+            currentlyDisplayedShape: {} as dia.Element,
             // Utility functions for the neighbor view
             neighborUtils: {} as NeighborUtils,
         };
@@ -35,7 +35,7 @@ export default defineComponent({
             if (loading) return;
 
             const neighbors = this.$store.state.inventory.neighbors;
-            const relations = this.$store.state.inventory.directRelations;
+            const relations = this.$store.state.inventory.relations;
 
             this.addNeighborNodesAndRelations(neighbors, relations);
         },
@@ -45,13 +45,7 @@ export default defineComponent({
         selectedNode(newValue, oldValue) {
             if (oldValue && oldValue.nodeId === newValue.nodeId) return;
 
-            if (Object.keys(this.selectedElement).length !== 0) {
-                this.selectedElement.remove();
-                this.$store.state.inventory.mappedNodes.forEach((value: number | string) => {
-                    const element = this.graph.graph.getCell(value);
-                    if (element) element.remove();
-                });
-            }
+            if (Object.keys(this.currentlyDisplayedShape).length !== 0) this.graph.graph.clear();
 
             this.$store.commit("inventory/reset");
             if (this.selectedNode) this.displaySelectedNode(this.selectedNode as ApiNode);
@@ -79,7 +73,7 @@ export default defineComponent({
          */
         displaySelectedNode(apiNode: ApiNode) {
             const shape = this.neighborUtils.addNodeToDiagram(apiNode);
-            this.selectedElement = shape;
+            this.currentlyDisplayedShape = shape;
 
             shape.attr("body/strokeWidth", 0);
         },
