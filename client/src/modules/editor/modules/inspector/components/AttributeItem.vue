@@ -46,7 +46,7 @@ export default defineComponent({
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 8px 12px;
+    padding: 8px 16px;
     margin-right: 18px;
     margin-bottom: 8px;
     gap: 24px;

@@ -5,8 +5,8 @@
             <svg class="attribute-collapse-icon" @click="collapsed = !collapsed">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#arrow`"></use>
             </svg>
-            <label class="attribute-name">
-                <input type="text" v-model="modifiedAttribute.name" />
+            <label :key="'name_label'" class="attribute-name">
+                <input :key="'name_input'" type="text" v-model="modifiedAttribute.name" />
             </label>
             <span class="attribute-type">{{ $t(`schemes.attribute.datatype.${modifiedAttribute.datatype}`) }}</span>
             <div class="attribute-spacer" />
@@ -119,7 +119,8 @@ export default defineComponent({
 }
 
 .attribute-header {
-    padding-right: 12px;
+    padding-left: 4px;
+    padding-right: 16px;
     align-items: center;
     height: @line_height;
     display: flex;
@@ -168,7 +169,8 @@ export default defineComponent({
 }
 
 .attribute-expanded {
-    margin-left: 130px;
+    margin-left: 114px;
+    padding: 0 16px;
     height: 0;
     border-bottom: 1px solid @grey;
     transition: height 400ms;

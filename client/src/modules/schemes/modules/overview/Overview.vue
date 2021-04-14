@@ -34,6 +34,14 @@
                 >
                     {{ label.name }}
                 </div>
+
+                <div class="add-button" @click="newLabel">
+                    <svg>
+                        <use :xlink:href="`${require('@/assets/img/icons.svg')}#plus-bold`"></use>
+                    </svg>
+                    <span> {{ $t("schemes.overview.addLabel") }} </span>
+                </div>
+
                 <div class="space" />
             </ScrollPanel>
         </div>
@@ -62,6 +70,14 @@
                 >
                     {{ relation.name }}
                 </div>
+
+                <div class="add-button" @click="newRelation">
+                    <svg>
+                        <use :xlink:href="`${require('@/assets/img/icons.svg')}#plus-bold`"></use>
+                    </svg>
+                    <span> {{ $t("schemes.overview.addRelation") }} </span>
+                </div>
+
                 <div class="space" />
             </ScrollPanel>
         </div>
@@ -95,6 +111,20 @@ export default defineComponent({
         this.relations = this.$store.state.schemes.relations;
     },
     watch: {
+        /**
+         * Check if the original labels changed
+         */
+        "$store.state.schemes.labels"() {
+            this.labelFilter = "";
+            this.labels = this.$store.state.schemes.labels;
+        },
+        /**
+         * Check if the original relations changed
+         */
+        "$store.state.schemes.relations"() {
+            this.relationFilter = "";
+            this.relations = this.$store.state.schemes.relations;
+        },
         /**
          * Filter the labels as soon as the label filter changes
          */
@@ -145,6 +175,18 @@ export default defineComponent({
         selectRelation(relation: ApiLabel): void {
             this.$store.commit("schemes/selectRelation", relation);
         },
+        /**
+         * Create a new label
+         */
+        newLabel(): void {
+            this.$store.commit("schemes/initLabelCreation");
+        },
+        /**
+         * Create a new relation
+         */
+        newRelation(): void {
+            this.$store.commit("schemes/initRelationCreation");
+        },
     },
 });
 </script>
@@ -159,6 +201,7 @@ export default defineComponent({
 
     display: flex;
     flex-flow: column;
+    position: relative;
 }
 
 .tabs {
@@ -173,6 +216,20 @@ export default defineComponent({
         cursor: pointer;
         text-align: center;
         line-height: @header-height - 12px;
+    }
+}
+
+.add-button {
+    display: flex;
+    margin-top: 24px;
+    margin-right: 18px;
+    gap: 12px;
+    padding-left: 16px;
+    cursor: pointer;
+
+    svg {
+        width: 16px;
+        height: 16px;
     }
 }
 

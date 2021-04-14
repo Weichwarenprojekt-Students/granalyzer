@@ -4,15 +4,15 @@
             <use :xlink:href="`${require('@/assets/img/icons.svg')}#warning`"></use>
         </svg>
         <div class="conflict-content">
-            <span>{{ conflict.title }}</span>
+            <span class="conflict-title">{{ conflict.title }}</span>
             <span class="conflict-description">{{ conflict.description }}</span>
             <div class="conflict-actions">
-                <a class="conflict-remove" v-tooltip.top="$t('schemes.conflict-view.revert')">
+                <a class="conflict-remove" v-tooltip.top="$t('schemes.conflictView.revert')">
                     <svg class="conflict-remove">
                         <use :xlink:href="`${require('@/assets/img/icons.svg')}#revert`"></use>
                     </svg>
                 </a>
-                <a class="conflict-remove" v-tooltip.top="$t('schemes.conflict-view.check')">
+                <a class="conflict-remove" v-tooltip.top="$t('schemes.conflictView.check')">
                     <svg class="conflict-remove">
                         <use :xlink:href="`${require('@/assets/img/icons.svg')}#check`"></use>
                     </svg>
@@ -43,12 +43,12 @@ export default defineComponent({
 .conflict-icon {
     width: 64px;
     height: 64px;
-    fill: @red;
+    fill: @warn;
     margin-right: 24px;
 }
 
 .conflict-card {
-    padding: 24px 12px;
+    padding: 24px 16px;
     border-bottom: 1px solid @grey;
     display: flex;
     align-items: center;
@@ -58,6 +58,10 @@ export default defineComponent({
 .conflict-content {
     display: flex;
     flex-direction: column;
+}
+
+.conflict-title {
+    font-weight: bold;
 }
 
 .conflict-actions {

@@ -1,18 +1,37 @@
 <template>
     <div class="content">
+        <!-- The dialog for deleting a relation -->
+        <ConfirmDialog
+            @confirm="deleteRelation"
+            @cancel="deleteRelationDialog = false"
+            :show="deleteRelationDialog"
+            :title="$t('schemes.relationEditor.deleteDialog.title')"
+            :description="$t('schemes.relationEditor.deleteDialog.description')"
+        ></ConfirmDialog>
+
+        <!-- The dialog for updating a relation -->
+        <ConfirmDialog
+            @confirm="updateRelation"
+            @cancel="updateRelationDialog = false"
+            :show="updateRelationDialog"
+            :title="$t('schemes.relationEditor.updateDialog.title')"
+            :description="$t('schemes.relationEditor.updateDialog.description')"
+        ></ConfirmDialog>
+
         <div class="underlined-title">
-            {{ $t("schemes.relation-editor.title") }}
+            {{ $t("schemes.relationEditor.title") }}
         </div>
         <ScrollPanel class="scroll-panel">
             <!-- The main attributes -->
             <label class="main-attribute">
-                <span>{{ $t("schemes.relation-editor.name") }}</span>
-                <span> {{ modifiedRelation.name }}</span>
+                <span>{{ $t("schemes.relationEditor.name") }}</span>
+                <input v-if="createMode" id="relation-name-input" v-model="modifiedRelation.name" />
+                <span v-else> {{ modifiedRelation.name }}</span>
             </label>
 
             <!-- The optional parameters -->
             <div class="attributes-action-bar">
-                <h4>{{ $t("schemes.relation-editor.attributes") }}</h4>
+                <h4>{{ $t("schemes.relationEditor.attributes") }}</h4>
                 <svg class="add-attribute" @click="addAttribute">
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#plus-bold`"></use>
                 </svg>
@@ -20,7 +39,7 @@
 
             <AttributeView
                 v-for="(attribute, index) in modifiedRelation.attributes"
-                :key="`${relation.name}-${attribute.name}`"
+                :key="`${relation.name}-${objectUUID(attribute)}`"
                 v-model:name="attribute.name"
                 v-model:mandatory="attribute.mandatory"
                 v-model:defaultValue="attribute.defaultValue"
@@ -30,8 +49,14 @@
 
             <!-- The save button --->
             <div class="bottom-bar">
-                <button v-if="isModified" class="btn btn-secondary" @click="saveRelation">
-                    {{ $t("schemes.relation-editor.save") }}
+                <button v-if="!createMode" class="btn btn-warn" @click="deleteRelationDialog = true">
+                    {{ $t("schemes.relationEditor.delete") }}
+                </button>
+                <button v-if="isModified && !createMode" class="btn btn-primary" @click="updateRelationDialog = true">
+                    {{ $t("schemes.relationEditor.save") }}
+                </button>
+                <button v-if="createMode" class="btn btn-primary" @click="createRelation">
+                    {{ $t("schemes.relationEditor.create") }}
                 </button>
             </div>
 
@@ -42,24 +67,32 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { deepCopy } from "@/utility";
+import { deepCopy, objectUUID } from "@/utility";
 import AttributeView from "@/modules/schemes/components/AttributeView.vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
+import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 export default defineComponent({
     name: "RelationEditor",
-    components: { AttributeView },
+    components: { AttributeView, ConfirmDialog },
     props: {
         // The relation that will be modified
         relation: {
             type: Object,
             default: new ApiRelationType(),
         },
+        // True if the relation is currently being created
+        createMode: Boolean,
     },
     data() {
         return {
+            // The actually modified relation
             modifiedRelation: new ApiRelationType(),
+            // True if the deletion dialog is shown
+            deleteRelationDialog: false,
+            // True if the update dialog is shown
+            updateRelationDialog: false,
         };
     },
     created() {
@@ -71,11 +104,12 @@ export default defineComponent({
          */
         relation() {
             this.modifiedRelation = deepCopy(this.relation) as ApiRelationType;
+            if (this.createMode) this.$nextTick().then(() => document.getElementById("relation-name-input")?.focus());
         },
     },
     computed: {
         /**
-         * @return True if the label was modified
+         * @return True if the relation was modified
          */
         isModified(): boolean {
             if (this.relation.attributes.length != this.modifiedRelation.attributes.length) return true;
@@ -86,6 +120,10 @@ export default defineComponent({
         },
     },
     methods: {
+        /**
+         * Forward the object uuid helper method for usage in template
+         */
+        objectUUID: objectUUID,
         /**
          * Delete an attribute by index
          *
@@ -103,8 +141,88 @@ export default defineComponent({
         /**
          * Save the changed relation
          */
-        saveRelation(): void {
-            this.$store.dispatch("schemes/updateRelation", this.relation);
+        updateRelation(): void {
+            this.updateRelationDialog = false;
+            if (this.validateRelation()) {
+                this.$store.dispatch("schemes/updateRelation", this.modifiedRelation);
+            }
+        },
+        /**
+         * Delete a relation
+         */
+        async deleteRelation(): Promise<void> {
+            this.deleteRelationDialog = false;
+            const success = await this.$store.dispatch("schemes/deleteRelation");
+            if (!success)
+                this.$toast.add({
+                    severity: "error",
+                    summary: this.$t("schemes.relationEditor.deleteFailed.title"),
+                    detail: this.$t("schemes.relationEditor.deleteFailed.description"),
+                    life: 3000,
+                });
+        },
+        /**
+         * Create a new relation
+         */
+        createRelation(): void {
+            if (this.validateRelation()) {
+                this.$store.dispatch("schemes/createRelation", this.modifiedRelation);
+            }
+        },
+        /**
+         * Check if the relation is valid
+         */
+        validateRelation(): boolean {
+            // Check if the name is empty
+            if (this.modifiedRelation.name === "") {
+                this.$toast.add({
+                    severity: "error",
+                    summary: this.$t("schemes.relationEditor.nameRequired.title"),
+                    detail: this.$t("schemes.relationEditor.nameRequired.description"),
+                    life: 3000,
+                });
+                return false;
+            }
+
+            // Check if the name is unique
+            for (let relation of this.$store.state.schemes.relations) {
+                if (relation.name === this.modifiedRelation.name && relation.name !== this.relation.name) {
+                    this.$toast.add({
+                        severity: "error",
+                        summary: this.$t("schemes.relationEditor.nameDuplicate.title"),
+                        detail: this.$t("schemes.relationEditor.nameDuplicate.description"),
+                        life: 3000,
+                    });
+                    return false;
+                }
+            }
+
+            // Check if the attributes are valid
+            const names = new Map<string, string>();
+            for (let attribute of this.modifiedRelation.attributes) {
+                // If the name is empty
+                if (attribute.name === "") {
+                    this.$toast.add({
+                        severity: "error",
+                        summary: this.$t("schemes.attribute.nameRequired.title"),
+                        detail: this.$t("schemes.attribute.nameRequired.description"),
+                        life: 3000,
+                    });
+                    return false;
+                }
+                // If the name is a duplicate
+                if (names.has(attribute.name)) {
+                    this.$toast.add({
+                        severity: "error",
+                        summary: this.$t("schemes.attribute.nameDuplicate.title"),
+                        detail: this.$t("schemes.attribute.nameDuplicate.description", { name: attribute.name }),
+                        life: 3000,
+                    });
+                    return false;
+                }
+                names.set(attribute.name, "");
+            }
+            return true;
         },
     },
 });

@@ -17,7 +17,7 @@
         :title="$t('start.diagrams.renameItem', { item: selectedItemName })"
     ></InputDialog>
 
-    <!-- The dialog for adding a folder -->
+    <!-- The dialog for removing a folder -->
     <ConfirmDialog
         @confirm="deleteItem"
         @cancel="deleteItemDialog = false"

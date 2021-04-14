@@ -41,6 +41,30 @@ export function getBrightness(color: string): number {
 }
 
 /**
+ * The pointer for the next object uuid
+ */
+let __granObjectUUID = 0;
+
+/**
+ * This method determines an id for any given object.
+ * It will simply set a special id field on demand.
+ * This is especially helpful for vue loops when iterating over a list
+ * of objects that hasn't a direct id field. Than you can simply use
+ * this method to set "key" values
+ *
+ * @param obj The object that needs an id
+ * @return The special object id
+ */
+// eslint-disable-next-line
+export function objectUUID(obj: any): number {
+    if (!obj.__granObjectUUID) {
+        obj.__granObjectUUID = __granObjectUUID;
+        __granObjectUUID++;
+    }
+    return obj.__granObjectUUID;
+}
+
+/**
  * Determine whether an object is empty
  *
  * @param object The object to be checked

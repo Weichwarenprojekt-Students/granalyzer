@@ -1,22 +1,41 @@
 <template>
     <div class="content">
+        <!-- The dialog for deleting a label -->
+        <ConfirmDialog
+            @confirm="deleteLabel"
+            @cancel="deleteLabelDialog = false"
+            :show="deleteLabelDialog"
+            :title="$t('schemes.labelEditor.deleteDialog.title')"
+            :description="$t('schemes.labelEditor.deleteDialog.description')"
+        ></ConfirmDialog>
+
+        <!-- The dialog for updating a label -->
+        <ConfirmDialog
+            @confirm="updateLabel"
+            @cancel="updateLabelDialog = false"
+            :show="updateLabelDialog"
+            :title="$t('schemes.labelEditor.updateDialog.title')"
+            :description="$t('schemes.labelEditor.updateDialog.description')"
+        ></ConfirmDialog>
+
         <div class="underlined-title">
-            {{ $t("schemes.label-editor.title") }}
+            {{ $t("schemes.labelEditor.title") }}
         </div>
         <ScrollPanel class="scroll-panel">
             <!-- The main attributes -->
             <label class="main-attribute">
-                <span>{{ $t("schemes.label-editor.name") }}</span>
-                <span> {{ modifiedLabel.name }}</span>
+                <span>{{ $t("schemes.labelEditor.name") }}</span>
+                <input v-if="createMode" id="label-name-input" v-model="modifiedLabel.name" />
+                <span v-else> {{ modifiedLabel.name }}</span>
             </label>
             <label class="main-attribute">
-                <span>{{ $t("schemes.label-editor.color") }}</span>
+                <span>{{ $t("schemes.labelEditor.color") }}</span>
                 <ColorMultiInput v-model="modifiedLabel.color" />
             </label>
 
             <!-- The optional parameters -->
             <div class="attributes-action-bar">
-                <h4>{{ $t("schemes.label-editor.attributes") }}</h4>
+                <h4>{{ $t("schemes.labelEditor.attributes") }}</h4>
                 <svg class="add-attribute" @click="addAttribute">
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#plus-bold`"></use>
                 </svg>
@@ -24,7 +43,7 @@
 
             <AttributeView
                 v-for="(attribute, index) in modifiedLabel.attributes"
-                :key="`${label.name}-${attribute.name}`"
+                :key="`${label.name}-${objectUUID(attribute)}`"
                 v-model:name="attribute.name"
                 v-model:mandatory="attribute.mandatory"
                 v-model:defaultValue="attribute.defaultValue"
@@ -34,8 +53,14 @@
 
             <!-- The save button --->
             <div class="bottom-bar">
-                <button v-if="isModified" class="btn btn-secondary" @click="saveChange">
-                    {{ $t("schemes.label-editor.save") }}
+                <button v-if="!createMode" class="btn btn-warn" @click="deleteLabelDialog = true">
+                    {{ $t("schemes.labelEditor.delete") }}
+                </button>
+                <button v-if="isModified && !createMode" class="btn btn-primary" @click="updateLabelDialog = true">
+                    {{ $t("schemes.labelEditor.save") }}
+                </button>
+                <button v-if="createMode" class="btn btn-primary" @click="createLabel">
+                    {{ $t("schemes.labelEditor.create") }}
                 </button>
             </div>
 
@@ -48,23 +73,31 @@
 import { defineComponent } from "vue";
 import ColorMultiInput from "@/components/ColorMultiInput.vue";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
-import { deepCopy } from "@/utility";
+import { deepCopy, objectUUID } from "@/utility";
 import AttributeView from "@/modules/schemes/components/AttributeView.vue";
+import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 
 export default defineComponent({
     name: "LabelEditor",
-    components: { AttributeView, ColorMultiInput },
+    components: { AttributeView, ColorMultiInput, ConfirmDialog },
     props: {
         // The label that will be modified
         label: {
             type: Object,
             default: new ApiLabel(),
         },
+        // True if the label is currently being created
+        createMode: Boolean,
     },
     data() {
         return {
+            // The actually modified label
             modifiedLabel: new ApiLabel(),
+            // True if the deletion dialog is shown
+            deleteLabelDialog: false,
+            // True if the update dialog is shown
+            updateLabelDialog: false,
         };
     },
     created() {
@@ -76,6 +109,7 @@ export default defineComponent({
          */
         label() {
             this.modifiedLabel = deepCopy(this.label) as ApiLabel;
+            if (this.createMode) this.$nextTick().then(() => document.getElementById("label-name-input")?.focus());
         },
     },
     computed: {
@@ -93,6 +127,10 @@ export default defineComponent({
     },
     methods: {
         /**
+         * Forward the object uuid helper method for usage in template
+         */
+        objectUUID: objectUUID,
+        /**
          * Delete an attribute by index
          *
          * @param index The index of the attribute
@@ -109,8 +147,88 @@ export default defineComponent({
         /**
          * Save the changed label
          */
-        saveChange(): void {
-            this.$store.dispatch("schemes/updateLabel", this.label);
+        updateLabel(): void {
+            this.updateLabelDialog = false;
+            if (this.validateLabel()) {
+                this.$store.dispatch("schemes/updateLabel", this.modifiedLabel);
+            }
+        },
+        /**
+         * Delete a label
+         */
+        async deleteLabel(): Promise<void> {
+            this.deleteLabelDialog = false;
+            const success = await this.$store.dispatch("schemes/deleteLabel");
+            if (!success)
+                this.$toast.add({
+                    severity: "error",
+                    summary: this.$t("schemes.labelEditor.deleteFailed.title"),
+                    detail: this.$t("schemes.labelEditor.deleteFailed.description"),
+                    life: 3000,
+                });
+        },
+        /**
+         * Create a new label
+         */
+        createLabel(): void {
+            if (this.validateLabel()) {
+                this.$store.dispatch("schemes/createLabel", this.modifiedLabel);
+            }
+        },
+        /**
+         * Check if the label is valid
+         */
+        validateLabel(): boolean {
+            // Check if the name is empty
+            if (this.modifiedLabel.name === "") {
+                this.$toast.add({
+                    severity: "error",
+                    summary: this.$t("schemes.labelEditor.nameRequired.title"),
+                    detail: this.$t("schemes.labelEditor.nameRequired.description"),
+                    life: 3000,
+                });
+                return false;
+            }
+
+            // Check if the name is unique
+            for (let label of this.$store.state.schemes.labels) {
+                if (label.name === this.modifiedLabel.name && label.name !== this.label.name) {
+                    this.$toast.add({
+                        severity: "error",
+                        summary: this.$t("schemes.labelEditor.nameDuplicate.title"),
+                        detail: this.$t("schemes.labelEditor.nameDuplicate.description"),
+                        life: 3000,
+                    });
+                    return false;
+                }
+            }
+
+            // Check if the attributes are valid
+            const names = new Map<string, string>();
+            for (let attribute of this.modifiedLabel.attributes) {
+                // If the name is empty
+                if (attribute.name === "") {
+                    this.$toast.add({
+                        severity: "error",
+                        summary: this.$t("schemes.attribute.nameRequired.title"),
+                        detail: this.$t("schemes.attribute.nameRequired.description"),
+                        life: 3000,
+                    });
+                    return false;
+                }
+                // If the name is a duplicate
+                if (names.has(attribute.name)) {
+                    this.$toast.add({
+                        severity: "error",
+                        summary: this.$t("schemes.attribute.nameDuplicate.title"),
+                        detail: this.$t("schemes.attribute.nameDuplicate.description", { name: attribute.name }),
+                        life: 3000,
+                    });
+                    return false;
+                }
+                names.set(attribute.name, "");
+            }
+            return true;
         },
     },
 });

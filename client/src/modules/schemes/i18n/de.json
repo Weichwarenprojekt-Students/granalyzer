@@ -3,21 +3,67 @@
     "labels": "Labels",
     "relations": "Relationen",
     "noLabels": "Keine Labels gefunden!",
-    "noRelations": "Keine Relationen gefunden!"
+    "noRelations": "Keine Relationen gefunden!",
+    "addLabel": "Label hinzufügen",
+    "addRelation": "Relation hinzufügen"
   },
   "nothing-selected": "Wählen Sie entweder ein Label oder eine Relation aus um diese hier zu editieren.",
-  "label-editor": {
+  "labelEditor": {
     "title": "Label Editor",
     "name": "Name:",
     "color": "Farbe:",
     "attributes": "Attribute",
-    "save": "Speichern"
+    "save": "Speichern",
+    "create": "Erstellen",
+    "delete": "Löschen",
+    "deleteDialog": {
+      "title": "Label löschen",
+      "description": "Zugehörige Knoten werden dadurch unsichtbar!"
+    },
+    "updateDialog": {
+      "title": "Label updaten",
+      "description": "Änderungen an Attributen kann zu Konflikten führen!"
+    },
+    "deleteFailed": {
+      "title": "Löschen fehlgeschlagen",
+      "description": "Das Label konnte nicht gelöscht werden!"
+    },
+    "nameRequired": {
+      "title": "Name nötig",
+      "description": "Ihr Label braucht noch einen Namen!"
+    },
+    "nameDuplicate": {
+      "title": "Name besetzt",
+      "description": "Ein anderes Label hat bereits diesen Namen!"
+    }
   },
-  "relation-editor": {
+  "relationEditor": {
     "title": "Relationen Editor",
     "name": "Name:",
     "attributes": "Attribute",
-    "save": "Speichern"
+    "save": "Speichern",
+    "create": "Erstellen",
+    "delete": "Löschen",
+    "deleteDialog": {
+      "title": "Relationen-Typ löschen",
+      "description": "Relationen könnten dadurch ihre Referenz verlieren!"
+    },
+    "updateDialog": {
+      "title": "Relation updaten",
+      "description": "Änderungen an Attributen kann zu Konflikten führen!"
+    },
+    "deleteFailed": {
+      "title": "Löschen fehlgeschlagen",
+      "description": "Die Relation konnte nicht gelöscht werden!"
+    },
+    "nameRequired": {
+      "title": "Name nötig",
+      "description": "Ihre Relation braucht noch einen Namen!"
+    },
+    "nameDuplicate": {
+      "title": "Name besetzt",
+      "description": "Eine andere Relation hat bereits diesen Namen!"
+    }
   },
   "attribute": {
     "new": "neu",
@@ -29,9 +75,17 @@
       "string": "Text",
       "number": "Zahl",
       "color": "Farbe"
+    },
+    "nameRequired": {
+      "title": "Name nötig",
+      "description": "Ein Attribut braucht noch einen Namen!"
+    },
+    "nameDuplicate": {
+      "title": "Name doppelt",
+      "description": "Das Attribut {name} ist bereits vorhanden!"
     }
   },
-  "conflict-view": {
+  "conflictView": {
     "title": "Konflikte",
     "revert": "Rückgängig",
     "check": "Bestätigen"

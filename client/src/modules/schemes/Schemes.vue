@@ -2,10 +2,15 @@
     <div class="content">
         <Overview class="overview" />
         <div class="mid-content">
-            <LabelEditor v-if="$store.state.schemes.selectedLabel" :label="$store.state.schemes.selectedLabel" />
+            <LabelEditor
+                v-if="$store.state.schemes.selectedLabel"
+                :label="$store.state.schemes.selectedLabel"
+                :createMode="$store.state.schemes.createMode"
+            />
             <RelationEditor
                 v-else-if="$store.state.schemes.selectedRelation"
                 :relation="$store.state.schemes.selectedRelation"
+                :createMode="$store.state.schemes.createMode"
             />
             <div v-else class="empty-warning">
                 <svg>

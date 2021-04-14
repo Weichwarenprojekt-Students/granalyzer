@@ -3,21 +3,67 @@
     "labels": "Labels",
     "relations": "Relations",
     "noLabels": "No labels found!",
-    "noRelations": "No relations found!"
+    "noRelations": "No relations found!",
+    "addLabel": "Add Label",
+    "addRelation": "Add Relation"
   },
   "nothing-selected": "Select either a label or a relation to edit it here.",
-  "label-editor": {
+  "labelEditor": {
     "title": "Label Editor",
     "name": "Name:",
     "color": "Color:",
     "attributes": "Attributes",
-    "save": "Save Changes"
+    "save": "Save Changes",
+    "create": "Create",
+    "delete": "Delete",
+    "deleteDialog": {
+      "title": "Delete Label",
+      "description": "Associated nodes will not be visible in the tool anymore!"
+    },
+    "updateDialog": {
+      "title": "Update Label",
+      "description": "Changes on attributes can lead to conflicts!"
+    },
+    "deleteFailed": {
+      "title": "Deletion failed",
+      "description": "Could not delete the label!"
+    },
+    "nameRequired": {
+      "title": "Name required",
+      "description": "Your label needs a name!"
+    },
+    "nameDuplicate": {
+      "title": "Name taken",
+      "description": "Another label already has this name!"
+    }
   },
-  "relation-editor": {
+  "relationEditor": {
     "title": "Relation Editor",
     "name": "Name:",
     "attributes": "Attributes",
-    "save": "Save Changes"
+    "save": "Save Changes",
+    "create": "Create",
+    "delete": "Delete",
+    "deleteDialog": {
+      "title": "Delete Relation",
+      "description": "Relations could lose their actual reference!"
+    },
+    "updateDialog": {
+      "title": "Update Relation",
+      "description": "Changes on attributes can lead to conflicts!"
+    },
+    "deleteFailed": {
+      "title": "Deletion failed",
+      "description": "Could not delete the relation!"
+    },
+    "nameRequired": {
+      "title": "Name required",
+      "description": "Your relation needs a name!"
+    },
+    "nameDuplicate": {
+      "title": "Name taken",
+      "description": "Another relation already has this name!"
+    }
   },
   "attribute": {
     "new": "new",
@@ -29,9 +75,17 @@
       "string": "Text",
       "number": "Number",
       "color": "Color"
+    },
+    "nameRequired": {
+      "title": "Name required",
+      "description": "One attribute still needs a name!"
+    },
+    "nameDuplicate": {
+      "title": "Name duplicate",
+      "description": "The attribute {name} is defined multiple times!"
     }
   },
-  "conflict-view": {
+  "conflictView": {
     "title": "Conflicts",
     "revert": "Revert",
     "check": "Confirm"

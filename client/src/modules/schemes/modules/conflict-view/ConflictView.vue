@@ -1,6 +1,6 @@
 <template>
     <div class="content">
-        <div class="underlined-title">{{ $t("schemes.conflict-view.title") }}</div>
+        <div class="underlined-title">{{ $t("schemes.conflictView.title") }}</div>
         <ScrollPanel class="scroll-panel">
             <ConflictCard
                 v-for="conflict in $store.state.schemes.conflicts"
@@ -35,6 +35,6 @@ export default defineComponent({
 }
 
 .underlined-title {
-    border-bottom: 2px solid @red;
+    border-bottom: 2px solid @warn;
 }
 </style>

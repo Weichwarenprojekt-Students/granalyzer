@@ -29,8 +29,7 @@
  */
 .btn {
   border-radius: @border_radius;
-  padding: 8px;
-  width: 160px;
+  padding: 6px 24px;
   border: 1px solid @dark;
   cursor: pointer;
   outline: 0;
@@ -60,8 +59,23 @@
   }
 }
 
+.btn-warn {
+  color: @warn;
+  border-color: @warn;
+  background: transparent;
+
+  &:disabled {
+    color: @dark;
+
+    &:hover {
+      border-color: @dark;
+      background: transparent;
+    }
+  }
+}
+
 .btn-secondary {
-  color: @dark;
+  color: white;
   border-color: @secondary_color;
   background: @secondary_color;
 
