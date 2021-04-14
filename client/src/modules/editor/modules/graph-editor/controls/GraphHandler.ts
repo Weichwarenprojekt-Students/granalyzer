@@ -7,6 +7,7 @@ import { JointGraph } from "@/shared/JointGraph";
 import { Store } from "vuex";
 import { RootState } from "@/store";
 import { GraphControls } from "@/modules/editor/modules/graph-editor/controls/GraphControls";
+import { RelationModeControls } from "@/modules/editor/modules/graph-editor/controls/RelationModeControls";
 
 export class GraphHandler {
     /**
@@ -30,6 +31,10 @@ export class GraphHandler {
      */
     public controls: GraphControls;
     /**
+     * The controls for the relation mode
+     */
+    public relationModeControls: RelationModeControls;
+    /**
      * The actual graph object from joint
      */
     public readonly graph: JointGraph;
@@ -51,6 +56,7 @@ export class GraphHandler {
     constructor(store: Store<RootState>, graph: JointGraph) {
         this.graph = graph;
         this.controls = new GraphControls(this, store);
+        this.relationModeControls = new RelationModeControls(this, store);
     }
 
     /**
@@ -253,7 +259,6 @@ export class GraphHandler {
 
                 let atCorrectPosition = false;
                 while (!atCorrectPosition) {
-
                     // Offset values like 0, 20, 20, 40, 40, 60, 60 ...
                     let offset = GAP * Math.ceil(i / 2);
 
@@ -276,11 +281,14 @@ export class GraphHandler {
                     i++;
 
                     // Check if there is a relation at the same position
-                    siblings.map((s) => s.vertices()).filter((v) => v.length != 0).forEach((v) => {
-                        if (vertex.distance(new g.Point(v[0])) < 10) {
-                            atCorrectPosition = false;
-                        }
-                    });
+                    siblings
+                        .map((s) => s.vertices())
+                        .filter((v) => v.length != 0)
+                        .forEach((v) => {
+                            if (vertex.distance(new g.Point(v[0])) < 10) {
+                                atCorrectPosition = false;
+                            }
+                        });
                 }
 
                 // Replace vertices

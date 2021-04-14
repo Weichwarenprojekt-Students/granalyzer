@@ -64,11 +64,11 @@ export default defineComponent({
 
             if (state) {
                 this.$store.commit("editor/setEditorLoading", true);
-                await this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForActiveRelationMode();
+                await this.$store.state.editor.graphEditor.graphHandler.relationModeControls.switchRelationsForActiveRelationMode();
                 this.$store.commit("editor/setEditorLoading", false);
             } else {
                 this.$store.commit("editor/setEditorLoading", true);
-                await this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForInactiveRelationMode();
+                await this.$store.state.editor.graphEditor.graphHandler.relationModeControls.switchRelationsForInactiveRelationMode();
                 this.$store.commit("editor/setEditorLoading", false);
             }
         },

@@ -17,8 +17,8 @@ export class EnableDbRelationCommand implements ICommand {
      * The redo action which enables a db relation
      */
     redo(): void {
-        if (this.graphHandler.controls.relationModeActive) {
-            this.graphHandler.controls.switchDbRelation(this.link.id);
+        if (this.graphHandler.relationModeControls.relationModeActive) {
+            this.graphHandler.relationModeControls.switchDbRelation(this.link.id);
         } else {
             this.graphHandler.controls.addExistingRelation(this.link, this.relation);
         }
