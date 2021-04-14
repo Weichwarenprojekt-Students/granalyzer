@@ -9,7 +9,7 @@
             <svg class="icon">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#relation`"></use>
             </svg>
-            <span class="addon" :class="[$store.getters['editor/relationModeActive'] ? 'visible' : '']">
+            <span class="addon" v-show="$store.getters['editor/relationModeActive']">
                 {{ $t("editor.toolbar.active") }}
             </span>
         </div>
@@ -123,15 +123,8 @@ export default defineComponent({
 
     .addon {
         line-height: 40px;
-        padding: 0;
-        width: 48px;
-        max-width: 0;
-        opacity: 0;
-
-        &.visible {
-            max-width: 1000px;
-            opacity: 1;
-        }
+        padding-right: 8px;
+        width: auto;
     }
 
     &.selected {
