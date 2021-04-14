@@ -77,6 +77,10 @@ export class JointGraph {
         });
     }
 
+    /**
+     * Set the interactivity of all nodes
+     * @param value True if interactivity should be enabled
+     */
     public setInteractivity(value: boolean): void {
         for (const element of this.graph.getElements()) element.set("disableInteraction", !value);
     }
