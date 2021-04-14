@@ -164,17 +164,19 @@ export default defineComponent({
 
             // Neighbor relations
             for (const relation of relations) {
-                const to = relation.to;
-                const from = relation.from;
+                // Prevent duplicate relations
+                if (this.$store.state.inventory.mappedRelations.has(relation.uuid)) continue;
+
+                // Get direction of the relation
                 let source, target;
-
-                source = this.graph.graph.getCell(this.$store.state.inventory.mappedNodes.get(to.uuid));
-                // target = this.selectedElement;
-                target = this.graph.graph.getCell(this.$store.state.inventory.mappedNodes.get(from.uuid));
-
+                source = this.graph.graph.getCell(this.$store.state.inventory.mappedNodes.get(relation.to.uuid));
+                target = this.graph.graph.getCell(this.$store.state.inventory.mappedNodes.get(relation.from.uuid));
                 if (relation.to.uuid === this.selectedNode?.uuid) [target, source] = [source, target];
+                if (!(source && target)) continue;
 
                 const link = new shapes.standard.Link();
+                this.$store.commit("inventory/addRelationToDiagram", { uuid: relation.uuid, linkId: link.id });
+
                 link.source(source);
                 link.target(target);
                 link.attr({
