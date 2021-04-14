@@ -111,12 +111,14 @@ export const schemes = {
          */
         updateLabel(state: SchemesState, label: ApiLabel): void {
             state.labels = state.labels.map((l) => (l.name == label.name ? label : l));
+            state.selectedLabel = label;
         },
         /**
          * Update a relation type
          */
         updateRelation(state: SchemesState, relation: ApiRelationType): void {
             state.relations = state.relations.map((r) => (r.name == relation.name ? relation : r));
+            state.selectedRelation = relation;
         },
         /**
          * Delete a label

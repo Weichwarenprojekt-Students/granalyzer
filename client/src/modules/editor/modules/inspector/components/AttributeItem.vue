@@ -40,8 +40,6 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
-@icon_size: 16px;
-
 .attribute-item {
     display: flex;
     flex-direction: row;
@@ -58,8 +56,9 @@ export default defineComponent({
 }
 
 .attribute-icon {
-    width: @icon_size;
-    height: @icon_size;
+    width: 12px;
+    height: 12px;
+    margin-top: 2px;
     flex: 0 0 auto;
 }
 
