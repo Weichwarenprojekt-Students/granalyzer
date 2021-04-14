@@ -476,9 +476,13 @@ export class GraphControls {
 
         // If the vertices of a relation have changed, add a command to undo/redo
         this.graphHandler.graph.paper.on("link:pointerup", async () => {
-            console.log("oh");
             if (verticesCommand && verticesCommand.verticesHaveChanged()) {
-                console.log("yeah");
+                await this.store.dispatch("editor/addChangeRelationVerticesCommand", verticesCommand);
+            }
+        });
+
+        this.graphHandler.graph.paper.on("link:pointerdblclick", async () => {
+            if (verticesCommand && verticesCommand.verticesHaveChanged()) {
                 await this.store.dispatch("editor/addChangeRelationVerticesCommand", verticesCommand);
             }
         });
