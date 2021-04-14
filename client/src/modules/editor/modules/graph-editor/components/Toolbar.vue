@@ -1,10 +1,17 @@
 <template>
     <!-- The extra divs are necessary for the tooltips to work -->
     <div class="container">
-        <div class="item" v-tooltip.bottom="$t('editor.toolbar.relation')" @click="toggleRelationMode">
-            <svg :class="['icon', $store.getters['editor/relationModeActive'] ? 'selected' : '']">
+        <div
+            :class="['item', $store.getters['editor/relationModeActive'] ? 'selected' : '']"
+            v-tooltip.bottom="$t('editor.toolbar.relation')"
+            @click="toggleRelationMode"
+        >
+            <svg class="icon">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#relation`"></use>
             </svg>
+            <span class="addon" :class="[$store.getters['editor/relationModeActive'] ? 'visible' : '']">
+                {{ $t("editor.toolbar.active") }}
+            </span>
         </div>
         <div
             :class="['item', $store.getters['editor/undoAvailable'] ? '' : 'item-disabled']"
@@ -98,20 +105,36 @@ export default defineComponent({
 
 .item {
     height: 40px;
+    width: auto;
+    min-width: 48px;
+    display: flex;
+    cursor: pointer;
+    border-radius: @border_radius;
+
+    &:hover {
+        background: @accent_color;
+    }
 
     svg {
         width: 48px;
         height: 40px;
         padding: 8px 0;
-        cursor: pointer;
-        border-radius: @border_radius;
+    }
 
-        &:hover {
-            background: @accent_color;
+    .addon {
+        line-height: 40px;
+        padding: 0;
+        width: 48px;
+        max-width: 0;
+        opacity: 0;
+
+        &.visible {
+            max-width: 1000px;
+            opacity: 1;
         }
     }
 
-    svg.selected {
+    &.selected {
         background: @secondary_color;
 
         &:hover {
