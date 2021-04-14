@@ -9,15 +9,60 @@ import { getBrightness } from "@/utility";
 import Cell = dia.Cell;
 
 // TODO :: Docstrings
-// TODO :: Circular alignment of nodes
-
+/**
+ * Provides key functionality for placing nodes and relations
+ */
 export class NeighborUtils {
+    /**
+     * Distance between two nodes on a circle
+     */
+    private stepDistance = 0;
+
+    /**
+     * Amount of neighbors already placed
+     */
+    private neighborsPlaced = 0;
+
+    /**
+     * Radius of the circle
+     */
+    private radius = 0;
+
+    /**
+     * Current x position of the shape to be placed
+     */
+    private currentX = 0;
+
+    /**
+     * Current y position of the shape to be placed
+     */
+    private currentY = 0;
+
+    /**
+     *  True, if first node (origin) has been placed
+     */
+    private rootNodeSet = false;
+
+    /**
+     * Constructor
+     *
+     * @param graph Graph to place nodes/relations into
+     * @param store Root Store
+     */
     constructor(private graph: dia.Graph, private store: Store<RootState>) {}
 
+    /**
+     * Transforms an ApiNode to a node, creates a shape and places it in the graph
+     *
+     * @param apiNode Node to be placed into the diagram
+     * @Return Returns the shape that was added to the graph
+     */
     public addNodeToDiagram(apiNode: ApiNode): dia.Element {
+        this.calculateNewPosition();
+
         const node: Node = {
-            x: 0,
-            y: 0,
+            x: this.currentX,
+            y: this.currentY,
             shape: "rectangle",
             label: apiNode.label,
             name: apiNode.name,
@@ -51,17 +96,30 @@ export class NeighborUtils {
             },
         });
         shape.addTo(this.graph);
+        shape.attr("body/strokeWidth", 0);
+        this.rootNodeSet = true;
 
         return shape;
     }
 
+    /**
+     * Returns the diagram-shape that belongs to a node
+     *
+     * @param id Id of the node that is supposed to be in the graph
+     * @private
+     */
     private getShapeById(id: string): Cell | undefined {
         const shapeId = this.store.state.inventory?.mappedNodes.get(id);
         if (shapeId) return this.graph.getCell(shapeId);
         return undefined;
     }
 
-    public addRelationToDiagram(apiRelation: ApiRelation, rootNode: ApiNode): shapes.standard.Link | undefined {
+    /**
+     * Transforms an ApiRelation to a node, creates a link and places it in the graph
+     *
+     * @param apiRelation Relation to be placed in the diagram
+     */
+    public addRelationToDiagram(apiRelation: ApiRelation): shapes.standard.Link | undefined {
         const relation = {
             from: { uuid: apiRelation.from, index: 0 },
             to: { uuid: apiRelation.to, index: 0 },
@@ -73,10 +131,10 @@ export class NeighborUtils {
         if (this.store.state.inventory?.mappedRelations.has(relation.uuid)) return;
 
         // Get direction of the relation
-        let source, target;
-        source = this.getShapeById(relation.to.uuid);
-        target = this.getShapeById(relation.from.uuid);
-        if (relation.to.uuid === rootNode.nodeId) [target, source] = [source, target];
+        const source = this.getShapeById(relation.to.uuid);
+        const target = this.getShapeById(relation.from.uuid);
+        // TODO :: Check if relation directions are valid
+        // if (relation.to.uuid === rootNode.nodeId) [target, source] = [source, target];
         if (!(source && target)) return;
 
         const link = new shapes.standard.Link();
@@ -110,5 +168,35 @@ export class NeighborUtils {
         link.addTo(this.graph);
 
         return link;
+    }
+
+    /**
+     * Define a fitting distance between nodes for the circular alignment
+     *
+     * @param nNeighbors Amount of neighbor nodes to be placed
+     */
+    public setStepDistance(nNeighbors: number): void {
+        this.stepDistance = (2 * Math.PI) / nNeighbors;
+        this.radius = nNeighbors > 10 ? nNeighbors * 40 : nNeighbors < 5 ? 500 : nNeighbors * 60;
+    }
+
+    /**
+     * Reset the positioning of nodes in the graph
+     */
+    public resetGraphPositioning(): void {
+        this.neighborsPlaced = 0;
+        this.currentX = 0;
+        this.currentY = 0;
+        this.rootNodeSet = false;
+    }
+
+    /**
+     * Adjust the x and y position for the next node
+     */
+    private calculateNewPosition(): void {
+        if (!this.rootNodeSet) return;
+        const alpha = this.stepDistance * this.neighborsPlaced++;
+        this.currentX = this.radius * Math.cos(alpha);
+        this.currentY = this.radius * Math.sin(alpha);
     }
 }

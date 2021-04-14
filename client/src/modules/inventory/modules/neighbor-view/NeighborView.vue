@@ -15,6 +15,7 @@ import ApiRelation from "@/modules/editor/models/ApiRelation";
 export default defineComponent({
     name: "NeighborView",
     props: {
+        // Currently selected node in the overview list
         selectedNode: Object,
     },
     data() {
@@ -37,6 +38,7 @@ export default defineComponent({
             const neighbors = this.$store.state.inventory.neighbors;
             const relations = this.$store.state.inventory.relations;
 
+            this.neighborUtils.setStepDistance(neighbors.length);
             this.addNeighborNodesAndRelations(neighbors, relations);
         },
         /**
@@ -47,6 +49,7 @@ export default defineComponent({
 
             if (Object.keys(this.currentlyDisplayedShape).length !== 0) this.graph.graph.clear();
 
+            this.neighborUtils.resetGraphPositioning();
             this.$store.commit("inventory/reset");
             if (this.selectedNode) this.displaySelectedNode(this.selectedNode as ApiNode);
         },
@@ -85,8 +88,7 @@ export default defineComponent({
             for (const apiNode of neighbors) this.neighborUtils.addNodeToDiagram(apiNode);
 
             // Neighbor relations
-            for (const apiRelation of relations)
-                this.neighborUtils.addRelationToDiagram(apiRelation, this.selectedNode as ApiNode);
+            for (const apiRelation of relations) this.neighborUtils.addRelationToDiagram(apiRelation);
         },
     },
 });
