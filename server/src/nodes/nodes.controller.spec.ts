@@ -160,7 +160,7 @@ describe("NodesController", () => {
             const relations: Relation[] = await controller.getRelationsOfNode(movieNodeId);
 
             // Second relation of the node is not valid -> only one is returned
-            expect(relations.length).toEqual(0);
+            expect(relations.length).toEqual(1);
             expect(relations[0].from).toEqual(movieNodeId);
             expect(relations[0].to).toEqual(validNodeId);
         });
