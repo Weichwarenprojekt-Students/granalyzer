@@ -236,10 +236,8 @@ export const graphEditor = {
          * Set the relation edit mode to a certain value
          */
         async setRelationMode(context: ActionContext<GraphEditorState, RootState>, value: boolean): Promise<void> {
-            context.commit("setEditorLoading", true);
             context.commit("setSelectedElement", undefined);
             context.commit("setRelationMode", value);
-            context.commit("setEditorLoading", false);
         },
 
         /**

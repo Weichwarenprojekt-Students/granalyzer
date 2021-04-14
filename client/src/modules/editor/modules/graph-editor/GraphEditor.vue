@@ -59,13 +59,17 @@ export default defineComponent({
         }
     },
     watch: {
-        relationModeActive(state, oldState) {
+        async relationModeActive(state, oldState) {
             if (oldState === state) return;
 
             if (state) {
-                this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForActiveRelationMode();
+                this.$store.commit("editor/setEditorLoading", true);
+                await this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForActiveRelationMode();
+                this.$store.commit("editor/setEditorLoading", false);
             } else {
-                this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForInactiveRelationMode();
+                this.$store.commit("editor/setEditorLoading", true);
+                await this.$store.state.editor.graphEditor.graphHandler.controls.switchRelationsForInactiveRelationMode();
+                this.$store.commit("editor/setEditorLoading", false);
             }
         },
     },
