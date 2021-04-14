@@ -65,7 +65,7 @@ export default defineComponent({
             if (this.$store.state.inventory.selectedNode?.nodeId === node.nodeId) return;
 
             this.$store.commit("inventory/setSelectedNode", node);
-            this.$store.dispatch("inventory/loadRelationsAndNeighbors", node);
+            this.$store.dispatch("inventory/loadRelations", node);
         },
         /**
          * Filter nodes by labels

@@ -39,8 +39,8 @@ export default defineComponent({
         /**
          * Load neighbor overview, when neighbors are loaded
          */
-        "$store.state.inventory.loadingNeighbors"(newVal) {
-            if (newVal) return;
+        "$store.state.inventory.loading"(loading) {
+            if (loading) return;
 
             const neighbors = this.$store.state.inventory.neighbors;
             const relations = this.$store.state.inventory.directRelations;
