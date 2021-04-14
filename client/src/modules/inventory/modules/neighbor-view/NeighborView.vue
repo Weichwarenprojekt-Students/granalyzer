@@ -58,6 +58,12 @@ export default defineComponent({
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
         this.neighborUtils = new NeighborUtils(this.graph.graph, this.$store);
+        this.centerGraph();
+
+        window.addEventListener("resize", this.centerGraph);
+    },
+    unmounted(): void {
+        window.removeEventListener("resize", this.centerGraph);
     },
     methods: {
         /**
@@ -89,6 +95,19 @@ export default defineComponent({
 
             // Neighbor relations
             for (const apiRelation of relations) this.neighborUtils.addRelationToDiagram(apiRelation);
+        },
+        /**
+         * Centers the graph
+         */
+        centerGraph(): void {
+            const area = this.graph.paper.getArea();
+            const xMiddle = area.x + area.width / 2;
+            const yMiddle = area.y + area.height / 2;
+
+            const translate = this.graph.paper.translate();
+            const scale = this.graph.paper.scale();
+
+            this.graph.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
         },
     },
 });
