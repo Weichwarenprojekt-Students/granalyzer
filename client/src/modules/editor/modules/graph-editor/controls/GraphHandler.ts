@@ -243,31 +243,53 @@ export class GraphHandler {
 
             // The maximum distance between two sibling links
             const GAP = 120;
-
-            siblings.forEach((sibling, index) => {
+            let i = 0;
+            siblings.forEach((sibling) => {
                 // Ignore already moved relations if flag is false
                 if (!rearrangeAll && sibling.vertices().length !== 0) return;
 
-                // Offset values like 0, 20, 20, 40, 40, 60, 60 ...
-                let offset = GAP * Math.ceil(index / 2);
+                // Contains calculated vertices
+                let vertex = new g.Point(0, 0);
 
-                // Alternate the direction in which the relation is moved (right/left)
-                const sign = index % 2 ? 1 : -1;
+                let atCorrectPosition = false;
+                while (!atCorrectPosition) {
 
-                // Keep even numbers of relations symmetric
-                if (numSiblings % 2 === 0) {
-                    offset -= (GAP / 2) * sign;
+                    // Offset values like 0, 20, 20, 40, 40, 60, 60 ...
+                    let offset = GAP * Math.ceil(i / 2);
+
+                    // Alternate the direction in which the relation is moved (right/left)
+                    const sign = i % 2 ? 1 : -1;
+
+                    // Keep even numbers of relations symmetric
+                    if (numSiblings % 2 === 0) {
+                        offset -= (GAP / 2) * sign;
+                    }
+
+                    // Make reverse links count the same as non-reverse
+                    const reverse = theta < 180 ? 1 : -1;
+
+                    // Apply the shifted relation
+                    const angle = g.toRad(theta + sign * reverse * 90);
+                    vertex = g.Point.fromPolar(offset, angle, midPoint);
+
+                    atCorrectPosition = true;
+                    i++;
+
+                    // Check if there is a relation at the same position
+                    siblings.map((s) => s.vertices()).filter((v) => v.length != 0).forEach((v) => {
+                        console.log("vertex", vertex);
+                        console.log("distance to", v[0]);
+                        console.log("distance to", new g.Point(v[0]));
+                        console.log("= ", vertex.distance(new g.Point(v[0])));
+
+                        if (vertex.distance(new g.Point(v[0])) < 10) {
+                            atCorrectPosition = false;
+                        }
+                    });
                 }
 
-                // Make reverse links count the same as non-reverse
-                const reverse = theta < 180 ? 1 : -1;
-
-                // Apply the shifted relation
-                const angle = g.toRad(theta + sign * reverse * 90);
-                const vertex = g.Point.fromPolar(offset, angle, midPoint);
-
                 // Replace vertices
-                sibling.vertices([vertex]);
+                if (vertex) sibling.vertices([vertex]);
             });
         }
     }
