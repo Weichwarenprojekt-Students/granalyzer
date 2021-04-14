@@ -1,0 +1,39 @@
+name: CD
+
+# Run action on every push an pull request on the main branch
+on: [push, pull_request]
+
+jobs:
+
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # Install NodeJS
+      - name: Install NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.16.0'
+
+      # Install dependencies in the frontend
+      - name: Install dependencies in the frontend
+        working-directory: ./client
+        run: npm i
+
+      # Install dependencies in the backend
+      - name: Install dependencies in the backend
+        working-directory: ./server
+        run: npm i
+
+      # Build Docker
+      - name: Build docker
+        working-directory: ./server
+        run: npm run build:docker:github
+
+
