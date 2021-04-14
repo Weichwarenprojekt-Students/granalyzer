@@ -253,12 +253,13 @@ export class DataSchemeService {
         // language=Cypher
         const cypher = `
           MATCH (rt:RelationType {name: $name})
-          SET rt.attributes = $attributes
+          SET rt.attributes = $attributes, rt.connections = $connections
           RETURN rt {. *} AS dataScheme`;
 
         const params = {
             name,
             attributes: JSON.stringify(relationType.attributes),
+            connections: JSON.stringify(relationType.connections),
         };
 
         // Callback function which is applied on the neo4j response

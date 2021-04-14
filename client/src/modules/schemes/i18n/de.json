@@ -41,6 +41,7 @@
     "title": "Relationen Editor",
     "name": "Name:",
     "attributes": "Attribute",
+    "connections": "Verbindungen",
     "save": "Speichern",
     "create": "Erstellen",
     "delete": "Löschen",
@@ -63,6 +64,10 @@
     "nameDuplicate": {
       "title": "Name besetzt",
       "description": "Eine andere Relation hat bereits diesen Namen!"
+    },
+    "connectionInvalid": {
+      "title": "Verbindung ungültig",
+      "description": "Das Label {name} ist unbekannt!"
     }
   },
   "attribute": {

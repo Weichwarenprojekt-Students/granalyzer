@@ -47,15 +47,31 @@
                 @delete="deleteAttribute(index)"
             />
 
+            <!-- The optional parameters -->
+            <div class="attributes-action-bar">
+                <h4>{{ $t("schemes.relationEditor.connections") }}</h4>
+                <svg class="add-attribute" @click="addConnection">
+                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#plus-bold`"></use>
+                </svg>
+            </div>
+
+            <ConnectionView
+                v-for="(connection, index) in modifiedRelation.connections"
+                :key="`${connection.name}-${objectUUID(connection)}`"
+                v-model:from="connection.from"
+                v-model:to="connection.to"
+                @delete="deleteConnection(index)"
+            />
+
             <!-- The save button --->
             <div class="bottom-bar">
                 <button v-if="!createMode" class="btn btn-warn" @click="deleteRelationDialog = true">
                     {{ $t("schemes.relationEditor.delete") }}
                 </button>
-                <button v-if="isModified && !createMode" class="btn btn-primary" @click="updateRelationDialog = true">
+                <button v-if="isModified && !createMode" class="btn btn-secondary" @click="updateRelationDialog = true">
                     {{ $t("schemes.relationEditor.save") }}
                 </button>
-                <button v-if="createMode" class="btn btn-primary" @click="createRelation">
+                <button v-if="createMode" class="btn btn-secondary" @click="createRelation">
                     {{ $t("schemes.relationEditor.create") }}
                 </button>
             </div>
@@ -70,12 +86,14 @@ import { defineComponent } from "vue";
 import { deepCopy, objectUUID } from "@/utility";
 import AttributeView from "@/modules/schemes/components/AttributeView.vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
+import { ApiConnection } from "@/models/data-scheme/ApiConnection";
 import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import ConnectionView from "@/modules/schemes/modules/relation-editor/components/ConnectionView.vue";
 
 export default defineComponent({
     name: "RelationEditor",
-    components: { AttributeView, ConfirmDialog },
+    components: { ConnectionView, AttributeView, ConfirmDialog },
     props: {
         // The relation that will be modified
         relation: {
@@ -116,6 +134,9 @@ export default defineComponent({
             for (let i = 0; i < this.modifiedRelation.attributes.length; i++)
                 if (!ApiAttribute.isEqual(this.modifiedRelation.attributes[i], this.relation.attributes[i]))
                     return true;
+            if (this.relation.connections.length != this.modifiedRelation.connections.length) return true;
+            for (let i = 0; i < this.modifiedRelation.connections.length; i++)
+                if (this.modifiedRelation.connections[i] == this.relation.connections[i]) return true;
             return this.relation.name != this.modifiedRelation.name;
         },
     },
@@ -133,10 +154,24 @@ export default defineComponent({
             this.modifiedRelation.attributes.splice(index, 1);
         },
         /**
+         * Delete an connection by index
+         *
+         * @param index The index of the connection
+         */
+        deleteConnection(index: number): void {
+            this.modifiedRelation.connections.splice(index, 1);
+        },
+        /**
          * Add a new attribute
          */
         addAttribute(): void {
             this.modifiedRelation.attributes.push(new ApiAttribute(this.$t("schemes.attribute.new")));
+        },
+        /**
+         * Add a new connection
+         */
+        addConnection(): void {
+            this.modifiedRelation.connections.push(new ApiConnection("-", "-"));
         },
         /**
          * Save the changed relation
@@ -173,6 +208,14 @@ export default defineComponent({
          * Check if the relation is valid
          */
         validateRelation(): boolean {
+            if (!this.validateRelationName()) return false;
+            if (!this.validateRelationAttributes()) return false;
+            return this.validateRelationConnections();
+        },
+        /**
+         * @return True if the name is valid
+         */
+        validateRelationName(): boolean {
             // Check if the name is empty
             if (this.modifiedRelation.name === "") {
                 this.$toast.add({
@@ -196,7 +239,12 @@ export default defineComponent({
                     return false;
                 }
             }
-
+            return true;
+        },
+        /**
+         * @return True if the attributes are valid
+         */
+        validateRelationAttributes(): boolean {
             // Check if the attributes are valid
             const names = new Map<string, string>();
             for (let attribute of this.modifiedRelation.attributes) {
@@ -221,6 +269,48 @@ export default defineComponent({
                     return false;
                 }
                 names.set(attribute.name, "");
+            }
+            return true;
+        },
+        /**
+         * @return True if the connections are valid
+         */
+        validateRelationConnections(): boolean {
+            for (let connection of this.modifiedRelation.connections) {
+                // True if the label specified in "from" actually exists
+                let fromExists = false;
+                // True if the label specified in "to" actually exists
+                let toExists = false;
+                console.log(connection);
+
+                for (let label of this.$store.state.schemes.labels) {
+                    if (connection.from === label.name) fromExists = true;
+                    if (connection.to === label.name) toExists = true;
+                }
+
+                // If one of the labels doesn't exist show a message
+                if (!fromExists) {
+                    this.$toast.add({
+                        severity: "error",
+                        summary: this.$t("schemes.relationEditor.connectionInvalid.title"),
+                        detail: this.$t("schemes.relationEditor.connectionInvalid.description", {
+                            name: connection.from,
+                        }),
+                        life: 3000,
+                    });
+                    return false;
+                }
+                if (!toExists) {
+                    this.$toast.add({
+                        severity: "error",
+                        summary: this.$t("schemes.relationEditor.connectionInvalid.title"),
+                        detail: this.$t("schemes.relationEditor.connectionInvalid.description", {
+                            name: connection.to,
+                        }),
+                        life: 3000,
+                    });
+                    return false;
+                }
             }
             return true;
         },
