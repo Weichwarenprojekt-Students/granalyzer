@@ -1,7 +1,7 @@
 import { ActionContext, createStore } from "vuex";
 import { start, StartState } from "@/modules/start/store";
 import { editor, EditorState } from "@/modules/editor/store";
-import { inventory } from "@/modules/inventory/store";
+import { inventory, InventoryState } from "@/modules/inventory/store";
 import { Locales } from "@/i18n";
 import { VueI18n } from "vue-i18n";
 import ApiNode from "@/modules/editor/models/ApiNode";
@@ -27,6 +27,11 @@ export class RootState {
      * Editor state
      */
     public editor?: EditorState;
+
+    /**
+     * Inventory state
+     */
+    public inventory?: InventoryState;
 
     /**
      * Nodes in the customer db

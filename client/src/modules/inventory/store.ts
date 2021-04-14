@@ -3,8 +3,6 @@ import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
 import ApiRelation from "@/modules/editor/models/ApiRelation";
-import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
-import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
 
 export class InventoryState {
     /**
@@ -15,12 +13,12 @@ export class InventoryState {
     /**
      * First degree neighbors of the currently selected node
      */
-    public neighbors = [] as Array<Node>;
+    public neighbors = [] as Array<ApiNode>;
 
     /**
      * Relations for the currently displayed graph
      */
-    public directRelations = [] as Array<Relation>;
+    public directRelations = [] as Array<ApiRelation>;
 
     /**
      * Maps the uuid of a node to the id of a diagram shape
@@ -52,14 +50,14 @@ export const inventory = {
         /**
          * Set neighbors of the selected node
          */
-        addNeighbors(state: InventoryState, nodes: Array<Node>): void {
+        addNeighbors(state: InventoryState, nodes: Array<ApiNode>): void {
             state.neighbors.push(...nodes);
         },
 
         /**
          * Set direct relations from the selected node
          */
-        addRelations(state: InventoryState, relations: Array<Relation>): void {
+        addRelations(state: InventoryState, relations: Array<ApiRelation>): void {
             state.directRelations.push(...relations);
         },
 
@@ -78,7 +76,7 @@ export const inventory = {
         },
 
         /**
-         * Sets the loading flag // TODO :: Set loading state
+         * Sets the loading flag
          */
         setLoading(state: InventoryState, loading: boolean): void {
             state.loading = loading;
@@ -104,17 +102,7 @@ export const inventory = {
             const res = await GET(`/api/nodes/${node.nodeId}/relations`);
             const apiRelationsOrigin: Array<ApiRelation> = await res.json();
 
-            // Transform ApiRelation to Relations
-            const diaRelations: Array<Relation> = apiRelationsOrigin.map((rel: ApiRelation) => {
-                return {
-                    from: { uuid: rel.from, index: 0 },
-                    to: { uuid: rel.to, index: 0 },
-                    uuid: rel.relationId,
-                    type: rel.type,
-                };
-            });
-
-            context.commit("addRelations", diaRelations);
+            context.commit("addRelations", apiRelationsOrigin);
             await context.dispatch("loadNeighborNodes", apiRelationsOrigin);
             context.commit("setLoading", false);
         },
@@ -135,20 +123,7 @@ export const inventory = {
                 [...neighborIds].map(async (id) => (await (await GET(`api/nodes/${id}`)).json()) as ApiNode),
             );
 
-            // Transform ApiNodes to Nodes
-            const diaNeighbors: Array<Node> = apiNodes.map((apiNode) => {
-                return {
-                    x: 0,
-                    y: 0,
-                    label: apiNode.label,
-                    name: apiNode.name,
-                    shape: "rectangle",
-                    ref: { uuid: apiNode.nodeId, index: 0 },
-                    color: context.rootState.labelColor.get(apiNode.label)?.color ?? "#70FF87",
-                };
-            });
-
-            context.commit("addNeighbors", diaNeighbors);
+            context.commit("addNeighbors", apiNodes);
             await context.dispatch("loadNeighborRelations", neighborIds);
         },
 
@@ -166,14 +141,9 @@ export const inventory = {
                 ),
             );
 
-            const relationsToAdd = new Map<string, Relation>();
+            const relationsToAdd = new Map<string, ApiRelation>();
             apiRelationsNeighbors.flat().forEach((relation: ApiRelation) => {
-                relationsToAdd.set(relation.relationId, {
-                    from: { uuid: relation.from, index: 0 },
-                    to: { uuid: relation.to, index: 0 },
-                    uuid: relation.relationId,
-                    type: relation.type,
-                });
+                relationsToAdd.set(relation.relationId, relation);
             });
 
             context.commit("addRelations", Array.from(relationsToAdd.values()));
