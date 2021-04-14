@@ -3,7 +3,6 @@ import { Neo4jService } from "nest-neo4j/dist";
 import { DataSchemeService } from "../data-scheme/data-scheme.service";
 import Node from "../nodes/node.model";
 import { Attribute } from "../data-scheme/models/attributes";
-import MandatoryAttributeMissingException from "./exceptions/MandatoryAttributeMissing.exception";
 import Relation from "../relations/relation.model";
 import { RelationType } from "../data-scheme/models/relationType";
 import { LabelScheme } from "../data-scheme/models/labelScheme";
@@ -66,27 +65,16 @@ export class DataSchemeUtil {
     private transformAttributes(scheme: LabelScheme | RelationType, originalAttributes) {
         const attributes = {};
 
-        try {
-            // Apply the different schemes for each attribute defined by the label scheme
-            scheme.attributes.forEach((attribute) => {
-                const nodeAttribute = originalAttributes[attribute.name];
+        // Apply the different schemes for each attribute defined by the label or relation scheme
+        scheme.attributes.forEach((attribute) => {
+            let nodeAttribute = originalAttributes[attribute.name];
 
-                // Check for mandatory attributes
-                if (attribute.mandatory && !nodeAttribute) {
-                    throw new MandatoryAttributeMissingException("Mandatory attribute is missing on requested node");
-                } else if (originalAttributes[attribute.name]) {
-                    // Add parsed and validated attribute to node
-                    attributes[attribute.name] = Attribute.applyOnElement(attribute, nodeAttribute);
-                }
-            });
-        } catch (e) {
-            // Catch the Error if a Mandatory field is Empty
-            if (e instanceof MandatoryAttributeMissingException) {
-                throw new InternalServerErrorException("Mandatory attribute is missing");
-            }
-            throw e;
-        }
+            // Check for mandatory attributes and use default value from the corresponding scheme
+            if (attribute.mandatory && !nodeAttribute) nodeAttribute = attribute["defaultValue"];
 
+            // Add parsed and validated attribute to node
+            attributes[attribute.name] = Attribute.applyOnElement(attribute, nodeAttribute);
+        });
         return attributes;
     }
 

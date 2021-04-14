@@ -64,10 +64,11 @@ export abstract class Attribute {
             case "number":
                 element = neo4j.integer.toNumber(element);
                 break;
+            case "color":
             case "string":
                 break;
             default:
-                //If Element is an neo4j integer
+                // If Element is an neo4j integer
                 if (neo4j.isInt(element)) {
                     element = neo4j.integer.toString(element);
                 }
