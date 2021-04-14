@@ -56,10 +56,10 @@
                 <button v-if="!createMode" class="btn btn-warn" @click="deleteLabelDialog = true">
                     {{ $t("schemes.labelEditor.delete") }}
                 </button>
-                <button v-if="isModified && !createMode" class="btn btn-primary" @click="updateLabelDialog = true">
+                <button v-if="isModified && !createMode" class="btn btn-secondary" @click="updateLabelDialog = true">
                     {{ $t("schemes.labelEditor.save") }}
                 </button>
-                <button v-if="createMode" class="btn btn-primary" @click="createLabel">
+                <button v-if="createMode" class="btn btn-secondary" @click="createLabel">
                     {{ $t("schemes.labelEditor.create") }}
                 </button>
             </div>
