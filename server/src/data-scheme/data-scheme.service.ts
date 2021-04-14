@@ -226,12 +226,13 @@ export class DataSchemeService {
     async addRelationType(relationType: RelationType): Promise<RelationType> {
         // language=Cypher
         const cypher = `
-          CREATE (rt:RelationType {name: $name, attributes: $attributes})
+          CREATE (rt:RelationType {name: $name, attributes: $attributes, connections: $connections})
           RETURN rt {. *} AS dataScheme`;
 
         const params = {
             name: relationType.name,
-            attributes: relationType.attributes,
+            attributes: JSON.stringify(relationType.attributes),
+            connections: JSON.stringify(relationType.connections),
         };
 
         // Callback function which is applied on the neo4j response

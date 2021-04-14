@@ -171,7 +171,7 @@ export class DataSchemeController {
         description: "Returns the added relation type",
     })
     addRelationType(@Body() body) {
-        return this.dataSchemeService.addLabelScheme(body);
+        return this.dataSchemeService.addRelationType(body);
     }
 
     @Put("/relation/:name")
