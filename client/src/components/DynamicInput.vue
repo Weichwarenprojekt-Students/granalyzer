@@ -43,6 +43,9 @@ export default defineComponent({
             datatype: ApiDatatype,
         };
     },
+    created() {
+        this.value = this.modelValue;
+    },
     watch: {
         /**
          * Watch for type changes and try to keep the last value

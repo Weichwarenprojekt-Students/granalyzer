@@ -192,6 +192,7 @@ export class DataSchemeController {
         description: "Returns the updated relation type",
     })
     updateRelationType(@Param("name") name, @Body() body) {
+        console.log(body);
         return this.dataSchemeService.updateRelationType(name, body);
     }
 

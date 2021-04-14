@@ -73,7 +73,7 @@ export default defineComponent({
             types: ApiDatatype,
         };
     },
-    mounted() {
+    created() {
         this.modifiedAttribute = new ApiAttribute(this.name, this.datatype, this.mandatory, this.defaultValue);
     },
     watch: {
