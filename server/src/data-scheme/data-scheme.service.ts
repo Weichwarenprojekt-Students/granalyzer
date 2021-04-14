@@ -278,7 +278,7 @@ export class DataSchemeService {
     async deleteRelationType(name: string): Promise<Relation> {
         // language=cypher
         const cypher = `
-          MATCH (rt:relationType {name: $name})
+          MATCH (rt:RelationType {name: $name})
           WITH rt, properties(rt) AS copyRt
           DETACH DELETE rt
           RETURN copyRt {. *} AS dataScheme`;
