@@ -251,7 +251,7 @@ describe("NodesController", () => {
 
         return neo4jService
             .write(cypher, params, process.env.DB_CUSTOMER)
-            .then((res) => res.records[0].get("r").name)
+            .then((res) => res.records[0].get("r").relationId)
             .catch(databaseUtil.catchDbError);
     }
 });
