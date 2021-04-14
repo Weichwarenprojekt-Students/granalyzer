@@ -8,7 +8,6 @@ import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/model
 import { getBrightness } from "@/utility";
 import Cell = dia.Cell;
 
-// TODO :: Docstrings
 /**
  * Provides key functionality for placing nodes and relations
  */
@@ -103,18 +102,6 @@ export class NeighborUtils {
     }
 
     /**
-     * Returns the diagram-shape that belongs to a node
-     *
-     * @param id Id of the node that is supposed to be in the graph
-     * @private
-     */
-    private getShapeById(id: string): Cell | undefined {
-        const shapeId = this.store.state.inventory?.mappedNodes.get(id);
-        if (shapeId) return this.graph.getCell(shapeId);
-        return undefined;
-    }
-
-    /**
      * Transforms an ApiRelation to a node, creates a link and places it in the graph
      *
      * @param apiRelation Relation to be placed in the diagram
@@ -188,6 +175,18 @@ export class NeighborUtils {
         this.currentX = 0;
         this.currentY = 0;
         this.rootNodeSet = false;
+    }
+
+    /**
+     * Returns the diagram-shape that belongs to a node
+     *
+     * @param id Id of the node that is supposed to be in the graph
+     * @private
+     */
+    private getShapeById(id: string): Cell | undefined {
+        const shapeId = this.store.state.inventory?.mappedNodes.get(id);
+        if (shapeId) return this.graph.getCell(shapeId);
+        return undefined;
     }
 
     /**

@@ -2,6 +2,7 @@
     <div class="container" @mousemove="graph.mousemove">
         <div id="joint" @dragover.prevent @drop="onNodeDrop" />
     </div>
+    <!-- TODO :: Loading bar -->
 </template>
 
 <script lang="ts">
@@ -30,28 +31,15 @@ export default defineComponent({
     },
     watch: {
         /**
-         * Load neighbor overview, when neighbors are loaded
-         */
-        "$store.state.inventory.loading"(loading) {
-            if (loading) return;
-
-            const neighbors = this.$store.state.inventory.neighbors;
-            const relations = this.$store.state.inventory.relations;
-
-            this.neighborUtils.setStepDistance(neighbors.length);
-            this.addNeighborNodesAndRelations(neighbors, relations);
-        },
-        /**
          * Trigger node selection, when a new node is selected in the overview
          */
         selectedNode(newValue, oldValue) {
             if (oldValue && oldValue.nodeId === newValue.nodeId) return;
-
-            if (Object.keys(this.currentlyDisplayedShape).length !== 0) this.graph.graph.clear();
-
-            this.neighborUtils.resetGraphPositioning();
             this.$store.commit("inventory/reset");
-            if (this.selectedNode) this.displaySelectedNode(this.selectedNode as ApiNode);
+
+            this.$store.dispatch("inventory/loadRelations", newValue).then(() => {
+                this.graphLoaded();
+            });
         },
     },
     mounted(): void {
@@ -66,6 +54,22 @@ export default defineComponent({
         window.removeEventListener("resize", this.centerGraph);
     },
     methods: {
+        /**
+         * Load graph
+         */
+        graphLoaded(): void {
+            const neighbors = this.$store.state.inventory.neighbors;
+            const relations = this.$store.state.inventory.relations;
+
+            // Clear previous graph + settings
+            if (Object.keys(this.currentlyDisplayedShape).length !== 0) this.graph.graph.clear();
+            this.neighborUtils.resetGraphPositioning();
+
+            // Display origin, neighbors and relations
+            if (this.selectedNode) this.displaySelectedNode(this.selectedNode as ApiNode);
+            this.neighborUtils.setStepDistance(neighbors.length);
+            this.addNeighborNodesAndRelations(neighbors, relations);
+        },
         /**
          * Check if a node from the overview list was dropped
          */
