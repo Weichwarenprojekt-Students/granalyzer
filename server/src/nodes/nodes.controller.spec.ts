@@ -86,6 +86,11 @@ describe("NodesController", () => {
 
         const validRelation = new Relation("isHobbitOf", movieNode.nodeId, validNode.nodeId, { attrOne: "Gandalf" });
         validRelation.relationId = await writeRelation(validRelation);
+
+        const invalidRelation = new Relation("isHobbitOf", validNode.nodeId, validNode.nodeId, {
+            attrOne: "Hermione Granger",
+        });
+        invalidRelation.relationId = await writeRelation(invalidRelation);
     });
 
     afterEach(async () => {
@@ -151,18 +156,13 @@ describe("NodesController", () => {
     });
 
     describe("getRelationsOfNode", () => {
-        it("should return all relations of the node", async () => {
+        it("should return all valid relations of the node", async () => {
             const relations: Relation[] = await controller.getRelationsOfNode(movieNodeId);
 
-            expect(relations.length).toBeGreaterThan(0);
+            // Second relation of the node is not valid -> only one is returned
+            expect(relations.length).toEqual(1);
             expect(relations[0].from).toEqual(movieNodeId);
             expect(relations[0].to).toEqual(validNodeId);
-        });
-
-        it("should throw an exception", async () => {
-            const invalidRelation = new Relation("isHobbitOf", movieNodeId, nmNodeID, { attrOne: "Smaug" });
-            invalidRelation.relationId = await writeRelation(invalidRelation);
-            await expect(controller.getRelationsOfNode(movieNodeId)).rejects.toThrowError(InternalServerErrorException);
         });
     });
 

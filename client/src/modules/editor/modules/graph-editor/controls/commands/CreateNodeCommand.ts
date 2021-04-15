@@ -11,6 +11,11 @@ export class CreateNodeCommand implements ICommand {
     private diagElement?: dia.Element;
 
     /**
+     * Array of relations that are already existing, needed for a redo
+     */
+    private existingRelations: Array<[Relation, dia.Element]> = new Array<[Relation, dia.Element]>();
+
+    /**
      * Constructor
      *
      * @param graphHandler The graph handler instance
@@ -27,33 +32,47 @@ export class CreateNodeCommand implements ICommand {
         if (!this.diagElement) this.diagElement = this.graphHandler.controls.addNode(this.node);
         else this.graphHandler.controls.addExistingNode(this.node, this.diagElement);
 
-        this.relations.forEach((rel: Relation) => {
-            if (rel.from.uuid === this.node.ref.uuid) {
-                // If the new node is the start point of the relation
-                this.graphHandler.nodes.forEach((node, id) => {
-                    // Connect relation to all end nodes that are in the diagram
-                    if (rel.to.uuid == node.ref.uuid && this.diagElement)
-                        this.graphHandler.controls.addRelation(
-                            this.diagElement,
-                            this.graphHandler.getCellById(id),
-                            rel.uuid,
-                            rel.type,
-                        );
+        if (this.existingRelations.length === 0) {
+            this.relations.forEach((rel: Relation) => {
+                // Continue, if this.node is not part of the relation
+                if (rel.from.uuid !== this.node.ref.uuid && rel.to.uuid !== this.node.ref.uuid) return;
+
+                this.graphHandler.nodes.forEach((otherNode, id) => {
+                    // Continue if otherNode is not part of relation, or this.diagElement is undefined
+                    if (
+                        (rel.to.uuid !== otherNode.ref.uuid && rel.from.uuid !== otherNode.ref.uuid) ||
+                        this.node.ref.uuid === otherNode.ref.uuid ||
+                        !this.diagElement
+                    )
+                        return;
+
+                    // Set from and to element
+                    let from = this.diagElement;
+                    let to = this.graphHandler.getCellById(id);
+                    if (!to) return;
+
+                    // Switch them, if this.node is the end node
+                    if (rel.to.uuid === this.node.ref.uuid) {
+                        [to, from] = [from, to];
+                    }
+
+                    // Add relation to graph and get id of the relation
+                    const relId = this.graphHandler.controls.addRelation(from, to, rel.uuid, rel.type);
+
+                    // Register the created relation for a future redo
+                    let newRelationObject;
+                    if (relId !== undefined && (newRelationObject = this.graphHandler.relations.get(relId)))
+                        this.existingRelations.push([newRelationObject, this.graphHandler.getCellById(relId)]);
                 });
-            } else if (rel.to.uuid === this.node.ref.uuid) {
-                // Else if the new node is the endpoint of the relation
-                this.graphHandler.nodes.forEach((node, id) => {
-                    // Connect relation to all start nodes that are in the diagram
-                    if (rel.from.uuid == node.ref.uuid && this.diagElement)
-                        this.graphHandler.controls.addRelation(
-                            this.graphHandler.getCellById(id),
-                            this.diagElement,
-                            rel.uuid,
-                            rel.type,
-                        );
-                });
-            }
-        });
+            });
+        } else {
+            // If relations are already existing, but not displayed in the graph, just add them to the graph again
+            this.existingRelations.forEach(([relation, link]) => {
+                this.graphHandler.controls.addExistingRelation(link, relation);
+            });
+        }
+
+        this.graphHandler.relationMode.adjustSiblingRelations(this.diagElement);
     }
 
     /**

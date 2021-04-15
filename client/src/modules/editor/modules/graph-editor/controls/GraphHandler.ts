@@ -7,6 +7,7 @@ import { JointGraph } from "@/shared/JointGraph";
 import { Store } from "vuex";
 import { RootState } from "@/store";
 import { GraphControls } from "@/modules/editor/modules/graph-editor/controls/GraphControls";
+import { RelationModeControls } from "@/modules/editor/modules/graph-editor/controls/RelationModeControls";
 
 export class GraphHandler {
     /**
@@ -18,9 +19,21 @@ export class GraphHandler {
      */
     public relations = new Map<string | number, Relation>();
     /**
+     * Relations from the DB that are not "in" the diagram, but are shown in relation edit mode
+     */
+    public faintRelations = new Map<string | number, Relation>();
+    /**
+     * Relations that have no counterpart in the DB are moved here during relation mode and displayed in a different color
+     */
+    visualRelations = new Map<string | number, Relation>();
+    /**
      * The extended controls for the graph
      */
     public controls: GraphControls;
+    /**
+     * The controls for the relation mode
+     */
+    public relationMode: RelationModeControls;
     /**
      * The actual graph object from joint
      */
@@ -43,6 +56,7 @@ export class GraphHandler {
     constructor(store: Store<RootState>, graph: JointGraph) {
         this.graph = graph;
         this.controls = new GraphControls(this, store);
+        this.relationMode = new RelationModeControls(this, store);
     }
 
     /**
@@ -69,12 +83,12 @@ export class GraphHandler {
         relations.forEach((relation) => {
             const source = mappedNodes.get(`${relation.from.uuid}-${relation.from.index}`);
             const target = mappedNodes.get(`${relation.to.uuid}-${relation.to.index}`);
-            if (source && target) this.controls.addRelation(source, target, relation.uuid, relation.type);
+            if (source && target) {
+                const newRelId = this.controls.addRelation(source, target, relation.uuid, relation.type);
+                if (newRelId && relation.vertices !== undefined)
+                    this.getLinkById(newRelId)?.vertices(relation.vertices);
+            }
         });
-
-        // Add the elements to the graph
-        this.nodes.forEach((node, id) => this.getCellById(id).addTo(this.graph.graph));
-        this.relations.forEach((relation, id) => this.getCellById(id).addTo(this.graph.graph));
     }
 
     /**
@@ -98,8 +112,18 @@ export class GraphHandler {
             };
         });
 
-        // Load the relations from the nodes
-        const relations = Array.from(this.relations.values());
+        // Define lambda for mapping relations
+        const relationMapFn = (param: [number | string, Relation]) => {
+            const [id, relation] = param;
+            return {
+                ...relation,
+                vertices: this.getLinkById(id)?.vertices(),
+            };
+        };
+
+        // Map normal and visual relations to an array
+        const relations: Relation[] = Array.from(this.relations, relationMapFn);
+        relations.push(...Array.from(this.visualRelations, relationMapFn));
 
         // Compose the serializable graph and return the JSON string
         return JSON.stringify({
@@ -114,6 +138,14 @@ export class GraphHandler {
      */
     public getCellById(id: string | number): dia.Element {
         return this.graph.graph.getCell(id) as dia.Element;
+    }
+
+    /**
+     * Get link from graph by id
+     * @param id The id of the link
+     */
+    public getLinkById(id: string | number): dia.Link {
+        return this.graph.graph.getCell(id) as dia.Link;
     }
 
     /**
