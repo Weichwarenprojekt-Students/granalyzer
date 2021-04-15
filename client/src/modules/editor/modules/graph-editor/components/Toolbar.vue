@@ -2,6 +2,18 @@
     <!-- The extra divs are necessary for the tooltips to work -->
     <div class="container">
         <div
+            :class="['item', $store.state.editor.graphEditor.relationModeActive ? 'selected' : '']"
+            v-tooltip.bottom="$t('editor.toolbar.relation')"
+            @click="toggleRelationMode"
+        >
+            <svg class="icon">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#relation`"></use>
+            </svg>
+            <span class="addon" v-show="$store.state.editor.graphEditor.relationModeActive">
+                {{ $t("editor.toolbar.active") }}
+            </span>
+        </div>
+        <div
             :class="['item', $store.getters['editor/undoAvailable'] ? '' : 'item-disabled']"
             @click="undo"
             v-tooltip.bottom="$t('editor.toolbar.undo')"
@@ -69,6 +81,12 @@ export default defineComponent({
         redo(): void {
             this.$store.dispatch("editor/redo");
         },
+        /**
+         * Toggle the relation edit mode
+         */
+        toggleRelationMode(): void {
+            this.$store.dispatch("editor/toggleRelationMode");
+        },
     },
 });
 </script>
@@ -87,16 +105,33 @@ export default defineComponent({
 
 .item {
     height: 40px;
+    width: auto;
+    min-width: 48px;
+    display: flex;
+    cursor: pointer;
+    border-radius: @border_radius;
+
+    &:hover {
+        background: @accent_color;
+    }
 
     svg {
         width: 48px;
         height: 40px;
         padding: 8px 0;
-        cursor: pointer;
-        border-radius: @border_radius;
+    }
+
+    .addon {
+        line-height: 40px;
+        padding-right: 8px;
+        width: auto;
+    }
+
+    &.selected {
+        background: @secondary_color;
 
         &:hover {
-            background: @accent_color;
+            background: @secondary_color;
         }
     }
 }

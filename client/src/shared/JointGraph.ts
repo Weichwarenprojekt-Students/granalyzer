@@ -41,6 +41,11 @@ export class JointGraph {
             width: "100%",
             height: "100%",
             gridSize: 1,
+            interactive: (cellView: dia.CellView) => {
+                // Disable interaction of a cell, if its disableInteraction property is true
+                if (cellView.model.get("disableInteraction")) return false;
+                return { labelMove: false, linkMove: false };
+            },
         };
         this.paper = new dia.Paper(config);
         this.paper.translate(500, 200);
@@ -57,6 +62,40 @@ export class JointGraph {
         const tx = event.pageX - this.eventData.x;
         const ty = event.pageY - this.eventData.y;
         if (this.panning) this.paper.translate(tx + this.eventData.px, ty + this.eventData.py);
+    }
+
+    /**
+     * Select one cell in the graph
+     * @param cellView The cell to select
+     */
+    public selectElement(cellView: dia.CellView): void {
+        this.deselectElements();
+        cellView.model.attr({
+            body: {
+                strokeWidth: 4,
+            },
+        });
+    }
+
+    /**
+     * Set the interactivity of all nodes
+     * @param value True if interactivity should be enabled
+     */
+    public setInteractivity(value: boolean): void {
+        for (const element of this.graph.getElements()) element.set("disableInteraction", !value);
+    }
+
+    /**
+     * Reset the focus style of all cells
+     * @private
+     */
+    public deselectElements(): void {
+        for (const element of this.graph.getElements())
+            element.attr({
+                body: {
+                    strokeWidth: 0,
+                },
+            });
     }
 
     /**
@@ -83,19 +122,6 @@ export class JointGraph {
 
         // Zoom the paper while over blank space
         this.paper.on("blank:mousewheel", (evt, x, y, delta) => this.zoom(delta, x, y));
-
-        // Find out if user clicked element and set element object
-        this.paper.on("element:pointerdown", (cell) => {
-            this.resetCellFocus();
-            cell.model.attr({
-                body: {
-                    strokeWidth: 4,
-                },
-            });
-        });
-
-        // No element selected
-        this.paper.on("blank:pointerdown", this.resetCellFocus);
     }
 
     /**
@@ -126,17 +152,4 @@ export class JointGraph {
         this.paper.translate(nextTx, nextTy);
         this.paper.scale(nextScale);
     }
-
-    /**
-     * Reset the focus style of all cells
-     * @private
-     */
-    private resetCellFocus = (): void => {
-        for (const element of this.graph.getElements())
-            element.attr({
-                body: {
-                    strokeWidth: 0,
-                },
-            });
-    };
 }
