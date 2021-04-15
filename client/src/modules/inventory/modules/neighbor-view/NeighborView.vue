@@ -24,22 +24,15 @@ export default defineComponent({
             // Graph of the inventory view
             graph: {} as JointGraph,
             // Root element that is currently displayed in the inventory
-            currentlyDisplayedShape: {} as dia.Element,
+            selectedNodeShape: {} as dia.Element,
             // Utility functions for the neighbor view
             neighborUtils: {} as NeighborUtils,
         };
     },
     watch: {
-        /**
-         * Trigger node selection, when a new node is selected in the overview
-         */
-        selectedNode(newValue, oldValue) {
-            if (oldValue && oldValue.nodeId === newValue.nodeId) return;
-            this.$store.commit("inventory/reset");
-
-            this.$store.dispatch("inventory/loadRelations", newValue).then(() => {
-                this.graphLoaded();
-            });
+        "$store.state.inventory.loading"(loading) {
+            if (loading) return;
+            this.graphLoaded();
         },
     },
     mounted(): void {
@@ -62,7 +55,7 @@ export default defineComponent({
             const relations = this.$store.state.inventory.relations;
 
             // Clear previous graph + settings
-            if (Object.keys(this.currentlyDisplayedShape).length !== 0) this.graph.graph.clear();
+            if (Object.keys(this.selectedNodeShape).length !== 0) this.graph.graph.clear();
             this.neighborUtils.resetGraphPositioning();
 
             // Display origin, neighbors and relations
@@ -85,8 +78,9 @@ export default defineComponent({
          * Displays the node in the neighbor view
          */
         displaySelectedNode(apiNode: ApiNode) {
+            // TODO :: Maybe dont need this
             const shape = this.neighborUtils.addNodeToDiagram(apiNode);
-            this.currentlyDisplayedShape = shape;
+            this.selectedNodeShape = shape;
 
             shape.attr("body/strokeWidth", 0);
         },

@@ -1,5 +1,6 @@
 <template>
     <div class="content">
+        <ProgressBar v-show="$store.state.inventory.loading" mode="indeterminate" class="loading" />
         <OverviewList
             :nodesReady="$store.getters['nodesReady']"
             :nodes="$store.state.nodes"
@@ -63,7 +64,10 @@ export default defineComponent({
          */
         clickedOnNode(node: ApiNode): void {
             if (this.$store.state.inventory.selectedNode?.nodeId === node.nodeId) return;
+            if (this.$store.state.inventory.loading) return;
 
+            this.$store.commit("inventory/reset");
+            this.$store.dispatch("inventory/loadRelations", node);
             this.$store.commit("inventory/setSelectedNode", node);
         },
         /**
@@ -87,6 +91,13 @@ export default defineComponent({
     height: 100%;
     background: @light_grey;
     display: flex;
+
+    .loading {
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        right: 0;
+    }
 }
 
 .overview {
