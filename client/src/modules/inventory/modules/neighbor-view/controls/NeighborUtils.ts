@@ -118,10 +118,8 @@ export class NeighborUtils {
         if (this.store.state.inventory?.mappedRelations.has(relation.uuid)) return;
 
         // Get direction of the relation
-        const source = this.getShapeById(relation.to.uuid);
-        const target = this.getShapeById(relation.from.uuid);
-        // TODO :: Check if relation directions are valid
-        // if (relation.to.uuid === rootNode.nodeId) [target, source] = [source, target];
+        const source = this.getShapeById(relation.from.uuid);
+        const target = this.getShapeById(relation.to.uuid);
         if (!(source && target)) return;
 
         const link = new shapes.standard.Link();
