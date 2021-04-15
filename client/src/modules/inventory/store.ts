@@ -120,14 +120,10 @@ export const inventory = {
 
             const apiRelationsOrigin: Array<ApiRelation> = await res.json();
 
-            // TODO :: Pass on result instead of collecting them
-            const resNeighbors = await context.dispatch("loadNeighborNodes", {
+            await context.dispatch("loadNeighborNodes", {
                 apiRelationsOrigin: apiRelationsOrigin,
                 origin: node,
             });
-
-            context.commit("setNeighbors", resNeighbors.apiNodes);
-            context.commit("setRelations", [...apiRelationsOrigin, ...resNeighbors.neighborRelations]);
 
             context.commit("setLoading", false);
         },
@@ -138,7 +134,7 @@ export const inventory = {
         async loadNeighborNodes(
             context: ActionContext<InventoryState, RootState>,
             payload: { apiRelationsOrigin: Array<ApiRelation>; origin: ApiNode },
-        ): Promise<{ apiNodes: Array<ApiNode>; neighborRelations: Array<ApiRelation> }> {
+        ): Promise<void> {
             // Get neighbors and transform them to nodes
             const neighborIds: Array<string> = [];
             payload.apiRelationsOrigin.forEach((relation: ApiRelation) => {
@@ -149,9 +145,12 @@ export const inventory = {
                 [...neighborIds].map(async (id) => (await (await GET(`api/nodes/${id}`)).json()) as ApiNode),
             );
 
-            const neighborRelations = await context.dispatch("loadNeighborRelations", neighborIds);
+            await context.dispatch("loadNeighborRelations", {
+                neighborIds: neighborIds,
+                apiRelationsOrigin: payload.apiRelationsOrigin,
+            });
 
-            return { apiNodes, neighborRelations };
+            context.commit("setNeighbors", apiNodes);
         },
 
         /**
@@ -159,11 +158,11 @@ export const inventory = {
          */
         async loadNeighborRelations(
             context: ActionContext<InventoryState, RootState>,
-            neighborIds: Array<string>,
-        ): Promise<Array<ApiRelation>> {
+            payload: { neighborIds: Array<string>; apiRelationsOrigin: Array<ApiRelation> },
+        ): Promise<void> {
             // Get relations of the neighbors
             const apiRelationsNeighbors = await Promise.all(
-                [...neighborIds].map(
+                [...payload.neighborIds].map(
                     async (id) => (await (await GET(`api/nodes/${id}/relations`)).json()) as Array<ApiRelation>,
                 ),
             );
@@ -173,7 +172,7 @@ export const inventory = {
                 relationsToAdd.set(relation.relationId, relation);
             });
 
-            return Array.from(relationsToAdd.values());
+            context.commit("setRelations", [...payload.apiRelationsOrigin, ...relationsToAdd.values()]);
         },
     },
 };
