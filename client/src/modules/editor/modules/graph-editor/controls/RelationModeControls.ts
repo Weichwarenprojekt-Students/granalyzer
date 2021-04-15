@@ -274,6 +274,10 @@ export class RelationModeControls {
     /**
      * Rearrange the links
      *
+     * @param startId The id of the start node
+     * @param endId The id of the end node
+     * @param siblings A list of all sibling links
+     * @param rearrangeAll True if all should be arranged
      * @private
      */
     private rearrangeLinks(startId: string, endId: string, siblings: dia.Link[], rearrangeAll: boolean) {

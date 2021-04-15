@@ -1,8 +1,7 @@
 export class Diagram {
     /**
-     * Mock graph
+     * The serialized diagram
      */
-    // language=JSON
     public serialized = "";
 
     /**

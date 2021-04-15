@@ -13,7 +13,7 @@ export class CreateNodeCommand implements ICommand {
     /**
      * Array of relations that are already existing, needed for a redo
      */
-    private existingRelations: Array<[Relation, dia.Element]> = [];
+    private existingRelations: Array<[Relation, dia.Element]> = new Array<[Relation, dia.Element]>();
 
     /**
      * Constructor

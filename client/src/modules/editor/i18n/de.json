@@ -16,6 +16,6 @@
   },
   "relationModeToast": {
     "title": "Beziehungsmodus is aktiv!",
-    "description": "Im Beziehungsmodus können keine keine neuen Nodes hinzugefügt werden"
+    "description": "Im Beziehungsmodus können keine neuen Nodes hinzugefügt werden"
   }
 }
