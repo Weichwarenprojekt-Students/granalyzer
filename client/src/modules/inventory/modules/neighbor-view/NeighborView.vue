@@ -1,5 +1,11 @@
 <template>
     <div class="container" @mousemove="graph.mousemove">
+        <div v-show="!$store.state.inventory.selectedNode" class="empty-warning">
+            <svg>
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
+            </svg>
+            <div class="message">{{ $t("inventory.emptySelection") }}</div>
+        </div>
         <div id="joint" @dragover.prevent @drop="onNodeDrop" />
     </div>
 </template>
@@ -30,6 +36,12 @@ export default defineComponent({
     },
     watch: {
         /**
+         * Clear graph if there is no selection
+         */
+        selectedNode(newValue) {
+            if (!newValue) this.clearGraphAndSettings();
+        },
+        /**
          * Display graph once all neighbors and relations are in the store
          */
         "$store.state.inventory.loading"(loading) {
@@ -58,10 +70,7 @@ export default defineComponent({
             const neighbors = this.$store.state.inventory.neighbors;
             const relations = this.$store.state.inventory.relations;
 
-            // Clear previous graph + settings
-            if (Object.keys(this.selectedNodeShape).length !== 0) this.graph.graph.clear();
-            this.neighborUtils.resetNeighborPlacement();
-            this.graph.resetSplitRelations();
+            this.clearGraphAndSettings();
 
             // Display origin, neighbors and relations
             if (this.selectedNode) this.displaySelectedNode(this.selectedNode as ApiNode);
@@ -80,7 +89,7 @@ export default defineComponent({
         /**
          * Displays the node in the neighbor view
          */
-        displaySelectedNode(apiNode: ApiNode) {
+        displaySelectedNode(apiNode: ApiNode): void {
             const shape = this.neighborUtils.addNodeToDiagram(apiNode);
             this.selectedNodeShape = shape;
 
@@ -89,7 +98,7 @@ export default defineComponent({
         /**
          * Adds nodes and neighbors to the neighbor relation diagram
          */
-        addNeighborNodesAndRelations(neighbors: ApiNode[], relations: ApiRelation[]) {
+        addNeighborNodesAndRelations(neighbors: ApiNode[], relations: ApiRelation[]): void {
             // Neighbor nodes
             for (const apiNode of neighbors) this.neighborUtils.addNodeToDiagram(apiNode);
 
@@ -98,6 +107,14 @@ export default defineComponent({
 
             // Split overlapping relations
             for (const shape of this.graph.graph.getElements()) this.graph.adjustSiblingRelations(shape, true);
+        },
+        /**
+         * Clears the previous graph + settings
+         */
+        clearGraphAndSettings(): void {
+            if (Object.keys(this.selectedNodeShape).length !== 0) this.graph.graph.clear();
+            this.neighborUtils.resetNeighborPlacement();
+            this.graph.resetSplitRelations();
         },
         /**
          * Centers the graph
@@ -122,5 +139,26 @@ export default defineComponent({
 .container {
     position: relative;
     background: #f2f2f2;
+}
+
+.empty-warning {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 18px;
+    flex-direction: column;
+
+    svg {
+        fill: @dark_grey;
+        height: 64px;
+        width: 64px;
+        margin-top: 128px;
+        margin-bottom: 16px;
+    }
+
+    .message {
+        color: @dark;
+        font-size: @h3;
+    }
 }
 </style>
