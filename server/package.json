@@ -8,7 +8,6 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
-    "build:all:linux": "cd ../client; npm run build; cd ../server; nest build; node dist/src/main;",
     "build:docker:github": "cd ../client; npm run build; cd ../server; nest build; cd ..; docker build -t granalyzer .;",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

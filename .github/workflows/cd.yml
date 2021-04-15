@@ -24,16 +24,37 @@ jobs:
       # Install dependencies in the frontend
       - name: Install dependencies in the frontend
         working-directory: ./client
-        run: npm i
+        run: |
+          npm i
+          npm run build
 
       # Install dependencies in the backend
       - name: Install dependencies in the backend
         working-directory: ./server
-        run: npm i
+        run: |
+          npm i
+          npm run build
 
-      # Build Docker
-      - name: Build docker
-        working-directory: ./server
-        run: npm run build:docker:github
+#      # Build Docker
+#      - name: Build docker
+#        working-directory: ./server
+#        run: npm run build:docker:github
+
+      - name: Login to GitHub Packages Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Push docker to github packages
+      - name: Push docker to github packages
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/weichwarenprojekt/granalyzer:latest
+            ghcr.io/weichwarenprojekt/granalyzer:0.0.3
 
 
