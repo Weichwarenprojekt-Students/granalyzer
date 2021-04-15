@@ -162,7 +162,7 @@ export class NeighborUtils {
      */
     public setStepDistance(nNeighbors: number): void {
         this.stepDistance = (2 * Math.PI) / nNeighbors;
-        this.radius = nNeighbors > 10 ? nNeighbors * 40 : nNeighbors < 5 ? 500 : nNeighbors * 60;
+        this.radius = nNeighbors > 9 ? nNeighbors * 40 : nNeighbors > 3 ? 500 : 300;
     }
 
     /**
@@ -192,7 +192,7 @@ export class NeighborUtils {
      */
     private calculateNewPosition(): void {
         if (!this.rootNodeSet) return;
-        const alpha = this.stepDistance * this.neighborsPlaced++;
+        const alpha = this.stepDistance * this.neighborsPlaced++ - 0.5 * Math.PI;
         this.currentX = this.radius * Math.cos(alpha);
         this.currentY = this.radius * Math.sin(alpha);
     }
