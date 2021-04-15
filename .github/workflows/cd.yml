@@ -55,6 +55,6 @@ jobs:
           push: true
           tags: |
             ghcr.io/weichwarenprojekt/granalyzer:latest
-            ghcr.io/weichwarenprojekt/granalyzer:0.0.3
+            ghcr.io/weichwarenprojekt/granalyzer:0.0.4
 
 

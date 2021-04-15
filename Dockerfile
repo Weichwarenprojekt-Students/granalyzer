@@ -11,6 +11,7 @@ COPY ./client/dist /app/client/dist
 
 RUN mkdir /app/server/src
 COPY ./server/src/data-scheme /app/server/src/data-scheme
+COPY ./server/tsconfig.json /app/server
 
 WORKDIR /app/server
 RUN npm install
