@@ -1,7 +1,6 @@
 <template>
     <div class="header">
-        <h1>Neighbor Relations</h1>
-        <!-- TODO :: Internationalize -->
+        <h1>{{ $t("inventory.title") }}</h1>
     </div>
 </template>
 
