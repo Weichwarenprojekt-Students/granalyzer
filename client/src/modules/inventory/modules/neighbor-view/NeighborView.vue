@@ -2,7 +2,6 @@
     <div class="container" @mousemove="graph.mousemove">
         <div id="joint" @dragover.prevent @drop="onNodeDrop" />
     </div>
-    <!-- TODO :: Loading bar -->
 </template>
 
 <script lang="ts">
@@ -30,6 +29,9 @@ export default defineComponent({
         };
     },
     watch: {
+        /**
+         * Display graph once all neighbors and relations are in the store
+         */
         "$store.state.inventory.loading"(loading) {
             if (loading) return;
             this.graphLoaded();
@@ -71,14 +73,11 @@ export default defineComponent({
             // Get the selected node
             const node = this.$store.state.inventory.selectedNode;
             if (!node) return;
-
-            console.log("Dropped", node); // TODO :: Add new relation to currently selected node
         },
         /**
          * Displays the node in the neighbor view
          */
         displaySelectedNode(apiNode: ApiNode) {
-            // TODO :: Maybe dont need this
             const shape = this.neighborUtils.addNodeToDiagram(apiNode);
             this.selectedNodeShape = shape;
 
@@ -93,6 +92,9 @@ export default defineComponent({
 
             // Neighbor relations
             for (const apiRelation of relations) this.neighborUtils.addRelationToDiagram(apiRelation);
+
+            // Split overlapping relations
+            for (const shape of this.graph.graph.getElements()) this.graph.adjustSiblingRelations(shape, true);
         },
         /**
          * Centers the graph

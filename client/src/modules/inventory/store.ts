@@ -107,7 +107,6 @@ export const inventory = {
             }
 
             const apiRelationsOrigin: Array<ApiRelation> = await res.json();
-            console.log("Relations", apiRelationsOrigin);
 
             // TODO :: Pass on result instead of collecting them
             const resNeighbors = await context.dispatch("loadNeighborNodes", {
@@ -137,7 +136,6 @@ export const inventory = {
             const apiNodes: Array<ApiNode> = await Promise.all(
                 [...neighborIds].map(async (id) => (await (await GET(`api/nodes/${id}`)).json()) as ApiNode),
             );
-            console.log("Neighbors", apiNodes);
 
             const neighborRelations = await context.dispatch("loadNeighborRelations", neighborIds);
 

@@ -1,4 +1,4 @@
-import { dia } from "jointjs";
+import { dia, g } from "jointjs";
 
 class GraphOptions implements dia.Paper.Options {
     // eslint-disable-next-line no-undef
@@ -95,6 +95,131 @@ export class JointGraph {
                 body: {
                     strokeWidth: 0,
                 },
+            });
+    }
+
+    // TODO :: Sometimes there is no relation in the middle after splitting
+    // TODO :: If relations have to be split multiple times for the same type of node, only the
+    // TODO >> >> first node is considered for splitting
+    /**
+     * Takes care of overlapping relations
+     * From: https://resources.jointjs.com/tutorial/multiple-links-between-elements
+     *
+     * @param element Node of the jointjs diagram
+     * @param rearrangeAll False, if the rearrangement does not apply on links which were already positioned
+     */
+    public adjustSiblingRelations(element: dia.Element, rearrangeAll = true): void {
+        // Get the first link from the element
+        const firstConnectedLink = this.graph.getConnectedLinks(element)[0];
+
+        // Exit if node has no relation
+        if (!firstConnectedLink) return;
+
+        const link = firstConnectedLink;
+
+        // Get the start and end node id of the relation
+        const startId = link.get("source").id || link.previous("source").id;
+        const endId = link.get("target").id || link.previous("target").id;
+
+        // Exit if not both endpoints of the relation are set
+        if (!startId || !endId) return;
+
+        // identify link siblings
+        const siblings = this.getSiblingsOfLink(startId, endId);
+
+        // Prevent overlapping if more than one relation
+        if (siblings.length > 1) {
+            this.rearrangeLinks(startId, endId, siblings, rearrangeAll);
+        }
+    }
+
+    /**
+     * Get all siblings of the link specified by the ids of both node endpoints
+     *
+     * @param startId
+     * @param endId
+     * @private
+     */
+    private getSiblingsOfLink(startId: string, endId: string) {
+        return this.graph.getLinks().filter((sibling) => {
+            const siblingStartId = sibling.source().id;
+            const siblingEndId = sibling.target().id;
+
+            // if source and target are the same
+            // or if source and target are reversed
+            return (
+                (siblingStartId === startId && siblingEndId === endId) ||
+                (siblingStartId === endId && siblingEndId === startId)
+            );
+        });
+    }
+
+    /**
+     * Rearrange the links
+     *
+     * @param startId The id of the start node
+     * @param endId The id of the end node
+     * @param siblings A list of all sibling links
+     * @param rearrangeAll True if all should be arranged
+     * @private
+     */
+    private rearrangeLinks(startId: string, endId: string, siblings: dia.Link[], rearrangeAll: boolean) {
+        // Get the middle point of the link
+        const sourceCenter = this.graph.getCell(startId).getBBox().center();
+        const targetCenter = this.graph.getCell(endId).getBBox().center();
+        const midPoint = new g.Line(sourceCenter, targetCenter).midpoint();
+
+        // Get the angle between start and end node
+        const theta = sourceCenter.theta(targetCenter);
+
+        // The maximum distance between two sibling links
+        const GAP = 120;
+        let i = 0;
+
+        siblings
+            .filter((sibling) => rearrangeAll || !(sibling.vertices().length !== 0))
+            .forEach((sibling) => {
+                // Ignore already moved relations if flag is false
+
+                // Contains calculated vertices
+                let vertex = new g.Point(0, 0);
+
+                let atCorrectPosition = false;
+                while (!atCorrectPosition) {
+                    // Offset values like 0, 20, 20, 40, 40, 60, 60 ...
+                    let offset = GAP * Math.ceil(i / 2);
+
+                    // Alternate the direction in which the relation is moved (right/left)
+                    const sign = i % 2 ? 1 : -1;
+
+                    // Keep even numbers of relations symmetric
+                    if (siblings.length % 2 === 0) {
+                        offset -= (GAP / 2) * sign;
+                    }
+
+                    // Make reverse links count the same as non-reverse
+                    const reverse = theta < 180 ? 1 : -1;
+
+                    // Apply the shifted relation
+                    const angle = g.toRad(theta + sign * reverse * 90);
+                    vertex = g.Point.fromPolar(offset, angle, midPoint);
+
+                    atCorrectPosition = true;
+                    i++;
+
+                    // Check if there is a relation at the same position
+                    siblings
+                        .map((s) => s.vertices())
+                        .filter((v) => v.length != 0)
+                        .forEach((v) => {
+                            if (vertex.distance(new g.Point(v[0])) < 10) {
+                                atCorrectPosition = false;
+                            }
+                        });
+                }
+
+                // Replace vertices
+                if (vertex) sibling.vertices([vertex]);
             });
     }
 
