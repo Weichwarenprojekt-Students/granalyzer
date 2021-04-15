@@ -38,7 +38,7 @@ export class NodesService {
         };
 
         // Callback which is applied on the database response
-        const resolveRead = (result) => Promise.all(result.records.map((el) => this.parseNode.call(this, el)));
+        const resolveRead = (result) => Promise.all(result.records.map((el) => this.dataSchemeUtil.parseNode(el)));
 
         return this.neo4jService
             .read(query, params, this.database)
@@ -62,7 +62,7 @@ export class NodesService {
         };
 
         // Callback which parses the received data
-        const resolveRead = async (res) => await this.parseNode.call(this, res.records[0]);
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0]);
 
         return this.neo4jService
             .read(query, params, this.database)
@@ -87,31 +87,11 @@ export class NodesService {
         };
 
         // Callback which is applied on the database response
-        const resolveRead = (result) => Promise.all(result.records.map((el) => this.parseNode.call(this, el)));
+        const resolveRead = (result) => Promise.all(result.records.map((el) => this.dataSchemeUtil.parseNode(el)));
 
         return this.neo4jService
             .read(query, params, this.database)
             .then(resolveRead)
             .catch(this.databaseUtil.catchDbError);
-    }
-
-    /**
-     * Parse the db response into a Node
-     * @param record single record response from db
-     * @private
-     */
-    private async parseNode(record): Promise<Node> {
-        const attributes = record.get("node");
-
-        const node = {
-            nodeId: record.get("node").nodeId,
-            name: record.get("node").name,
-            label: record.get("node").label,
-            attributes: attributes,
-        } as Node;
-
-        delete node["attributes"]["nodeId"];
-
-        return this.dataSchemeUtil.parseRecordByLabel(node);
     }
 }

@@ -1,6 +1,7 @@
 // Deserialization of JSON objects with inheritance:
 // https://stackoverflow.com/questions/54427218/parsing-complex-json-objects-with-inheritance
 import * as neo4j from "neo4j-driver";
+import { Datatype } from "./datatypes";
 
 type SerializableAttribute = new () => { readonly datatype: string };
 
@@ -61,11 +62,11 @@ export abstract class Attribute {
     static applyOnElement(attribute: Attribute, element: any) {
         // Convert Attributes by datatype
         switch (attribute.datatype) {
-            case "number":
+            case Datatype.NUMBER:
                 element = neo4j.integer.toNumber(element);
                 break;
-            case "color":
-            case "string":
+            case Datatype.COLOR:
+            case Datatype.STRING:
                 break;
             default:
                 // If Element is an neo4j integer
@@ -83,7 +84,7 @@ export class StringAttribute extends Attribute {
     /**
      * datatype of the string attribute
      */
-    readonly datatype = "string";
+    readonly datatype = Datatype.STRING;
 
     /**
      * Default string value
@@ -110,7 +111,7 @@ export class NumberAttribute extends Attribute {
     /**
      * datatype of the number attribute
      */
-    readonly datatype = "number";
+    readonly datatype = Datatype.NUMBER;
 
     /**
      * Default number value
@@ -140,7 +141,7 @@ export class ColorAttribute extends Attribute {
     /**
      * datatype of the color attribute
      */
-    readonly datatype = "color";
+    readonly datatype = Datatype.COLOR;
 
     /**
      * Default color value
