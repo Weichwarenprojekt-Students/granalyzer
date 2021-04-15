@@ -1,4 +1,6 @@
 import { dia, g } from "jointjs";
+import { RootState } from "@/store";
+import { Store } from "vuex";
 
 class GraphOptions implements dia.Paper.Options {
     // eslint-disable-next-line no-undef
@@ -31,9 +33,14 @@ export class JointGraph {
     private eventData?: { x: number; y: number; px: number; py: number };
 
     /**
+     * Relations that have already been split
+     */
+    private splitRelations = new Map<string, string>();
+
+    /**
      * Constructor
      */
-    constructor(canvas: string) {
+    constructor(canvas: string, public store?: Store<RootState>) {
         this.graph = new dia.Graph();
         const config: GraphOptions = {
             el: document.getElementById(canvas),
@@ -98,7 +105,13 @@ export class JointGraph {
             });
     }
 
-    // TODO :: Sometimes there is no relation in the middle after splitting
+    /**
+     * Resets the relations map for splitting
+     */
+    public resetSplitRelations(): void {
+        this.splitRelations.clear();
+    }
+
     // TODO :: If relations have to be split multiple times for the same type of node, only the
     // TODO >> >> first node is considered for splitting
     /**
@@ -123,6 +136,12 @@ export class JointGraph {
 
         // Exit if not both endpoints of the relation are set
         if (!startId || !endId) return;
+
+        // Make sure the same relation doesnt get split twice in the inventory graph
+        if (this.store?.state.inventory?.inventoryActive) {
+            if (this.splitRelations.get(startId) === endId) return;
+            this.splitRelations.set(startId, endId);
+        }
 
         // identify link siblings
         const siblings = this.getSiblingsOfLink(startId, endId);

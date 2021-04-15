@@ -39,13 +39,15 @@ export default defineComponent({
     },
     mounted(): void {
         // Set up the graph and the controls
-        this.graph = new JointGraph("joint");
+        this.graph = new JointGraph("joint", this.$store);
         this.neighborUtils = new NeighborUtils(this.graph.graph, this.$store);
         this.centerGraph();
+        this.$store.commit("inventory/setActive", true);
 
         window.addEventListener("resize", this.centerGraph);
     },
     unmounted(): void {
+        this.$store.commit("inventory/setActive", false);
         window.removeEventListener("resize", this.centerGraph);
     },
     methods: {
@@ -58,7 +60,8 @@ export default defineComponent({
 
             // Clear previous graph + settings
             if (Object.keys(this.selectedNodeShape).length !== 0) this.graph.graph.clear();
-            this.neighborUtils.resetGraphPositioning();
+            this.neighborUtils.resetNeighborPlacement();
+            this.graph.resetSplitRelations();
 
             // Display origin, neighbors and relations
             if (this.selectedNode) this.displaySelectedNode(this.selectedNode as ApiNode);

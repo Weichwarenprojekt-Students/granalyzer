@@ -34,6 +34,11 @@ export class InventoryState {
      * True, while the neighbors of the currently selected node are loading
      */
     public loading = false;
+
+    /**
+     * Flag to handle the splitting of overlapping relations differently for the neighbor preview
+     */
+    public inventoryActive = false;
 }
 
 export const inventory = {
@@ -80,6 +85,13 @@ export const inventory = {
          */
         setLoading(state: InventoryState, loading: boolean): void {
             state.loading = loading;
+        },
+
+        /**
+         * Sets the active state of the inventory
+         */
+        setActive(state: InventoryState, active: boolean): void {
+            state.inventoryActive = active;
         },
 
         /**

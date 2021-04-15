@@ -135,7 +135,7 @@ export class NeighborUtils {
         if (relation.type)
             link.appendLabel({
                 attrs: {
-                    text: { text: relation.type, textAnchor: "middle", textVerticalAnchor: "middle" },
+                    text: { text: relation.type, textAnchor: "middle", textVerticalAnchor: "middle", fill: "#fff" },
                     rect: {
                         ref: "text",
                         fill: "#333",
@@ -168,7 +168,7 @@ export class NeighborUtils {
     /**
      * Reset the positioning of nodes in the graph
      */
-    public resetGraphPositioning(): void {
+    public resetNeighborPlacement(): void {
         this.neighborsPlaced = 0;
         this.currentX = 0;
         this.currentY = 0;
