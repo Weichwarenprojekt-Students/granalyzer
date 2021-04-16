@@ -106,7 +106,7 @@ export default defineComponent({
             for (const apiRelation of relations) this.neighborUtils.addRelationToDiagram(apiRelation);
 
             // Split overlapping relations
-            for (const shape of this.graph.graph.getElements()) this.graph.adjustSiblingRelations(shape, false);
+            for (const shape of this.graph.graph.getElements()) this.graph.rearrangeOverlappingRelations(shape, false);
         },
         /**
          * Clears the previous graph + settings

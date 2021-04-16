@@ -72,7 +72,7 @@ export class CreateNodeCommand implements ICommand {
             });
         }
 
-        this.graphHandler.graph.adjustSiblingRelations(this.diagElement);
+        this.graphHandler.graph.rearrangeOverlappingRelations(this.diagElement);
     }
 
     /**

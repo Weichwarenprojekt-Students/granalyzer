@@ -100,28 +100,41 @@ export class JointGraph {
             });
     }
 
-    // TODO :: If relations have to be split multiple times for the same type of node, only the
-    // TODO >> >> first node is considered for splitting
     /**
      * Takes care of overlapping relations
      * From: https://resources.jointjs.com/tutorial/multiple-links-between-elements
      *
-     * @param element Node of the jointjs diagram
+     * @param element Element which overlapping relations should be rearranged
      * @param rearrangeAll False, if the rearrangement does not apply on links which were already positioned
      */
-    public adjustSiblingRelations(element: dia.Element, rearrangeAll = true): void {
-        // Get the first link from the element
-        const firstConnectedLink = this.graph.getConnectedLinks(element)[0];
+    public rearrangeOverlappingRelations(element: dia.Element, rearrangeAll = true): void {
+        const connectedLinks = this.graph.getConnectedLinks(element);
 
         // Exit if node has no relation
-        if (!firstConnectedLink) return;
+        if (!connectedLinks[0]) return;
 
-        const link = firstConnectedLink;
+        // Get unique neighbor nodes
+        const uniqueNeighborIds: Set<string> = new Set(
+            connectedLinks.map((link) => {
+                const sourceId = link.get("source").id;
+                return sourceId !== element.id ? sourceId : link.get("target").id;
+            }),
+        );
 
-        // Get the start and end node id of the relation
-        const startId = link.get("source").id || link.previous("source").id;
-        const endId = link.get("target").id || link.previous("target").id;
+        // Adjust siblings for each target
+        uniqueNeighborIds.forEach((neighborId) => {
+            this.adjustSiblingRelations(neighborId, element.id.toString(), rearrangeAll);
+        });
+    }
 
+    /**
+     * Adjust the overlapping relations for one links siblings
+     *
+     * @param startId Source of the overlapping relations
+     * @param endId Target of the overlapping relations
+     * @param rearrangeAll False, if the rearrangement does not apply on links which were already positioned
+     */
+    private adjustSiblingRelations(startId: string, endId: string, rearrangeAll = true) {
         // Exit if not both endpoints of the relation are set
         if (!startId || !endId) return;
 

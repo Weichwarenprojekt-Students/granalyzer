@@ -168,7 +168,7 @@ export class RelationModeControls {
 
                 // Rearrange overlapping relations if it has a added sibling and is not yet manually positioned
                 if (addedNewRelation) {
-                    this.graphHandler.graph.adjustSiblingRelations(fromElement, false);
+                    this.graphHandler.graph.rearrangeOverlappingRelations(fromElement, false);
                 }
             });
         });
