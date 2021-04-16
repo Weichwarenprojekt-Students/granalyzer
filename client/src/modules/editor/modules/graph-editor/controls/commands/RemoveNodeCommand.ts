@@ -30,7 +30,10 @@ export class RemoveNodeCommand implements ICommand {
 
         // Create deep copy of all relations
         this.graphHandler.relations.forEach((value, id) => {
-            if (value.from == node.ref || value.to == node.ref)
+            if (
+                (value.from.uuid === node.ref.uuid && value.from.index === node.ref.index) ||
+                (value.to.uuid === node.ref.uuid && value.to.index === node.ref.index)
+            )
                 this.relations.push([value, this.graphHandler.getCellById(id)]);
         });
     }
