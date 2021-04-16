@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from "@nestjs/common";
 import { DataSchemeService } from "./data-scheme.service";
 import {
     ApiBody,
@@ -7,7 +7,7 @@ import {
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
-    ApiParam,
+    ApiParam, ApiQuery,
     ApiTags,
 } from "@nestjs/swagger";
 import { Scheme } from "./data-scheme.model";
@@ -91,6 +91,12 @@ export class DataSchemeController {
         type: "string",
         description: "Unique name of the label scheme",
     })
+    @ApiParam({
+        name: "force",
+        type: "boolean",
+        description: "Set to true if the change should be written even though conflicts exist",
+    })
+    @ApiQuery({ name: "force", type: "boolean" })
     @ApiBody({
         type: LabelScheme,
         description: "The updated label",
@@ -99,8 +105,8 @@ export class DataSchemeController {
         type: LabelScheme,
         description: "Returns the updated label",
     })
-    updateLabelScheme(@Param("name") name, @Body() body) {
-        return this.dataSchemeService.updateLabelScheme(name, body);
+    updateLabelScheme(@Param("name") name, @Body() body, @Query("force") force = false) {
+        return this.dataSchemeService.updateLabelScheme(name, body, force);
     }
 
     @Delete("/label/:name")
@@ -192,7 +198,6 @@ export class DataSchemeController {
         description: "Returns the updated relation type",
     })
     updateRelationType(@Param("name") name, @Body() body) {
-        console.log(body);
         return this.dataSchemeService.updateRelationType(name, body);
     }
 

@@ -173,7 +173,6 @@ export class DataSchemeUtil {
      * @return True if the attribute has a conflict
      */
     hasConflict(attr: Attribute, node: Node): boolean {
-        if (!node.attributes || !node.attributes[attr.name]) return attr.mandatory;
         switch (attr.datatype) {
             case Datatype.NUMBER:
                 return !this.isNumber(node.attributes[attr.name]);

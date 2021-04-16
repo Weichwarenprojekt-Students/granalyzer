@@ -6,6 +6,9 @@ import { LabelScheme } from "./models/labelScheme";
 import { DatabaseUtil } from "../util/database.util";
 import Relation from "../relations/relation.model";
 import { DataSchemeUtil } from "../util/data-scheme.util";
+import { Attribute } from "./models/attributes";
+import TestUtil from "../util/test.util";
+import Node from "../nodes/node.model";
 
 @Injectable()
 export class DataSchemeService {
@@ -86,7 +89,7 @@ export class DataSchemeService {
     /**
      * Adds a new label scheme to the db
      */
-    async updateLabelScheme(name: string, label: LabelScheme): Promise<LabelScheme> {
+    async updateLabelScheme(name: string, label: LabelScheme, force: boolean): Promise<LabelScheme> {
         // language=Cypher
         const cypher = `
           MATCH (ls:LabelScheme {name: $name})
@@ -104,48 +107,99 @@ export class DataSchemeService {
             return this.dataSchemeUtil.parseLabelScheme(res.records[0]);
         };
 
-        await this.checkConflicts(label);
-        return this.neo4jService
-            .write(cypher, params, this.database)
-            .then(resolveWrite)
-            .catch(this.databaseUtil.catchDbError);
+        if (force || !(await this.hasConflicts(label))) {
+            return this.neo4jService
+                .write(cypher, params, this.database)
+                .then(resolveWrite)
+                .catch(this.databaseUtil.catchDbError);
+        }
+
     }
 
     /**
-     * Check for conflicts
+     * Get the attributes that have changed in the given label scheme in comparison to the one stored in the tool db
+     * @param label The label which has to be checked against the database label
+     * @return Tuple At [0] the newly added attributes, at [1] the changed attributes
      */
-    async checkConflicts(label: LabelScheme): Promise<void> {
-        // language=Cypher
-        const cypher = `
-          MATCH (n:${label.name})
-          RETURN n {. *, label:$label} AS node`;
+    private async getChangedAttrs(label: LabelScheme) {
+        const oldAttrs = (await this.dataSchemeUtil.getLabelScheme(label.name)).attributes;
 
-        const params = {
-            label: label.name,
+        const oldAttrsMap = new Map(oldAttrs.map((i): [string, Attribute] => [i.name, i]));
+        const newAttrsMap = new Map(label.attributes.map((i): [string, Attribute] => [i.name, i]));
+
+        const addedAttr = [];
+        const changedAttr = [];
+
+        // find attributes only existing in the old label scheme
+        newAttrsMap.forEach((newEl) => {
+            if (oldAttrsMap.has(newEl.name)) {
+                if (!(JSON.stringify(newEl) === JSON.stringify(oldAttrsMap.get(newEl.name)))) changedAttr.push(newEl);
+            } else addedAttr.push(newEl);
+        });
+        return [addedAttr, changedAttr];
+    }
+
+    /**
+     * Check whether the given label scheme will have any conflicts with the data stored in the database.
+     * May either be missing attributes or values that cannot be parsed
+     * @param label The label scheme
+     * @throws ConflictException when any conflict is found and sends the type and amount of conflicting nodes
+     */
+    private async hasConflicts(label: LabelScheme) {
+        const [addedAttr, changedAttr] = await this.getChangedAttrs(label);
+        let missingConflicts = 0;
+        let diffConflicts = 0;
+
+        if (addedAttr.length) {
+            for (const element of addedAttr) {
+                if (element.mandatory)
+                    missingConflicts += (await this.getNodesAttrDependant(element.name, label.name, false)).length;
+            }
+        }
+
+        for (const element of changedAttr) {
+            const exists: Node[] = await this.getNodesAttrDependant(element["name"], label["name"], true);
+            exists.forEach((node) => {
+                diffConflicts += this.dataSchemeUtil.hasConflict(element, node) ? 1 : 0;
+            });
+        }
+
+        const err = {
+            missingError: missingConflicts,
+            parseError: diffConflicts,
         };
 
-        let conflicts = 0;
-        const resolveRead = async (result) =>
-            await result.records.map(async (el) => {
-                try {
-                    return await this.dataSchemeUtil.parseNode(el, label);
-                } catch (e) {
-                    console.log(e);
-                    conflicts++;
-                }
-            });
-        const nodes = await this.neo4jService
-            .read(cypher, params, this.customerDb)
+        if (missingConflicts > 0 || diffConflicts > 0) {
+            throw new ConflictException(err);
+        } else return false;
+    }
+
+    /**
+     * Get the nodes that either do or do not have a specific attribute
+     * @param attributeName The name of the attribute which is being searched for
+     * @param labelName The name of the label the attribute holding element has
+     * @param attributeExists True if the attribute that is being searched should exist
+     * @private
+     */
+    private async getNodesAttrDependant(attributeName: string, labelName: string, attributeExists: boolean) {
+        const params = {
+            attributeName,
+            labelName,
+        };
+        // language = cypher
+        const cypher = attributeExists
+            ? `MATCH (node:${labelName})
+                    WHERE exists(node.${attributeName})
+                  RETURN node {.*, label: $labelName} AS node`
+            : `MATCH (node:${labelName})
+                    WHERE NOT exists(node.${attributeName})
+                  RETURN node {.*, label: $labelName} AS node`;
+
+        const resolveRead = (result) => Promise.all(result.records.map((el) => this.dataSchemeUtil.parseNode(el)));
+        return await this.neo4jService
+            .read(cypher, params, process.env.DB_CUSTOMER)
             .then(resolveRead)
             .catch(this.databaseUtil.catchDbError);
-        nodes.forEach((node) => {
-            label.attributes.forEach((attribute) => {
-                if (this.dataSchemeUtil.hasConflict(attribute, node)) conflicts++;
-            });
-        });
-        if (conflicts > 0) {
-            throw new ConflictException(conflicts);
-        }
     }
 
     /**
