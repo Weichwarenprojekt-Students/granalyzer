@@ -45,7 +45,7 @@ export default defineComponent({
          * Display graph once all neighbors and relations are in the store
          */
         "$store.state.inventory.loading"(loading) {
-            if (loading) return;
+            if (loading || !this.selectedNode) return;
             this.graphLoaded();
         },
     },
