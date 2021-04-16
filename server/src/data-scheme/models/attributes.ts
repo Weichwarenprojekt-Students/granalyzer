@@ -63,18 +63,18 @@ export abstract class Attribute {
         // Convert Attributes by datatype
         switch (attribute.datatype) {
             case Datatype.NUMBER:
-                element = neo4j.integer.toNumber(element);
+                // Cast to number if element is neo4j long which cannot be displayed in js
+                if (element && element.low !== undefined && element.high !== undefined)
+                    element = neo4j.integer.toNumber(element);
+                // Check if element can be parsed to a number, set it to undefined if not
+                else element = isNaN(parseFloat(element)) ? undefined : neo4j.integer.toNumber(element);
                 break;
             case Datatype.COLOR:
             case Datatype.STRING:
-                break;
-            default:
-                // If Element is an neo4j integer
-                if (neo4j.isInt(element)) {
+                // Cast to number if element is neo4j long which cannot be displayed in js
+                if (element && element.low !== undefined && element.high !== undefined)
                     element = neo4j.integer.toString(element);
-                }
         }
-
         return element;
     }
 }
