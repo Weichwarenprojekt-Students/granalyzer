@@ -253,7 +253,7 @@ export class JointGraph {
                 }
 
                 // Replace vertices
-                if (vertex) sibling.vertices([vertex]);
+                if (vertex && (i > 1 || siblings.length % 2 === 0)) sibling.vertices([vertex]);
             });
     }
 
