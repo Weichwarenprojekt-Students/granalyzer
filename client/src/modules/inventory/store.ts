@@ -174,5 +174,14 @@ export const inventory = {
 
             context.commit("setRelations", [...payload.apiRelationsOrigin, ...relationsToAdd.values()]);
         },
+
+        /**
+         * Gets a node by the provided id
+         */
+        async getNode(context: ActionContext<InventoryState, RootState>, nodeId: number): Promise<ApiNode | undefined> {
+            const res = await GET("/api/nodes/" + nodeId);
+            if (res.status !== 200) return undefined;
+            return await res.json();
+        },
     },
 };

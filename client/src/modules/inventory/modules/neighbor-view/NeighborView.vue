@@ -52,7 +52,7 @@ export default defineComponent({
     mounted(): void {
         // Set up the graph and the controls
         this.graph = new JointGraph("joint", this.$store);
-        this.neighborUtils = new NeighborUtils(this.graph.graph, this.$store);
+        this.neighborUtils = new NeighborUtils(this.graph, this.$store);
         this.centerGraph();
         this.$store.commit("inventory/setActive", true);
 

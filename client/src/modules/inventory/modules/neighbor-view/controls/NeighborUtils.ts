@@ -7,6 +7,7 @@ import ApiRelation from "@/modules/editor/models/ApiRelation";
 import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/models/NodeShapes";
 import { getBrightness } from "@/utility";
 import Cell = dia.Cell;
+import { JointGraph } from "@/shared/JointGraph";
 
 /**
  * Provides key functionality for placing nodes and relations
@@ -48,7 +49,9 @@ export class NeighborUtils {
      * @param graph Graph to place nodes/relations into
      * @param store Root Store
      */
-    constructor(private graph: dia.Graph, private store: Store<RootState>) {}
+    constructor(private graph: JointGraph, private store: Store<RootState>) {
+        this.registerNodeInteraction();
+    }
 
     /**
      * Transforms an ApiNode to a node, creates a shape and places it in the graph
@@ -94,7 +97,7 @@ export class NeighborUtils {
                 class: "node",
             },
         });
-        shape.addTo(this.graph);
+        shape.addTo(this.graph.graph);
         shape.attr("body/strokeWidth", 0);
         this.rootNodeSet = true;
 
@@ -150,7 +153,7 @@ export class NeighborUtils {
                     },
                 },
             });
-        link.addTo(this.graph);
+        link.addTo(this.graph.graph);
 
         return link;
     }
@@ -183,7 +186,7 @@ export class NeighborUtils {
      */
     private getShapeById(id: string): Cell | undefined {
         const shapeId = this.store.state.inventory?.mappedNodes.get(id);
-        if (shapeId) return this.graph.getCell(shapeId);
+        if (shapeId) return this.graph.graph.getCell(shapeId);
         return undefined;
     }
 
@@ -195,5 +198,24 @@ export class NeighborUtils {
         const alpha = this.stepDistance * this.neighborsPlaced++ - 0.5 * Math.PI;
         this.currentX = this.radius * Math.cos(alpha);
         this.currentY = this.radius * Math.sin(alpha);
+    }
+
+    /**
+     * Listen for node move events
+     */
+    private registerNodeInteraction(): void {
+        this.graph.paper.on("element:pointerdblclick", async (cell) => {
+            // Get key of element by value
+            if (!this.store.state.inventory) return;
+
+            const nodeId = [...this.store.state.inventory?.mappedNodes].find(([, value]) => value === cell.model.id);
+
+            if (!nodeId) return;
+            const node = await this.store.dispatch("inventory/getNode", nodeId[0]);
+
+            this.store.commit("inventory/setSelectedNode", node);
+            this.store.commit("inventory/reset");
+            await this.store.dispatch("inventory/loadRelations", node);
+        });
     }
 }
