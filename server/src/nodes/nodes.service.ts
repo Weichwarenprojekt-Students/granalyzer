@@ -30,11 +30,16 @@ export class NodesService {
         nameFilter?: string,
         labelFilter?: Array<string>,
     ): Promise<Node[]> {
-        const filter = this.generateFilterString(nameFilter, labelFilter);
+        // Convert single filters to array to keep handling consistent
+        labelFilter = Array.isArray(labelFilter) ? labelFilter : [labelFilter];
+
+        // Create the filter part of the cypher query
+        const filter = await this.generateFilterString(nameFilter, labelFilter);
 
         // language=Cypher
         const query = `
           MATCH (n) ${filter}
+
           WITH labels(n) AS lbls, n
           UNWIND lbls AS label
           RETURN n {. *, label:label} AS node
@@ -107,20 +112,40 @@ export class NodesService {
      * @param labelFilter Labels to filter by
      * @private
      */
-    private generateFilterString(nameFilter?: string, labelFilter?: Array<string>): string {
+    private async generateFilterString(nameFilter?: string, labelFilter?: string[]): Promise<string> {
+        // Validates the given labels to prevent injections
+        labelFilter = await this.validateLabelFilter(labelFilter);
+
         let filter = "";
 
         if (nameFilter) filter = "WHERE toLower(n.name) CONTAINS toLower($nameFilter) ";
 
         if (labelFilter.length !== 0) {
             filter += nameFilter ? "AND " : "WHERE ";
-            if (Array.isArray(labelFilter)) {
-                filter += "(";
-                labelFilter.forEach((label, index) => {
-                    filter += index == labelFilter.length - 1 ? `n:${label}) ` : `n:${label} OR `;
-                });
-            } else filter += `n:${labelFilter} `;
+            filter += "(";
+            labelFilter.forEach((label, index) => {
+                filter += index == labelFilter.length - 1 ? `n:${label}) ` : `n:${label} OR `;
+            });
         }
         return filter;
+    }
+
+    /**
+     * Validates all given labels
+     * @private
+     */
+    private async validateLabelFilter(labelFilter: string[] = []): Promise<string[]> {
+        // Get all valid labels from the database
+        // language=Cypher
+        const cypher = `
+          MATCH (l:LabelScheme)
+          RETURN l {.name}`;
+        const validLabels = await this.neo4jService
+            .read(cypher, {}, process.env.DB_TOOL)
+            .then((res) => res.records.map((r) => r.get("l").name))
+            .catch(this.databaseUtil.catchDbError);
+
+        // Filter not valid labels
+        return validLabels.filter((lbl) => labelFilter.includes(lbl));
     }
 }
