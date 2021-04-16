@@ -1,8 +1,8 @@
 <template>
     <div class="color-input">
         <ColorPicker v-model="color" defaultColor="#FFFFFF" format="hex" />
-        <label>
-            <input v-model="color" maxlength="7" type="text" />
+        <label class="color-label">
+            <input :class="{ 'color-error': error }" v-model="color" maxlength="7" type="text" />
         </label>
     </div>
 </template>
@@ -22,6 +22,7 @@ export default defineComponent({
     data() {
         return {
             color: "#FFFFFF",
+            error: false,
         };
     },
     mounted() {
@@ -37,22 +38,38 @@ export default defineComponent({
             this.color = this.color.toUpperCase();
 
             // Emit the new value (for v-model)
-            if (isColor(this.color)) this.$emit("update:modelValue", this.color);
+            this.error = !isColor(this.color);
+            if (!this.error) this.$emit("update:modelValue", this.color);
         },
     },
 });
 </script>
 
 <style lang="less" scoped>
+@import "~@/styles/global";
+
 .color-input {
     display: flex;
     flex-direction: row;
     align-items: center;
     height: 100%;
-    gap: 16px;
+    overflow: hidden;
+    gap: 12px;
 }
 
-input {
-    border: 0;
+.color-label {
+    flex: 1 1 auto;
+
+    input {
+        border: 0;
+        background: @light_grey;
+        padding: 8px 12px;
+        height: 30px;
+        max-width: 100px;
+    }
+}
+
+.color-error {
+    color: @warn;
 }
 </style>

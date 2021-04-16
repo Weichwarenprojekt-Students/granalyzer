@@ -86,6 +86,7 @@ export default defineComponent({
 
 .input {
     width: @input_width;
+    border: 0;
 }
 
 .text-input {

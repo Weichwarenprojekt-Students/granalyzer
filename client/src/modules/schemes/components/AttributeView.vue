@@ -142,13 +142,16 @@ export default defineComponent({
 }
 
 .attribute-name {
-    width: 80px;
+    width: 100px;
     height: @line_height;
     line-height: @line_height;
-    margin-right: 12px;
+    margin-right: 16px;
 
     input {
-        width: 80px;
+        width: 100px;
+        padding: 8px 12px;
+        height: 30px;
+        background: @light_grey;
         border: 0;
     }
 }
@@ -169,7 +172,7 @@ export default defineComponent({
 }
 
 .attribute-expanded {
-    margin-left: 114px;
+    margin-left: 140px;
     padding: 0 16px;
     height: 0;
     border-bottom: 1px solid @grey;

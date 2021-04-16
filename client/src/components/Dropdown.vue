@@ -51,7 +51,6 @@ export default defineComponent({
     display: inline-block;
     background: @light_grey;
     cursor: pointer;
-    border-bottom: 1px solid @dark;
 }
 
 .dropdown-value {

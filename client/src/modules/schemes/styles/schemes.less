@@ -27,6 +27,7 @@
 .main-attribute {
   border-bottom: 1px solid @grey;
   display: flex;
+  align-items: center;
   margin-top: 16px;
   padding: 0 16px;
   width: 300px;
@@ -36,14 +37,17 @@
     height: @line_height;
     line-height: @line_height;
   }
+}
 
-  input,
-  div {
-    flex: 1 1 auto;
-    height: @line_height;
-    line-height: @line_height;
-    border: 0;
-  }
+/**
+ * Background for inputs
+ */
+input {
+  width: 100px;
+  padding: 8px 12px;
+  height: 30px;
+  background: @light_grey;
+  border: 0;
 }
 
 /**
