@@ -51,7 +51,7 @@ export default defineComponent({
     },
     mounted(): void {
         // Set up the graph and the controls
-        this.graph = new JointGraph("joint", this.$store);
+        this.graph = new JointGraph("joint");
         this.neighborUtils = new NeighborUtils(this.graph, this.$store);
         this.centerGraph();
         this.$store.commit("inventory/setActive", true);
@@ -115,6 +115,7 @@ export default defineComponent({
             if (Object.keys(this.selectedNodeShape).length !== 0) this.graph.graph.clear();
             this.neighborUtils.resetNeighborPlacement();
             this.centerGraph();
+            this.neighborUtils.resetGraph();
         },
         /**
          * Centers the graph

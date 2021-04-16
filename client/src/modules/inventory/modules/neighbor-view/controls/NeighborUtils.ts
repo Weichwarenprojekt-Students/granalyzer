@@ -44,6 +44,16 @@ export class NeighborUtils {
     private rootNodeSet = false;
 
     /**
+     * Maps the uuid of a node to the id of a diagram shape
+     */
+    public mappedNodes = new Map<string, string | number>();
+
+    /**
+     * Maps the uuid of a relation to the id of a diagram link
+     */
+    public mappedRelations = new Map<string, string | number>();
+
+    /**
      * Constructor
      *
      * @param graph Graph to place nodes/relations into
@@ -73,7 +83,7 @@ export class NeighborUtils {
         };
 
         const shape = NodeShapes.parseType(node.shape);
-        this.store.commit("inventory/addNodeToDiagram", { uuid: node.ref.uuid, shapeId: shape.id });
+        this.mappedNodes.set(node.ref.uuid, shape.id);
 
         shape.position(node.x, node.y);
         // Style node
@@ -118,7 +128,7 @@ export class NeighborUtils {
         };
 
         // Prevent duplicate relations
-        if (this.store.state.inventory?.mappedRelations.has(relation.uuid)) return;
+        if (this.mappedRelations.has(relation.uuid)) return;
 
         // Get direction of the relation
         const source = this.getShapeById(relation.from.uuid);
@@ -126,7 +136,7 @@ export class NeighborUtils {
         if (!(source && target)) return;
 
         const link = new shapes.standard.Link();
-        this.store.commit("inventory/addRelationToDiagram", { uuid: relation.uuid, linkId: link.id });
+        this.mappedRelations.set(relation.uuid, link.id);
 
         link.source(source);
         link.target(target);
@@ -179,13 +189,21 @@ export class NeighborUtils {
     }
 
     /**
+     * Clears the mapped nodes and relations of the previous graph
+     */
+    public resetGraph(): void {
+        this.mappedNodes.clear();
+        this.mappedRelations.clear();
+    }
+
+    /**
      * Returns the diagram-shape that belongs to a node
      *
      * @param id Id of the node that is supposed to be in the graph
      * @private
      */
     private getShapeById(id: string): Cell | undefined {
-        const shapeId = this.store.state.inventory?.mappedNodes.get(id);
+        const shapeId = this.mappedNodes.get(id);
         if (shapeId) return this.graph.graph.getCell(shapeId);
         return undefined;
     }
@@ -208,7 +226,7 @@ export class NeighborUtils {
             // Get key of element by value
             if (!this.store.state.inventory) return;
 
-            const nodeId = [...this.store.state.inventory?.mappedNodes].find(([, value]) => value === cell.model.id);
+            const nodeId = [...this.mappedNodes].find(([, value]) => value === cell.model.id);
 
             if (!nodeId) return;
             const node = await this.store.dispatch("inventory/getNode", nodeId[0]);

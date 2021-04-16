@@ -69,9 +69,8 @@ export default defineComponent({
             }
             if (this.$store.state.inventory.loading) return;
 
-            this.$store.commit("inventory/reset");
-            this.$store.dispatch("inventory/loadRelations", node);
             this.$store.commit("inventory/setSelectedNode", node);
+            this.$store.dispatch("inventory/loadRelations", node);
         },
         /**
          * Filter nodes by labels

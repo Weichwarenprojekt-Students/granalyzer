@@ -1,6 +1,4 @@
 import { dia, g } from "jointjs";
-import { RootState } from "@/store";
-import { Store } from "vuex";
 
 class GraphOptions implements dia.Paper.Options {
     // eslint-disable-next-line no-undef
@@ -35,7 +33,7 @@ export class JointGraph {
     /**
      * Constructor
      */
-    constructor(canvas: string, public store?: Store<RootState>) {
+    constructor(canvas: string) {
         this.graph = new dia.Graph();
         const config: GraphOptions = {
             el: document.getElementById(canvas),

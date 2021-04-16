@@ -21,16 +21,6 @@ export class InventoryState {
     public relations = [] as Array<ApiRelation>;
 
     /**
-     * Maps the uuid of a node to the id of a diagram shape
-     */
-    public mappedNodes = new Map<string, string | number>();
-
-    /**
-     * Maps the uuid of a relation to the id of a diagram link
-     */
-    public mappedRelations = new Map<string, string | number>();
-
-    /**
      * True, while the neighbors of the currently selected node are loading
      */
     public loading = false;
@@ -67,20 +57,6 @@ export const inventory = {
         },
 
         /**
-         * Maps the uuid of a node to the shape in the diagram
-         */
-        addNodeToDiagram(state: InventoryState, payload: { uuid: string; shapeId: string | number }): void {
-            state.mappedNodes.set(payload.uuid, payload.shapeId);
-        },
-
-        /**
-         * Maps the uuid of a relation to the link in the diagram
-         */
-        addRelationToDiagram(state: InventoryState, payload: { uuid: string; linkId: string | number }): void {
-            state.mappedRelations.set(payload.uuid, payload.linkId);
-        },
-
-        /**
          * Sets the loading flag
          */
         setLoading(state: InventoryState, loading: boolean): void {
@@ -100,8 +76,6 @@ export const inventory = {
         reset(state: InventoryState): void {
             state.relations.length = 0;
             state.neighbors.length = 0;
-            state.mappedNodes.clear();
-            state.mappedRelations.clear();
         },
     },
     actions: {
