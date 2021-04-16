@@ -106,7 +106,7 @@ export default defineComponent({
             for (const apiRelation of relations) this.neighborUtils.addRelationToDiagram(apiRelation);
 
             // Split overlapping relations
-            for (const shape of this.graph.graph.getElements()) this.graph.adjustSiblingRelations(shape, true);
+            for (const shape of this.graph.graph.getElements()) this.graph.adjustSiblingRelations(shape, false);
         },
         /**
          * Clears the previous graph + settings
@@ -114,7 +114,6 @@ export default defineComponent({
         clearGraphAndSettings(): void {
             if (Object.keys(this.selectedNodeShape).length !== 0) this.graph.graph.clear();
             this.neighborUtils.resetNeighborPlacement();
-            this.graph.resetSplitRelations();
         },
         /**
          * Centers the graph

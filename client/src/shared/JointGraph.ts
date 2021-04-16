@@ -33,11 +33,6 @@ export class JointGraph {
     private eventData?: { x: number; y: number; px: number; py: number };
 
     /**
-     * Relations that have already been split
-     */
-    private splitRelations = new Map<string, string>();
-
-    /**
      * Constructor
      */
     constructor(canvas: string, public store?: Store<RootState>) {
@@ -105,13 +100,6 @@ export class JointGraph {
             });
     }
 
-    /**
-     * Resets the relations map for splitting
-     */
-    public resetSplitRelations(): void {
-        this.splitRelations.clear();
-    }
-
     // TODO :: If relations have to be split multiple times for the same type of node, only the
     // TODO >> >> first node is considered for splitting
     /**
@@ -137,19 +125,33 @@ export class JointGraph {
         // Exit if not both endpoints of the relation are set
         if (!startId || !endId) return;
 
-        // Make sure the same relation doesnt get split twice in the inventory graph
-        if (this.store?.state.inventory?.inventoryActive) {
-            if (this.splitRelations.get(startId) === endId) return;
-            this.splitRelations.set(startId, endId);
-        }
-
         // identify link siblings
         const siblings = this.getSiblingsOfLink(startId, endId);
+
+        // Check if there are overlapping links to rearrange
+        if (!JointGraph.hasOverlappingSiblings(siblings, rearrangeAll)) return;
 
         // Prevent overlapping if more than one relation
         if (siblings.length > 1) {
             this.rearrangeLinks(startId, endId, siblings, rearrangeAll);
         }
+    }
+
+    /**
+     * Checks if there are overlapping relations in the list of siblings
+     * Depends on whether already positioned nodes should be rearranged to
+     *
+     * @param siblings
+     * @param rearrangeAll
+     * @private
+     */
+    private static hasOverlappingSiblings(siblings: dia.Link[], rearrangeAll: boolean) {
+        // Abort if less than 2 links
+        if (siblings.length <= 1) return false;
+        // Filter siblings without vertices
+        siblings = siblings.filter((sibling) => sibling.vertices().length === 0);
+
+        return siblings.length > 1 || rearrangeAll;
     }
 
     /**
