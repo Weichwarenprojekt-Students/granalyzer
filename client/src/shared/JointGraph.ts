@@ -33,11 +33,6 @@ export class JointGraph {
     private eventData?: { x: number; y: number; px: number; py: number };
 
     /**
-     * Relations that have already been split
-     */
-    private splitRelations = new Map<string, string>();
-
-    /**
      * Constructor
      */
     constructor(canvas: string, public store?: Store<RootState>) {
@@ -106,50 +101,70 @@ export class JointGraph {
     }
 
     /**
-     * Resets the relations map for splitting
-     */
-    public resetSplitRelations(): void {
-        this.splitRelations.clear();
-    }
-
-    // TODO :: If relations have to be split multiple times for the same type of node, only the
-    // TODO >> >> first node is considered for splitting
-    /**
      * Takes care of overlapping relations
      * From: https://resources.jointjs.com/tutorial/multiple-links-between-elements
      *
-     * @param element Node of the jointjs diagram
+     * @param element Element which overlapping relations should be rearranged
      * @param rearrangeAll False, if the rearrangement does not apply on links which were already positioned
      */
-    public adjustSiblingRelations(element: dia.Element, rearrangeAll = true): void {
-        // Get the first link from the element
-        const firstConnectedLink = this.graph.getConnectedLinks(element)[0];
+    public rearrangeOverlappingRelations(element: dia.Element, rearrangeAll = true): void {
+        const connectedLinks = this.graph.getConnectedLinks(element);
 
         // Exit if node has no relation
-        if (!firstConnectedLink) return;
+        if (!connectedLinks[0]) return;
 
-        const link = firstConnectedLink;
+        // Get unique neighbor nodes
+        const uniqueNeighborIds: Set<string> = new Set(
+            connectedLinks.map((link) => {
+                const sourceId = link.get("source").id;
+                return sourceId !== element.id ? sourceId : link.get("target").id;
+            }),
+        );
 
-        // Get the start and end node id of the relation
-        const startId = link.get("source").id || link.previous("source").id;
-        const endId = link.get("target").id || link.previous("target").id;
+        // Adjust siblings for each target
+        uniqueNeighborIds.forEach((neighborId) => {
+            this.adjustSiblingRelations(neighborId, element.id.toString(), rearrangeAll);
+        });
+    }
 
+    /**
+     * Adjust the overlapping relations for one links siblings
+     *
+     * @param startId Source of the overlapping relations
+     * @param endId Target of the overlapping relations
+     * @param rearrangeAll False, if the rearrangement does not apply on links which were already positioned
+     */
+    private adjustSiblingRelations(startId: string, endId: string, rearrangeAll = true) {
         // Exit if not both endpoints of the relation are set
         if (!startId || !endId) return;
 
-        // Make sure the same relation doesnt get split twice in the inventory graph
-        if (this.store?.state.inventory?.inventoryActive) {
-            if (this.splitRelations.get(startId) === endId) return;
-            this.splitRelations.set(startId, endId);
-        }
-
         // identify link siblings
         const siblings = this.getSiblingsOfLink(startId, endId);
+
+        // Check if there are overlapping links to rearrange
+        if (!JointGraph.hasOverlappingSiblings(siblings, rearrangeAll)) return;
 
         // Prevent overlapping if more than one relation
         if (siblings.length > 1) {
             this.rearrangeLinks(startId, endId, siblings, rearrangeAll);
         }
+    }
+
+    /**
+     * Checks if there are overlapping relations in the list of siblings
+     * Depends on whether already positioned nodes should be rearranged to
+     *
+     * @param siblings
+     * @param rearrangeAll
+     * @private
+     */
+    private static hasOverlappingSiblings(siblings: dia.Link[], rearrangeAll: boolean) {
+        // Abort if less than 2 links
+        if (siblings.length <= 1) return false;
+        // Filter siblings without vertices
+        siblings = siblings.filter((sibling) => sibling.vertices().length === 0);
+
+        return siblings.length > 1 || rearrangeAll;
     }
 
     /**
@@ -238,7 +253,7 @@ export class JointGraph {
                 }
 
                 // Replace vertices
-                if (vertex) sibling.vertices([vertex]);
+                if (vertex && (i > 1 || siblings.length % 2 === 0)) sibling.vertices([vertex]);
             });
     }
 
