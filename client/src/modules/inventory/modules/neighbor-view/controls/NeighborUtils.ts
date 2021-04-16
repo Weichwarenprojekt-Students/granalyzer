@@ -162,7 +162,7 @@ export class NeighborUtils {
      */
     public setStepDistance(nNeighbors: number): void {
         this.stepDistance = (2 * Math.PI) / nNeighbors;
-        this.radius = nNeighbors > 9 ? nNeighbors * 40 : nNeighbors > 3 ? 500 : 300;
+        this.radius = nNeighbors > 9 ? nNeighbors * 50 : nNeighbors > 3 ? 500 : 300;
     }
 
     /**

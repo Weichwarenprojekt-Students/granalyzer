@@ -114,6 +114,7 @@ export default defineComponent({
         clearGraphAndSettings(): void {
             if (Object.keys(this.selectedNodeShape).length !== 0) this.graph.graph.clear();
             this.neighborUtils.resetNeighborPlacement();
+            this.centerGraph();
         },
         /**
          * Centers the graph
