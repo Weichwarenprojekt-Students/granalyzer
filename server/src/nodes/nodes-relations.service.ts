@@ -34,33 +34,12 @@ export class NodesRelationsService {
 
         // Callback parsing the received data from the db write call
         const resolveRead = (result) => {
-            return Promise.all(result.records.map(async (rec) => await this.parseRelation.call(this, rec)));
+            return Promise.all(result.records.map(async (rec) => await this.dataSchemeUtil.parseRelation(rec)));
         };
 
         return this.neo4jService
             .read(cypher, params, this.database)
             .then(resolveRead)
             .catch(this.databaseUtil.catchDbError);
-    }
-
-    /**
-     * Parse record from the database as relation
-     *
-     * @param record The record
-     * @param queryKey The key of the record as specified in the query
-     * @private
-     */
-    private async parseRelation(record, queryKey = "r"): Promise<Relation> {
-        const attributes = record.get(queryKey);
-
-        const relation = {
-            relationId: record.get(queryKey).relationId,
-            type: record.get(queryKey).type,
-            from: record.get(queryKey).from,
-            to: record.get(queryKey).to,
-            attributes: attributes,
-        } as Relation;
-
-        return this.dataSchemeUtil.parseRecordByRelationType(relation);
     }
 }

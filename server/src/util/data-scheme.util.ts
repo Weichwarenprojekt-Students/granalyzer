@@ -68,6 +68,27 @@ export class DataSchemeUtil {
     }
 
     /**
+     * Parse record from the database as relation
+     *
+     * @param record The record
+     * @param queryKey The key of the record as specified in the query
+     * @private
+     */
+    async parseRelation(record, queryKey = "r"): Promise<Relation> {
+        const attributes = record.get(queryKey);
+
+        const relation = {
+            relationId: record.get(queryKey).relationId,
+            type: record.get(queryKey).type,
+            from: record.get(queryKey).from,
+            to: record.get(queryKey).to,
+            attributes: attributes,
+        } as Relation;
+
+        return this.parseRecordByRelationType(relation);
+    }
+
+    /**
      * Checks the node if it is valid to the scheme
      *
      * @param node The node that shall be parsed
