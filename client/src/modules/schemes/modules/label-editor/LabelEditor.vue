@@ -9,15 +9,6 @@
             :description="$t('schemes.labelEditor.deleteDialog.description')"
         ></ConfirmDialog>
 
-        <!-- The dialog for updating a label -->
-        <ConfirmDialog
-            @confirm="updateLabel"
-            @cancel="updateLabelDialog = false"
-            :show="updateLabelDialog"
-            :title="$t('schemes.labelEditor.updateDialog.title')"
-            :description="$t('schemes.labelEditor.updateDialog.description')"
-        ></ConfirmDialog>
-
         <div class="underlined-title">
             {{ $t("schemes.labelEditor.title") }}
         </div>
@@ -56,12 +47,7 @@
                 <button v-if="!createMode" class="btn btn-warn" @click="deleteLabelDialog = true">
                     {{ $t("schemes.labelEditor.delete") }}
                 </button>
-                <button
-                    v-if="!createMode"
-                    class="btn btn-secondary"
-                    @click="updateLabelDialog = true"
-                    :disabled="!isModified"
-                >
+                <button v-if="!createMode" class="btn btn-secondary" @click="updateLabel" :disabled="!isModified">
                     {{ $t("schemes.labelEditor.save") }}
                 </button>
                 <button v-if="createMode" class="btn btn-secondary" @click="createLabel">
@@ -101,8 +87,6 @@ export default defineComponent({
             modifiedLabel: new ApiLabel(),
             // True if the deletion dialog is shown
             deleteLabelDialog: false,
-            // True if the update dialog is shown
-            updateLabelDialog: false,
         };
     },
     created() {
@@ -153,10 +137,8 @@ export default defineComponent({
          * Save the changed label
          */
         updateLabel(): void {
-            this.updateLabelDialog = false;
-            if (this.validateLabel()) {
-                this.$store.dispatch("schemes/updateLabel", this.modifiedLabel);
-            }
+            if (this.validateLabel())
+                this.$store.dispatch("schemes/updateLabel", { label: this.modifiedLabel, force: false });
         },
         /**
          * Delete a label

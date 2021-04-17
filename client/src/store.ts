@@ -2,8 +2,6 @@ import { createStore } from "vuex";
 import { start, StartState } from "@/modules/start/store";
 import { editor, EditorState } from "@/modules/editor/store";
 import { inventory } from "@/modules/inventory/store";
-import { Locales } from "@/i18n";
-import { VueI18n } from "vue-i18n";
 import { schemes, SchemesState } from "@/modules/schemes/store";
 
 export class RootState {
@@ -35,15 +33,6 @@ export class RootState {
 export default createStore({
     state: new RootState(),
     mutations: {
-        /**
-         * Dynamically set the active language
-         */
-        setLocale(state, payload: { i18n: VueI18n; lang: Locales }): void {
-            if (Object.values(Locales).includes(payload.lang)) {
-                state.locale = payload.lang;
-                payload.i18n.locale = payload.lang;
-            }
-        },
         /**
          * Change the state of the sidebar
          */

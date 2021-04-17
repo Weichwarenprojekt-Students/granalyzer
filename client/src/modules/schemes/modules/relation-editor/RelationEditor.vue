@@ -9,15 +9,6 @@
             :description="$t('schemes.relationEditor.deleteDialog.description')"
         ></ConfirmDialog>
 
-        <!-- The dialog for updating a relation -->
-        <ConfirmDialog
-            @confirm="updateRelation"
-            @cancel="updateRelationDialog = false"
-            :show="updateRelationDialog"
-            :title="$t('schemes.relationEditor.updateDialog.title')"
-            :description="$t('schemes.relationEditor.updateDialog.description')"
-        ></ConfirmDialog>
-
         <div class="underlined-title">
             {{ $t("schemes.relationEditor.title") }}
         </div>
@@ -68,7 +59,7 @@
                 <button v-if="!createMode" class="btn btn-warn" @click="deleteRelationDialog = true">
                     {{ $t("schemes.relationEditor.delete") }}
                 </button>
-                <button v-if="isModified && !createMode" class="btn btn-secondary" @click="updateRelationDialog = true">
+                <button v-if="!createMode" class="btn btn-secondary" @click="updateRelation" :disabled="!isModified">
                     {{ $t("schemes.relationEditor.save") }}
                 </button>
                 <button v-if="createMode" class="btn btn-secondary" @click="createRelation">
@@ -109,8 +100,6 @@ export default defineComponent({
             modifiedRelation: new ApiRelationType(),
             // True if the deletion dialog is shown
             deleteRelationDialog: false,
-            // True if the update dialog is shown
-            updateRelationDialog: false,
         };
     },
     created() {
@@ -177,10 +166,8 @@ export default defineComponent({
          * Save the changed relation
          */
         updateRelation(): void {
-            this.updateRelationDialog = false;
-            if (this.validateRelation()) {
-                this.$store.dispatch("schemes/updateRelation", this.modifiedRelation);
-            }
+            if (this.validateRelation())
+                this.$store.dispatch("schemes/updateRelation", { relation: this.modifiedRelation, force: false });
         },
         /**
          * Delete a relation
@@ -281,7 +268,6 @@ export default defineComponent({
                 let fromExists = false;
                 // True if the label specified in "to" actually exists
                 let toExists = false;
-                console.log(connection);
 
                 for (let label of this.$store.state.schemes.labels) {
                     if (connection.from === label.name) fromExists = true;

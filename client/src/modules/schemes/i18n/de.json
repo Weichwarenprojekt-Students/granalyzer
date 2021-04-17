@@ -20,10 +20,6 @@
       "title": "Label löschen",
       "description": "Zugehörige Knoten werden dadurch unsichtbar!"
     },
-    "updateDialog": {
-      "title": "Label updaten",
-      "description": "Änderungen an Attributen kann zu Konflikten führen!"
-    },
     "deleteFailed": {
       "title": "Löschen fehlgeschlagen",
       "description": "Das Label konnte nicht gelöscht werden!"
@@ -48,10 +44,6 @@
     "deleteDialog": {
       "title": "Relationen-Typ löschen",
       "description": "Relationen könnten dadurch ihre Referenz verlieren!"
-    },
-    "updateDialog": {
-      "title": "Relation updaten",
-      "description": "Änderungen an Attributen kann zu Konflikten führen!"
     },
     "deleteFailed": {
       "title": "Löschen fehlgeschlagen",
@@ -93,6 +85,16 @@
   "conflictView": {
     "title": "Konflikte",
     "revert": "Rückgängig",
-    "check": "Bestätigen"
+    "check": "Änderungen erzwingen",
+    "labelTitle": "Label: {name}",
+    "relationTitle": "Relation: {name}",
+    "descriptionMissing": "Bei {missingError} Elementen fehlen Pflichtfelder!",
+    "descriptionParse": "Bei {parseError} Elementen sind Felder ungültig!",
+    "descriptionBoth": "Bei {missingError} Elementen fehlen Pflichtfelder und bei {parseError} Elementen sind Felder ungültig!",
+    "descriptionUnknown": "Etwas ist schief gelaufen!",
+    "updateDialog": {
+      "title": "Update erzwingen?",
+      "description": "Granalyzer wird Standardwerte für Problemfelder nehmen! Gelöschte Attribute werden ignoriert!"
+    }
   }
 }

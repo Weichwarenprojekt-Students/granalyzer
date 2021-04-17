@@ -20,10 +20,6 @@
       "title": "Delete Label",
       "description": "Associated nodes will not be visible in the tool anymore!"
     },
-    "updateDialog": {
-      "title": "Update Label",
-      "description": "Changes on attributes can lead to conflicts!"
-    },
     "deleteFailed": {
       "title": "Deletion failed",
       "description": "Could not delete the label!"
@@ -48,10 +44,6 @@
     "deleteDialog": {
       "title": "Delete Relation",
       "description": "Relations could lose their actual reference!"
-    },
-    "updateDialog": {
-      "title": "Update Relation",
-      "description": "Changes on attributes can lead to conflicts!"
     },
     "deleteFailed": {
       "title": "Deletion failed",
@@ -93,6 +85,16 @@
   "conflictView": {
     "title": "Conflicts",
     "revert": "Revert",
-    "check": "Confirm"
+    "check": "Force Changes",
+    "labelTitle": "Label: {name}",
+    "relationTitle": "Relation: {name}",
+    "descriptionMissing": "{missingError} items miss mandatory attributes!",
+    "descriptionParse": "{parseError} items have conflicting fields!",
+    "descriptionBoth": "{missingError} items miss mandatory attributes and {parseError} items have conflicting fields!",
+    "descriptionUnknown": "Something went wrong!",
+    "updateDialog": {
+      "title": "Force Update?",
+      "description": "Granalyzer will use default values for conflicting fields! Deleted attributes will be ignored!"
+    }
   }
 }

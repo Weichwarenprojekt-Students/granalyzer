@@ -2,8 +2,9 @@ import ApiLabel from "@/models/data-scheme/ApiLabel";
 import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { DELETE, GET, POST, PUT } from "@/utility";
+import { deepCopy, DELETE, GET, POST, PUT } from "@/utility";
 import { Conflict } from "@/modules/schemes/modules/conflict-view/models/Conflict";
+import i18n from "@/i18n";
 
 export class SchemesState {
     /**
@@ -32,6 +33,30 @@ export class SchemesState {
     public conflicts = new Array<Conflict>();
 }
 
+/**
+ * Find the right conflict description
+ *
+ * @param missingError The count for missing errors
+ * @param parseError The count for parse errors
+ */
+const getConflictDescription = (missingError: number, parseError: number): string => {
+    if (missingError > 0 && parseError > 0) {
+        return i18n.global.t("schemes.conflictView.descriptionBoth", {
+            missingError: missingError,
+            parseError: parseError,
+        });
+    } else if (missingError > 0) {
+        return i18n.global.t("schemes.conflictView.descriptionMissing", {
+            missingError: missingError,
+        });
+    } else if (parseError > 0) {
+        return i18n.global.t("schemes.conflictView.descriptionParse", {
+            parseError: parseError,
+        });
+    }
+    return i18n.global.t("schemes.conflictView.descriptionUnknown");
+};
+
 export const schemes = {
     namespaced: true,
     state: new SchemesState(),
@@ -40,6 +65,8 @@ export const schemes = {
          * Add a conflict
          */
         addConflict(state: SchemesState, conflict: Conflict): void {
+            // Remove previous conflict messages for the same item
+            state.conflicts = state.conflicts.filter((c) => conflict.modifiedItem !== c.modifiedItem);
             state.conflicts.unshift(conflict);
         },
         /**
@@ -165,19 +192,56 @@ export const schemes = {
         /**
          * Update a label
          */
-        async updateLabel(context: ActionContext<SchemesState, RootState>, label: ApiLabel): Promise<void> {
-            const res = await PUT(`/api/data-scheme/label/${label.name}`, JSON.stringify(label));
+        async updateLabel(
+            context: ActionContext<SchemesState, RootState>,
+            payload: { label: ApiLabel; force: boolean },
+        ): Promise<void> {
+            const res = await PUT(
+                `/api/data-scheme/label/${payload.label.name}?force=${payload.force}`,
+                JSON.stringify(payload.label),
+            );
             if (res.status === 200) context.commit("updateLabel", await res.json());
+            else {
+                let data = await res.json();
+                data = data ?? { missingError: 0, parseError: 0 };
+                context.commit(
+                    "addConflict",
+                    new Conflict(
+                        payload.label.name,
+                        i18n.global.t("schemes.conflictView.labelTitle", { name: payload.label.name }),
+                        getConflictDescription(data.missingError, data.parseError),
+                        () => context.commit("selectLabel", undefined),
+                        () => context.dispatch("updateLabel", { label: deepCopy(payload.label), force: true }),
+                    ),
+                );
+            }
         },
         /**
          * Update a relation type
          */
         async updateRelation(
             context: ActionContext<SchemesState, RootState>,
-            relation: ApiRelationType,
+            payload: { relation: ApiRelationType; force: boolean },
         ): Promise<void> {
-            const res = await PUT(`/api/data-scheme/relation/${relation.name}`, JSON.stringify(relation));
+            const res = await PUT(
+                `/api/data-scheme/relation/${payload.relation.name}?force=${payload.force}`,
+                JSON.stringify(payload.relation),
+            );
             if (res.status === 200) context.commit("updateRelation", await res.json());
+            else {
+                let data = await res.json();
+                data = data ?? { missingError: 0, parseError: 0 };
+                context.commit(
+                    "addConflict",
+                    new Conflict(
+                        payload.relation.name,
+                        i18n.global.t("schemes.conflictView.relationTitle", { name: payload.relation.name }),
+                        getConflictDescription(data.missingError, data.parseError),
+                        () => context.commit("selectRelation", undefined),
+                        () => context.dispatch("updateRelation", { relation: deepCopy(payload.relation), force: true }),
+                    ),
+                );
+            }
         },
         /**
          * Delete a label

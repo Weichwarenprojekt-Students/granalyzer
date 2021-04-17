@@ -1,23 +1,37 @@
 <template>
     <div class="conflict-card">
+        <!-- The dialog for forcing an update -->
+        <ConfirmDialog
+            @confirm="force"
+            @cancel="forceUpdateDialog = false"
+            :show="forceUpdateDialog"
+            :title="$t('schemes.conflictView.updateDialog.title')"
+            :description="$t('schemes.conflictView.updateDialog.description')"
+        ></ConfirmDialog>
+
+        <!-- The actual card content -->
         <svg class="conflict-icon">
             <use :xlink:href="`${require('@/assets/img/icons.svg')}#warning`"></use>
         </svg>
         <div class="conflict-content">
-            <span class="conflict-title">{{ conflict.title }}</span>
-            <span class="conflict-description">{{ conflict.description }}</span>
             <div class="conflict-actions">
-                <a class="conflict-remove" v-tooltip.top="$t('schemes.conflictView.revert')">
+                <span class="conflict-title">{{ conflict.title }}</span>
+                <a @click="revert" class="conflict-remove" v-tooltip.top="$t('schemes.conflictView.revert')">
                     <svg class="conflict-remove">
                         <use :xlink:href="`${require('@/assets/img/icons.svg')}#revert`"></use>
                     </svg>
                 </a>
-                <a class="conflict-remove" v-tooltip.top="$t('schemes.conflictView.check')">
+                <a
+                    @click="forceUpdateDialog = true"
+                    class="conflict-remove"
+                    v-tooltip.top="$t('schemes.conflictView.check')"
+                >
                     <svg class="conflict-remove">
                         <use :xlink:href="`${require('@/assets/img/icons.svg')}#check`"></use>
                     </svg>
                 </a>
             </div>
+            <span class="conflict-description">{{ conflict.description }}</span>
         </div>
     </div>
 </template>
@@ -25,13 +39,38 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Conflict } from "@/modules/schemes/modules/conflict-view/models/Conflict";
+import ConfirmDialog from "@/components/ConfirmDialog.vue";
 
 export default defineComponent({
     name: "ConflictCard",
+    components: { ConfirmDialog },
     props: {
         conflict: {
             type: Object,
             default: new Conflict(),
+        },
+    },
+    data() {
+        return {
+            // True if the dialog shall be shown
+            forceUpdateDialog: false,
+        };
+    },
+    methods: {
+        /**
+         * Force the update
+         */
+        force(): void {
+            this.conflict.force();
+            this.$store.commit("schemes/removeConflict", this.conflict);
+            this.forceUpdateDialog = false;
+        },
+        /**
+         * Revert the changes
+         */
+        revert(): void {
+            this.conflict.revert();
+            this.$store.commit("schemes/removeConflict", this.conflict);
         },
     },
 });
@@ -45,6 +84,7 @@ export default defineComponent({
     height: 64px;
     fill: @warn;
     margin-right: 24px;
+    flex: 0 0 auto;
 }
 
 .conflict-card {
@@ -86,7 +126,6 @@ export default defineComponent({
 
 .conflict-description {
     margin-top: 8px;
-    margin-bottom: 12px;
     font-size: @description;
 }
 </style>
