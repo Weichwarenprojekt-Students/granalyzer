@@ -215,15 +215,15 @@ export class DataSchemeUtil {
     }
 
     /**
-     * Check if string is a color
+     * Check if string is a color stored as hex value
      *
      * @param color The string that shall be checked
      * @return True if a given string is a color
      */
     isColor(color: string): boolean {
-        const s = new Option().style;
-        s.color = color;
-        return s.color !== "";
+        const testSixDigits = /^#[0-9A-F]{6}$/i.test(color);
+        const testThreeDigits = /^#[0-9A-F]{3}$/i.test(color);
+        return testSixDigits || testThreeDigits;
     }
 
     /**
