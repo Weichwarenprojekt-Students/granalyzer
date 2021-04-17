@@ -24,6 +24,7 @@ describe("NodesController", () => {
     let neo4jService: Neo4jService;
     let controller: NodesController;
     let databaseUtil: DatabaseUtil;
+    let testUtil: TestUtil;
 
     let movieNodeId;
     let validNodeId;
@@ -37,6 +38,7 @@ describe("NodesController", () => {
         service = module.get<NodesService>(NodesService);
         neo4jService = module.get<Neo4jService>(Neo4jService);
         databaseUtil = module.get<DatabaseUtil>(DatabaseUtil);
+        testUtil = module.get<TestUtil>(TestUtil);
 
         await databaseUtil.initDatabase();
     });
@@ -46,31 +48,31 @@ describe("NodesController", () => {
             new NumberAttribute("attrOne", true, 1900),
             new StringAttribute("attrTwo", false, "empty"),
         ]);
-        movieLabel.name = await writeLabel(movieLabel);
+        movieLabel.name = await testUtil.writeLabelScheme(movieLabel);
 
         const validLabel = new LabelScheme("validLabel", "#222", [
             new NumberAttribute("attrOne", true, 1900),
             new StringAttribute("attrTwo", true, "empty"),
         ]);
-        validLabel.name = await writeLabel(validLabel);
+        validLabel.name = await testUtil.writeLabelScheme(validLabel);
 
         const nmLabel = new LabelScheme("nmLabel", "#424", [
             new NumberAttribute("attrOne", false, null),
             new StringAttribute("attrTwo", false, null),
             new StringAttribute("attrThree", false, null),
         ]);
-        nmLabel.name = await writeLabel(nmLabel);
+        nmLabel.name = await testUtil.writeLabelScheme(nmLabel);
 
         const movieNode = new Node("Avengers", "Movie", { attrOne: 1990, attrTwo: "GER" });
-        movieNode.nodeId = await writeNode(movieNode);
+        movieNode.nodeId = await testUtil.writeNode(movieNode);
         movieNodeId = movieNode.nodeId;
 
         const validNode = new Node("ValidNode", "validLabel", { attrOne: 1234, attrTwo: "HansPeter" });
-        validNode.nodeId = await writeNode(validNode);
+        validNode.nodeId = await testUtil.writeNode(validNode);
         validNodeId = validNode.nodeId;
 
         const nmNode = new Node("nmNode", "nmLabel", { attrOne: 42, attrTwo: "GER" });
-        nmNode.nodeId = await writeNode(nmNode);
+        nmNode.nodeId = await testUtil.writeNode(nmNode);
         nmNodeID = nmNode.nodeId;
 
         /**
@@ -82,10 +84,10 @@ describe("NodesController", () => {
             [new StringAttribute("attrOne", false)],
             [new Connection(movieLabel.name, validLabel.name)],
         );
-        hobbitRelation.name = await writeRelationType(hobbitRelation);
+        hobbitRelation.name = await testUtil.writeRelationType(hobbitRelation);
 
         const validRelation = new Relation("isHobbitOf", movieNode.nodeId, validNode.nodeId, { attrOne: "Gandalf" });
-        validRelation.relationId = await writeRelation(validRelation);
+        validRelation.relationId = await testUtil.writeRelation(validRelation);
     });
 
     afterEach(async () => {
@@ -96,6 +98,7 @@ describe("NodesController", () => {
         expect(controller).toBeDefined();
         expect(service).toBeDefined();
         expect(neo4jService).toBeDefined();
+        expect(testUtil).toBeDefined();
     });
 
     describe("getNode", () => {
@@ -110,10 +113,10 @@ describe("NodesController", () => {
                 new StringAttribute("attrTwo", true, "empty"),
                 new StringAttribute("attrThree", true, "empty"),
             ]);
-            threePropsLabel.name = await writeLabel(threePropsLabel);
+            threePropsLabel.name = await testUtil.writeLabelScheme(threePropsLabel);
 
             const missingAttributeNode = new Node("MissingNode", "ThreeProps", { attrOne: 1234, attrTwo: "Alfons" });
-            missingAttributeNode.nodeId = await writeNode(missingAttributeNode);
+            missingAttributeNode.nodeId = await testUtil.writeNode(missingAttributeNode);
 
             missingAttributeNode.attributes["attrThree"] = "empty";
             expect(await controller.getNode(missingAttributeNode.nodeId)).toEqual({
@@ -168,91 +171,8 @@ describe("NodesController", () => {
 
         it("should throw an exception", async () => {
             const invalidRelation = new Relation("isHobbitOf", movieNodeId, nmNodeID, { attrOne: "Smaug" });
-            invalidRelation.relationId = await writeRelation(invalidRelation);
+            invalidRelation.relationId = await testUtil.writeRelation(invalidRelation);
             await expect(controller.getRelationsOfNode(movieNodeId)).rejects.toThrowError(InternalServerErrorException);
         });
     });
-
-    /**
-     * Helper functions
-     */
-
-    function writeLabel(l: LabelScheme): Promise<string> {
-        // language=cypher
-        const cypher = `
-          CREATE (l:LabelScheme {name: $labelName})
-          SET l.color = $color, l.attributes = $attribs
-          RETURN l {. *} AS label`;
-
-        const params = {
-            labelName: l.name,
-            color: l.color,
-            attribs: JSON.stringify(l.attributes),
-        };
-
-        const resolveWrite = (res) => {
-            return res.records[0].get("label").name;
-        };
-        return neo4jService
-            .write(cypher, params, process.env.DB_TOOL)
-            .then(resolveWrite)
-            .catch(databaseUtil.catchDbError);
-    }
-
-    function writeRelationType(r: RelationType): Promise<string> {
-        // language=cypher
-        const cypher = `
-          CREATE (rt:RelationType {name: $relType})
-          SET rt.attributes = $attribs, rt.connections = $connects
-          RETURN rt {. *}`;
-
-        const params = {
-            relType: r.name,
-            attribs: JSON.stringify(r.attributes),
-            connects: JSON.stringify(r.connections),
-        };
-
-        return neo4jService
-            .write(cypher, params, process.env.DB_TOOL)
-            .then((res) => res.records[0].get("rt").name)
-            .catch(databaseUtil.catchDbError);
-    }
-
-    function writeNode(node: Node): Promise<string> {
-        // language=cypher
-        const cypher = `
-          CREATE (m:${node.label} {nodeId: apoc.create.uuid(), name: $name, attrOne: $attrOne, attrTwo: $attrTwo})
-          RETURN m {. *} AS n`;
-
-        const params = {
-            name: node.name,
-            label: node.label,
-            attrOne: node.attributes.attrOne,
-            attrTwo: node.attributes.attrTwo,
-        };
-        return neo4jService
-            .write(cypher, params, process.env.DB_CUSTOMER)
-            .then((res) => res.records[0].get("n").nodeId)
-            .catch(databaseUtil.catchDbError);
-    }
-
-    function writeRelation(relation: Relation) {
-        // language=Cypher
-        const cypher = `
-          MATCH (s {nodeId: $from}), (e {nodeId: $to})
-          CREATE(s)-[r:${relation.type}]->(e)
-          SET r.relationId = apoc.create.uuid(), r.attrOne = $attrOne
-          RETURN r {. *}`;
-
-        const params = {
-            from: relation.from,
-            to: relation.to,
-            attrOne: relation.attributes.attrOne,
-        };
-
-        return neo4jService
-            .write(cypher, params, process.env.DB_CUSTOMER)
-            .then((res) => res.records[0].get("r").relationId)
-            .catch(databaseUtil.catchDbError);
-    }
 });

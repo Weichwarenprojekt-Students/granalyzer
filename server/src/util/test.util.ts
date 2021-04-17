@@ -1,12 +1,20 @@
 import { Test } from "@nestjs/testing";
 import { ConfigModule } from "@nestjs/config";
-import { Neo4jModule } from "nest-neo4j/dist";
+import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
 import { UtilModule } from "./util.module";
+import Node from "../nodes/node.model";
+import Relation from "../relations/relation.model";
+import { Injectable } from "@nestjs/common";
+import { LabelScheme } from "../data-scheme/models/labelScheme";
+import { RelationType } from "../data-scheme/models/relationType";
 
 /**
  * Helper utils for automated tests
  */
+@Injectable()
 export default class TestUtil {
+    constructor(private readonly neo4jService: Neo4jService) {}
+
     /**
      * Creates the testing module required to mock the app in the integration tests
      *
@@ -53,5 +61,78 @@ export default class TestUtil {
             }
             return 0;
         };
+    }
+
+    async writeNode(node: Node): Promise<string> {
+        // language=cypher
+        const cypher = `
+          CREATE (m:${node.label} {nodeId: apoc.create.uuid(), name: $name, attrOne: $attrOne, attrTwo: $attrTwo})
+          RETURN m {. *} AS n`;
+
+        const params = {
+            name: node.name,
+            label: node.label,
+            attrOne: node.attributes.attrOne,
+            attrTwo: node.attributes.attrTwo,
+        };
+        return this.neo4jService
+            .write(cypher, params, process.env.DB_CUSTOMER)
+            .then((res) => res.records[0].get("n").nodeId);
+    }
+
+    async writeRelation(relation: Relation) {
+        // language=Cypher
+        const cypher = `
+          MATCH (s {nodeId: $from}), (e {nodeId: $to})
+          CREATE(s)-[r:${relation.type}]->(e)
+          SET r.relationId = apoc.create.uuid(), r.attrOne = $attrOne
+          RETURN r {. *}`;
+
+        const params = {
+            from: relation.from,
+            to: relation.to,
+            attrOne: relation.attributes.attrOne,
+        };
+
+        return this.neo4jService
+            .write(cypher, params, process.env.DB_CUSTOMER)
+            .then((res) => res.records[0].get("r").relationId);
+    }
+
+    async writeLabelScheme(l: LabelScheme): Promise<string> {
+        // language=cypher
+        const cypher = `
+          CREATE (l:LabelScheme {name: $labelName})
+          SET l.color = $color, l.attributes = $attribs
+          RETURN l {. *} AS label`;
+
+        const params = {
+            labelName: l.name,
+            color: l.color,
+            attribs: JSON.stringify(l.attributes),
+        };
+
+        const resolveWrite = (res) => {
+            return res.records[0].get("label").name;
+        };
+        return this.neo4jService.write(cypher, params, process.env.DB_TOOL).then(resolveWrite);
+    }
+
+    async writeRelationType(r: RelationType): Promise<string> {
+        // language=cypher
+        const cypher = `
+          CREATE (rt:RelationType {name: $relType})
+          SET rt.attributes = $attribs, rt.connections = $connects
+          RETURN rt {. *}`;
+
+        const params = {
+            relType: r.name,
+            attribs: JSON.stringify(r.attributes),
+            connects: JSON.stringify(r.connections),
+        };
+
+        return this.neo4jService
+            .write(cypher, params, process.env.DB_TOOL)
+            .then((res) => res.records[0].get("rt").name);
     }
 }

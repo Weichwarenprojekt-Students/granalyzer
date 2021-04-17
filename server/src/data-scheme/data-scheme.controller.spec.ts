@@ -14,6 +14,8 @@ import { Connection } from "./models/connection";
 import { Scheme } from "./data-scheme.model";
 import TestUtil from "../util/test.util";
 import { DatabaseUtil } from "../util/database.util";
+import Relation from "../relations/relation.model";
+import Node from "../nodes/node.model";
 
 describe("DataSchemeController", () => {
     let module: TestingModule;
@@ -22,6 +24,7 @@ describe("DataSchemeController", () => {
     let neo4jService: Neo4jService;
     let controller: DataSchemeController;
     let databaseUtil: DatabaseUtil;
+    let testUtil: TestUtil;
 
     let movieLabel: LabelScheme;
     let personLabel: LabelScheme;
@@ -40,6 +43,7 @@ describe("DataSchemeController", () => {
         service = module.get<DataSchemeService>(DataSchemeService);
         controller = module.get<DataSchemeController>(DataSchemeController);
         databaseUtil = module.get<DatabaseUtil>(DatabaseUtil);
+        testUtil = module.get<TestUtil>(TestUtil);
 
         await databaseUtil.initDatabase();
     });
@@ -49,23 +53,23 @@ describe("DataSchemeController", () => {
             new StringAttribute("title", true, "unknown"),
             new NumberAttribute("released"),
         ]);
-        movieLabel.name = movieLabelName = await writeLabel(movieLabel);
+        movieLabel.name = movieLabelName = await testUtil.writeLabelScheme(movieLabel);
 
         personLabel = new LabelScheme("Person", "#420", [
             new StringAttribute("name", true, "Done Default"),
             new ColorAttribute("haircolor"),
         ]);
-        personLabel.name = personLabelName = await writeLabel(personLabel);
+        personLabel.name = personLabelName = await testUtil.writeLabelScheme(personLabel);
 
         actedInRelation = new RelationType(
             "ACTED_IN",
             [new StringAttribute("role")],
             [new Connection("Person", "Movie")],
         );
-        actedInRelation.name = actedInRelationName = await writeRelation(actedInRelation);
+        actedInRelation.name = actedInRelationName = await testUtil.writeRelationType(actedInRelation);
 
         followsRelation = new RelationType("FOLLOWS", [], [new Connection("Person", "Person")]);
-        followsRelation.name = followsRelationName = await writeRelation(followsRelation);
+        followsRelation.name = followsRelationName = await testUtil.writeRelationType(followsRelation);
     });
 
     afterEach(async () => {
@@ -76,6 +80,7 @@ describe("DataSchemeController", () => {
         expect(service).toBeDefined();
         expect(neo4jService).toBeDefined();
         expect(controller).toBeDefined();
+        expect(testUtil).toBeDefined();
     });
 
     describe("getScheme", () => {
@@ -114,7 +119,7 @@ describe("DataSchemeController", () => {
         });
     });
 
-    describe("getRelation", () => {
+    describe("getRelationType", () => {
         it("should return one relation", async () => {
             expect(await controller.getRelationType(actedInRelationName)).toEqual(actedInRelation);
         });
@@ -125,37 +130,4 @@ describe("DataSchemeController", () => {
             ).rejects.toThrowError(NotFoundException);
         });
     });
-
-    function writeLabel(l): Promise<string> {
-        // language=cypher
-        const cypher = `
-          MERGE (l:LabelScheme {name: $labelName})
-          SET l.color = $color, l.attributes = $attribs
-          RETURN l {. *} AS label`;
-
-        const params = {
-            labelName: l.name,
-            color: l.color,
-            attribs: JSON.stringify(l.attributes),
-        };
-        return neo4jService.write(cypher, params, process.env.DB_TOOL).then((res) => res.records[0].get("label").name);
-    }
-
-    function writeRelation(r): Promise<string> {
-        // language=cypher
-        const cypher = `
-          MERGE (r:RelationType {name: $labelName})
-          SET r.attributes = $attribs, r.connections = $connects
-          RETURN r {. *} AS relation`;
-
-        const params = {
-            labelName: r.name,
-            attribs: JSON.stringify(r.attributes),
-            connects: JSON.stringify(r.connections),
-        };
-
-        return neo4jService
-            .write(cypher, params, process.env.DB_TOOL)
-            .then((res) => res.records[0].get("relation").name);
-    }
 });
