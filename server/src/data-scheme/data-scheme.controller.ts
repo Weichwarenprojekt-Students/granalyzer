@@ -7,7 +7,8 @@ import {
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
-    ApiParam, ApiQuery,
+    ApiParam,
+    ApiQuery,
     ApiTags,
 } from "@nestjs/swagger";
 import { Scheme } from "./data-scheme.model";
@@ -96,11 +97,11 @@ export class DataSchemeController {
         type: "boolean",
         description: "Set to true if the change should be written even though conflicts exist",
     })
-    @ApiQuery({ name: "force", type: "boolean" })
     @ApiBody({
         type: LabelScheme,
         description: "The updated label",
     })
+    @ApiQuery({ name: "force", type: "boolean" })
     @ApiCreatedResponse({
         type: LabelScheme,
         description: "Returns the updated label",
@@ -193,12 +194,13 @@ export class DataSchemeController {
         type: RelationType,
         description: "The updated relation type",
     })
+    @ApiQuery({ name: "force", type: "boolean" })
     @ApiCreatedResponse({
         type: RelationType,
         description: "Returns the updated relation type",
     })
-    updateRelationType(@Param("name") name, @Body() body) {
-        return this.dataSchemeService.updateRelationType(name, body);
+    updateRelationType(@Param("name") name, @Body() body, @Query("force") force = false) {
+        return this.dataSchemeService.updateRelationType(name, body, force);
     }
 
     @Delete("/relation/:name")
