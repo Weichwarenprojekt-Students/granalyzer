@@ -15,27 +15,23 @@ export class InspectorState {
     public attributes = new Array<InspectorAttribute>();
 
     /**
-     * Specifies if inspector is visible
+     * The name of the currently displayed node or relation
      */
-    public visible = false;
+    public elementName = "";
 }
 
 export const inspector = {
     state: new InspectorState(),
     mutations: {
         /**
-         * Set visibility of inspector panel
-         */
-        setInspectorVisibility(state: InspectorState, visible: boolean): void {
-            state.visible = visible;
-        },
-
-        /**
          * Set the inspector items for nodes
          */
         setInspectorNodeItems(state: InspectorState, payload: { node: ApiNode; label: ApiLabel }): void {
             // Clear the attribute-items array
             state.attributes = new Array<InspectorAttribute>();
+
+            // Set the inspector display name
+            state.elementName = payload.node.name;
 
             // Fill attributes from node and label data
             payload.label.attributes.forEach((attribute: ApiAttribute) => {
@@ -48,7 +44,6 @@ export const inspector = {
                 );
             });
         },
-
         /**
          * Set the inspector items for relations
          */
@@ -58,6 +53,9 @@ export const inspector = {
         ): void {
             // Clear the attribute-items array
             state.attributes = new Array<InspectorAttribute>();
+
+            // Set the inspector display name
+            state.elementName = payload.relation.type;
 
             // Fill attributes from relation and relation-type data
             payload.relType.attributes.forEach((attribute) => {
@@ -89,7 +87,6 @@ export const inspector = {
             if (result.status != 200) return;
 
             context.commit("setInspectorNodeItems", { node, label: await result.json() });
-            context.commit("setInspectorVisibility", true);
         },
 
         /**
@@ -109,7 +106,6 @@ export const inspector = {
             const relType: ApiRelationType = await result.json();
 
             context.commit("setInspectorRelationItems", { relation, relType });
-            context.commit("setInspectorVisibility", true);
         },
     },
 };

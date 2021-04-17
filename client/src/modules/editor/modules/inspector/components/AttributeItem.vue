@@ -9,7 +9,7 @@
                 <use :xlink:href="require('@/assets/img/icons.svg') + '#number'"></use>
             </svg>
             <svg v-else-if="attribute.datatype === types.COLOR" class="attribute-icon">
-                <circle r="8" :fill="attribute.value" cx="8" cy="8" />
+                <circle r="6" :fill="attribute.value" cx="6" cy="6" />
             </svg>
             <div>{{ attribute.value }}</div>
         </div>
@@ -65,5 +65,6 @@ export default defineComponent({
 .attribute-value {
     display: flex;
     gap: 12px;
+    text-align: right;
 }
 </style>

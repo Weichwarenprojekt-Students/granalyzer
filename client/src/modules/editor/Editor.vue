@@ -24,9 +24,6 @@ export default defineComponent({
         OverviewList,
         Inspector,
     },
-    unmounted() {
-        this.$store.commit("editor/setInspectorVisibility", false);
-    },
 });
 </script>
 

@@ -181,8 +181,6 @@ export class GraphControls {
         // Nothing selected
         this.graphHandler.graph.paper.on("blank:pointerdown", () => {
             this.store.commit("editor/setSelectedElement", undefined);
-            // Hide the inspector on background click
-            this.store.commit("editor/setInspectorVisibility", false);
         });
 
         // The move command instance

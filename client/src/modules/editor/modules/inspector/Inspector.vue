@@ -1,6 +1,8 @@
 <template>
-    <div v-if="$store.state.editor.inspector.visible" class="content">
-        <div class="underlined-title">{{ $t("global.inspector") }}</div>
+    <div v-if="$store.state.editor.inspector.attributes.length > 0" class="content">
+        <div class="underlined-title">
+            {{ $store.state.editor.inspector.elementName }}
+        </div>
         <ScrollPanel class="scroll-panel">
             <AttributeItem
                 v-for="attribute in $store.state.editor.inspector.attributes"
@@ -9,6 +11,12 @@
             ></AttributeItem>
             <div class="space" />
         </ScrollPanel>
+    </div>
+    <div v-else class="empty-warning">
+        <svg>
+            <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
+        </svg>
+        <div class="message">{{ $t("global.inspector.nothing-selected") }}</div>
     </div>
 </template>
 
@@ -28,16 +36,24 @@ export default defineComponent({
 @import "~@/styles/global.less";
 
 .content {
+    display: flex;
+    flex-flow: column;
+
     height: 100%;
     border-left: 1px solid @grey;
     padding: 0 16px;
+}
 
+.empty-warning {
     display: flex;
-    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .underlined-title {
     padding: 0;
+    font-style: italic;
 }
 
 .scroll-panel {
