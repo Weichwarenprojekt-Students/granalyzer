@@ -3,6 +3,9 @@ import { Connection } from "./connection";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class RelationType {
+    // Add type attribute to differentiate between LabelScheme
+    type: "RelationType";
+
     @ApiProperty({
         required: true,
         type: "string",

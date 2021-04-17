@@ -2,6 +2,9 @@ import { Attribute } from "./attributes";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class LabelScheme {
+    // Add type attribute to differentiate between RelationType
+    type: "LabelScheme";
+
     @ApiProperty({
         required: true,
         type: "string",
