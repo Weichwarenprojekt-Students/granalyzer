@@ -84,6 +84,7 @@ export class DataSchemeController {
     }
 
     @Put("/label/:name")
+    @ApiQuery({ name: "force", type: "boolean" })
     @ApiOperation({
         description: "Updates a label",
     })
@@ -92,22 +93,16 @@ export class DataSchemeController {
         type: "string",
         description: "Unique name of the label scheme",
     })
-    @ApiParam({
-        name: "force",
-        type: "boolean",
-        description: "Set to true if the change should be written even though conflicts exist",
-    })
     @ApiBody({
         type: LabelScheme,
         description: "The updated label",
     })
-    @ApiQuery({ name: "force", type: "boolean" })
     @ApiCreatedResponse({
         type: LabelScheme,
         description: "Returns the updated label",
     })
-    updateLabelScheme(@Param("name") name, @Body() body, @Query("force") force = false) {
-        return this.dataSchemeService.updateLabelScheme(name, body, force);
+    updateLabelScheme(@Param("name") name, @Body() body, @Query("force") force) {
+        return this.dataSchemeService.updateLabelScheme(name, body, force == "true");
     }
 
     @Delete("/label/:name")
@@ -182,6 +177,7 @@ export class DataSchemeController {
     }
 
     @Put("/relation/:name")
+    @ApiQuery({ name: "force", type: "boolean" })
     @ApiOperation({
         description: "Updates a relation type",
     })
@@ -194,13 +190,12 @@ export class DataSchemeController {
         type: RelationType,
         description: "The updated relation type",
     })
-    @ApiQuery({ name: "force", type: "boolean" })
     @ApiCreatedResponse({
         type: RelationType,
         description: "Returns the updated relation type",
     })
-    updateRelationType(@Param("name") name, @Body() body, @Query("force") force = false) {
-        return this.dataSchemeService.updateRelationType(name, body, force);
+    updateRelationType(@Param("name") name, @Body() body, @Query("force") force) {
+        return this.dataSchemeService.updateRelationType(name, body, force == "true");
     }
 
     @Delete("/relation/:name")
