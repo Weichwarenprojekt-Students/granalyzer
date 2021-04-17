@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseBoolPipe, Post, Put, Query } from "@nestjs/common";
 import { DataSchemeService } from "./data-scheme.service";
 import {
     ApiBody,
@@ -101,8 +101,8 @@ export class DataSchemeController {
         type: LabelScheme,
         description: "Returns the updated label",
     })
-    updateLabelScheme(@Param("name") name, @Body() body, @Query("force") force) {
-        return this.dataSchemeService.updateLabelScheme(name, body, force == "true");
+    updateLabelScheme(@Param("name") name, @Body() body, @Query("force", ParseBoolPipe) force) {
+        return this.dataSchemeService.updateLabelScheme(name, body, force);
     }
 
     @Delete("/label/:name")
@@ -194,8 +194,8 @@ export class DataSchemeController {
         type: RelationType,
         description: "Returns the updated relation type",
     })
-    updateRelationType(@Param("name") name, @Body() body, @Query("force") force) {
-        return this.dataSchemeService.updateRelationType(name, body, force == "true");
+    updateRelationType(@Param("name") name, @Body() body, @Query("force", ParseBoolPipe) force) {
+        return this.dataSchemeService.updateRelationType(name, body, force);
     }
 
     @Delete("/relation/:name")
