@@ -73,7 +73,7 @@ export default defineComponent({
 
 .dropdown-content {
     background: @light_grey;
-    position: fixed;
+    position: absolute;
     width: @input_width;
     z-index: 1;
     border-top: 1px solid @dark;

@@ -74,7 +74,6 @@ export default defineComponent({
 .attribute-view {
     height: @line_height;
     margin-bottom: 16px;
-    overflow: hidden;
     transition: height 400ms;
     margin-right: 18px;
 }
