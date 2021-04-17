@@ -2,10 +2,10 @@
     <div class="content">
         <!-- The navigation bar -->
         <div class="tabs">
-            <div @click="labelsOpen = !labelsOpen" :class="{ 'selected-tab': labelsOpen }">
+            <div @click="labelsOpen = true" :class="{ 'selected-tab': labelsOpen }">
                 {{ $t("schemes.overview.labels") }}
             </div>
-            <div @click="labelsOpen = !labelsOpen" :class="{ 'selected-tab': !labelsOpen }">
+            <div @click="labelsOpen = false" :class="{ 'selected-tab': !labelsOpen }">
                 {{ $t("schemes.overview.relations") }}
             </div>
         </div>
