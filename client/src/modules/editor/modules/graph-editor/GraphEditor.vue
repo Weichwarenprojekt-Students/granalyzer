@@ -21,6 +21,7 @@ import { GraphHandler } from "./controls/GraphHandler";
 import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
 import { GraphControls } from "./controls/GraphControls";
+import { errorToast } from "@/utility";
 
 export default defineComponent({
     name: "GraphEditor",
@@ -46,12 +47,7 @@ export default defineComponent({
 
         // Generate the active diagram if available
         if (!this.$store.state.editor.diagram) {
-            this.$toast.add({
-                severity: "error",
-                summary: this.$t("editor.noDiagram.title"),
-                detail: this.$t("editor.noDiagram.description"),
-                life: 3000,
-            });
+            errorToast(this.$t("editor.noDiagram.title"), this.$t("editor.noDiagram.description"));
         } else {
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }

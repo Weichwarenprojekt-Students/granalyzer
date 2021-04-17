@@ -96,7 +96,7 @@
 import { defineComponent } from "vue";
 import { ApiFolder } from "@/models/ApiFolder";
 import { ApiDiagram } from "@/models/ApiDiagram";
-import { deepCopy, isEmpty, routeNames } from "@/utility";
+import { deepCopy, errorToast, isEmpty, routeNames } from "@/utility";
 import InputDialog from "@/components/InputDialog.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import ExplorerItem from "./components/ExplorerItem.vue";
@@ -182,7 +182,7 @@ export default defineComponent({
          */
         addEmptyFolder(folderName: string): void {
             if (!folderName) {
-                this.displayEmptyNameError();
+                errorToast(this.$t("start.newFolder.empty.title"), this.$t("start.newFolder.empty.description"));
                 return;
             }
 
@@ -199,7 +199,7 @@ export default defineComponent({
          */
         renameItem(newName: string) {
             if (!newName) {
-                this.displayEmptyNameError();
+                errorToast(this.$t("start.newFolder.empty.title"), this.$t("start.newFolder.empty.description"));
                 return;
             }
 
@@ -232,12 +232,7 @@ export default defineComponent({
          * Show a selection error
          */
         showSelectionError(): void {
-            this.$toast.add({
-                severity: "error",
-                summary: this.$t("start.diagrams.noSelection.title"),
-                detail: this.$t("start.diagrams.noSelection.description"),
-                life: 3000,
-            });
+            errorToast(this.$t("start.diagrams.noSelection.title"), this.$t("start.diagrams.noSelection.description"));
             this.clearSelection();
         },
         /**
@@ -299,17 +294,6 @@ export default defineComponent({
         clearSelection(): void {
             this.selectedDiagram = {} as ApiDiagram;
             this.selectedFolder = {} as ApiFolder;
-        },
-        /**
-         * Displays an error message for empty name input fields
-         */
-        displayEmptyNameError(): void {
-            this.$toast.add({
-                severity: "error",
-                summary: this.$t("start.newFolder.empty.title"),
-                detail: this.$t("start.newFolder.empty.description"),
-                life: 3000,
-            });
         },
     },
 });

@@ -2,7 +2,7 @@ import ApiLabel from "@/models/data-scheme/ApiLabel";
 import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { deepCopy, DELETE, GET, POST, PUT } from "@/utility";
+import { deepCopy, DELETE, errorToast, GET, POST, PUT, successToast } from "@/utility";
 import { Conflict } from "@/modules/schemes/modules/conflict-view/models/Conflict";
 import i18n from "@/i18n";
 
@@ -200,8 +200,13 @@ export const schemes = {
                 `/api/data-scheme/label/${payload.label.name}?force=${payload.force}`,
                 JSON.stringify(payload.label),
             );
-            if (res.status === 200) context.commit("updateLabel", await res.json());
-            else {
+            if (res.status === 200) {
+                context.commit("updateLabel", await res.json());
+                successToast(
+                    i18n.global.t("schemes.labelEditor.updateSuccess.title"),
+                    i18n.global.t("schemes.labelEditor.updateSuccess.description"),
+                );
+            } else {
                 let data = await res.json();
                 data = data ?? { missingError: 0, parseError: 0 };
                 context.commit(
@@ -213,6 +218,10 @@ export const schemes = {
                         () => context.commit("selectLabel", undefined),
                         () => context.dispatch("updateLabel", { label: deepCopy(payload.label), force: true }),
                     ),
+                );
+                errorToast(
+                    i18n.global.t("schemes.labelEditor.updateConflicts.title"),
+                    i18n.global.t("schemes.labelEditor.updateConflicts.description"),
                 );
             }
         },
@@ -227,8 +236,13 @@ export const schemes = {
                 `/api/data-scheme/relation/${payload.relation.name}?force=${payload.force}`,
                 JSON.stringify(payload.relation),
             );
-            if (res.status === 200) context.commit("updateRelation", await res.json());
-            else {
+            if (res.status === 200) {
+                context.commit("updateRelation", await res.json());
+                successToast(
+                    i18n.global.t("schemes.relationEditor.updateSuccess.title"),
+                    i18n.global.t("schemes.relationEditor.updateSuccess.description"),
+                );
+            } else {
                 let data = await res.json();
                 data = data ?? { missingError: 0, parseError: 0 };
                 context.commit(
@@ -240,6 +254,10 @@ export const schemes = {
                         () => context.commit("selectRelation", undefined),
                         () => context.dispatch("updateRelation", { relation: deepCopy(payload.relation), force: true }),
                     ),
+                );
+                errorToast(
+                    i18n.global.t("schemes.relationEditor.updateConflicts.title"),
+                    i18n.global.t("schemes.relationEditor.updateConflicts.description"),
                 );
             }
         },

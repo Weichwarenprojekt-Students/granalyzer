@@ -31,6 +31,14 @@
     "nameDuplicate": {
       "title": "Name besetzt",
       "description": "Ein anderes Label hat bereits diesen Namen!"
+    },
+    "updateSuccess": {
+      "title": "Label aktualisiert ",
+      "description": "Manche Knoten könnten nun anders erscheinen."
+    },
+    "updateConflicts": {
+      "title": "Konflikte! Aktualisierung abgebrochen",
+      "description": "Wenn Sie wissen was Sie tun können Sie die Aktualsierung erzwingen!"
     }
   },
   "relationEditor": {
@@ -60,6 +68,14 @@
     "connectionInvalid": {
       "title": "Verbindung ungültig",
       "description": "Das Label {name} ist unbekannt!"
+    },
+    "updateSuccess": {
+      "title": "Relation aktualisiert ",
+      "description": "Manche Relationen könnten nun anders erscheinen."
+    },
+    "updateConflicts": {
+      "title": "Konflikte! Aktualisierung abgebrochen",
+      "description": "Wenn Sie wissen was Sie tun können Sie die Aktualsierung erzwingen!"
     }
   },
   "attribute": {

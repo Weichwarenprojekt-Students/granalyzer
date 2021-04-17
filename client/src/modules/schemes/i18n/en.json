@@ -31,6 +31,14 @@
     "nameDuplicate": {
       "title": "Name taken",
       "description": "Another label already has this name!"
+    },
+    "updateSuccess": {
+      "title": "Label updated",
+      "description": "Some nodes may appear different now."
+    },
+    "updateConflicts": {
+      "title": "Conflicts! Update cancelled",
+      "description": "If you know what you are doing you can force the update!"
     }
   },
   "relationEditor": {
@@ -60,6 +68,14 @@
     "connectionInvalid": {
       "title": "Connection invalid",
       "description": "The label {name} is unknown!"
+    },
+    "updateSuccess": {
+      "title": "Relation updated",
+      "description": "Some relations may appear different now."
+    },
+    "updateConflicts": {
+      "title": "Conflicts! Update cancelled",
+      "description": "If you know what you are doing you can force the update!"
     }
   },
   "attribute": {

@@ -30,7 +30,7 @@ import { defineComponent } from "vue";
 import { ApiDiagram } from "@/models/ApiDiagram";
 import CreationCard from "./components/CreationCard.vue";
 import InputDialog from "@/components/InputDialog.vue";
-import { routeNames } from "@/utility";
+import { errorToast, routeNames } from "@/utility";
 
 export default defineComponent({
     name: "CreationSection",
@@ -52,12 +52,7 @@ export default defineComponent({
          */
         async addEmptyDiagram(diagramName: string): Promise<void> {
             if (!diagramName) {
-                this.$toast.add({
-                    severity: "error",
-                    summary: this.$t("start.newDiagram.empty.title"),
-                    detail: this.$t("start.newDiagram.empty.description"),
-                    life: 3000,
-                });
+                errorToast(this.$t("start.newDiagram.empty.title"), this.$t("start.newDiagram.empty.description"));
                 return;
             }
             this.dialogAddEmpty = false;

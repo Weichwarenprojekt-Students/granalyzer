@@ -64,7 +64,7 @@
 import { defineComponent } from "vue";
 import ColorMultiInput from "@/components/ColorMultiInput.vue";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
-import { deepCopy, objectUUID } from "@/utility";
+import { deepCopy, errorToast, objectUUID } from "@/utility";
 import AttributeView from "@/modules/schemes/components/AttributeView.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
@@ -147,12 +147,10 @@ export default defineComponent({
             this.deleteLabelDialog = false;
             const success = await this.$store.dispatch("schemes/deleteLabel");
             if (!success)
-                this.$toast.add({
-                    severity: "error",
-                    summary: this.$t("schemes.labelEditor.deleteFailed.title"),
-                    detail: this.$t("schemes.labelEditor.deleteFailed.description"),
-                    life: 3000,
-                });
+                errorToast(
+                    this.$t("schemes.labelEditor.deleteFailed.title"),
+                    this.$t("schemes.labelEditor.deleteFailed.description"),
+                );
         },
         /**
          * Create a new label
@@ -168,24 +166,20 @@ export default defineComponent({
         validateLabel(): boolean {
             // Check if the name is empty
             if (this.modifiedLabel.name === "") {
-                this.$toast.add({
-                    severity: "error",
-                    summary: this.$t("schemes.labelEditor.nameRequired.title"),
-                    detail: this.$t("schemes.labelEditor.nameRequired.description"),
-                    life: 3000,
-                });
+                errorToast(
+                    this.$t("schemes.labelEditor.nameRequired.title"),
+                    this.$t("schemes.labelEditor.nameRequired.description"),
+                );
                 return false;
             }
 
             // Check if the name is unique
             for (let label of this.$store.state.schemes.labels) {
                 if (label.name === this.modifiedLabel.name && label.name !== this.label.name) {
-                    this.$toast.add({
-                        severity: "error",
-                        summary: this.$t("schemes.labelEditor.nameDuplicate.title"),
-                        detail: this.$t("schemes.labelEditor.nameDuplicate.description"),
-                        life: 3000,
-                    });
+                    errorToast(
+                        this.$t("schemes.labelEditor.nameDuplicate.title"),
+                        this.$t("schemes.labelEditor.nameDuplicate.description"),
+                    );
                     return false;
                 }
             }
@@ -195,22 +189,18 @@ export default defineComponent({
             for (let attribute of this.modifiedLabel.attributes) {
                 // If the name is empty
                 if (attribute.name === "") {
-                    this.$toast.add({
-                        severity: "error",
-                        summary: this.$t("schemes.attribute.nameRequired.title"),
-                        detail: this.$t("schemes.attribute.nameRequired.description"),
-                        life: 3000,
-                    });
+                    errorToast(
+                        this.$t("schemes.attribute.nameRequired.title"),
+                        this.$t("schemes.attribute.nameRequired.description"),
+                    );
                     return false;
                 }
                 // If the name is a duplicate
                 if (names.has(attribute.name)) {
-                    this.$toast.add({
-                        severity: "error",
-                        summary: this.$t("schemes.attribute.nameDuplicate.title"),
-                        detail: this.$t("schemes.attribute.nameDuplicate.description", { name: attribute.name }),
-                        life: 3000,
-                    });
+                    errorToast(
+                        this.$t("schemes.attribute.nameDuplicate.title"),
+                        this.$t("schemes.attribute.nameDuplicate.description", { name: attribute.name }),
+                    );
                     return false;
                 }
                 names.set(attribute.name, "");

@@ -1,3 +1,5 @@
+import { ToastServiceMethods } from "primevue/toastservice";
+
 /**
  * The route names of the three main modules
  */
@@ -138,5 +140,49 @@ export function DELETE(path: string): Promise<Response> {
     return fetch(path, {
         headers,
         method: "DELETE",
+    });
+}
+
+/**
+ * The toast service
+ */
+let toast: ToastServiceMethods;
+
+/**
+ * Set the toast service
+ */
+export function setToastService(toastService: ToastServiceMethods): void {
+    toast = toastService;
+}
+
+/**
+ * Show an error toast
+ *
+ * @param summary The title
+ * @param detail The description
+ * @param life The time the toast is shown (in milliseconds)
+ */
+export function errorToast(summary: string, detail: string, life = 3000): void {
+    toast.add({
+        severity: "error",
+        summary,
+        detail,
+        life,
+    });
+}
+
+/**
+ * Show a success toast
+ *
+ * @param summary The title
+ * @param detail The description
+ * @param life The time the toast is shown (in milliseconds)
+ */
+export function successToast(summary: string, detail: string, life = 3000): void {
+    toast.add({
+        severity: "success",
+        summary,
+        detail,
+        life,
     });
 }

@@ -74,7 +74,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { deepCopy, objectUUID } from "@/utility";
+import { deepCopy, errorToast, objectUUID } from "@/utility";
 import AttributeView from "@/modules/schemes/components/AttributeView.vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import { ApiConnection } from "@/models/data-scheme/ApiConnection";
@@ -176,12 +176,10 @@ export default defineComponent({
             this.deleteRelationDialog = false;
             const success = await this.$store.dispatch("schemes/deleteRelation");
             if (!success)
-                this.$toast.add({
-                    severity: "error",
-                    summary: this.$t("schemes.relationEditor.deleteFailed.title"),
-                    detail: this.$t("schemes.relationEditor.deleteFailed.description"),
-                    life: 3000,
-                });
+                errorToast(
+                    this.$t("schemes.relationEditor.deleteFailed.title"),
+                    this.$t("schemes.relationEditor.deleteFailed.description"),
+                );
         },
         /**
          * Create a new relation
@@ -205,24 +203,20 @@ export default defineComponent({
         validateRelationName(): boolean {
             // Check if the name is empty
             if (this.modifiedRelation.name === "") {
-                this.$toast.add({
-                    severity: "error",
-                    summary: this.$t("schemes.relationEditor.nameRequired.title"),
-                    detail: this.$t("schemes.relationEditor.nameRequired.description"),
-                    life: 3000,
-                });
+                errorToast(
+                    this.$t("schemes.relationEditor.nameRequired.title"),
+                    this.$t("schemes.relationEditor.nameRequired.description"),
+                );
                 return false;
             }
 
             // Check if the name is unique
             for (let relation of this.$store.state.schemes.relations) {
                 if (relation.name === this.modifiedRelation.name && relation.name !== this.relation.name) {
-                    this.$toast.add({
-                        severity: "error",
-                        summary: this.$t("schemes.relationEditor.nameDuplicate.title"),
-                        detail: this.$t("schemes.relationEditor.nameDuplicate.description"),
-                        life: 3000,
-                    });
+                    errorToast(
+                        this.$t("schemes.relationEditor.nameDuplicate.title"),
+                        this.$t("schemes.relationEditor.nameDuplicate.description"),
+                    );
                     return false;
                 }
             }
@@ -237,22 +231,18 @@ export default defineComponent({
             for (let attribute of this.modifiedRelation.attributes) {
                 // If the name is empty
                 if (attribute.name === "") {
-                    this.$toast.add({
-                        severity: "error",
-                        summary: this.$t("schemes.attribute.nameRequired.title"),
-                        detail: this.$t("schemes.attribute.nameRequired.description"),
-                        life: 3000,
-                    });
+                    errorToast(
+                        this.$t("schemes.attribute.nameRequired.title"),
+                        this.$t("schemes.attribute.nameRequired.description"),
+                    );
                     return false;
                 }
                 // If the name is a duplicate
                 if (names.has(attribute.name)) {
-                    this.$toast.add({
-                        severity: "error",
-                        summary: this.$t("schemes.attribute.nameDuplicate.title"),
-                        detail: this.$t("schemes.attribute.nameDuplicate.description", { name: attribute.name }),
-                        life: 3000,
-                    });
+                    errorToast(
+                        this.$t("schemes.attribute.nameDuplicate.title"),
+                        this.$t("schemes.attribute.nameDuplicate.description", { name: attribute.name }),
+                    );
                     return false;
                 }
                 names.set(attribute.name, "");
@@ -276,25 +266,21 @@ export default defineComponent({
 
                 // If one of the labels doesn't exist show a message
                 if (!fromExists) {
-                    this.$toast.add({
-                        severity: "error",
-                        summary: this.$t("schemes.relationEditor.connectionInvalid.title"),
-                        detail: this.$t("schemes.relationEditor.connectionInvalid.description", {
+                    errorToast(
+                        this.$t("schemes.relationEditor.connectionInvalid.title"),
+                        this.$t("schemes.relationEditor.connectionInvalid.description", {
                             name: connection.from,
                         }),
-                        life: 3000,
-                    });
+                    );
                     return false;
                 }
                 if (!toExists) {
-                    this.$toast.add({
-                        severity: "error",
-                        summary: this.$t("schemes.relationEditor.connectionInvalid.title"),
-                        detail: this.$t("schemes.relationEditor.connectionInvalid.description", {
+                    errorToast(
+                        this.$t("schemes.relationEditor.connectionInvalid.title"),
+                        this.$t("schemes.relationEditor.connectionInvalid.description", {
                             name: connection.to,
                         }),
-                        life: 3000,
-                    });
+                    );
                     return false;
                 }
             }
