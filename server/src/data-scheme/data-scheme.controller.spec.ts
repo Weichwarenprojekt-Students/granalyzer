@@ -106,7 +106,7 @@ describe("DataSchemeController", () => {
 
     describe("getScheme", () => {
         it("should return the scheme", async () => {
-            expect(await controller.getScheme()).toEqual(
+            expect(await controller.getScheme()).toMatchObject(
                 new Scheme([movieLabel, personLabel], [actedInRelation, followsRelation]),
             );
         });
@@ -117,6 +117,63 @@ describe("DataSchemeController", () => {
             expect((await controller.getAllLabelSchemes()).sort(TestUtil.getSortOrder("name"))).toEqual(
                 [movieLabel, personLabel].sort(TestUtil.getSortOrder("name")),
             );
+        });
+    });
+
+    describe("addLabelScheme", () => {
+        it("should add one label scheme", async () => {
+            const body = {
+                name: "Test",
+                color: "#666",
+                attributes: [
+                    {
+                        datatype: "string",
+                        name: "attrOne",
+                        mandatory: false,
+                        defaultValue: "",
+                    },
+                    {
+                        datatype: "string",
+                        name: "attrTwo",
+                        mandatory: false,
+                        defaultValue: "",
+                    },
+                ],
+            };
+            expect(await controller.addLabelScheme(body)).toEqual(body);
+        });
+
+        it("should throw ConflictException", async () => {
+            const body = {
+                name: "Movie",
+                color: "#666",
+                attributes: [
+                    {
+                        datatype: "string",
+                        name: "attrOne",
+                        mandatory: false,
+                        defaultValue: "",
+                    },
+                    {
+                        datatype: "string",
+                        name: "attrTwo",
+                        mandatory: false,
+                        defaultValue: "",
+                    },
+                ],
+            };
+            await expect(controller.addLabelScheme(body)).rejects.toThrowError(ConflictException);
+        });
+    });
+
+    describe("deleteLabelScheme", () => {
+        it("should delete one label scheme", async () => {
+            expect(await controller.deleteLabelScheme("Movie")).toEqual(movieLabel);
+            await expect(controller.getLabelScheme("Movie")).rejects.toThrowError(NotFoundException);
+        });
+
+        it("should throw not found exception", async () => {
+            await expect(controller.deleteLabelScheme("Not_a_Label")).rejects.toThrowError(NotFoundException);
         });
     });
 
@@ -211,7 +268,7 @@ describe("DataSchemeController", () => {
                         name: "attrThree",
                         mandatory: true,
                         defaultValue: "",
-                    }
+                    },
                 ],
             };
             await expect(controller.updateLabelScheme(movieLabel.name, body, false)).rejects.toThrowError(
@@ -225,6 +282,73 @@ describe("DataSchemeController", () => {
             expect((await controller.getAllRelationTypes()).sort(TestUtil.getSortOrder("name"))).toEqual(
                 [actedInRelation, followsRelation].sort(TestUtil.getSortOrder("name")),
             );
+        });
+    });
+
+    describe("addRelationType", () => {
+        it("should add one relation", async () => {
+            const body = {
+                name: "TEST_RELATION",
+                attributes: [
+                    {
+                        datatype: "string",
+                        name: "attrOne",
+                        mandatory: true,
+                        defaultValue: "",
+                    },
+                    {
+                        datatype: "string",
+                        name: "attrTwo",
+                        mandatory: true,
+                        defaultValue: "",
+                    },
+                ],
+                connections: [
+                    {
+                        from: "Person",
+                        to: "Movie",
+                    },
+                ],
+            };
+            expect(await controller.addRelationType(body)).toEqual(body);
+        });
+
+        it("should throw ConflictException", async () => {
+            const body = {
+                name: "ACTED_IN",
+                attributes: [
+                    {
+                        datatype: "string",
+                        name: "attrOne",
+                        mandatory: true,
+                        defaultValue: "",
+                    },
+                    {
+                        datatype: "string",
+                        name: "attrTwo",
+                        mandatory: true,
+                        defaultValue: "",
+                    },
+                ],
+                connections: [
+                    {
+                        from: "Person",
+                        to: "Movie",
+                    },
+                ],
+            };
+            await expect(controller.addRelationType(body)).rejects.toThrowError(ConflictException);
+        });
+    });
+
+    describe("deleteRelationType", () => {
+        it("should delete one relation type", async () => {
+            expect(await controller.deleteRelationType("ACTED_IN")).toEqual(actedInRelation);
+            await expect(controller.getRelationType("ACTED_IN")).rejects.toThrowError(NotFoundException);
+        });
+
+        it("should throw not found exception", async () => {
+            await expect(controller.deleteRelationType("NOT_A_RELATION_TYPE")).rejects.toThrowError(NotFoundException);
         });
     });
 
