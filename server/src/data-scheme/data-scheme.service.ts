@@ -89,7 +89,6 @@ export class DataSchemeService {
      * Adds a new label scheme to the db
      */
     async updateLabelScheme(name: string, label: LabelScheme, force: boolean): Promise<LabelScheme> {
-        label.type = "LabelScheme";
         // language=Cypher
         const cypher = `
           MATCH (ls:LabelScheme {name: $name})
@@ -196,8 +195,6 @@ export class DataSchemeService {
      * Adds a new label scheme to the db
      */
     async updateRelationType(name: string, relationType: RelationType, force: boolean): Promise<LabelScheme> {
-        relationType.type = "RelationType";
-
         // language=Cypher
         const cypher = `
           MATCH (rt:RelationType {name: $name})
@@ -252,6 +249,7 @@ export class DataSchemeService {
     /**
      * Check whether the given label scheme will have any conflicts with the data stored in the database.
      * May either be missing attributes or values that cannot be parsed
+     *
      * @param label The label scheme
      * @throws ConflictException when any conflict is found and sends the type and amount of conflicting nodes
      */
@@ -290,12 +288,13 @@ export class DataSchemeService {
 
     /**
      * Get the attributes that have changed in the given scheme in comparison to the one stored in the tool db
+     *
      * @param scheme The scheme which has to be checked against the database label
      * @return Tuple At [0] the newly added attributes, at [1] the changed attributes
      */
     private async getChangedAttrs(scheme: LabelScheme | RelationType) {
         const oldAttrs =
-            scheme.type === "LabelScheme"
+            scheme instanceof LabelScheme
                 ? (await this.dataSchemeUtil.getLabelScheme(scheme.name)).attributes
                 : (await this.dataSchemeUtil.getRelationType(scheme.name)).attributes;
 
@@ -316,28 +315,28 @@ export class DataSchemeService {
 
     /**
      * Differentiates the query depending on the type of scheme (RelationType or LabelScheme)
-     * Note that this cannot be an anonymous function because the this context is necessary for the neo4jservice
+     * Note that this cannot be an anonymous function because the this context is necessary for the neo4j service
+     *
      * @param attributeName The name of the attribute which is being searched for
      * @param scheme The scheme which is either of type LabelScheme or RelationType
      * @param attributeExists True if the attribute that is being searched should exist
-     * @private
      */
     private async getEntityAttrDependant(
         attributeName: string,
         scheme: LabelScheme | RelationType,
         attributeExists: boolean,
     ) {
-        return scheme.type === "LabelScheme"
+        return scheme instanceof LabelScheme
             ? this.getNodesAttrDependant(attributeName, scheme.name, attributeExists)
             : this.getRelationsAttrDependant(attributeName, scheme.name, attributeExists);
     }
 
     /**
      * Get the nodes that either do or do not have a specific attribute
+     *
      * @param attributeName The name of the attribute which is being searched for
      * @param labelName The name of the label the attribute holding element has
      * @param attributeExists True if the attribute that is being searched should exist
-     * @private
      */
     private async getNodesAttrDependant(attributeName: string, labelName: string, attributeExists: boolean) {
         const params = {
@@ -360,10 +359,10 @@ export class DataSchemeService {
 
     /**
      * Get the relations that either do or do not have a specific attribute
+     *
      * @param attributeName The name of the attribute which is being searched for
      * @param relationTypeName The name of the relation the attribute holding element has
      * @param attributeExists True if the attribute that is being searched should exist
-     * @private
      */
     private async getRelationsAttrDependant(attributeName: string, relationTypeName: string, attributeExists: boolean) {
         const params = {

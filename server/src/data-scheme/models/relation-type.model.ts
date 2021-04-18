@@ -5,9 +5,6 @@ import { IsArray, IsString, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 
 export class RelationType {
-    // Add type attribute to differentiate between LabelScheme
-    type: "RelationType";
-
     @ApiProperty({
         required: true,
         type: "string",
