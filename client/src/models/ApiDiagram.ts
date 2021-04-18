@@ -6,5 +6,5 @@ export class ApiDiagram {
      * @param diagramId Identifier
      * @param serialized Serialized diagram
      */
-    constructor(public name: string, public diagramId: string = "", public serialized = "") {}
+    constructor(public name: string, public diagramId: string = "", public serialized = "{}") {}
 }

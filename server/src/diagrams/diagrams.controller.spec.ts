@@ -27,7 +27,6 @@ describe("DiagramsController", () => {
     let diagram3: Diagram;
 
     let folder1: Folder;
-    let folder2: Folder;
 
     beforeAll(async () => {
         module = await TestUtil.createTestingModule([DiagramsService, FoldersService], [DiagramsController]);
@@ -53,10 +52,7 @@ describe("DiagramsController", () => {
     });
 
     describe("addDiagram", () => {
-        const bodyObject = {
-            name: "Diagram Name",
-            serialized: "Serialized",
-        };
+        const bodyObject = new Diagram("Diagram Name", "Serialized");
         it("should return one diagram", async () => {
             expect((await diagramsController.addDiagram(bodyObject))["name"]).toEqual(bodyObject["name"]);
         });
@@ -69,7 +65,6 @@ describe("DiagramsController", () => {
     describe("Further tests", () => {
         beforeEach(async () => {
             folder1 = await foldersService.addFolder("Folder 1");
-            folder2 = await foldersService.addFolder("Folder 2");
             diagram1 = await diagramsService.addDiagram("Diagram 1");
             diagram2 = await diagramsService.addDiagram("Diagram 2");
             diagram3 = await diagramsService.addDiagram("Diagram 3");
@@ -109,10 +104,7 @@ describe("DiagramsController", () => {
         });
 
         describe("updateDiagram", () => {
-            const bodyObject = {
-                name: "changed name",
-                serialized: ",changed string",
-            };
+            const bodyObject = new Diagram("changed name", ",changed string");
             it("should return the updated diagram", async () => {
                 expect(await diagramsController.updateDiagram(diagram2["diagramId"], bodyObject)).toEqual({
                     diagramId: diagram2["diagramId"],

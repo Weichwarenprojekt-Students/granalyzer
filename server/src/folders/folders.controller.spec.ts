@@ -55,7 +55,7 @@ describe("FoldersController", () => {
 
     describe("addFolder", () => {
         it("should return one folder", async () => {
-            expect((await foldersController.addFolder("Folder 4"))["name"]).toEqual("Folder 4");
+            expect((await foldersController.addFolder(new Folder("Folder 4")))["name"]).toEqual("Folder 4");
         });
     });
 
@@ -99,7 +99,9 @@ describe("FoldersController", () => {
 
         describe("getAllRootFolders", () => {
             it("should return all folders in root", async () => {
-                expect((await foldersController.getAllRootFolders()).sort(TestUtil.getSortOrder("folderId"))).toEqual([folder1, folder2].sort(TestUtil.getSortOrder("folderId")));
+                expect((await foldersController.getAllRootFolders()).sort(TestUtil.getSortOrder("folderId"))).toEqual(
+                    [folder1, folder2].sort(TestUtil.getSortOrder("folderId")),
+                );
             });
         });
 
@@ -115,9 +117,9 @@ describe("FoldersController", () => {
 
         describe("updateFolder", () => {
             it("should update one folder", async () => {
-                expect((await foldersController.updateFolder(folder1["folderId"], "updated folder"))["name"]).toEqual(
-                    "updated folder",
-                );
+                expect(
+                    (await foldersController.updateFolder(folder1["folderId"], new Folder("updated folder")))["name"],
+                ).toEqual("updated folder");
                 expect((await foldersController.getFolder(folder1["folderId"]))["name"]).toEqual("updated folder");
             });
         });
@@ -160,9 +162,9 @@ describe("FoldersController", () => {
 
         describe("addFolderInFolder", () => {
             it("should create a new folder inside of another folder", async () => {
-                expect((await foldersController.createFolderInFolder("Folder 4", folder2["folderId"]))["name"]).toEqual(
-                    "Folder 4",
-                );
+                expect(
+                    (await foldersController.createFolderInFolder(new Folder("Folder 4"), folder2["folderId"]))["name"],
+                ).toEqual("Folder 4");
                 expect((await foldersController.getFoldersInFolder(folder2["folderId"]))[0]["name"]).toEqual(
                     "Folder 4",
                 );

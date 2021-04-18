@@ -51,7 +51,7 @@ export class GraphHandler {
      * @param jsonString The diagram json value
      */
     public fromJSON(jsonString: string): void {
-        if (!jsonString) return;
+        if (!jsonString || jsonString === "{}") return;
 
         const data: SerializableGraph = JSON.parse(jsonString);
         const nodes: Array<Node> = data.nodes;
