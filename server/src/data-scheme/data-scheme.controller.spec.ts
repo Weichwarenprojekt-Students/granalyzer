@@ -122,47 +122,39 @@ describe("DataSchemeController", () => {
 
     describe("addLabelScheme", () => {
         it("should add one label scheme", async () => {
-            const body = {
-                name: "Test",
-                color: "#666",
-                attributes: [
-                    {
-                        datatype: "string",
-                        name: "attrOne",
-                        mandatory: false,
-                        defaultValue: "",
-                    },
-                    {
-                        datatype: "string",
-                        name: "attrTwo",
-                        mandatory: false,
-                        defaultValue: "",
-                    },
-                ],
-            };
-            expect(await controller.addLabelScheme(body as LabelScheme)).toEqual(body);
+            const body = new LabelScheme("Test", "#666", [
+                {
+                    datatype: "string",
+                    name: "attrOne",
+                    mandatory: false,
+                    defaultValue: "",
+                },
+                {
+                    datatype: "string",
+                    name: "attrTwo",
+                    mandatory: false,
+                    defaultValue: "",
+                },
+            ]);
+            expect(await controller.addLabelScheme(body)).toEqual(body);
         });
 
         it("should throw ConflictException", async () => {
-            const body = {
-                name: "Movie",
-                color: "#666",
-                attributes: [
-                    {
-                        datatype: "string",
-                        name: "attrOne",
-                        mandatory: false,
-                        defaultValue: "",
-                    },
-                    {
-                        datatype: "string",
-                        name: "attrTwo",
-                        mandatory: false,
-                        defaultValue: "",
-                    },
-                ],
-            };
-            await expect(controller.addLabelScheme(body as LabelScheme)).rejects.toThrowError(ConflictException);
+            const body = new LabelScheme("Movie", "#666", [
+                {
+                    datatype: "string",
+                    name: "attrOne",
+                    mandatory: false,
+                    defaultValue: "",
+                },
+                {
+                    datatype: "string",
+                    name: "attrTwo",
+                    mandatory: false,
+                    defaultValue: "",
+                },
+            ]);
+            await expect(controller.addLabelScheme(body)).rejects.toThrowError(ConflictException);
         });
     });
 
@@ -191,89 +183,71 @@ describe("DataSchemeController", () => {
 
     describe("updateLabelScheme", () => {
         it("should update one Label with the same values", async () => {
-            expect({
-                ...(await controller.updateLabelScheme(movieLabel.name, movieLabel, false)),
-                type: "LabelScheme",
-            }).toEqual(movieLabel);
+            expect(await controller.updateLabelScheme(movieLabel.name, movieLabel, false)).toEqual(movieLabel);
         });
 
         it("should update one label", async () => {
-            const body = {
-                name: "Movie",
-                color: "#666",
-                attributes: [
-                    {
-                        datatype: "string",
-                        name: "attrOne",
-                        mandatory: true,
-                        defaultValue: "",
-                    },
-                    {
-                        datatype: "string",
-                        name: "attrTwo",
-                        mandatory: false,
-                        defaultValue: "",
-                    },
-                ],
-            };
-            expect({
-                ...(await controller.updateLabelScheme(movieLabel.name, body as LabelScheme, false)),
-                type: "LabelScheme",
-            }).toEqual(body);
+            const body = new LabelScheme("Movie", "#666", [
+                {
+                    datatype: "string",
+                    name: "attrOne",
+                    mandatory: true,
+                    defaultValue: "",
+                },
+                {
+                    datatype: "string",
+                    name: "attrTwo",
+                    mandatory: false,
+                    defaultValue: "",
+                },
+            ]);
+            expect(await controller.updateLabelScheme(movieLabel.name, body, false)).toEqual(body);
         });
 
         it("Datatype conflict should throw ConflictException", async () => {
-            const body = {
-                name: "Movie",
-                color: "#666",
-                attributes: [
-                    {
-                        datatype: "number",
-                        name: "attrOne",
-                        mandatory: true,
-                        defaultValue: "",
-                    },
-                    {
-                        datatype: "number",
-                        name: "attrTwo",
-                        mandatory: false,
-                        defaultValue: "",
-                    },
-                ],
-            };
-            await expect(
-                controller.updateLabelScheme(movieLabel.name, body as LabelScheme, false),
-            ).rejects.toThrowError(ConflictException);
+            const body = new LabelScheme("Movie", "#666", [
+                {
+                    datatype: "number",
+                    name: "attrOne",
+                    mandatory: true,
+                    defaultValue: "",
+                },
+                {
+                    datatype: "number",
+                    name: "attrTwo",
+                    mandatory: false,
+                    defaultValue: "",
+                },
+            ]);
+            await expect(controller.updateLabelScheme(movieLabel.name, body, false)).rejects.toThrowError(
+                ConflictException,
+            );
         });
 
         it("Missing attr when mandatory should throw ConflictException", async () => {
-            const body = {
-                name: "Movie",
-                color: "#666",
-                attributes: [
-                    {
-                        datatype: "string",
-                        name: "attrOne",
-                        mandatory: true,
-                        defaultValue: "",
-                    },
-                    {
-                        datatype: "string",
-                        name: "attrTwo",
-                        mandatory: false,
-                        defaultValue: "",
-                    },
-                    {
-                        datatype: "string",
-                        name: "attrThree",
-                        mandatory: true,
-                        defaultValue: "",
-                    },
-                ],
-            };
-            await expect(
-                controller.updateLabelScheme(movieLabel.name, body as LabelScheme, false),
-            ).rejects.toThrowError(ConflictException);
+            const body = new LabelScheme("Movie", "#666", [
+                {
+                    datatype: "string",
+                    name: "attrOne",
+                    mandatory: true,
+                    defaultValue: "",
+                },
+                {
+                    datatype: "string",
+                    name: "attrTwo",
+                    mandatory: false,
+                    defaultValue: "",
+                },
+                {
+                    datatype: "string",
+                    name: "attrThree",
+                    mandatory: true,
+                    defaultValue: "",
+                },
+            ]);
+            await expect(controller.updateLabelScheme(movieLabel.name, body, false)).rejects.toThrowError(
+                ConflictException,
+            );
         });
     });
 
@@ -287,9 +261,9 @@ describe("DataSchemeController", () => {
 
     describe("addRelationType", () => {
         it("should add one relation", async () => {
-            const body = {
-                name: "TEST_RELATION",
-                attributes: [
+            const body = new RelationType(
+                "TEST_RELATION",
+                [
                     {
                         datatype: "string",
                         name: "attrOne",
@@ -303,20 +277,20 @@ describe("DataSchemeController", () => {
                         defaultValue: "",
                     },
                 ],
-                connections: [
+                [
                     {
                         from: "Person",
                         to: "Movie",
                     },
                 ],
-            };
-            expect(await controller.addRelationType(body as RelationType)).toEqual(body);
+            );
+            expect(await controller.addRelationType(body)).toEqual(body);
         });
 
         it("should throw ConflictException", async () => {
-            const body = {
-                name: "ACTED_IN",
-                attributes: [
+            const body = new RelationType(
+                "ACTED_IN",
+                [
                     {
                         datatype: "string",
                         name: "attrOne",
@@ -330,14 +304,14 @@ describe("DataSchemeController", () => {
                         defaultValue: "",
                     },
                 ],
-                connections: [
+                [
                     {
                         from: "Person",
                         to: "Movie",
                     },
                 ],
-            };
-            await expect(controller.addRelationType(body as RelationType)).rejects.toThrowError(ConflictException);
+            );
+            await expect(controller.addRelationType(body)).rejects.toThrowError(ConflictException);
         });
     });
 
@@ -354,16 +328,15 @@ describe("DataSchemeController", () => {
 
     describe("updateRelationType", () => {
         it("should update one relation with the same values", async () => {
-            expect({
-                ...(await controller.updateRelationType(actedInRelation.name, actedInRelation, false)),
-                type: "RelationType",
-            }).toEqual(actedInRelation);
+            expect(await controller.updateRelationType(actedInRelation.name, actedInRelation, false)).toEqual(
+                actedInRelation,
+            );
         });
 
         it("should update one relation", async () => {
-            const body = {
-                name: "ACTED_IN",
-                attributes: [
+            const body = new RelationType(
+                "ACTED_IN",
+                [
                     {
                         datatype: "string",
                         name: "attrOne",
@@ -377,23 +350,20 @@ describe("DataSchemeController", () => {
                         defaultValue: "",
                     },
                 ],
-                connections: [
+                [
                     {
                         from: "Person",
                         to: "Movie",
                     },
                 ],
-            };
-            expect({
-                ...(await controller.updateRelationType(actedInRelation.name, body as RelationType, false)),
-                type: "RelationType",
-            }).toEqual(body);
+            );
+            expect(await controller.updateRelationType(actedInRelation.name, body, false)).toEqual(body);
         });
 
         it("Datatype conflict should throw ConflictException", async () => {
-            const body = {
-                name: "ACTED_IN",
-                attributes: [
+            const body = new RelationType(
+                "ACTED_IN",
+                [
                     {
                         datatype: "number",
                         name: "attrOne",
@@ -401,22 +371,22 @@ describe("DataSchemeController", () => {
                         defaultValue: "",
                     },
                 ],
-                connections: [
+                [
                     {
                         from: "Person",
                         to: "Movie",
                     },
                 ],
-            };
-            await expect(
-                controller.updateRelationType(actedInRelation.name, body as RelationType, false),
-            ).rejects.toThrowError(ConflictException);
+            );
+            await expect(controller.updateRelationType(actedInRelation.name, body, false)).rejects.toThrowError(
+                ConflictException,
+            );
         });
 
         it("Missing attr when mandatory should throw ConflictException", async () => {
-            const body = {
-                name: "ACTED_IN",
-                attributes: [
+            const body = new RelationType(
+                "ACTED_IN",
+                [
                     {
                         datatype: "string",
                         name: "attrOne",
@@ -430,16 +400,16 @@ describe("DataSchemeController", () => {
                         defaultValue: "",
                     },
                 ],
-                connections: [
+                [
                     {
                         from: "Person",
                         to: "Movie",
                     },
                 ],
-            };
-            await expect(
-                controller.updateRelationType(actedInRelation.name, body as RelationType, false),
-            ).rejects.toThrowError(ConflictException);
+            );
+            await expect(controller.updateRelationType(actedInRelation.name, body, false)).rejects.toThrowError(
+                ConflictException,
+            );
         });
     });
 
