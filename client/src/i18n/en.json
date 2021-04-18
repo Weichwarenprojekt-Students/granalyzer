@@ -3,9 +3,6 @@
     "editor": "Editor",
     "inventory": "Inventory",
     "schemes": "Schemes",
-    "inspector": {
-        "nothing-selected": "Please select a node or relation to show the attributes"
-    },
     "dialog": {
         "confirm": "Confirm",
         "cancel": "Cancel"

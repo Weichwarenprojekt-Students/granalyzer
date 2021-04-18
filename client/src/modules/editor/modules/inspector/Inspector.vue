@@ -12,11 +12,14 @@
             <div class="space" />
         </ScrollPanel>
     </div>
-    <div v-else class="empty-warning">
-        <svg>
-            <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
-        </svg>
-        <div class="message">{{ $t("global.inspector.nothing-selected") }}</div>
+    <div v-else class="content">
+        <div class="underlined-title">{{ $t("editor.inspector.title") }}</div>
+        <div class="empty-warning">
+            <svg>
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
+            </svg>
+            <div class="message">{{ $t("editor.inspector.nothing-selected") }}</div>
+        </div>
     </div>
 </template>
 
@@ -45,15 +48,11 @@ export default defineComponent({
 }
 
 .empty-warning {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+    margin: 0;
 }
 
 .underlined-title {
     padding: 0;
-    font-style: italic;
 }
 
 .scroll-panel {

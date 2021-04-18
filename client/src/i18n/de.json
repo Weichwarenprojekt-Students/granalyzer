@@ -2,9 +2,6 @@
     "start": "Start",
     "editor": "Editor",
     "inventory": "Inventar",
-    "inspector": {
-        "nothing-selected": "Bitte Node oder Relation auswählen, um Attribute anzuzeigen"
-    },
     "schemes": "Schemas",
     "dialog": {
         "confirm": "Bestätigen",

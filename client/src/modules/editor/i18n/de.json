@@ -6,6 +6,10 @@
     "redo": "Wiederholen (Strg + Y)",
     "delete": "Löschen"
   },
+  "inspector": {
+    "title": "Inspektor",
+    "nothing-selected": "Bitte Node oder Relation auswählen, um Attribute anzuzeigen"
+  },
   "noDiagram": {
     "title": "Kein Diagram",
     "description": "Laden Sie erst ein Diagramm!"
