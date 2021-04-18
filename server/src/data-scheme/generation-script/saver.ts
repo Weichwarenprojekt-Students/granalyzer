@@ -1,7 +1,7 @@
 import * as neo4j from "neo4j-driver";
 import { Driver, Session } from "neo4j-driver";
-import { LabelScheme } from "../models/labelScheme";
-import { RelationType } from "../models/relationType";
+import { LabelScheme } from "../models/label-scheme.model";
+import { RelationType } from "../models/relation-type.model";
 import { Scheme } from "../data-scheme.model";
 
 export class SchemeSaver {

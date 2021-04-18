@@ -1,12 +1,12 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { Scheme } from "./data-scheme.model";
-import { RelationType } from "./models/relationType";
-import { LabelScheme } from "./models/labelScheme";
+import { RelationType } from "./models/relation-type.model";
+import { LabelScheme } from "./models/label-scheme.model";
 import { DatabaseUtil } from "../util/database.util";
 import Relation from "../relations/relation.model";
 import { DataSchemeUtil } from "../util/data-scheme.util";
-import { Attribute } from "./models/attributes";
+import { Attribute } from "./models/attributes.model";
 import Node from "../nodes/node.model";
 
 @Injectable()

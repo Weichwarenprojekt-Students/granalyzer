@@ -1,13 +1,13 @@
 import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import Node from "../nodes/node.model";
-import { Attribute } from "../data-scheme/models/attributes";
+import { Attribute } from "../data-scheme/models/attributes.model";
 import Relation from "../relations/relation.model";
-import { RelationType } from "../data-scheme/models/relationType";
-import { LabelScheme } from "../data-scheme/models/labelScheme";
-import { Connection } from "../data-scheme/models/connection";
+import { RelationType } from "../data-scheme/models/relation-type.model";
+import { LabelScheme } from "../data-scheme/models/label-scheme.model";
+import { Connection } from "../data-scheme/models/connection.model";
 import { DatabaseUtil } from "./database.util";
-import { Datatype } from "../data-scheme/models/datatypes";
+import { Datatype } from "../data-scheme/models/data-type.model";
 
 @Injectable()
 export class DataSchemeUtil {

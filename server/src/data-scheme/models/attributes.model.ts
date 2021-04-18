@@ -1,7 +1,8 @@
 // Deserialization of JSON objects with inheritance:
 // https://stackoverflow.com/questions/54427218/parsing-complex-json-objects-with-inheritance
 import * as neo4j from "neo4j-driver";
-import { Datatype } from "./datatypes";
+import { Datatype } from "./data-type.model";
+import { IsBoolean, IsDefined, IsEnum, IsString } from "class-validator";
 
 type SerializableAttribute = new () => { readonly datatype: string };
 
@@ -14,17 +15,26 @@ export abstract class Attribute {
     /**
      * Name of the attribute
      */
+    @IsString()
     name: string;
 
     /**
      * Indicator if the attribute is mandatory
      */
+    @IsBoolean()
     mandatory: boolean;
 
     /**
      * Datatype of the attribute
      */
+    @IsEnum(Datatype)
     abstract datatype: string;
+
+    /**
+     * The default value of the attribute
+     */
+    @IsDefined()
+    abstract defaultValue;
 
     /**
      * Decorator for automatically filling the data type registry

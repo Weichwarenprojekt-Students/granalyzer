@@ -4,7 +4,7 @@
  * @group unit/data-scheme/attributes
  */
 
-import { Attribute, ColorAttribute, NumberAttribute, StringAttribute } from "./attributes";
+import { Attribute, ColorAttribute, NumberAttribute, StringAttribute } from "./attributes.model";
 
 describe("Attribute", () => {
     describe("fromJSON", () => {

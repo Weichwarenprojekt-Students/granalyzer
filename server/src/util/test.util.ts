@@ -5,8 +5,8 @@ import { UtilModule } from "./util.module";
 import Node from "../nodes/node.model";
 import Relation from "../relations/relation.model";
 import { Injectable } from "@nestjs/common";
-import { LabelScheme } from "../data-scheme/models/labelScheme";
-import { RelationType } from "../data-scheme/models/relationType";
+import { LabelScheme } from "../data-scheme/models/label-scheme.model";
+import { RelationType } from "../data-scheme/models/relation-type.model";
 
 /**
  * Helper utils for automated tests

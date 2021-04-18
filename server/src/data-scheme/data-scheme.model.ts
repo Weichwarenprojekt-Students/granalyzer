@@ -1,5 +1,5 @@
-import { LabelScheme } from "./models/labelScheme";
-import { RelationType } from "./models/relationType";
+import { LabelScheme } from "./models/label-scheme.model";
+import { RelationType } from "./models/relation-type.model";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class Scheme {

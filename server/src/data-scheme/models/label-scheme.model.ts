@@ -1,5 +1,7 @@
-import { Attribute } from "./attributes";
+import { Attribute } from "./attributes.model";
 import { ApiProperty } from "@nestjs/swagger";
+import { IsArray, IsHexColor, IsString, ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
 
 export class LabelScheme {
     // Add type attribute to differentiate between RelationType
@@ -11,14 +13,16 @@ export class LabelScheme {
         name: "name",
         description: "Unique Name of the label scheme",
     })
+    @IsString()
     name: string;
 
     @ApiProperty({
-        required: true,
+        required: false,
         type: "string",
         name: "color",
         description: "Color of the label scheme",
     })
+    @IsHexColor()
     color: string;
 
     @ApiProperty({
@@ -27,6 +31,9 @@ export class LabelScheme {
         name: "attributes",
         description: "Array containing all attributes of the label scheme",
     })
+    @IsArray()
+    @Type(() => Attribute)
+    @ValidateNested({ each: true })
     attributes: Attribute[];
 
     /**

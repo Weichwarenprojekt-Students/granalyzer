@@ -10,10 +10,10 @@ import TestUtil from "../util/test.util";
 import { DatabaseUtil } from "../util/database.util";
 import Node from "../nodes/node.model";
 import Relation from "./relation.model";
-import { LabelScheme } from "../data-scheme/models/labelScheme";
-import { RelationType } from "../data-scheme/models/relationType";
-import { NumberAttribute, StringAttribute } from "../data-scheme/models/attributes";
-import { Connection } from "../data-scheme/models/connection";
+import { LabelScheme } from "../data-scheme/models/label-scheme.model";
+import { RelationType } from "../data-scheme/models/relation-type.model";
+import { NumberAttribute, StringAttribute } from "../data-scheme/models/attributes.model";
+import { Connection } from "../data-scheme/models/connection.model";
 
 describe("RelationsController", () => {
     let module: TestingModule;

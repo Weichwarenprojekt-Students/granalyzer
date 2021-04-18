@@ -12,8 +12,9 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 import { Scheme } from "./data-scheme.model";
-import { LabelScheme } from "./models/labelScheme";
-import { RelationType } from "./models/relationType";
+import { LabelScheme } from "./models/label-scheme.model";
+import { RelationType } from "./models/relation-type.model";
+import { ValidationPipe } from "../validation-pipe";
 
 @ApiTags("data-scheme")
 @Controller("data-scheme")
@@ -79,12 +80,12 @@ export class DataSchemeController {
         type: LabelScheme,
         description: "Returns the new label",
     })
-    addLabelScheme(@Body() body) {
+    addLabelScheme(@Body(ValidationPipe) body: LabelScheme) {
         return this.dataSchemeService.addLabelScheme(body);
     }
 
     @Put("/label/:name")
-    @ApiQuery({ name: "force", type: "boolean" })
+    @ApiQuery({ name: "force", type: "boolean", required: true })
     @ApiOperation({
         description: "Updates a label",
     })
@@ -101,7 +102,11 @@ export class DataSchemeController {
         type: LabelScheme,
         description: "Returns the updated label",
     })
-    updateLabelScheme(@Param("name") name, @Body() body, @Query("force", ParseBoolPipe) force) {
+    updateLabelScheme(
+        @Param("name") name,
+        @Body(ValidationPipe) body: LabelScheme,
+        @Query("force", ParseBoolPipe) force,
+    ) {
         return this.dataSchemeService.updateLabelScheme(name, body, force);
     }
 
@@ -172,12 +177,12 @@ export class DataSchemeController {
         type: RelationType,
         description: "Returns the added relation type",
     })
-    addRelationType(@Body() body) {
+    addRelationType(@Body(ValidationPipe) body: RelationType) {
         return this.dataSchemeService.addRelationType(body);
     }
 
     @Put("/relation/:name")
-    @ApiQuery({ name: "force", type: "boolean" })
+    @ApiQuery({ name: "force", type: "boolean", required: true })
     @ApiOperation({
         description: "Updates a relation type",
     })
@@ -194,7 +199,11 @@ export class DataSchemeController {
         type: RelationType,
         description: "Returns the updated relation type",
     })
-    updateRelationType(@Param("name") name, @Body() body, @Query("force", ParseBoolPipe) force) {
+    updateRelationType(
+        @Param("name") name,
+        @Body(ValidationPipe) body: RelationType,
+        @Query("force", ParseBoolPipe) force,
+    ) {
         return this.dataSchemeService.updateRelationType(name, body, force);
     }
 

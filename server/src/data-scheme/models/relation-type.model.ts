@@ -1,6 +1,8 @@
-import { Attribute } from "./attributes";
-import { Connection } from "./connection";
+import { Attribute } from "./attributes.model";
+import { Connection } from "./connection.model";
 import { ApiProperty } from "@nestjs/swagger";
+import { IsArray, IsString, ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
 
 export class RelationType {
     // Add type attribute to differentiate between LabelScheme
@@ -12,6 +14,7 @@ export class RelationType {
         name: "name",
         description: "Id of the relation type scheme",
     })
+    @IsString()
     name: string;
 
     @ApiProperty({
@@ -20,6 +23,9 @@ export class RelationType {
         name: "attributes",
         description: "Array containing all attributes of the relation type scheme",
     })
+    @IsArray()
+    @Type(() => Attribute)
+    @ValidateNested({ each: true })
     attributes: Attribute[];
 
     @ApiProperty({
@@ -28,6 +34,9 @@ export class RelationType {
         name: "connections",
         description: "Array containing all connections of the relation type scheme",
     })
+    @IsArray()
+    @Type(() => Connection)
+    @ValidateNested({ each: true })
     connections: Connection[];
 
     /**

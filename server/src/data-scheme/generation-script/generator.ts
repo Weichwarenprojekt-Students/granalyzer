@@ -1,10 +1,10 @@
 import * as neo4j from "neo4j-driver";
 import { Driver, Session } from "neo4j-driver";
 import { Scheme } from "../data-scheme.model";
-import { LabelScheme } from "../models/labelScheme";
-import { StringAttribute } from "../models/attributes";
-import { RelationType } from "../models/relationType";
-import { Connection } from "../models/connection";
+import { LabelScheme } from "../models/label-scheme.model";
+import { StringAttribute } from "../models/attributes.model";
+import { RelationType } from "../models/relation-type.model";
+import { Connection } from "../models/connection.model";
 
 export class SchemeGenerator {
     /**

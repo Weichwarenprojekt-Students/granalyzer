@@ -7,10 +7,10 @@ import { DataSchemeController } from "./data-scheme.controller";
 import { DataSchemeService } from "./data-scheme.service";
 import { Neo4jService } from "nest-neo4j/dist";
 import { ConflictException, NotFoundException } from "@nestjs/common";
-import { LabelScheme } from "./models/labelScheme";
-import { ColorAttribute, NumberAttribute, StringAttribute } from "./models/attributes";
-import { RelationType } from "./models/relationType";
-import { Connection } from "./models/connection";
+import { LabelScheme } from "./models/label-scheme.model";
+import { ColorAttribute, NumberAttribute, StringAttribute } from "./models/attributes.model";
+import { RelationType } from "./models/relation-type.model";
+import { Connection } from "./models/connection.model";
 import { Scheme } from "./data-scheme.model";
 import TestUtil from "../util/test.util";
 import { DatabaseUtil } from "../util/database.util";
@@ -140,7 +140,7 @@ describe("DataSchemeController", () => {
                     },
                 ],
             };
-            expect(await controller.addLabelScheme(body)).toEqual(body);
+            expect(await controller.addLabelScheme(body as LabelScheme)).toEqual(body);
         });
 
         it("should throw ConflictException", async () => {
@@ -162,7 +162,7 @@ describe("DataSchemeController", () => {
                     },
                 ],
             };
-            await expect(controller.addLabelScheme(body)).rejects.toThrowError(ConflictException);
+            await expect(controller.addLabelScheme(body as LabelScheme)).rejects.toThrowError(ConflictException);
         });
     });
 
@@ -217,7 +217,7 @@ describe("DataSchemeController", () => {
                 ],
             };
             expect({
-                ...(await controller.updateLabelScheme(movieLabel.name, body, false)),
+                ...(await controller.updateLabelScheme(movieLabel.name, body as LabelScheme, false)),
                 type: "LabelScheme",
             }).toEqual(body);
         });
@@ -241,9 +241,9 @@ describe("DataSchemeController", () => {
                     },
                 ],
             };
-            await expect(controller.updateLabelScheme(movieLabel.name, body, false)).rejects.toThrowError(
-                ConflictException,
-            );
+            await expect(
+                controller.updateLabelScheme(movieLabel.name, body as LabelScheme, false),
+            ).rejects.toThrowError(ConflictException);
         });
 
         it("Missing attr when mandatory should throw ConflictException", async () => {
@@ -271,9 +271,9 @@ describe("DataSchemeController", () => {
                     },
                 ],
             };
-            await expect(controller.updateLabelScheme(movieLabel.name, body, false)).rejects.toThrowError(
-                ConflictException,
-            );
+            await expect(
+                controller.updateLabelScheme(movieLabel.name, body as LabelScheme, false),
+            ).rejects.toThrowError(ConflictException);
         });
     });
 
@@ -310,7 +310,7 @@ describe("DataSchemeController", () => {
                     },
                 ],
             };
-            expect(await controller.addRelationType(body)).toEqual(body);
+            expect(await controller.addRelationType(body as RelationType)).toEqual(body);
         });
 
         it("should throw ConflictException", async () => {
@@ -337,7 +337,7 @@ describe("DataSchemeController", () => {
                     },
                 ],
             };
-            await expect(controller.addRelationType(body)).rejects.toThrowError(ConflictException);
+            await expect(controller.addRelationType(body as RelationType)).rejects.toThrowError(ConflictException);
         });
     });
 
@@ -385,7 +385,7 @@ describe("DataSchemeController", () => {
                 ],
             };
             expect({
-                ...(await controller.updateRelationType(actedInRelation.name, body, false)),
+                ...(await controller.updateRelationType(actedInRelation.name, body as RelationType, false)),
                 type: "RelationType",
             }).toEqual(body);
         });
@@ -408,9 +408,9 @@ describe("DataSchemeController", () => {
                     },
                 ],
             };
-            await expect(controller.updateRelationType(actedInRelation.name, body, false)).rejects.toThrowError(
-                ConflictException,
-            );
+            await expect(
+                controller.updateRelationType(actedInRelation.name, body as RelationType, false),
+            ).rejects.toThrowError(ConflictException);
         });
 
         it("Missing attr when mandatory should throw ConflictException", async () => {
@@ -437,9 +437,9 @@ describe("DataSchemeController", () => {
                     },
                 ],
             };
-            await expect(controller.updateRelationType(actedInRelation.name, body, false)).rejects.toThrowError(
-                ConflictException,
-            );
+            await expect(
+                controller.updateRelationType(actedInRelation.name, body as RelationType, false),
+            ).rejects.toThrowError(ConflictException);
         });
     });
 

@@ -7,15 +7,15 @@ import { NodesController } from "./nodes.controller";
 import { Neo4jService } from "nest-neo4j/dist";
 import { NodesService } from "./nodes.service";
 import Node from "./node.model";
-import { NumberAttribute, StringAttribute } from "../data-scheme/models/attributes";
+import { NumberAttribute, StringAttribute } from "../data-scheme/models/attributes.model";
 import { InternalServerErrorException } from "@nestjs/common";
 import Relation from "../relations/relation.model";
-import { RelationType } from "../data-scheme/models/relationType";
-import { Connection } from "../data-scheme/models/connection";
+import { RelationType } from "../data-scheme/models/relation-type.model";
+import { Connection } from "../data-scheme/models/connection.model";
 import { NodesRelationsService } from "./nodes-relations.service";
 import TestUtil from "../util/test.util";
 import { DatabaseUtil } from "../util/database.util";
-import { LabelScheme } from "../data-scheme/models/labelScheme";
+import { LabelScheme } from "../data-scheme/models/label-scheme.model";
 
 describe("NodesController", () => {
     let module: TestingModule;
