@@ -54,7 +54,7 @@
                 @delete="deleteConnection(index)"
             />
 
-            <!-- The save button --->
+            <!-- The save button -->
             <div class="bottom-bar">
                 <button v-if="!createMode" class="btn btn-warn" @click="deleteRelationDialog = true">
                     {{ $t("schemes.relationEditor.delete") }}
@@ -125,7 +125,8 @@ export default defineComponent({
                     return true;
             if (this.relation.connections.length != this.modifiedRelation.connections.length) return true;
             for (let i = 0; i < this.modifiedRelation.connections.length; i++)
-                if (this.modifiedRelation.connections[i] == this.relation.connections[i]) return true;
+                if (!ApiConnection.isEqual(this.modifiedRelation.connections[i], this.relation.connections[i]))
+                    return true;
             return this.relation.name != this.modifiedRelation.name;
         },
     },

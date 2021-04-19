@@ -42,7 +42,7 @@
                 @delete="deleteAttribute(index)"
             />
 
-            <!-- The save button --->
+            <!-- The save button -->
             <div class="bottom-bar">
                 <button v-if="!createMode" class="btn btn-warn" @click="deleteLabelDialog = true">
                     {{ $t("schemes.labelEditor.delete") }}

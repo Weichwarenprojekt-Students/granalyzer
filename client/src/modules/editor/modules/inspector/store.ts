@@ -34,15 +34,14 @@ export const inspector = {
             state.elementName = payload.node.name;
 
             // Fill attributes from node and label data
-            payload.label.attributes.forEach((attribute: ApiAttribute) => {
-                state.attributes.push(
+            state.attributes = payload.label.attributes.map(
+                (attribute: ApiAttribute) =>
                     new InspectorAttribute(
                         attribute.name,
                         payload.node.attributes[attribute.name] as string,
                         attribute.datatype,
                     ),
-                );
-            });
+            );
         },
         /**
          * Set the inspector items for relations
@@ -58,15 +57,14 @@ export const inspector = {
             state.elementName = payload.relation.type;
 
             // Fill attributes from relation and relation-type data
-            payload.relType.attributes.forEach((attribute) => {
-                state.attributes.push(
+            state.attributes = payload.relType.attributes.map(
+                (attribute) =>
                     new InspectorAttribute(
                         attribute.name,
                         payload.relation.attributes[attribute.name] as string,
                         attribute.datatype,
                     ),
-                );
-            });
+            );
         },
     },
 

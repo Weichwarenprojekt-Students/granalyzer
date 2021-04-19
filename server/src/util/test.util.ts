@@ -112,9 +112,7 @@ export default class TestUtil {
             attribs: JSON.stringify(l.attributes),
         };
 
-        const resolveWrite = (res) => {
-            return res.records[0].get("label").name;
-        };
+        const resolveWrite = (res) => res.records[0].get("label").name;
         return this.neo4jService.write(cypher, params, process.env.DB_TOOL).then(resolveWrite);
     }
 

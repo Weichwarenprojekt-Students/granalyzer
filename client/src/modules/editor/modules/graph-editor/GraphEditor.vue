@@ -21,7 +21,7 @@ import { GraphHandler } from "./controls/GraphHandler";
 import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
 import { GraphControls } from "./controls/GraphControls";
-import { errorToast } from "@/utility";
+import { errorToast, infoToast } from "@/utility";
 
 export default defineComponent({
     name: "GraphEditor",
@@ -75,12 +75,7 @@ export default defineComponent({
         onNodeDrop(evt: any): void {
             // Disable adding nodes in relation edit mode
             if (this.$store.state.editor.graphEditor.relationModeActive) {
-                this.$toast.add({
-                    severity: "warn",
-                    summary: this.$t("editor.relationModeToast.title"),
-                    detail: this.$t("editor.relationModeToast.description"),
-                    life: 4000,
-                });
+                infoToast(this.$t("editor.relationModeToast.title"), this.$t("editor.relationModeToast.description"));
                 return;
             }
 

@@ -201,3 +201,18 @@ export function successToast(summary: string, detail: string, life = 3000): void
         life,
     });
 }
+/**
+ * Show a success toast
+ *
+ * @param summary The title
+ * @param detail The description
+ * @param life The time the toast is shown (in milliseconds)
+ */
+export function infoToast(summary: string, detail: string, life = 3000): void {
+    toast.add({
+        severity: "info",
+        summary,
+        detail,
+        life,
+    });
+}
