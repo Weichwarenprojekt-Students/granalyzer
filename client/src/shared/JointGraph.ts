@@ -1,7 +1,6 @@
 import { dia, g } from "jointjs";
 
 class GraphOptions implements dia.Paper.Options {
-    // eslint-disable-next-line no-undef
     [key: string]: unknown;
 }
 
@@ -67,14 +66,24 @@ export class JointGraph {
     /**
      * Select one cell in the graph
      * @param cellView The cell to select
+     * @param isLink True if the element is a link
      */
-    public selectElement(cellView: dia.CellView): void {
+    public selectElement(cellView: dia.CellView | dia.LinkView, isLink = false): void {
         this.deselectElements();
-        cellView.model.attr({
-            body: {
-                strokeWidth: 4,
-            },
-        });
+        if (!isLink)
+            cellView.model.attr({
+                body: {
+                    strokeWidth: 4,
+                },
+            });
+        else if (cellView instanceof dia.LinkView)
+            cellView.model.label(0, {
+                attrs: {
+                    rect: {
+                        strokeWidth: 4,
+                    },
+                },
+            });
     }
 
     /**
@@ -94,6 +103,15 @@ export class JointGraph {
             element.attr({
                 body: {
                     strokeWidth: 0,
+                },
+            });
+
+        for (const link of this.graph.getLinks())
+            link.label(0, {
+                attrs: {
+                    rect: {
+                        strokeWidth: 0,
+                    },
                 },
             });
     }

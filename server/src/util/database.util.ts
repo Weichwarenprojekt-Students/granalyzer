@@ -1,5 +1,13 @@
 import { Neo4jService } from "nest-neo4j/dist";
-import { HttpException, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import {
+    BadRequestException,
+    ConflictException,
+    HttpException,
+    Injectable,
+    InternalServerErrorException,
+    Logger,
+} from "@nestjs/common";
+import { Neo4jError } from "neo4j-driver";
 
 @Injectable()
 export class DatabaseUtil {
@@ -11,6 +19,16 @@ export class DatabaseUtil {
      * @private
      */
     catchDbError(err: Error) {
+        // Check for Neo4J errors
+        if (err instanceof Neo4jError) {
+            switch (err.code) {
+                case "Neo.ClientError.Statement.ParameterMissing":
+                    throw new BadRequestException(err.message);
+                case "Neo.ClientError.Schema.ConstraintValidationFailed":
+                    throw new ConflictException(err.message);
+            }
+        }
+
         // Pass Nestjs HttpException forward
         if (err instanceof HttpException) throw err;
 

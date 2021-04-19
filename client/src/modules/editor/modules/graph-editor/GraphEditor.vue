@@ -21,6 +21,7 @@ import { GraphHandler } from "./controls/GraphHandler";
 import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
 import { GraphControls } from "./controls/GraphControls";
+import { errorToast, infoToast } from "@/utility";
 
 export default defineComponent({
     name: "GraphEditor",
@@ -40,7 +41,7 @@ export default defineComponent({
         await this.$store.dispatch("editor/fetchActiveDiagram");
 
         // Load the labels with the first load of matching nodes
-        await this.$store.dispatch("loadLabelsAndNodes");
+        await this.$store.dispatch("overview/loadLabelsAndNodes");
 
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
@@ -48,27 +49,21 @@ export default defineComponent({
 
         // Generate the active diagram if available
         if (!this.$store.state.editor.diagram) {
-            this.$toast.add({
-                severity: "error",
-                summary: this.$t("editor.noDiagram.title"),
-                detail: this.$t("editor.noDiagram.description"),
-                life: 3000,
-            });
+            errorToast(this.$t("editor.noDiagram.title"), this.$t("editor.noDiagram.description"));
         } else {
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
     },
     watch: {
         async "$store.state.editor.graphEditor.relationModeActive"() {
+            this.$store.commit("editor/setEditorLoading", true);
+
             if (this.$store.state.editor.graphEditor.relationModeActive) {
-                this.$store.commit("editor/setEditorLoading", true);
                 await this.$store.state.editor.graphEditor.graphHandler.relationMode.enable();
-                this.$store.commit("editor/setEditorLoading", false);
             } else {
-                this.$store.commit("editor/setEditorLoading", true);
                 await this.$store.state.editor.graphEditor.graphHandler.relationMode.disable();
-                this.$store.commit("editor/setEditorLoading", false);
             }
+            this.$store.commit("editor/setEditorLoading", false);
         },
     },
     methods: {
@@ -79,12 +74,7 @@ export default defineComponent({
         onNodeDrop(evt: any): void {
             // Disable adding nodes in relation edit mode
             if (this.$store.state.editor.graphEditor.relationModeActive) {
-                this.$toast.add({
-                    severity: "warn",
-                    summary: this.$t("editor.relationModeToast.title"),
-                    detail: this.$t("editor.relationModeToast.description"),
-                    life: 4000,
-                });
+                infoToast(this.$t("editor.relationModeToast.title"), this.$t("editor.relationModeToast.description"));
                 return;
             }
 

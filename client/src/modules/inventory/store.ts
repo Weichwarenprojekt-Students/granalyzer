@@ -1,8 +1,8 @@
-import ApiNode from "@/modules/editor/models/ApiNode";
+import ApiNode from "@/models/data-scheme/ApiNode";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
-import ApiRelation from "@/modules/editor/models/ApiRelation";
+import ApiRelation from "@/models/data-scheme/ApiRelation";
 
 export class InventoryState {
     /**

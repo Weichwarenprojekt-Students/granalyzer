@@ -2,14 +2,14 @@ import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/Gra
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { Node } from "./controls/models/Node";
-import { Diagram } from "@/models/Diagram";
+import { ApiDiagram } from "@/models/ApiDiagram";
 import { CreateNodeCommand } from "./controls/commands/CreateNodeCommand";
 import { dia } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/RemoveNodeCommand";
 import { GET, PUT } from "@/utility";
 import { Relation } from "./controls/models/Relation";
 import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/MoveNodeCommand";
-import ApiRelation from "@/modules/editor/models/ApiRelation";
+import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/EnableDbRelationCommand";
 import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/DisableDbRelationCommand";
 import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/BendRelationCommand";
@@ -48,7 +48,7 @@ export const graphEditor = {
         /**
          * Set the active diagram
          */
-        generateDiagramFromJSON(state: GraphEditorState, diagram: Diagram): void {
+        generateDiagramFromJSON(state: GraphEditorState, diagram: ApiDiagram): void {
             if (state.graphHandler) state.graphHandler.fromJSON(diagram.serialized);
         },
 
@@ -237,6 +237,10 @@ export const graphEditor = {
          */
         async setRelationMode(context: ActionContext<GraphEditorState, RootState>, value: boolean): Promise<void> {
             context.commit("setSelectedElement", undefined);
+
+            // Reset inspector selection
+            context.commit("resetSelection");
+
             context.commit("setRelationMode", value);
         },
 

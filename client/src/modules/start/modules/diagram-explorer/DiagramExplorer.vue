@@ -17,7 +17,7 @@
         :title="$t('start.diagrams.renameItem', { item: selectedItemName })"
     ></InputDialog>
 
-    <!-- The dialog for adding a folder -->
+    <!-- The dialog for removing a folder -->
     <ConfirmDialog
         @confirm="deleteItem"
         @cancel="deleteItemDialog = false"
@@ -94,9 +94,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Folder } from "@/models/Folder";
-import { Diagram } from "@/models/Diagram";
-import { deepCopy, isEmpty, routeNames } from "@/utility";
+import { ApiFolder } from "@/models/ApiFolder";
+import { ApiDiagram } from "@/models/ApiDiagram";
+import { deepCopy, errorToast, isEmpty, routeNames } from "@/utility";
 import InputDialog from "@/components/dialog/InputDialog.vue";
 import ConfirmDialog from "@/components/dialog/ConfirmDialog.vue";
 import ExplorerItem from "./components/ExplorerItem.vue";
@@ -118,9 +118,9 @@ export default defineComponent({
             // True if the delete dialog should be shown
             deleteItemDialog: false,
             // The selected folder (empty if no folder is selected)
-            selectedFolder: {} as Folder,
+            selectedFolder: {} as ApiFolder,
             // The selected diagram (empty if no diagram is selected)
-            selectedDiagram: {} as Diagram,
+            selectedDiagram: {} as ApiDiagram,
         };
     },
     created() {
@@ -182,13 +182,13 @@ export default defineComponent({
          */
         addEmptyFolder(folderName: string): void {
             if (!folderName) {
-                this.displayEmptyNameError();
+                errorToast(this.$t("start.newFolder.empty.title"), this.$t("start.newFolder.empty.description"));
                 return;
             }
 
             this.addFolderDialog = false;
             this.$store.dispatch("start/addFolder", {
-                folder: new Folder(folderName),
+                folder: new ApiFolder(folderName),
                 folderId: this.$route.params.id,
             });
         },
@@ -199,7 +199,7 @@ export default defineComponent({
          */
         renameItem(newName: string) {
             if (!newName) {
-                this.displayEmptyNameError();
+                errorToast(this.$t("start.newFolder.empty.title"), this.$t("start.newFolder.empty.description"));
                 return;
             }
 
@@ -232,12 +232,7 @@ export default defineComponent({
          * Show a selection error
          */
         showSelectionError(): void {
-            this.$toast.add({
-                severity: "error",
-                summary: this.$t("start.diagrams.noSelection.title"),
-                detail: this.$t("start.diagrams.noSelection.description"),
-                life: 3000,
-            });
+            errorToast(this.$t("start.diagrams.noSelection.title"), this.$t("start.diagrams.noSelection.description"));
             this.clearSelection();
         },
         /**
@@ -266,18 +261,18 @@ export default defineComponent({
          *
          * @param folder The folder that was selected
          */
-        selectFolder(folder: Folder): void {
+        selectFolder(folder: ApiFolder): void {
             this.selectedFolder = folder;
-            this.selectedDiagram = {} as Diagram;
+            this.selectedDiagram = {} as ApiDiagram;
         },
         /**
          * Select a diagram
          *
          * @param diagram The diagram that was selected
          */
-        selectDiagram(diagram: Diagram): void {
+        selectDiagram(diagram: ApiDiagram): void {
             this.selectedDiagram = diagram;
-            this.selectedFolder = {} as Folder;
+            this.selectedFolder = {} as ApiFolder;
         },
         /**
          * Move a folder
@@ -297,19 +292,8 @@ export default defineComponent({
          * Clear the active selection
          */
         clearSelection(): void {
-            this.selectedDiagram = {} as Diagram;
-            this.selectedFolder = {} as Folder;
-        },
-        /**
-         * Displays an error message for empty name input fields
-         */
-        displayEmptyNameError(): void {
-            this.$toast.add({
-                severity: "error",
-                summary: this.$t("start.newFolder.empty.title"),
-                detail: this.$t("start.newFolder.empty.description"),
-                life: 3000,
-            });
+            this.selectedDiagram = {} as ApiDiagram;
+            this.selectedFolder = {} as ApiFolder;
         },
     },
 });
@@ -342,7 +326,7 @@ export default defineComponent({
     padding: 0 2px 2px 2px;
     height: 28px;
     width: 28px;
-    fill: #333;
+    fill: @dark;
 
     &:hover {
         border-bottom: 2px solid @primary_color;

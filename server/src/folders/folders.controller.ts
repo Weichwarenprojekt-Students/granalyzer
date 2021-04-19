@@ -12,6 +12,7 @@ import {
 import { Folder } from "./folder.model";
 import { Diagram } from "../diagrams/diagram.model";
 import { DiagramsService } from "../diagrams/diagrams.service";
+import { ValidationPipe } from "../validation-pipe";
 
 @ApiTags("folders")
 @Controller("folders")
@@ -85,8 +86,8 @@ export class FoldersController {
             },
         },
     })
-    updateFolder(@Param("id") id: string, @Body("name") name: string) {
-        return this.foldersService.updateFolder(id, name);
+    updateFolder(@Param("id") id: string, @Body(ValidationPipe) folder: Folder) {
+        return this.foldersService.updateFolder(id, folder.name);
     }
 
     @Post()
@@ -110,8 +111,8 @@ export class FoldersController {
             },
         },
     })
-    addFolder(@Body("name") name: string) {
-        return this.foldersService.addFolder(name);
+    addFolder(@Body(ValidationPipe) folder: Folder) {
+        return this.foldersService.addFolder(folder.name);
     }
 
     @Delete(":id")
@@ -168,8 +169,8 @@ export class FoldersController {
             },
         },
     })
-    createFolderInFolder(@Body("name") name: string, @Param("parentId") parentId: string) {
-        return this.foldersService.addFolderInFolder(parentId, name);
+    createFolderInFolder(@Body(ValidationPipe) folder: Folder, @Param("parentId") parentId: string) {
+        return this.foldersService.addFolderInFolder(parentId, folder.name);
     }
 
     @Get(":id/folders/:childId")

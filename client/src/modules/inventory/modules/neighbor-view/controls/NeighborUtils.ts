@@ -1,9 +1,9 @@
 import { dia, shapes } from "jointjs";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
-import ApiNode from "@/modules/editor/models/ApiNode";
+import ApiNode from "@/models/data-scheme/ApiNode";
 import { Store } from "vuex";
 import { RootState } from "@/store";
-import ApiRelation from "@/modules/editor/models/ApiRelation";
+import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/models/NodeShapes";
 import { getBrightness } from "@/utility";
 import Cell = dia.Cell;
@@ -79,7 +79,7 @@ export class NeighborUtils {
             label: apiNode.label,
             name: apiNode.name,
             ref: { uuid: apiNode.nodeId, index: 0 },
-            color: this.store.state.labelColor.get(apiNode.label)?.color ?? "#70FF87",
+            color: this.store.state.overview?.labelColor.get(apiNode.label)?.color ?? "#70FF87",
         };
 
         const shape = NodeShapes.parseType(node.shape);

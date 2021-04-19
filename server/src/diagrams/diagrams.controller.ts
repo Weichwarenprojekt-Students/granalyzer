@@ -11,6 +11,7 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 import { Diagram } from "./diagram.model";
+import { ValidationPipe } from "../validation-pipe";
 
 @ApiTags("diagrams")
 @Controller("diagrams")
@@ -83,7 +84,7 @@ export class DiagramsController {
         type: Diagram,
         description: "Returns the added diagram",
     })
-    addDiagram(@Body() body) {
+    addDiagram(@Body(ValidationPipe) body: Diagram) {
         return this.diagramsService.addDiagram(body.name, body.serialized);
     }
 
@@ -117,7 +118,7 @@ export class DiagramsController {
             },
         },
     })
-    updateDiagram(@Param("id") id: string, @Body() body) {
+    updateDiagram(@Param("id") id: string, @Body(ValidationPipe) body: Diagram) {
         return this.diagramsService.updateDiagram(id, body.name, body.serialized);
     }
 

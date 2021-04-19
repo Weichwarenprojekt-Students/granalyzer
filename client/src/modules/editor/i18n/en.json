@@ -7,6 +7,10 @@
     "relation": "Edit relations",
     "active": "Active"
   },
+  "inspector": {
+    "title": "Inspector",
+    "nothing-selected": "Please select a node or relation to show the attributes"
+  },
   "noDiagram": {
     "title": "No Diagram",
     "description": "You have to load a diagram first!"

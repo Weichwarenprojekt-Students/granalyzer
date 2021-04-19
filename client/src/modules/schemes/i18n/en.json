@@ -1,0 +1,116 @@
+{
+  "overview": {
+    "labels": "Labels",
+    "relations": "Relations",
+    "noLabels": "No labels found!",
+    "noRelations": "No relations found!",
+    "addLabel": "Add Label",
+    "addRelation": "Add Relation"
+  },
+  "nothing-selected": "Select either a label or a relation to edit it here.",
+  "labelEditor": {
+    "title": "Label Editor",
+    "name": "Name:",
+    "color": "Color:",
+    "attributes": "Attributes",
+    "save": "Save Changes",
+    "create": "Create",
+    "delete": "Delete",
+    "deleteDialog": {
+      "title": "Delete Label",
+      "description": "Associated nodes will not be visible in the tool anymore!"
+    },
+    "deleteFailed": {
+      "title": "Deletion failed",
+      "description": "Could not delete the label!"
+    },
+    "nameRequired": {
+      "title": "Name required",
+      "description": "Your label needs a name!"
+    },
+    "nameDuplicate": {
+      "title": "Name taken",
+      "description": "Another label already has this name!"
+    },
+    "updateSuccess": {
+      "title": "Label updated",
+      "description": "Some nodes may appear different now."
+    },
+    "updateConflicts": {
+      "title": "Conflicts! Update cancelled",
+      "description": "If you know what you are doing you can force the update!"
+    }
+  },
+  "relationEditor": {
+    "title": "Relation Editor",
+    "name": "Name:",
+    "attributes": "Attributes",
+    "connections": "Connections",
+    "save": "Save Changes",
+    "create": "Create",
+    "delete": "Delete",
+    "deleteDialog": {
+      "title": "Delete Relation",
+      "description": "Relations could lose their actual reference!"
+    },
+    "deleteFailed": {
+      "title": "Deletion failed",
+      "description": "Could not delete the relation!"
+    },
+    "nameRequired": {
+      "title": "Name required",
+      "description": "Your relation needs a name!"
+    },
+    "nameDuplicate": {
+      "title": "Name taken",
+      "description": "Another relation already has this name!"
+    },
+    "connectionInvalid": {
+      "title": "Connection invalid",
+      "description": "The label {name} is unknown!"
+    },
+    "updateSuccess": {
+      "title": "Relation updated",
+      "description": "Some relations may appear different now."
+    },
+    "updateConflicts": {
+      "title": "Conflicts! Update cancelled",
+      "description": "If you know what you are doing you can force the update!"
+    }
+  },
+  "attribute": {
+    "new": "new",
+    "delete": "Delete",
+    "type": "Type",
+    "mandatory": "Mandatory",
+    "default": "Default Value",
+    "datatype": {
+      "string": "Text",
+      "number": "Number",
+      "color": "Color"
+    },
+    "nameRequired": {
+      "title": "Name required",
+      "description": "One attribute still needs a name!"
+    },
+    "nameDuplicate": {
+      "title": "Name duplicate",
+      "description": "The attribute {name} is defined multiple times!"
+    }
+  },
+  "conflictView": {
+    "title": "Conflicts",
+    "revert": "Revert",
+    "check": "Force Changes",
+    "labelTitle": "Label: {name}",
+    "relationTitle": "Relation: {name}",
+    "descriptionMissing": "{missingError} items miss mandatory attributes!",
+    "descriptionParse": "{parseError} items have conflicting fields!",
+    "descriptionBoth": "{missingError} items miss mandatory attributes and {parseError} items have conflicting fields!",
+    "descriptionUnknown": "Something went wrong!",
+    "updateDialog": {
+      "title": "Force Update?",
+      "description": "Granalyzer will use default values for conflicting fields! Deleted attributes will be ignored!"
+    }
+  }
+}

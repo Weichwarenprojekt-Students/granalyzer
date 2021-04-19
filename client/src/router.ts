@@ -3,6 +3,7 @@ import Start from "./modules/start/Start.vue";
 import Editor from "./modules/editor/Editor.vue";
 import Inventory from "./modules/inventory/Inventory.vue";
 import { routeNames } from "./utility";
+import SchemeEditor from "@/modules/schemes/Schemes.vue";
 
 const routes: Array<RouteRecordRaw> = [
     {
@@ -23,6 +24,11 @@ const routes: Array<RouteRecordRaw> = [
         path: `${routeNames.inventory}`,
         name: "Inventory",
         component: Inventory,
+    },
+    {
+        path: `${routeNames.schemes}`,
+        name: "Scheme Editor",
+        component: SchemeEditor,
     },
 ];
 

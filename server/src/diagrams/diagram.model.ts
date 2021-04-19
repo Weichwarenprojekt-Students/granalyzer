@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsJSON, IsString, MinLength } from "class-validator";
 
 export class Diagram {
     @ApiProperty({
@@ -15,6 +16,8 @@ export class Diagram {
         name: "name",
         description: "The name of the diagram",
     })
+    @IsString()
+    @MinLength(1)
     name: string;
 
     @ApiProperty({
@@ -31,5 +34,17 @@ export class Diagram {
         name: "serialized",
         description: "Serialized JSON object of diagram",
     })
-    serialized?: string;
+    @IsJSON()
+    serialized: string;
+
+    /**
+     * Constructor
+     *
+     * @param name The name of the diagram
+     * @param serialized Serialized JSON object of diagram
+     */
+    constructor(name?: string, serialized?: string) {
+        this.name = name ?? "";
+        this.serialized = serialized ?? "{}";
+    }
 }

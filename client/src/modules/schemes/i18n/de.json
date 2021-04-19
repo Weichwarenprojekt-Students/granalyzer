@@ -1,0 +1,116 @@
+{
+  "overview": {
+    "labels": "Labels",
+    "relations": "Relationen",
+    "noLabels": "Keine Labels gefunden!",
+    "noRelations": "Keine Relationen gefunden!",
+    "addLabel": "Label hinzufügen",
+    "addRelation": "Relation hinzufügen"
+  },
+  "nothing-selected": "Wählen Sie entweder ein Label oder eine Relation aus um diese hier zu editieren.",
+  "labelEditor": {
+    "title": "Label Editor",
+    "name": "Name:",
+    "color": "Farbe:",
+    "attributes": "Attribute",
+    "save": "Speichern",
+    "create": "Erstellen",
+    "delete": "Löschen",
+    "deleteDialog": {
+      "title": "Label löschen",
+      "description": "Zugehörige Knoten werden dadurch unsichtbar!"
+    },
+    "deleteFailed": {
+      "title": "Löschen fehlgeschlagen",
+      "description": "Das Label konnte nicht gelöscht werden!"
+    },
+    "nameRequired": {
+      "title": "Name nötig",
+      "description": "Ihr Label braucht noch einen Namen!"
+    },
+    "nameDuplicate": {
+      "title": "Name besetzt",
+      "description": "Ein anderes Label hat bereits diesen Namen!"
+    },
+    "updateSuccess": {
+      "title": "Label aktualisiert ",
+      "description": "Manche Knoten könnten nun anders erscheinen."
+    },
+    "updateConflicts": {
+      "title": "Konflikte! Aktualisierung abgebrochen",
+      "description": "Wenn Sie wissen was Sie tun können Sie die Aktualsierung erzwingen!"
+    }
+  },
+  "relationEditor": {
+    "title": "Relationen Editor",
+    "name": "Name:",
+    "attributes": "Attribute",
+    "connections": "Verbindungen",
+    "save": "Speichern",
+    "create": "Erstellen",
+    "delete": "Löschen",
+    "deleteDialog": {
+      "title": "Relationen-Typ löschen",
+      "description": "Relationen könnten dadurch ihre Referenz verlieren!"
+    },
+    "deleteFailed": {
+      "title": "Löschen fehlgeschlagen",
+      "description": "Die Relation konnte nicht gelöscht werden!"
+    },
+    "nameRequired": {
+      "title": "Name nötig",
+      "description": "Ihre Relation braucht noch einen Namen!"
+    },
+    "nameDuplicate": {
+      "title": "Name besetzt",
+      "description": "Eine andere Relation hat bereits diesen Namen!"
+    },
+    "connectionInvalid": {
+      "title": "Verbindung ungültig",
+      "description": "Das Label {name} ist unbekannt!"
+    },
+    "updateSuccess": {
+      "title": "Relation aktualisiert ",
+      "description": "Manche Relationen könnten nun anders erscheinen."
+    },
+    "updateConflicts": {
+      "title": "Konflikte! Aktualisierung abgebrochen",
+      "description": "Wenn Sie wissen was Sie tun können Sie die Aktualsierung erzwingen!"
+    }
+  },
+  "attribute": {
+    "new": "neu",
+    "delete": "Löschen",
+    "type": "Type",
+    "mandatory": "Pflichtfeld",
+    "default": "Standardwert",
+    "datatype": {
+      "string": "Text",
+      "number": "Zahl",
+      "color": "Farbe"
+    },
+    "nameRequired": {
+      "title": "Name nötig",
+      "description": "Ein Attribut braucht noch einen Namen!"
+    },
+    "nameDuplicate": {
+      "title": "Name doppelt",
+      "description": "Das Attribut {name} ist bereits vorhanden!"
+    }
+  },
+  "conflictView": {
+    "title": "Konflikte",
+    "revert": "Rückgängig",
+    "check": "Änderungen erzwingen",
+    "labelTitle": "Label: {name}",
+    "relationTitle": "Relation: {name}",
+    "descriptionMissing": "Bei {missingError} Elementen fehlen Pflichtfelder!",
+    "descriptionParse": "Bei {parseError} Elementen sind Felder ungültig!",
+    "descriptionBoth": "Bei {missingError} Elementen fehlen Pflichtfelder und bei {parseError} Elementen sind Felder ungültig!",
+    "descriptionUnknown": "Etwas ist schief gelaufen!",
+    "updateDialog": {
+      "title": "Update erzwingen?",
+      "description": "Granalyzer wird Standardwerte für Problemfelder nehmen! Gelöschte Attribute werden ignoriert!"
+    }
+  }
+}

@@ -1,9 +1,10 @@
-import { Diagram } from "@/models/Diagram";
+import { ApiDiagram } from "@/models/ApiDiagram";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
-import ApiNode from "@/modules/editor/models/ApiNode";
+import ApiNode from "@/models/data-scheme/ApiNode";
 import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
+import { inspector, InspectorState } from "@/modules/editor/modules/inspector/store";
 
 /**
  * The local storage key for the opened diagram in the editor
@@ -12,9 +13,9 @@ const currentDiagramKey = "current-diag-id";
 
 export class EditorState {
     /**
-     * The currently active diagram object
+     * The currently edited diagram
      */
-    public diagram?: Diagram;
+    public diagram?: ApiDiagram;
 
     /**
      * Replication of the overview item that is dragged into the diagram
@@ -25,6 +26,11 @@ export class EditorState {
      * Graph editor state
      */
     public graphEditor?: GraphEditorState;
+
+    /**
+     * Inspector state
+     */
+    public inspector?: InspectorState;
 }
 
 export const editor = {
@@ -34,7 +40,7 @@ export const editor = {
         /**
          * Set the active diagram object
          */
-        setActiveDiagram(state: EditorState, diagram?: Diagram): void {
+        setActiveDiagram(state: EditorState, diagram?: ApiDiagram): void {
             state.diagram = diagram;
             if (diagram) localStorage.setItem(currentDiagramKey, diagram.diagramId);
         },
@@ -67,11 +73,12 @@ export const editor = {
             }
 
             // Set the active diagram
-            const diagram: Diagram = await result.json();
+            const diagram: ApiDiagram = await result.json();
             context.commit("setActiveDiagram", diagram);
         },
     },
     modules: {
         graphEditor,
+        inspector,
     },
 };

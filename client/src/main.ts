@@ -11,6 +11,8 @@ import Toast from "primevue/toast";
 import InputNumber from "primevue/inputnumber";
 import ProgressBar from "primevue/progressbar";
 import ScrollPanel from "primevue/scrollpanel";
+import ColorPicker from "primevue/colorpicker";
+import Checkbox from "primevue/checkbox";
 
 // Load the prime vue styles
 import "primevue/resources/themes/saga-blue/theme.css";
@@ -23,6 +25,8 @@ const app = createApp(App).use(store).use(router).use(i18n);
 // Add the prime vue components
 app.use(PrimeVue);
 app.use(ToastService).component("Toast", Toast);
+app.component("Checkbox", Checkbox);
+app.component("ColorPicker", ColorPicker);
 app.component("Dialog", Dialog);
 app.component("InputNumber", InputNumber);
 app.component("ProgressBar", ProgressBar);

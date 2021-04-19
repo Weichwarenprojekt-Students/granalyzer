@@ -38,7 +38,7 @@ export class GraphControls {
         shape.position(node.x, node.y);
 
         // Try to find the matching label color and use default otherwise
-        const nodeColor = this.store.state.labelColor.get(node.label)?.color ?? "#70FF87";
+        const nodeColor = this.store.state.overview?.labelColor.get(node.label)?.color ?? "#70FF87";
 
         // Style node
         shape.attr({
@@ -157,7 +157,7 @@ export class GraphControls {
                     rect: {
                         ref: "text",
                         fill: "#333",
-                        stroke: "#fff",
+                        stroke: "#000",
                         strokeWidth: 0,
                         refX: "-10%",
                         refY: "-4%",
@@ -236,25 +236,46 @@ export class GraphControls {
      * Listen for node move events
      */
     private registerNodeInteraction(): void {
-        // No element selected
-        this.graphHandler.graph.paper.on("blank:pointerdown", () => {
+        // Nothing selected
+        this.graphHandler.graph.paper.on("blank:pointerclick", () => {
             this.graphHandler.graph.deselectElements();
             this.store.commit("editor/setSelectedElement", undefined);
+
+            // Reset inspector selection
+            this.store.commit("editor/resetSelection");
         });
 
         // The move command instance
         let moveCommand: MoveNodeCommand | undefined;
 
-        // Save the clicked element and the position of it
-        this.graphHandler.graph.paper.on("element:pointerdown", (cell) => {
+        // Node selected
+        this.graphHandler.graph.paper.on("element:pointerdown", async (cell) => {
             moveCommand = new MoveNodeCommand(this.graphHandler, cell.model);
+
+            // Select the clicked element
             if (!this.store.state.editor?.graphEditor?.relationModeActive) {
                 this.graphHandler.graph.selectElement(cell);
                 this.store.commit("editor/setSelectedElement", cell.model);
+
+                // Set the currently selected node for inspector
+                const node = this.graphHandler.nodes.get(cell.model.id);
+                await this.store.dispatch("editor/viewNodeInInspector", node?.ref.uuid);
             }
         });
 
-        // Check if a node was moved
+        // Relation selected
+        this.graphHandler.graph.paper.on("link:pointerdown", async (cell) => {
+            if (!this.store.state.editor?.graphEditor?.relationModeActive) {
+                this.graphHandler.graph.selectElement(cell, true);
+                this.store.commit("editor/setSelectedElement", cell.model);
+
+                // Set the currently selected relation for inspector
+                const relation = this.graphHandler.relations.get(cell.model.id);
+                await this.store.dispatch("editor/viewRelationInInspector", relation?.uuid);
+            }
+        });
+
+        // Node unselected
         this.graphHandler.graph.paper.on("element:pointerup", async () => {
             if (moveCommand && moveCommand.positionChanged()) {
                 moveCommand.updateStopPosition();

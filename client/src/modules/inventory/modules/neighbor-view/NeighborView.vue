@@ -13,10 +13,10 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { JointGraph } from "@/shared/JointGraph";
-import ApiNode from "@/modules/editor/models/ApiNode";
+import ApiNode from "@/models/data-scheme/ApiNode";
 import { dia } from "jointjs";
 import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
-import ApiRelation from "@/modules/editor/models/ApiRelation";
+import ApiRelation from "@/models/data-scheme/ApiRelation";
 
 export default defineComponent({
     name: "NeighborView",

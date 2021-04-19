@@ -1,0 +1,69 @@
+<template>
+    <div v-if="$store.getters['editor/isInspectorDataLoaded']" class="content">
+        <div class="underlined-title">
+            {{ $store.state.editor.inspector.elementName }}
+        </div>
+        <ScrollPanel class="scroll-panel">
+            <AttributeItem
+                v-for="attribute in $store.state.editor.inspector.attributes"
+                :key="attribute.name"
+                :attribute="attribute"
+            ></AttributeItem>
+        </ScrollPanel>
+    </div>
+    <div v-else class="content">
+        <div class="underlined-title">{{ $t("editor.inspector.title") }}</div>
+        <div class="empty-warning">
+            <svg>
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
+            </svg>
+            <div class="message">{{ $t("editor.inspector.nothing-selected") }}</div>
+        </div>
+    </div>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import AttributeItem from "@/modules/editor/modules/inspector/components/AttributeItem.vue";
+
+export default defineComponent({
+    name: "Inspector",
+    components: {
+        AttributeItem,
+    },
+    mounted() {
+        this.$store.commit("editor/resetSelection");
+    },
+});
+</script>
+
+<style lang="less" scoped>
+@import "~@/styles/global.less";
+
+.content {
+    display: flex;
+    flex-flow: column;
+
+    height: 100%;
+    border-left: 1px solid @grey;
+    padding: 0 16px;
+}
+
+.empty-warning {
+    margin: 0;
+}
+
+.underlined-title {
+    padding: 0;
+}
+
+.scroll-panel {
+    margin-top: 8px !important;
+    overflow: hidden !important;
+    flex: 1 1 auto !important;
+
+    .space {
+        padding-bottom: 24px;
+    }
+}
+</style>

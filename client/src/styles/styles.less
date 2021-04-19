@@ -12,12 +12,20 @@
 }
 
 /**
+ * Scroll panel (often used settings)
+ */
+.scroll-panel {
+  margin-top: 8px !important;
+  overflow: hidden !important;
+  flex: 1 1 auto !important;
+}
+
+/**
  * Button
  */
 .btn {
   border-radius: @border_radius;
-  padding: 8px;
-  width: 160px;
+  padding: 6px 24px;
   border: 1px solid @dark;
   cursor: pointer;
   outline: 0;
@@ -47,6 +55,44 @@
   }
 }
 
+.btn-warn {
+  color: @warn;
+  border-color: @warn;
+  background: transparent;
+
+  &:disabled {
+    color: @dark;
+
+    &:hover {
+      border-color: @dark;
+      background: transparent;
+    }
+  }
+}
+
+.btn-secondary {
+  color: @dark;
+  border-color: @secondary_color;
+  background: @secondary_color;
+
+  &:hover {
+    border-color: @accent_color;
+    background: @accent_color;
+  }
+
+  &:disabled {
+    color: #999;
+    background: @light_grey;
+    border-color: @light_grey;
+    cursor: default;
+
+    &:hover {
+      background: @light_grey;
+      border-color: @light_grey;
+    }
+  }
+}
+
 .btn-primary {
   color: white;
   border-color: @primary_color;
@@ -68,16 +114,39 @@
 }
 
 /**
- * Searchbar
+ * The underlined title (classic title for sub modules, e.g. overview list etc.)
  */
-.searchbar {
-  padding: 6px 16px;
-  background: @light_grey;
+.underlined-title {
+  flex: 0 0 auto;
+  font-size: @h3;
+  padding-top: 12px;
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid @secondary_color;
+  height: @header-height;
+}
 
-  input[type="text"] {
-    width: 100%;
-    background: transparent;
-    border: none;
+/**
+ * The warning for lists (e.g. if there are no results to display)
+ */
+.empty-warning {
+  text-align: center;
+  display: flex;
+  align-items: center;
+  margin-right: 18px;
+  flex-direction: column;
+
+  svg {
+    fill: @dark_grey;
+    height: 64px;
+    width: 64px;
+    margin-top: 32px;
+    margin-bottom: 16px;
+  }
+
+  .message {
+    color: @dark;
+    font-size: @h3;
   }
 }
 

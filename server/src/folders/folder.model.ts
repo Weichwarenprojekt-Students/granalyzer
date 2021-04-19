@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsString, MinLength } from "class-validator";
 
 export class Folder {
     @ApiProperty({
@@ -15,6 +16,8 @@ export class Folder {
         name: "name",
         description: "Name of the folder",
     })
+    @IsString()
+    @MinLength(1)
     name: string;
 
     @ApiProperty({
@@ -24,4 +27,13 @@ export class Folder {
         description: "The Id of the parent folder",
     })
     parentId?: string;
+
+    /**
+     * Constructor
+     *
+     * @param name Name of the folder
+     */
+    constructor(name?: string) {
+        this.name = name ?? "";
+    }
 }

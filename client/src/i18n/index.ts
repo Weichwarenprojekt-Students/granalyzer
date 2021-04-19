@@ -7,6 +7,8 @@ import editor_en from "@/modules/editor/i18n/en.json";
 import editor_de from "@/modules/editor/i18n/de.json";
 import inventory_en from "@/modules/inventory/i18n/en.json";
 import inventory_de from "@/modules/inventory/i18n/de.json";
+import schemes_en from "@/modules/schemes/i18n/en.json";
+import schemes_de from "@/modules/schemes/i18n/de.json";
 
 export enum Locales {
     EN = "en",
@@ -24,12 +26,14 @@ export const messages = {
         start: start_en,
         editor: editor_en,
         inventory: inventory_en,
+        schemes: schemes_en,
     },
     [Locales.DE]: {
         global: app_de,
         start: start_de,
         editor: editor_de,
         inventory: inventory_de,
+        schemes: schemes_de,
     },
 };
 
