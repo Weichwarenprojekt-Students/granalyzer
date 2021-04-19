@@ -1,7 +1,9 @@
 name: CD
 
 # Run action on every push an pull request on the main branch
-on: [push, pull_request]
+on:
+  release:
+    types: [created]
 
 jobs:
 
@@ -14,6 +16,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout Repository
         uses: actions/checkout@v2
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
       # Install NodeJS
       - name: Install NodeJS
@@ -55,6 +60,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/weichwarenprojekt/granalyzer:latest
-            ghcr.io/weichwarenprojekt/granalyzer:0.0.4
-
-
+            ghcr.io/weichwarenprojekt/granalyzer:${{ env.RELEASE_VERSION }}
