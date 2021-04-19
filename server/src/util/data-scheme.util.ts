@@ -53,6 +53,7 @@ export class DataSchemeUtil {
      * @param record Single record response from db
      * @param labelScheme The label scheme of the node
      */
+    // TODO: Use querykey
     public async parseNode(record, labelScheme?: LabelScheme): Promise<Node> {
         const attributes = record.get("node");
 
