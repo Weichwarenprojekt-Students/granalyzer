@@ -3,7 +3,6 @@ import { Neo4jService } from "nest-neo4j/dist";
 import Node from "./node.model";
 import { DataSchemeUtil } from "../util/data-scheme.util";
 import { DatabaseUtil } from "../util/database.util";
-import { NodesService } from "./nodes.service";
 import { DataSchemeService } from "../data-scheme/data-scheme.service";
 
 @Injectable()
@@ -16,9 +15,8 @@ export class NodesAttributesService {
     constructor(
         private readonly neo4jService: Neo4jService,
         private readonly dataSchemeUtil: DataSchemeUtil,
-        private readonly databaseUtil: DatabaseUtil,
-        private readonly nodesService: NodesService,
         private readonly dataSchemeService: DataSchemeService,
+        private readonly databaseUtil: DatabaseUtil,
     ) {}
 
     /**
@@ -32,13 +30,17 @@ export class NodesAttributesService {
         // Get the data scheme for the label of this node
         const scheme = await this.dataSchemeService.getLabelScheme(node.label);
 
+        // TODO: Remove type checks?
+        // Throws an exception if the attribute values do not match their datatype
+        this.dataSchemeUtil.checkAttributesIntegrity(scheme, node);
+
         // language=Cypher
         const query = `
           MATCH(node)
             WHERE node.nodeId = $nodeId
           WITH LABELS(node) AS lbls, node
           UNWIND lbls AS label
-          SET node = $attributes
+          SET node += $attributes
           RETURN node{. *, label:label} AS node`;
 
         const params = {
@@ -46,23 +48,23 @@ export class NodesAttributesService {
             attributes: {},
         };
 
-        // Convert attributes to correct datatype and replace missing mandatory attributes with default value
-        node = await this.dataSchemeUtil.parseNode(node);
-
+        // Decide which data needs to be written to database
         scheme.attributes.forEach((attribute) => {
-            // Delete non-mandatory attribute from DB if not set
-            // Do not delete mandatory attribute if not set
-            // If mandatory and value equal default value --> Do nothing
-            // TODO: Implement value checks, use data-scheme-util methods?
+            const attr = node.attributes[attribute.name];
+
+            if ((!attribute.mandatory && attr) || (attribute.mandatory && attr && attr != attribute.defaultValue)) {
+                // Write the new (non-)mandatory value into the DB
+                params.attributes[attribute.name] = attr;
+            } else if (!attribute.mandatory && !attr) {
+                // Delete the unset non-mandatory attribute from DB
+                params.attributes[attribute.name] = null;
+            }
         });
 
-        // TODO: Check if attribute should be deleted
-
-        // Callback which parses the received data
         const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0]);
 
         return this.neo4jService
-            .read(query, params, this.database)
+            .write(query, params, this.database)
             .then(resolveRead)
             .catch(this.databaseUtil.catchDbError);
     }

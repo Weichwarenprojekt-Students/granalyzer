@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { DataSchemeUtil } from "../util/data-scheme.util";
 import { DatabaseUtil } from "../util/database.util";
@@ -21,8 +21,8 @@ export class RelationsAttributesService {
      * Modifies the attributes of the specified relation
      * @param relation The node to be modified
      */
-    setAttributes(relation: Relation): Relation {
+    setAttributes(relationId: string, relation: Relation): Relation {
         // TODO: Implement service
-        return undefined;
+        throw new InternalServerErrorException("Not implemented yet");
     }
 }
