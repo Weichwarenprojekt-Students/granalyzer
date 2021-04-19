@@ -4,24 +4,25 @@
         <div class="title">
             {{ $t("global.titleOverview") }}
             <div v-tooltip="$t('global.filterIcon')">
-                <svg @click="showFilter = !showFilter">
+                <svg @click="showLabelFilter = !showLabelFilter">
                     <use :xlink:href="require('@/assets/img/icons.svg') + '#filter'"></use>
                 </svg>
             </div>
         </div>
 
         <!-- Search bar + Filter -->
-        <OverviewSearch
-            :labels="labels"
-            @user-filter="handleFilter"
-            :labelColors="labelColors"
-            :showFilter="showFilter"
-        ></OverviewSearch>
+        <OverviewFilter
+            v-show="showLabelFilter"
+            v-model="filter.selectedLabels"
+            :labels="$store.state.overview.labels"
+            :labelColors="$store.state.overview.labelColor"
+        />
+        <Searchbar v-model="filter.nameFilter" />
 
         <!-- Scrolling content -->
         <ScrollPanel class="scroll-panel">
             <!-- No nodes found -->
-            <div v-if="!nodesReady" class="emptyList">
+            <div v-if="!$store.getters['overview/nodesReady']" class="emptyList">
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
                 </svg>
@@ -30,40 +31,30 @@
 
             <!-- Nodes -->
             <OverviewItem
-                v-for="node in nodes"
+                v-for="node in $store.state.overview.nodes"
                 :key="node.nodeId"
                 :node="node"
-                :color="labelColors.get(node.label).color"
-                :font-color="labelColors.get(node.label).fontColor"
+                :color="$store.state.overview.labelColor.get(node.label).color"
+                :font-color="$store.state.overview.labelColor.get(node.label).fontColor"
                 :isSelected="node.nodeId === selectedItemId"
                 @clicked-on-node="clickedOnNode"
             />
-            <div class="space" />
         </ScrollPanel>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import OverviewItem from "@/components/overview-list/OverviewItem.vue";
-import OverviewSearch from "@/components/overview-list/OverviewSearch.vue";
+import OverviewItem from "@/modules/overview-list/components/OverviewItem.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
+import Searchbar from "@/components/Searchbar.vue";
+import OverviewFilter from "@/modules/overview-list/components/OverviewFilter.vue";
 
 export default defineComponent({
     name: "OverviewList",
-    components: { OverviewItem, OverviewSearch },
-    emits: ["extend-nodes", "clicked-on-node", "user-filter"],
+    components: { OverviewFilter, Searchbar, OverviewItem },
+    emits: ["clicked-on-node"],
     props: {
-        // True, if list of nodes has length > 0
-        nodesReady: Boolean,
-        // Nodes to display
-        nodes: Array,
-        // Labels for the node visualization
-        labels: Array,
-        // Colors for the label visualization
-        labelColors: Object,
-        // True, if scrolling should expand the overview list further
-        toggleScrollEmit: Boolean,
         // Id of the item that is selected in the overview
         selectedItemId: String,
     },
@@ -74,15 +65,26 @@ export default defineComponent({
             // Flag to prevent scroll event from loading too many times
             allowReload: true,
             // True if filter is shown
-            showFilter: false,
+            showLabelFilter: false,
+            // The filter
+            filter: {
+                nameFilter: "",
+                selectedLabels: new Array<string>(),
+            },
         };
     },
     watch: {
         /**
-         * Watch scrolling property to enable reloading after nodes were extended
+         * Watch for name filter changes
          */
-        toggleScrollEmit() {
-            this.allowReload = true;
+        "filter.nameFilter"() {
+            this.updateOverview();
+        },
+        /**
+         * Watch for label filter changes
+         */
+        "filter.selectedLabels"() {
+            this.updateOverview();
         },
     },
     mounted() {
@@ -101,7 +103,8 @@ export default defineComponent({
 
             if (this.allowReload && scrollTop + clientHeight * 1.4 > scrollHeight) {
                 this.allowReload = false;
-                this.$emit("extend-nodes");
+                await this.$store.dispatch("overview/extendNodes", this.filter);
+                this.allowReload = true;
             }
         },
         /**
@@ -111,10 +114,10 @@ export default defineComponent({
             this.$emit("clicked-on-node", node);
         },
         /**
-         * Emit the labels and user input to filter by to the editor/inventory
+         * Filter nodes by labels
          */
-        handleFilter(filter: { userInput: string; labelsToFilterBy: Array<string> }): void {
-            this.$emit("user-filter", filter);
+        updateOverview(): void {
+            this.$store.dispatch("overview/loadLabelsAndNodes", this.filter);
         },
     },
 });

@@ -54,8 +54,6 @@
                     {{ $t("schemes.labelEditor.create") }}
                 </button>
             </div>
-
-            <div class="space"></div>
         </ScrollPanel>
     </div>
 </template>

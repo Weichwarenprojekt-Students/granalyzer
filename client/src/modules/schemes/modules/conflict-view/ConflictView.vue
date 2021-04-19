@@ -7,7 +7,6 @@
                 :key="conflict.title"
                 :conflict="conflict"
             />
-            <div class="space"></div>
         </ScrollPanel>
     </div>
 </template>

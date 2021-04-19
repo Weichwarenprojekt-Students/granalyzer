@@ -41,7 +41,7 @@ export default defineComponent({
         await this.$store.dispatch("editor/fetchActiveDiagram");
 
         // Load the labels with the first load of matching nodes
-        await this.$store.dispatch("loadLabelsAndNodes");
+        await this.$store.dispatch("overview/loadLabelsAndNodes");
 
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");

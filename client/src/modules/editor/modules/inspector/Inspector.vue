@@ -9,7 +9,6 @@
                 :key="attribute.name"
                 :attribute="attribute"
             ></AttributeItem>
-            <div class="space" />
         </ScrollPanel>
     </div>
     <div v-else class="content">

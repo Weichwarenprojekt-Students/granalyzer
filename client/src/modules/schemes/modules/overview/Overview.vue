@@ -12,9 +12,7 @@
 
         <!-- The labels tab -->
         <div v-if="labelsOpen" class="tab-content">
-            <label class="searchbar">
-                <input v-model="labelFilter" type="text" placeholder="Search..." />
-            </label>
+            <Searchbar v-model="labelFilter" />
 
             <!-- The warning if there are no labels -->
             <div v-if="labels.length === 0" class="empty-warning">
@@ -41,16 +39,12 @@
                     </svg>
                     <span> {{ $t("schemes.overview.addLabel") }} </span>
                 </div>
-
-                <div class="space" />
             </ScrollPanel>
         </div>
 
         <!-- The relations tab -->
         <div v-if="!labelsOpen" class="tab-content">
-            <label class="searchbar">
-                <input v-model="relationFilter" type="text" placeholder="Search..." />
-            </label>
+            <Searchbar v-model="relationFilter" />
 
             <!-- The warning if there are no relations -->
             <div v-if="relations.length === 0" class="empty-warning">
@@ -77,8 +71,6 @@
                     </svg>
                     <span> {{ $t("schemes.overview.addRelation") }} </span>
                 </div>
-
-                <div class="space" />
             </ScrollPanel>
         </div>
     </div>
@@ -88,9 +80,11 @@
 import { defineComponent } from "vue";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
 import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
+import Searchbar from "@/components/Searchbar.vue";
 
 export default defineComponent({
     name: "Overview",
+    components: { Searchbar },
     data() {
         return {
             // True if the labels tab is active
@@ -226,6 +220,7 @@ export default defineComponent({
     gap: 12px;
     padding-left: 16px;
     cursor: pointer;
+    margin-bottom: 16px;
 
     svg {
         width: 16px;
@@ -244,19 +239,8 @@ export default defineComponent({
     flex-direction: column;
 }
 
-.searchbar {
-    flex: 0 0 auto;
-    margin-top: 8px;
-}
-
 .scroll-panel {
-    margin-top: 8px !important;
-    overflow: hidden !important;
-    flex: 1 1 auto !important;
-
-    .space {
-        padding-bottom: 48px;
-    }
+    margin-top: 0 !important;
 }
 
 .item {

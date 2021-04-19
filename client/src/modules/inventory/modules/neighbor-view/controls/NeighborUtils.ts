@@ -79,7 +79,7 @@ export class NeighborUtils {
             label: apiNode.label,
             name: apiNode.name,
             ref: { uuid: apiNode.nodeId, index: 0 },
-            color: this.store.state.labelColor.get(apiNode.label)?.color ?? "#70FF87",
+            color: this.store.state.overview?.labelColor.get(apiNode.label)?.color ?? "#70FF87",
         };
 
         const shape = NodeShapes.parseType(node.shape);

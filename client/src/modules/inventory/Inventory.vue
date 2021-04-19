@@ -2,16 +2,9 @@
     <div class="content">
         <ProgressBar v-show="$store.state.inventory.loading" mode="indeterminate" class="loading" />
         <OverviewList
-            :nodesReady="$store.getters['nodesReady']"
-            :nodes="$store.state.nodes"
-            :labels="$store.state.labels"
-            :labelColors="$store.state.labelColor"
-            :toggleScrollEmit="toggleScrollEmit"
             :selectedItemId="$store.state.inventory.selectedNode?.nodeId"
             class="overview"
-            @extend-nodes="extendNodes"
             @clicked-on-node="clickedOnNode"
-            @user-filter="handleFilter"
         ></OverviewList>
         <div class="center">
             <InventoryHeader class="header"></InventoryHeader>
@@ -22,7 +15,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import OverviewList from "@/components/overview-list/OverviewList.vue";
+import OverviewList from "@/modules/overview-list/OverviewList.vue";
 import InventoryHeader from "@/modules/inventory/modules/inventory-header/InventoryHeader.vue";
 import NeighborView from "@/modules/inventory/modules/neighbor-view/NeighborView.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
@@ -34,31 +27,11 @@ export default defineComponent({
         NeighborView,
         InventoryHeader,
     },
-    data() {
-        return {
-            // Toggle reloading of nodes for the overview list
-            toggleScrollEmit: true,
-            // Filter for node reloading
-            filter: {
-                // Input in the searchbar
-                userInput: "",
-                // Labels to filter by
-                labelsToFilterBy: [] as Array<string>,
-            },
-        };
-    },
     mounted() {
         // Load the labels with the first load of matching nodes
-        this.$store.dispatch("loadLabelsAndNodes");
+        this.$store.dispatch("overview/loadLabelsAndNodes");
     },
     methods: {
-        /**
-         * Extend the node list
-         */
-        async extendNodes(): Promise<void> {
-            await this.$store.dispatch("extendNodes", this.filter);
-            this.toggleScrollEmit = !this.toggleScrollEmit;
-        },
         /**
          * Store node that was selected
          */
@@ -71,15 +44,6 @@ export default defineComponent({
 
             this.$store.commit("inventory/setSelectedNode", node);
             this.$store.dispatch("inventory/loadRelations", node);
-        },
-        /**
-         * Filter nodes by labels
-         */
-        handleFilter(filter: { userInput: string; labelsToFilterBy: Array<string> }): void {
-            this.filter.userInput = filter.userInput;
-            this.filter.labelsToFilterBy = filter.labelsToFilterBy;
-
-            this.$store.dispatch("loadLabelsAndNodes", filter);
         },
     },
 });

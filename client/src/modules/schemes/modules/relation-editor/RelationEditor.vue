@@ -66,8 +66,6 @@
                     {{ $t("schemes.relationEditor.create") }}
                 </button>
             </div>
-
-            <div class="space"></div>
         </ScrollPanel>
     </div>
 </template>
