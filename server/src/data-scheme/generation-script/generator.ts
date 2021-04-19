@@ -115,6 +115,8 @@ export class SchemeGenerator {
             labels.push(newLabel);
         }
 
+        await this.createFullTextScheme(labelNames, ["nodeId"], session);
+
         return labels;
     }
 
@@ -190,7 +192,7 @@ export class SchemeGenerator {
      * @param session
      */
     private static async createCustomerLabelConstraint(labelScheme: LabelScheme, session: Session) {
-        // Automatically create the uuids with apoc
+        // Create UUID's on existing elements
         // language=cypher
         const createNodeUuidQuery = `
         MATCH (node:${labelScheme.name})
@@ -204,6 +206,28 @@ export class SchemeGenerator {
         ON (n:${labelScheme.name})
         ASSERT (n.nodeId) IS NODE KEY`;
         await session.run(createConstraintQuery).catch(console.error);
+    }
+
+    /**
+     * Create a full-text scheme index on all nodeId's
+     *
+     * @param labels
+     * @param indexedAttrs
+     * @param session
+     * @private
+     */
+    private static async createFullTextScheme(labels: string[], indexedAttrs: string[], session: Session) {
+        // language=cypher
+        const cypher = `
+          CALL db.index.fulltext.createNodeIndex("allNodesIndex", $labels, $indexedAttrs)
+        `;
+
+        const params = {
+            labels,
+            indexedAttrs,
+        };
+
+        await session.run(cypher, params).catch(console.error);
     }
 
     /**
