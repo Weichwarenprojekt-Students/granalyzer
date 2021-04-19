@@ -75,4 +75,21 @@ export class NodesController {
     getRelationsOfNode(@Param("id") id: string) {
         return this.nodesRelationsService.getRelationsOfNode(id);
     }
+
+    @Get(":id/related")
+    @ApiOperation({
+        description: "Return all related nodes that are connected to a node matching id",
+    })
+    @ApiParam({
+        name: "id",
+        type: "string",
+        description: "Identifier of the node which related nodes are requested",
+    })
+    @ApiOkResponse({
+        description: "Return all related nodes of a node",
+        type: [Node],
+    })
+    getRelatedNodes(@Param("id") id: string) {
+        return null; //TODO: implement method to return related nodes
+    }
 }

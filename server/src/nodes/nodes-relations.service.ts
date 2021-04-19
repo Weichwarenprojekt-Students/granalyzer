@@ -18,6 +18,21 @@ export class NodesRelationsService {
     ) {}
 
     /**
+     * Get all related nodes that are connected to a certain node
+     *
+     * @param id The id of the node
+     */
+    async getRelatedNodes(id: string): Promise<Node[]> {
+        //TODO: add cypher query to get related nodes
+
+        //TODO: add params
+
+        //TODO: create callback
+
+        return null; //TODO: return nodes
+    }
+
+    /**
      * Get all relations that are connected to a certain node
      *
      * @param id The id of the node

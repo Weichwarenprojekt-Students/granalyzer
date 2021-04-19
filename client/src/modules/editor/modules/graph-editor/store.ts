@@ -196,6 +196,30 @@ export const graphEditor = {
             await context.dispatch("saveChange");
         },
         /**
+         * Add related nodes
+         */
+        async addRelatedNodes(context: ActionContext<GraphEditorState, RootState>, node: Node): Promise<void> {
+            //TODO: implement
+            context.commit("setEditorLoading", true);
+
+            console.log(context);
+
+            //TODO: change to correct route
+            //const res = await GET("/api/nodes/" + node.ref.uuid + "/relations");
+            //const newVar: ApiRelation[] = await res.json();
+
+            //TODO: add nodes with method above
+
+
+
+
+
+
+            // finish editing
+            context.commit("setEditorLoading", false);
+            await context.dispatch("saveChange");
+        },
+        /**
          * Remove a node
          */
         async removeNode(context: ActionContext<GraphEditorState, RootState>): Promise<void> {

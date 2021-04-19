@@ -14,6 +14,15 @@
             </span>
         </div>
         <div
+            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            v-tooltip.bottom="$t('editor.toolbar.related')"
+            @click="addRelatedNodes"
+        >
+            <svg class="icon">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#diagram`"></use>
+            </svg>
+        </div>
+        <div
             :class="['item', $store.getters['editor/undoAvailable'] ? '' : 'item-disabled']"
             @click="undo"
             v-tooltip.bottom="$t('editor.toolbar.undo')"
@@ -86,6 +95,12 @@ export default defineComponent({
          */
         toggleRelationMode(): void {
             this.$store.dispatch("editor/toggleRelationMode");
+        },
+        /**
+         * Add related nodes
+         */
+        addRelatedNodes(): void {
+            this.$store.dispatch("editor/addRelatedNodes");
         },
     },
 });

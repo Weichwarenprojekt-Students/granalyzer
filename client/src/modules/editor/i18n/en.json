@@ -5,6 +5,7 @@
     "redo": "Redo (Ctrl + Y)",
     "delete": "Delete",
     "relation": "Edit relations",
+    "related": "Add related nodes",
     "active": "Active"
   },
   "inspector": {
