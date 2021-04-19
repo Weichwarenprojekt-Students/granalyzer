@@ -147,12 +147,12 @@ export default defineComponent({
         async onNodeDrop(): Promise<void> {
             // Get the selected node
             const node = this.$store.state.inventory.selectedNode;
-            if (!node) return;
+            if (!node || !this.selectedNode) return;
 
-            this.dropdownRelationTypes = await this.$store.dispatch(
-                "inventory/getPossibleRelationTypes",
-                this.$store.state.inventory.draggedNode.label,
-            );
+            this.dropdownRelationTypes = await this.$store.dispatch("inventory/getPossibleRelationTypes", {
+                fromLabel: this.$store.state.inventory.draggedNode.label,
+                toLabel: this.selectedNode.label,
+            });
 
             this.showDialog = true;
         },
@@ -162,8 +162,16 @@ export default defineComponent({
         addNewRelation(selection: string): void {
             this.showDialog = false;
 
-            // TODO :: Add the relation (backend call)
-            console.log("Dialog confirmed:", selection);
+            this.$store.dispatch("inventory/addNewRelation", {
+                from: this.$store.state.inventory.draggedNode.nodeId,
+                to: (this.selectedNode as ApiNode).nodeId,
+                type: selection,
+            });
+
+            // TODO :: Instead of reloading the entire neighbors/relations push the latest neighbor into the store
+            // TODO >> and just reload the graph
+            this.$store.dispatch("inventory/loadRelations", this.selectedNode);
+            this.graphLoaded();
         },
     },
 });

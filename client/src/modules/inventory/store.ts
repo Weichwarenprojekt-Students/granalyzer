@@ -1,7 +1,7 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { GET } from "@/utility";
+import { GET, POST } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { RootObject } from "@/modules/inventory/modules/neighbor-view/models/RootObject";
 
@@ -176,7 +176,7 @@ export const inventory = {
          */
         async getPossibleRelationTypes(
             context: ActionContext<InventoryState, RootState>,
-            label: string,
+            payload: { fromLabel: string; toLabel: string },
         ): Promise<Array<string> | undefined> {
             const res = await GET("/api/data-scheme/relation");
             if (res.status !== 200) return undefined;
@@ -184,8 +184,38 @@ export const inventory = {
             const data: Array<RootObject> = await res.json();
 
             return data
-                .filter((relation) => relation.connections.some((connection) => connection.from === label))
+                .filter((relation) =>
+                    relation.connections.some(
+                        (connection) => connection.from === payload.fromLabel && connection.to === payload.toLabel,
+                    ),
+                )
                 .map((entry) => entry.name);
+        },
+
+        /**
+         * Adds a new relation between two nodes, given their ids
+         */
+        async addNewRelation(
+            context: ActionContext<InventoryState, RootState>,
+            payload: { from: string; to: string; type: string },
+        ): Promise<void> {
+            console.log(payload.from, payload.to, payload.type);
+
+            const res = await POST(
+                "/api/relations",
+                JSON.stringify({
+                    from: payload.from,
+                    to: payload.to,
+                    type: payload.type,
+                }),
+            );
+
+            if (res.status === 201) {
+                // TODO :: Toast if successful
+                return;
+            }
+
+            // TODO :: Toast if failed
         },
     },
 };
