@@ -21,11 +21,25 @@ export class NodesService {
      * Return all nodes with limit and offset (pagination) from the neo4j db
      * @param limit
      * @param offset
+     * @param nameFilter
+     * @param labelFilter
      */
-    async getAllNodes(limit, offset): Promise<Node[]> {
+    async getAllNodes(
+        limit: number,
+        offset: number,
+        nameFilter?: string,
+        labelFilter?: Array<string>,
+    ): Promise<Node[]> {
+        // Convert single filters to array to keep handling consistent
+        labelFilter = Array.isArray(labelFilter) ? labelFilter : [labelFilter];
+
+        // Create the filter part of the cypher query
+        const filter = await this.generateFilterString(nameFilter, labelFilter);
+
         // language=Cypher
         const query = `
-          MATCH (n)
+          MATCH (n) ${filter}
+
           WITH labels(n) AS lbls, n
           UNWIND lbls AS label
           RETURN n {. *, label:label} AS node
@@ -35,6 +49,7 @@ export class NodesService {
         const params = {
             limit: this.neo4jService.int(limit),
             offset: this.neo4jService.int(offset),
+            nameFilter: nameFilter,
         };
 
         // Callback which is applied on the database response
@@ -93,5 +108,49 @@ export class NodesService {
             .read(query, params, this.database)
             .then(resolveRead)
             .catch(this.databaseUtil.catchDbError);
+    }
+
+    /**
+     * Generate a string to filter nodes by
+     *
+     * @param nameFilter Name to filter by
+     * @param labelFilter Labels to filter by
+     * @private
+     */
+    private async generateFilterString(nameFilter?: string, labelFilter?: string[]): Promise<string> {
+        // Validates the given labels to prevent injections
+        labelFilter = await this.validateLabelFilter(labelFilter);
+
+        let filter = "";
+
+        if (nameFilter) filter = "WHERE toLower(n.name) CONTAINS toLower($nameFilter) ";
+
+        if (labelFilter.length !== 0) {
+            filter += nameFilter ? "AND " : "WHERE ";
+            filter += "(";
+            labelFilter.forEach((label, index) => {
+                filter += index == labelFilter.length - 1 ? `n:${label}) ` : `n:${label} OR `;
+            });
+        }
+        return filter;
+    }
+
+    /**
+     * Validates all given labels
+     * @private
+     */
+    private async validateLabelFilter(labelFilter: string[] = []): Promise<string[]> {
+        // Get all valid labels from the database
+        // language=Cypher
+        const cypher = `
+          MATCH (l:LabelScheme)
+          RETURN l {.name}`;
+        const validLabels = await this.neo4jService
+            .read(cypher, {}, process.env.DB_TOOL)
+            .then((res) => res.records.map((r) => r.get("l").name))
+            .catch(this.databaseUtil.catchDbError);
+
+        // Filter not valid labels
+        return validLabels.filter((lbl) => labelFilter.includes(lbl));
     }
 }

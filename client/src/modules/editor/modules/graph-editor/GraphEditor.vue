@@ -35,11 +35,13 @@ export default defineComponent({
         };
     },
     async mounted(): Promise<void> {
+        this.$store.dispatch("editor/setRelationMode", false);
+
         // Load the currently opened diagram from REST backend
         await this.$store.dispatch("editor/fetchActiveDiagram");
 
         // Load the labels with the first load of matching nodes
-        await this.$store.dispatch("editor/loadLabels");
+        await this.$store.dispatch("loadLabelsAndNodes");
 
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
@@ -52,12 +54,36 @@ export default defineComponent({
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
     },
+    watch: {
+        async "$store.state.editor.graphEditor.relationModeActive"() {
+            if (this.$store.state.editor.graphEditor.relationModeActive) {
+                this.$store.commit("editor/setEditorLoading", true);
+                await this.$store.state.editor.graphEditor.graphHandler.relationMode.enable();
+                this.$store.commit("editor/setEditorLoading", false);
+            } else {
+                this.$store.commit("editor/setEditorLoading", true);
+                await this.$store.state.editor.graphEditor.graphHandler.relationMode.disable();
+                this.$store.commit("editor/setEditorLoading", false);
+            }
+        },
+    },
     methods: {
         /**
          * Check if a node from the overview list was dropped
          */
         // eslint-disable-next-line
         onNodeDrop(evt: any): void {
+            // Disable adding nodes in relation edit mode
+            if (this.$store.state.editor.graphEditor.relationModeActive) {
+                this.$toast.add({
+                    severity: "warn",
+                    summary: this.$t("editor.relationModeToast.title"),
+                    detail: this.$t("editor.relationModeToast.description"),
+                    life: 4000,
+                });
+                return;
+            }
+
             // Get the selected node
             const node = this.$store.state.editor.selectedNode;
             if (!node) return;
@@ -117,10 +143,8 @@ export default defineComponent({
     cursor: pointer;
 
     text {
-        fill: white;
-
         tspan {
-            font-size: 14px;
+            font-size: 16px;
         }
     }
 }

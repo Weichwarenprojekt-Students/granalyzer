@@ -1,10 +1,11 @@
 {
-  "titleOverview": "Node Overview",
   "title": "Here you are in the editor!",
   "toolbar": {
     "undo": "Undo (Ctrl + Z)",
     "redo": "Redo (Ctrl + Y)",
-    "delete": "Delete"
+    "delete": "Delete",
+    "relation": "Edit relations",
+    "active": "Active"
   },
   "inspector": {
     "title": "Inspector",
@@ -16,5 +17,9 @@
   },
   "noNodes": {
     "description": "No nodes found!"
+  },
+  "relationModeToast": {
+    "title": "Relation Edit Mode Active!",
+    "description": "Nodes can't be added while the relation edit mode is active"
   }
 }

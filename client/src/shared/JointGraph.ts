@@ -1,4 +1,4 @@
-import { dia } from "jointjs";
+import { dia, g } from "jointjs";
 
 class GraphOptions implements dia.Paper.Options {
     [key: string]: unknown;
@@ -40,6 +40,11 @@ export class JointGraph {
             width: "100%",
             height: "100%",
             gridSize: 1,
+            interactive: (cellView: dia.CellView) => {
+                // Disable interaction of a cell, if its disableInteraction property is true
+                if (cellView.model.get("disableInteraction")) return false;
+                return { labelMove: false, linkMove: false };
+            },
         };
         this.paper = new dia.Paper(config);
         this.paper.translate(500, 200);
@@ -56,6 +61,197 @@ export class JointGraph {
         const tx = event.pageX - this.eventData.x;
         const ty = event.pageY - this.eventData.y;
         if (this.panning) this.paper.translate(tx + this.eventData.px, ty + this.eventData.py);
+    }
+
+    /**
+     * Select one cell in the graph
+     * @param cellView The cell to select
+     */
+    public selectElement(cellView: dia.CellView): void {
+        this.deselectElements();
+        cellView.model.attr({
+            body: {
+                strokeWidth: 4,
+            },
+        });
+    }
+
+    /**
+     * Set the interactivity of all nodes
+     * @param value True if interactivity should be enabled
+     */
+    public setInteractivity(value: boolean): void {
+        for (const element of this.graph.getElements()) element.set("disableInteraction", !value);
+    }
+
+    /**
+     * Reset the focus style of all cells
+     * @private
+     */
+    public deselectElements(): void {
+        for (const element of this.graph.getElements())
+            element.attr({
+                body: {
+                    strokeWidth: 0,
+                },
+            });
+    }
+
+    /**
+     * Takes care of overlapping relations
+     * From: https://resources.jointjs.com/tutorial/multiple-links-between-elements
+     *
+     * @param element Element which overlapping relations should be rearranged
+     * @param rearrangeAll False, if the rearrangement does not apply on links which were already positioned
+     */
+    public rearrangeOverlappingRelations(element: dia.Element, rearrangeAll = true): void {
+        const connectedLinks = this.graph.getConnectedLinks(element);
+
+        // Exit if node has no relation
+        if (!connectedLinks[0]) return;
+
+        // Get unique neighbor nodes
+        const uniqueNeighborIds: Set<string> = new Set(
+            connectedLinks.map((link) => {
+                const sourceId = link.get("source").id;
+                return sourceId !== element.id ? sourceId : link.get("target").id;
+            }),
+        );
+
+        // Adjust siblings for each target
+        uniqueNeighborIds.forEach((neighborId) => {
+            this.adjustSiblingRelations(neighborId, element.id.toString(), rearrangeAll);
+        });
+    }
+
+    /**
+     * Adjust the overlapping relations for one links siblings
+     *
+     * @param startId Source of the overlapping relations
+     * @param endId Target of the overlapping relations
+     * @param rearrangeAll False, if the rearrangement does not apply on links which were already positioned
+     */
+    private adjustSiblingRelations(startId: string, endId: string, rearrangeAll = true) {
+        // Exit if not both endpoints of the relation are set
+        if (!startId || !endId) return;
+
+        // identify link siblings
+        const siblings = this.getSiblingsOfLink(startId, endId);
+
+        // Check if there are overlapping links to rearrange
+        if (!JointGraph.hasOverlappingSiblings(siblings, rearrangeAll)) return;
+
+        // Prevent overlapping if more than one relation
+        if (siblings.length > 1) {
+            this.rearrangeLinks(startId, endId, siblings, rearrangeAll);
+        }
+    }
+
+    /**
+     * Checks if there are overlapping relations in the list of siblings
+     * Depends on whether already positioned nodes should be rearranged to
+     *
+     * @param siblings
+     * @param rearrangeAll
+     * @private
+     */
+    private static hasOverlappingSiblings(siblings: dia.Link[], rearrangeAll: boolean) {
+        // Abort if less than 2 links
+        if (siblings.length <= 1) return false;
+        // Filter siblings without vertices
+        siblings = siblings.filter((sibling) => sibling.vertices().length === 0);
+
+        return siblings.length > 1 || rearrangeAll;
+    }
+
+    /**
+     * Get all siblings of the link specified by the ids of both node endpoints
+     *
+     * @param startId
+     * @param endId
+     * @private
+     */
+    private getSiblingsOfLink(startId: string, endId: string) {
+        return this.graph.getLinks().filter((sibling) => {
+            const siblingStartId = sibling.source().id;
+            const siblingEndId = sibling.target().id;
+
+            // if source and target are the same
+            // or if source and target are reversed
+            return (
+                (siblingStartId === startId && siblingEndId === endId) ||
+                (siblingStartId === endId && siblingEndId === startId)
+            );
+        });
+    }
+
+    /**
+     * Rearrange the links
+     *
+     * @param startId The id of the start node
+     * @param endId The id of the end node
+     * @param siblings A list of all sibling links
+     * @param rearrangeAll True if all should be arranged
+     * @private
+     */
+    private rearrangeLinks(startId: string, endId: string, siblings: dia.Link[], rearrangeAll: boolean) {
+        // Get the middle point of the link
+        const sourceCenter = this.graph.getCell(startId).getBBox().center();
+        const targetCenter = this.graph.getCell(endId).getBBox().center();
+        const midPoint = new g.Line(sourceCenter, targetCenter).midpoint();
+
+        // Get the angle between start and end node
+        const theta = sourceCenter.theta(targetCenter);
+
+        // The maximum distance between two sibling links
+        const GAP = 120;
+        let i = 0;
+
+        siblings
+            .filter((sibling) => rearrangeAll || !(sibling.vertices().length !== 0))
+            .forEach((sibling) => {
+                // Ignore already moved relations if flag is false
+
+                // Contains calculated vertices
+                let vertex = new g.Point(0, 0);
+
+                let atCorrectPosition = false;
+                while (!atCorrectPosition) {
+                    // Offset values like 0, 20, 20, 40, 40, 60, 60 ...
+                    let offset = GAP * Math.ceil(i / 2);
+
+                    // Alternate the direction in which the relation is moved (right/left)
+                    const sign = i % 2 ? 1 : -1;
+
+                    // Keep even numbers of relations symmetric
+                    if (siblings.length % 2 === 0) {
+                        offset -= (GAP / 2) * sign;
+                    }
+
+                    // Make reverse links count the same as non-reverse
+                    const reverse = theta < 180 ? 1 : -1;
+
+                    // Apply the shifted relation
+                    const angle = g.toRad(theta + sign * reverse * 90);
+                    vertex = g.Point.fromPolar(offset, angle, midPoint);
+
+                    atCorrectPosition = true;
+                    i++;
+
+                    // Check if there is a relation at the same position
+                    siblings
+                        .map((s) => s.vertices())
+                        .filter((v) => v.length != 0)
+                        .forEach((v) => {
+                            if (vertex.distance(new g.Point(v[0])) < 10) {
+                                atCorrectPosition = false;
+                            }
+                        });
+                }
+
+                // Replace vertices
+                if (vertex && (i > 1 || siblings.length % 2 === 0)) sibling.vertices([vertex]);
+            });
     }
 
     /**
@@ -82,19 +278,6 @@ export class JointGraph {
 
         // Zoom the paper while over blank space
         this.paper.on("blank:mousewheel", (evt, x, y, delta) => this.zoom(delta, x, y));
-
-        // Find out if user clicked element and set element object
-        this.paper.on("element:pointerdown", (cell) => {
-            this.resetCellFocus();
-            cell.model.attr({
-                body: {
-                    strokeWidth: 4,
-                },
-            });
-        });
-
-        // No element selected
-        this.paper.on("blank:pointerdown", this.resetCellFocus);
     }
 
     /**
@@ -125,17 +308,4 @@ export class JointGraph {
         this.paper.translate(nextTx, nextTy);
         this.paper.scale(nextScale);
     }
-
-    /**
-     * Reset the focus style of all cells
-     * @private
-     */
-    private resetCellFocus = (): void => {
-        for (const element of this.graph.getElements())
-            element.attr({
-                body: {
-                    strokeWidth: 0,
-                },
-            });
-    };
 }

@@ -66,7 +66,7 @@ import ColorMultiInput from "@/components/ColorMultiInput.vue";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
 import { deepCopy, errorToast, objectUUID } from "@/utility";
 import AttributeView from "@/modules/schemes/components/AttributeView.vue";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import ConfirmDialog from "@/components/dialog/ConfirmDialog.vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 
 export default defineComponent({

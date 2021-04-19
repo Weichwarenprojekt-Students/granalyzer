@@ -3,10 +3,11 @@ import { RootState } from "@/store";
 import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/MoveNodeCommand";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
-import { dia, shapes } from "jointjs";
+import { dia, linkTools, shapes } from "jointjs";
 import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/models/NodeShapes";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 import { getBrightness } from "@/utility";
+import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/BendRelationCommand";
 
 export class GraphControls {
     /**
@@ -37,7 +38,7 @@ export class GraphControls {
         shape.position(node.x, node.y);
 
         // Try to find the matching label color and use default otherwise
-        const nodeColor = this.store.state.editor?.labelColor.get(node.label)?.color ?? "#70FF87";
+        const nodeColor = this.store.state.labelColor.get(node.label)?.color ?? "#70FF87";
 
         // Style node
         shape.attr({
@@ -74,6 +75,8 @@ export class GraphControls {
 
     /**
      * Add an existing node with a diag element to the graph
+     *
+     * Used by undo redo
      *
      * @param node The node to be added
      * @param diagElement The existing dia.Element of the node
@@ -114,12 +117,19 @@ export class GraphControls {
      * @param target The target element
      * @param uuid An optional uuid for the relation
      * @param labelText An optional label for the relation
+     * @param asFaintRelation True if the relation should be added as a faint relation
      */
-    public addRelation(source: dia.Element, target: dia.Element, uuid?: string, labelText?: string): void {
+    public addRelation(
+        source: dia.Element,
+        target: dia.Element,
+        uuid?: string,
+        labelText?: string,
+        asFaintRelation?: boolean,
+    ): string | number | undefined {
         // Check if the nodes exist
         const from = this.graphHandler.nodes.get(source.id);
         const to = this.graphHandler.nodes.get(target.id);
-        if (!from || !to) return;
+        if (!from || !to) return undefined;
 
         // Create the node relation
         const relation: Relation = {
@@ -143,7 +153,7 @@ export class GraphControls {
         if (labelText)
             link.appendLabel({
                 attrs: {
-                    text: { text: labelText, textAnchor: "middle", textVerticalAnchor: "middle" },
+                    text: { text: labelText, textAnchor: "middle", textVerticalAnchor: "middle", fill: "#fff" },
                     rect: {
                         ref: "text",
                         fill: "#333",
@@ -161,7 +171,33 @@ export class GraphControls {
 
         // Add the relation to the graph and to the other links
         link.addTo(this.graphHandler.graph.graph);
+
+        // Check if relation should be added as faint relation
+        if (asFaintRelation) {
+            link.attr({ rect: { fill: "#bbb" }, line: { stroke: "#bbb" } });
+            this.graphHandler.faintRelations.set(link.id, relation);
+        } else {
+            this.graphHandler.relations.set(link.id, relation);
+        }
+
+        this.addLinkTools(link);
+
+        return link.id;
+    }
+
+    /**
+     * Add an already existing relation object to the graph
+     *
+     * @param link The link object to add
+     * @param relation The corresponding relation object to add
+     */
+    public addExistingRelation(link: dia.Element, relation: Relation): void {
+        link.addTo(this.graphHandler.graph.graph);
+
+        link.attr({ rect: { fill: "#333" }, line: { stroke: "#333" } });
         this.graphHandler.relations.set(link.id, relation);
+
+        this.addLinkTools(link);
     }
 
     /**
@@ -169,9 +205,31 @@ export class GraphControls {
      *
      * @param relation The relation to be removed
      */
-    public removeRelation(relation: shapes.standard.Link): void {
+    public removeRelation(relation: dia.Element): void {
         this.graphHandler.relations.delete(relation.id);
+        this.graphHandler.faintRelations.delete(relation.id);
+        this.graphHandler.visualRelations.delete(relation.id);
         relation.remove();
+    }
+
+    /**
+     * Add link tools to a link, so that vertices and segments can be manipulated
+     *
+     * @param link The link to add the link tools to
+     * @private
+     */
+    private addLinkTools(link: dia.Element | shapes.standard.Link) {
+        // Prepare link tools for modifying vertices and segments
+        const verticesTool = new linkTools.Vertices({ stopPropagation: false });
+        const segmentsTool = new linkTools.Segments({ stopPropagation: false });
+        const toolsView = new dia.ToolsView({
+            tools: [verticesTool, segmentsTool],
+        });
+
+        // Add these tools to the link
+        const linkView = link.findView(this.graphHandler.graph.paper);
+        linkView.addTools(toolsView);
+        linkView.hideTools();
     }
 
     /**
@@ -180,20 +238,26 @@ export class GraphControls {
     private registerNodeInteraction(): void {
         // Nothing selected
         this.graphHandler.graph.paper.on("blank:pointerdown", () => {
+            this.graphHandler.graph.deselectElements();
             this.store.commit("editor/setSelectedElement", undefined);
         });
 
         // The move command instance
-        let moveCommand: MoveNodeCommand;
+        let moveCommand: MoveNodeCommand | undefined;
 
         // Node selected
         this.graphHandler.graph.paper.on("element:pointerdown", async (cell) => {
-            this.store.commit("editor/setSelectedElement", cell.model);
             moveCommand = new MoveNodeCommand(this.graphHandler, cell.model);
 
             // Set the currently selected node for inspector
             const node = this.graphHandler.nodes.get(cell.model.id);
             await this.store.dispatch("editor/viewNodeInInspector", node?.ref.uuid);
+
+            // Select the clicked element
+            if (!this.store.state.editor?.graphEditor?.relationModeActive) {
+                this.graphHandler.graph.selectElement(cell);
+                this.store.commit("editor/setSelectedElement", cell.model);
+            }
         });
 
         // Relation selected
@@ -205,9 +269,40 @@ export class GraphControls {
 
         // Node unselected
         this.graphHandler.graph.paper.on("element:pointerup", async () => {
-            if (!moveCommand || !moveCommand.positionChanged()) return;
-            moveCommand.updateStopPosition();
-            await this.store.dispatch("editor/addMoveCommand", moveCommand);
+            if (moveCommand && moveCommand.positionChanged()) {
+                moveCommand.updateStopPosition();
+                await this.store.dispatch("editor/addMoveCommand", moveCommand);
+            }
+            moveCommand = undefined;
+        });
+
+        let bendCommand: BendRelationCommand | undefined;
+
+        // Start dragging the vertex of a relation
+        this.graphHandler.graph.paper.on("link:pointerdown", async (cell) => {
+            bendCommand = new BendRelationCommand(this.graphHandler, cell.model);
+        });
+
+        // If the vertices of a relation have changed, add a command to undo/redo
+        this.graphHandler.graph.paper.on("link:pointerup", async () => {
+            if (bendCommand && bendCommand.verticesHaveChanged()) {
+                await this.store.dispatch("editor/addBendRelationCommand", bendCommand);
+            }
+        });
+
+        this.graphHandler.graph.paper.on("link:pointerdblclick", async () => {
+            if (bendCommand && bendCommand.verticesHaveChanged()) {
+                await this.store.dispatch("editor/addBendRelationCommand", bendCommand);
+            }
+        });
+
+        // Show and hide tools for moving links
+        this.graphHandler.graph.paper.on("link:mouseenter", (linkView) => {
+            if (!this.store.state.editor?.graphEditor?.relationModeActive) linkView.showTools();
+        });
+
+        this.graphHandler.graph.paper.on("link:mouseleave", (linkView) => {
+            if (!this.store.state.editor?.graphEditor?.relationModeActive) linkView.hideTools();
         });
     }
 }

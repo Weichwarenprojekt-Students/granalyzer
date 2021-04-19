@@ -1,13 +1,16 @@
 {
-    "start": "Start",
-    "editor": "Editor",
-    "inventory": "Inventar",
-    "schemes": "Schemas",
-    "dialog": {
-        "confirm": "Bestätigen",
-        "cancel": "Abbrechen"
-    },
-    "input": {
-        "placeholder": "Hier..."
-    }
+  "start": "Start",
+  "editor": "Editor",
+  "inventory": "Inventar",
+  "titleOverview": "Eintragsübersicht",
+  "schemes": "Schemas",
+  "dialog": {
+    "confirm": "Bestätigen",
+    "cancel": "Abbrechen"
+  },
+  "searchPlaceholder": "Suchen...",
+  "filterIcon": "Filtern",
+  "input": {
+    "placeholder": "Hier..."
+  }
 }

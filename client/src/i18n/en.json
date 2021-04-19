@@ -1,13 +1,16 @@
 {
-    "start": "Home",
-    "editor": "Editor",
-    "inventory": "Inventory",
-    "schemes": "Schemes",
-    "dialog": {
-        "confirm": "Confirm",
-        "cancel": "Cancel"
-    },
-    "input": {
-        "placeholder": "Here..."
-    }
+  "start": "Home",
+  "editor": "Editor",
+  "inventory": "Inventory",
+  "schemes": "Schemes",
+  "titleOverview": "Node Overview",
+  "dialog": {
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+  "searchPlaceholder": "Search...",
+  "filterIcon": "Filter",
+  "input": {
+    "placeholder": "Here..."
+  }
 }

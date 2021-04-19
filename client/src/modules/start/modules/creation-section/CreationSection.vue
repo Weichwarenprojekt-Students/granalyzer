@@ -29,7 +29,7 @@
 import { defineComponent } from "vue";
 import { ApiDiagram } from "@/models/ApiDiagram";
 import CreationCard from "./components/CreationCard.vue";
-import InputDialog from "@/components/InputDialog.vue";
+import InputDialog from "@/components/dialog/InputDialog.vue";
 import { errorToast, routeNames } from "@/utility";
 
 export default defineComponent({

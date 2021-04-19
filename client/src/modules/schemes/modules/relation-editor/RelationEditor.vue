@@ -79,7 +79,7 @@ import AttributeView from "@/modules/schemes/components/AttributeView.vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import { ApiConnection } from "@/models/data-scheme/ApiConnection";
 import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import ConfirmDialog from "@/components/dialog/ConfirmDialog.vue";
 import ConnectionView from "@/modules/schemes/modules/relation-editor/components/ConnectionView.vue";
 
 export default defineComponent({

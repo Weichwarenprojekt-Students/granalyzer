@@ -1,0 +1,179 @@
+<template>
+    <!-- Filtering window -->
+    <ScrollPanel :class="!showFilter ? 'filterHidden' : 'filterShown'">
+        <label class="label" v-for="label in labels" :key="label.name" :for="label.name">
+            <input
+                type="checkbox"
+                v-model="filter.labelsToFilterBy"
+                :id="label.name"
+                :value="label.name"
+                checked="checked"
+            />
+            <span class="checkmark"></span>
+            <span class="color" :style="{ background: labelColors.get(label.name).color }"></span>
+            <span class="labelName">{{ label.name }}</span>
+        </label>
+        <div class="space" />
+    </ScrollPanel>
+
+    <!-- Searchbar -->
+    <label class="searchbar">
+        <input
+            v-model="filter.userInput"
+            type="text"
+            @keyup.="handleFilter"
+            :placeholder="$t('global.searchPlaceholder')"
+        />
+        <svg v-if="filter.userInput.length > 0" @click="filter.userInput = ''">
+            <use xlink:href="@/assets/img/icons.svg#delete"></use>
+        </svg>
+    </label>
+</template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+    name: "OverviewSearch",
+    emits: ["user-filter"],
+    props: {
+        // Labels to visualize in the filter
+        labels: Array,
+        // Colors for the filter labels
+        labelColors: Object,
+        // True if filter dialog is shown
+        showFilter: Boolean,
+    },
+    data() {
+        return {
+            // Filtering data
+            filter: {
+                // Input in the searchbar
+                userInput: "",
+                // Labels to filter by
+                labelsToFilterBy: [] as Array<string>,
+            },
+        };
+    },
+    watch: {
+        /**
+         * Watch filter property for changes to trigger label filtering
+         */
+        filter: {
+            handler() {
+                this.handleFilter();
+            },
+            deep: true,
+        },
+    },
+    methods: {
+        /**
+         * Emit the labels and user input to filter by to the overview list
+         */
+        handleFilter(): void {
+            this.$emit("user-filter", {
+                userInput: this.filter.userInput,
+                labelsToFilterBy: this.filter.labelsToFilterBy,
+            });
+        },
+    },
+});
+</script>
+
+<style lang="less" scoped>
+@import "~@/styles/global.less";
+
+.filterHidden {
+    max-height: 0;
+    overflow: hidden;
+}
+
+.filterShown {
+    margin-top: 8px;
+    max-height: 200px;
+
+    .label {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        cursor: pointer;
+        width: 100%;
+
+        /* Checkbox hover */
+
+        &:hover input ~ .checkmark {
+            background-color: @accent_color;
+        }
+
+        /* Hide default checkbox */
+
+        input {
+            display: none;
+
+            /* Background, when checked */
+
+            &:checked ~ .checkmark {
+                background-color: @secondary_color;
+            }
+
+            /* Show checkmark, when checked */
+
+            &:checked ~ .checkmark:after {
+                display: flex;
+            }
+        }
+
+        /* Custom checkbox */
+
+        .checkmark {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 20px;
+            width: 20px;
+            background-color: @light_grey;
+
+            /* Checkmark */
+
+            &:after {
+                content: "";
+                display: none;
+                width: 5px;
+                height: 10px;
+                border: solid @dark;
+                border-width: 0 2px 2px 0;
+                transform: rotate(45deg);
+            }
+        }
+
+        .labelName {
+            font-size: 14px;
+        }
+
+        .color {
+            margin: 0 8px;
+            border-radius: 4px;
+            width: 16px;
+            height: 12px;
+        }
+    }
+
+    .space {
+        padding-bottom: 16px;
+    }
+}
+
+.searchbar {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    margin: 8px 0;
+
+    svg {
+        cursor: pointer;
+        height: 14px;
+        width: 14px;
+        fill: @dark_grey;
+    }
+}
+</style>

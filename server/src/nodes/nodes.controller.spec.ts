@@ -88,6 +88,11 @@ describe("NodesController", () => {
 
         const validRelation = new Relation("isHobbitOf", movieNode.nodeId, validNode.nodeId, { attrOne: "Gandalf" });
         validRelation.relationId = await testUtil.writeRelation(validRelation);
+
+        const invalidRelation = new Relation("isHobbitOf", validNode.nodeId, validNode.nodeId, {
+            attrOne: "Hermione Granger",
+        });
+        invalidRelation.relationId = await testUtil.writeRelation(invalidRelation);
     });
 
     afterEach(async () => {
@@ -140,16 +145,6 @@ describe("NodesController", () => {
         });
     });
 
-    describe("searchNode", () => {
-        it("should return the searched node", async () => {
-            expect((await controller.searchNode("ave")).length).toEqual(1);
-        });
-
-        it("should return no node", async () => {
-            expect((await controller.searchNode("zxy")).length).toEqual(0);
-        });
-    });
-
     describe("getAllNodes", () => {
         it("should return more than one node", async () => {
             expect((await controller.getAllNodes()).length).toBeGreaterThan(1);
@@ -158,13 +153,18 @@ describe("NodesController", () => {
         it("should return one node", async () => {
             expect((await controller.getAllNodes(1, 1)).length).toBe(1);
         });
+
+        it("should return the node with given search term", async () => {
+            expect((await controller.getAllNodes(20, 0, "Avengers", ["Movie", "validLabel"])).length).toBe(1);
+        });
     });
 
     describe("getRelationsOfNode", () => {
-        it("should return all relations of the node", async () => {
+        it("should return all valid relations of the node", async () => {
             const relations: Relation[] = await controller.getRelationsOfNode(movieNodeId);
 
-            expect(relations.length).toBeGreaterThan(0);
+            // Second relation of the node is not valid -> only one is returned
+            expect(relations.length).toEqual(1);
             expect(relations[0].from).toEqual(movieNodeId);
             expect(relations[0].to).toEqual(validNodeId);
         });

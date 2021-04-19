@@ -10,6 +10,9 @@ import { GET, PUT } from "@/utility";
 import { Relation } from "./controls/models/Relation";
 import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/MoveNodeCommand";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
+import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/EnableDbRelationCommand";
+import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/DisableDbRelationCommand";
+import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/BendRelationCommand";
 
 export class GraphEditorState {
     /**
@@ -26,6 +29,11 @@ export class GraphEditorState {
      * True if the graph editor is currently loading
      */
     public editorLoading = false;
+
+    /**
+     * True if the relation edit mode is active
+     */
+    public relationModeActive = false;
 }
 
 export const graphEditor = {
@@ -52,7 +60,7 @@ export const graphEditor = {
         },
 
         /**
-         * Set the unselected diagram element
+         * Add command for changed vertices to the undo redo stack
          */
         addMoveCommand(state: GraphEditorState, moveCommand: MoveNodeCommand): void {
             if (state.graphHandler) state.graphHandler.addCommand(moveCommand);
@@ -95,6 +103,50 @@ export const graphEditor = {
         setEditorLoading(state: GraphEditorState, loading: boolean): void {
             state.editorLoading = loading;
         },
+        /**
+         * Activate/Deactivate the relation edit mode
+         */
+        setRelationMode(state: GraphEditorState, value: boolean): void {
+            if (!state.graphHandler) {
+                state.relationModeActive = false;
+                return;
+            }
+
+            // Deselect elements
+            state.graphHandler.graph.deselectElements();
+            state.relationModeActive = value;
+        },
+        /**
+         * Enable a DB relation
+         */
+        enableDbRelation(state: GraphEditorState, link: dia.Element): void {
+            if (state.graphHandler) {
+                const relation = state.graphHandler.faintRelations.get(link.id);
+                if (relation) {
+                    const command = new EnableDbRelationCommand(state.graphHandler, link, relation);
+                    state.graphHandler.addCommand(command);
+                }
+            }
+        },
+        /**
+         * Disable a DB relation
+         */
+        disableDbRelation(state: GraphEditorState, link: dia.Element): void {
+            if (state.graphHandler) {
+                const relation = state.graphHandler.relations.get(link.id);
+                if (relation) {
+                    const command = new DisableDbRelationCommand(state.graphHandler, link, relation);
+                    state.graphHandler.addCommand(command);
+                }
+            }
+        },
+
+        /**
+         * Add command for changed vertices to the undo redo stack
+         */
+        addBendRelationCommand(state: GraphEditorState, bendCommand: BendRelationCommand): void {
+            state.graphHandler?.addCommand(bendCommand);
+        },
     },
     actions: {
         /**
@@ -102,6 +154,7 @@ export const graphEditor = {
          */
         async undo(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
+            await context.dispatch("setRelationMode", false);
             context.commit("undo");
             context.commit("setEditorLoading", false);
 
@@ -112,6 +165,7 @@ export const graphEditor = {
          */
         async redo(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
+            await context.dispatch("setRelationMode", false);
             context.commit("redo");
             context.commit("setEditorLoading", false);
 
@@ -153,7 +207,7 @@ export const graphEditor = {
         },
 
         /**
-         * Set the unselected diagram element
+         * Add move command to the undo redo stack
          */
         async addMoveCommand(
             context: ActionContext<GraphEditorState, RootState>,
@@ -176,6 +230,58 @@ export const graphEditor = {
 
                 await PUT("/api/diagrams/" + diagram.diagramId, JSON.stringify(diagram));
             }
+        },
+
+        /**
+         * Set the relation edit mode to a certain value
+         */
+        async setRelationMode(context: ActionContext<GraphEditorState, RootState>, value: boolean): Promise<void> {
+            context.commit("setSelectedElement", undefined);
+            context.commit("setRelationMode", value);
+        },
+
+        /**
+         * Toggle the relation edit mode
+         */
+        async toggleRelationMode(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
+            await context.dispatch("setRelationMode", !context.state.relationModeActive);
+        },
+
+        /**
+         * Enable a DB relation
+         */
+        async enableDbRelation(
+            context: ActionContext<GraphEditorState, RootState>,
+            relation: dia.Element,
+        ): Promise<void> {
+            context.commit("setEditorLoading", true);
+            context.commit("enableDbRelation", relation);
+            context.commit("setEditorLoading", false);
+            await context.dispatch("saveChange");
+        },
+
+        /**
+         * Disable a DB relation
+         */
+        async disableDbRelation(
+            context: ActionContext<GraphEditorState, RootState>,
+            relation: dia.Element,
+        ): Promise<void> {
+            context.commit("setEditorLoading", true);
+            context.commit("disableDbRelation", relation);
+            context.commit("setEditorLoading", false);
+            await context.dispatch("saveChange");
+        },
+
+        /**
+         * Add command for changed vertices to the undo redo stack
+         */
+        async addBendRelationCommand(
+            context: ActionContext<GraphEditorState, RootState>,
+            bendCommand: BendRelationCommand,
+        ): Promise<void> {
+            context.commit("addBendRelationCommand", bendCommand);
+            await context.dispatch("saveChange");
         },
     },
     getters: {

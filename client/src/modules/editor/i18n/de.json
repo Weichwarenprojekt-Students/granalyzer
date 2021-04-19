@@ -1,10 +1,11 @@
 {
-  "titleOverview": "Eintragsübersicht",
   "title": "Hier bist du im Editor!",
   "toolbar": {
     "undo": "Rückgängig (Strg + Z)",
     "redo": "Wiederholen (Strg + Y)",
-    "delete": "Löschen"
+    "delete": "Löschen",
+    "relation": "Beziehungen editieren",
+    "active": "Aktiv"
   },
   "inspector": {
     "title": "Inspektor",
@@ -16,5 +17,9 @@
   },
   "noNodes": {
     "description": "Keine Einträge gefunden!"
+  },
+  "relationModeToast": {
+    "title": "Beziehungsmodus is aktiv!",
+    "description": "Im Beziehungsmodus können keine neuen Nodes hinzugefügt werden"
   }
 }

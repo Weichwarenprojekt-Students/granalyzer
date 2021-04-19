@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import Node from "../nodes/node.model";
 import { Attribute } from "../data-scheme/models/attributes.model";
@@ -119,10 +119,9 @@ export class DataSchemeUtil {
         // Check if the relation has a valid connection according to the scheme of the relation type
         const hasValidConnection = relationType.connections.some((conn) => conn.from === from && conn.to === to);
 
-        // If not, throw exception
+        // If not valid skip
         if (!hasValidConnection) {
-            const message = "Relation doesn't have a valid connection";
-            throw new InternalServerErrorException(message);
+            return;
         }
 
         // Deep copy of attributes

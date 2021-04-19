@@ -39,7 +39,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Conflict } from "@/modules/schemes/modules/conflict-view/models/Conflict";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
+import ConfirmDialog from "@/components/dialog/ConfirmDialog.vue";
 
 export default defineComponent({
     name: "ConflictCard",

@@ -25,8 +25,8 @@ export class NodesRelationsService {
     async getRelationsOfNode(id: string): Promise<Relation[]> {
         // language=Cypher
         const cypher = `
-          MATCH (n)-[r]-(e)
-            WHERE n.nodeId = $id
+          MATCH (n)-[r]->(e)
+            WHERE n.nodeId = $id OR e.nodeId = $id
           RETURN DISTINCT r {. *, type:type(r), from:n.nodeId, to:e.nodeId} AS r`;
         const params = {
             id,
@@ -34,7 +34,9 @@ export class NodesRelationsService {
 
         // Callback parsing the received data from the db write call
         const resolveRead = (result) => {
-            return Promise.all(result.records.map(async (rec) => await this.dataSchemeUtil.parseRelation(rec)));
+            const relations = result.records.map(async (rec) => await this.dataSchemeUtil.parseRelation(rec));
+            // Filter relations which are not allowed by the scheme
+            return Promise.all(relations).then((res) => res.filter((el) => !!el));
         };
 
         return this.neo4jService
