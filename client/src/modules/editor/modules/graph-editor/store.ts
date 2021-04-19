@@ -237,6 +237,10 @@ export const graphEditor = {
          */
         async setRelationMode(context: ActionContext<GraphEditorState, RootState>, value: boolean): Promise<void> {
             context.commit("setSelectedElement", undefined);
+
+            // Reset inspector selection
+            context.commit("resetSelection");
+
             context.commit("setRelationMode", value);
         },
 

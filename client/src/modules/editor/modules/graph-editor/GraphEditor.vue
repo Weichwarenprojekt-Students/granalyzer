@@ -56,15 +56,14 @@ export default defineComponent({
     },
     watch: {
         async "$store.state.editor.graphEditor.relationModeActive"() {
+            this.$store.commit("editor/setEditorLoading", true);
+
             if (this.$store.state.editor.graphEditor.relationModeActive) {
-                this.$store.commit("editor/setEditorLoading", true);
                 await this.$store.state.editor.graphEditor.graphHandler.relationMode.enable();
-                this.$store.commit("editor/setEditorLoading", false);
             } else {
-                this.$store.commit("editor/setEditorLoading", true);
                 await this.$store.state.editor.graphEditor.graphHandler.relationMode.disable();
-                this.$store.commit("editor/setEditorLoading", false);
             }
+            this.$store.commit("editor/setEditorLoading", false);
         },
     },
     methods: {

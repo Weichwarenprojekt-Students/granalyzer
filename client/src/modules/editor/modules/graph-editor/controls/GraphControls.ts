@@ -157,7 +157,7 @@ export class GraphControls {
                     rect: {
                         ref: "text",
                         fill: "#333",
-                        stroke: "#fff",
+                        stroke: "#000",
                         strokeWidth: 0,
                         refX: "-10%",
                         refY: "-4%",
@@ -237,9 +237,12 @@ export class GraphControls {
      */
     private registerNodeInteraction(): void {
         // Nothing selected
-        this.graphHandler.graph.paper.on("blank:pointerdown", () => {
+        this.graphHandler.graph.paper.on("blank:pointerclick", () => {
             this.graphHandler.graph.deselectElements();
             this.store.commit("editor/setSelectedElement", undefined);
+
+            // Reset inspector selection
+            this.store.commit("editor/resetSelection");
         });
 
         // The move command instance
@@ -249,22 +252,27 @@ export class GraphControls {
         this.graphHandler.graph.paper.on("element:pointerdown", async (cell) => {
             moveCommand = new MoveNodeCommand(this.graphHandler, cell.model);
 
-            // Set the currently selected node for inspector
-            const node = this.graphHandler.nodes.get(cell.model.id);
-            await this.store.dispatch("editor/viewNodeInInspector", node?.ref.uuid);
-
             // Select the clicked element
             if (!this.store.state.editor?.graphEditor?.relationModeActive) {
                 this.graphHandler.graph.selectElement(cell);
                 this.store.commit("editor/setSelectedElement", cell.model);
+
+                // Set the currently selected node for inspector
+                const node = this.graphHandler.nodes.get(cell.model.id);
+                await this.store.dispatch("editor/viewNodeInInspector", node?.ref.uuid);
             }
         });
 
         // Relation selected
         this.graphHandler.graph.paper.on("link:pointerdown", async (cell) => {
-            // Set the currently selected relation for inspector
-            const relation = this.graphHandler.relations.get(cell.model.id);
-            await this.store.dispatch("editor/viewRelationInInspector", relation?.uuid);
+            if (!this.store.state.editor?.graphEditor?.relationModeActive) {
+                this.graphHandler.graph.selectElement(cell, true);
+                this.store.commit("editor/setSelectedElement", cell.model);
+
+                // Set the currently selected relation for inspector
+                const relation = this.graphHandler.relations.get(cell.model.id);
+                await this.store.dispatch("editor/viewRelationInInspector", relation?.uuid);
+            }
         });
 
         // Node unselected
