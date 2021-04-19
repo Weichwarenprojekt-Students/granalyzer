@@ -1,5 +1,5 @@
 import * as neo4j from "neo4j-driver";
-import { Driver, Session } from "neo4j-driver";
+import { Driver, Neo4jError, Session } from "neo4j-driver";
 import { Scheme } from "../data-scheme.model";
 import { LabelScheme } from "../models/label-scheme.model";
 import { StringAttribute } from "../models/attributes.model";
@@ -102,7 +102,8 @@ export class SchemeGenerator {
               MATCH(node)
                 WHERE $nodeName IN labels(node)
               UNWIND keys(node) AS keys
-              WITH keys WHERE keys <> "nodeId"
+              WITH keys
+                WHERE keys <> 'nodeId'
               RETURN DISTINCT keys`;
 
             const labelAttributes = await this.fetchData(query, { nodeName: labelName }, "keys", session);
@@ -145,7 +146,8 @@ export class SchemeGenerator {
               MATCH(startNode)-[relation]-(endNode)
                 WHERE type(relation) = $relType
               UNWIND keys(relation) AS keys
-              WITH keys WHERE keys <> "relationId"
+              WITH keys
+                WHERE keys <> 'relationId'
               RETURN DISTINCT keys`;
 
             const relationAttributes = await this.fetchData(query, { relType: relationName }, "keys", session);
@@ -195,9 +197,9 @@ export class SchemeGenerator {
         // Create UUID's on existing elements
         // language=cypher
         const createNodeUuidQuery = `
-        MATCH (node:${labelScheme.name})
-        WHERE NOT exists(node.nodeId)
-        SET node.nodeId = apoc.create.uuid()
+          MATCH (node:${labelScheme.name})
+            WHERE NOT exists(node.nodeId)
+          SET node.nodeId = apoc.create.uuid()
         `;
         await session.run(createNodeUuidQuery, {}).catch(console.error);
 
@@ -219,7 +221,7 @@ export class SchemeGenerator {
     private static async createFullTextScheme(labels: string[], indexedAttrs: string[], session: Session) {
         // language=cypher
         const cypher = `
-          CALL db.index.fulltext.createNodeIndex("allNodesIndex", $labels, $indexedAttrs)
+          CALL db.index.fulltext.createNodeIndex('allNodesIndex', $labels, $indexedAttrs)
         `;
 
         const params = {
@@ -227,7 +229,14 @@ export class SchemeGenerator {
             indexedAttrs,
         };
 
-        await session.run(cypher, params).catch(console.error);
+        await session.run(cypher, params).catch((err) => {
+            if (err instanceof Neo4jError) {
+                switch (err.code) {
+                    case "Neo.ClientError.Procedure.ProcedureCallFailed":
+                        console.log("The full-text index has already been created");
+                }
+            }
+        });
     }
 
     /**
@@ -238,9 +247,9 @@ export class SchemeGenerator {
         // Create UUID for each relation
         // language=cypher
         const createRelationUuidQuery = `
-        MATCH ()-[rel:${relationType.name}]-()
-        WHERE NOT exists(rel.relationId)
-        SET rel.relationId = apoc.create.uuid()
+          MATCH ()-[rel:${relationType.name}]-()
+            WHERE NOT exists(rel.relationId)
+          SET rel.relationId = apoc.create.uuid()
         `;
         await session.run(createRelationUuidQuery, {}).catch(console.error);
     }
