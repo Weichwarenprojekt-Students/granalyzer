@@ -86,31 +86,6 @@ export class NodesService {
     }
 
     /**
-     * Returns all nodes with the name like name
-     * @param needle
-     */
-    async searchNode(needle: string): Promise<Node[]> {
-        // language=Cypher
-        const query = `
-          MATCH(n)
-            WHERE toLower(n.name) CONTAINS toLower($needle)
-          WITH labels(n) AS lbls, n
-          UNWIND lbls AS label
-          RETURN n {. *, label:label} AS node`;
-        const params = {
-            needle,
-        };
-
-        // Callback which is applied on the database response
-        const resolveRead = (result) => Promise.all(result.records.map((el) => this.dataSchemeUtil.parseNode(el)));
-
-        return this.neo4jService
-            .read(query, params, this.database)
-            .then(resolveRead)
-            .catch(this.databaseUtil.catchDbError);
-    }
-
-    /**
      * Generate a string to filter nodes by
      *
      * @param nameFilter Name to filter by
