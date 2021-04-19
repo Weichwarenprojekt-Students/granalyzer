@@ -63,7 +63,6 @@ export class DataSchemeUtil {
             attributes: attributes,
         } as Node;
 
-        delete node["attributes"]["nodeId"];
         return this.parseRecordByLabel(node, labelScheme);
     }
 

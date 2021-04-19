@@ -29,7 +29,8 @@ export class RelationsService {
         const params = {};
 
         // Callback which parses the received data
-        const resolveRead = async (res) => Promise.all(res.records.map((el) => this.parseRelation.call(this, el)));
+        const resolveRead = async (res) =>
+            Promise.all(res.records.map((el) => this.dataSchemeUtil.parseRelation(el, "relation")));
 
         return this.neo4jService
             .read(query, params, this.database)
@@ -50,32 +51,11 @@ export class RelationsService {
         const params = { id };
 
         // Callback which parses the received data
-        const resolveRead = async (res) => await this.parseRelation.call(this, res.records[0]);
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], "relation");
 
         return this.neo4jService
             .read(query, params, this.database)
             .then(resolveRead)
             .catch(this.databaseUtil.catchDbError);
-    }
-
-    /**
-     * Parse the db response into a Relation
-     * @param record single record response from db
-     * @private
-     */
-    private async parseRelation(record): Promise<Relation> {
-        const attributes = record.get("relation");
-
-        const relation = {
-            relationId: record.get("relation").relationId,
-            type: record.get("relation").type,
-            attributes: attributes,
-            from: record.get("relation").from,
-            to: record.get("relation").to,
-        } as Relation;
-
-        delete relation["attributes"]["relationId"];
-
-        return this.dataSchemeUtil.parseRecordByRelationType(relation);
     }
 }
