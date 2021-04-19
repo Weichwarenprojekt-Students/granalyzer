@@ -3,6 +3,7 @@ import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
+import { RootObject } from "@/modules/inventory/modules/neighbor-view/models/RootObject";
 
 export class InventoryState {
     /**
@@ -168,6 +169,23 @@ export const inventory = {
             const res = await GET("/api/nodes/" + nodeId);
             if (res.status !== 200) return undefined;
             return await res.json();
+        },
+
+        /**
+         * Gets the relation types that are possible for a specific label
+         */
+        async getPossibleRelationTypes(
+            context: ActionContext<InventoryState, RootState>,
+            label: string,
+        ): Promise<Array<string> | undefined> {
+            const res = await GET("/api/data-scheme/relation");
+            if (res.status !== 200) return undefined;
+
+            const data: Array<RootObject> = await res.json();
+
+            return data
+                .filter((relation) => relation.connections.some((connection) => connection.from === label))
+                .map((entry) => entry.name);
         },
     },
 };

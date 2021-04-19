@@ -1,12 +1,25 @@
 <template>
     <div class="container" @mousemove="graph.mousemove">
+        <!-- Info, when empty -->
         <div v-show="!$store.state.inventory.selectedNode" class="empty-warning">
             <svg>
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
             </svg>
-            <div class="message">{{ $t("inventory.emptySelection") }}</div>
+            <div class="message">{{ $t("inventory.graph.emptySelection") }}</div>
         </div>
+
+        <!-- Neighbor preview graph -->
         <div id="joint" @dragover.prevent @drop="onNodeDrop" />
+
+        <!-- Dialog for adding new relations -->
+        <DropdownDialog
+            @input-confirm="addNewRelation"
+            @cancel="showDialog = false"
+            :show="showDialog"
+            :imageSrc="require('@/assets/img/icons.svg') + '#circle-plus'"
+            :title="$t('inventory.dialog.title')"
+            :relationTypes="dropdownRelationTypes"
+        ></DropdownDialog>
     </div>
 </template>
 
@@ -17,9 +30,11 @@ import ApiNode from "@/models/data-scheme/ApiNode";
 import { dia } from "jointjs";
 import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
+import DropdownDialog from "@/components/dialog/DropdownDialog.vue";
 
 export default defineComponent({
     name: "NeighborView",
+    components: { DropdownDialog },
     props: {
         // Currently selected node in the overview list
         selectedNode: Object,
@@ -32,6 +47,10 @@ export default defineComponent({
             selectedNodeShape: {} as dia.Element,
             // Utility functions for the neighbor view
             neighborUtils: {} as NeighborUtils,
+            // True if the dialog is visible
+            showDialog: false,
+            // Relation types for the dropdown
+            dropdownRelationTypes: [],
         };
     },
     watch: {
@@ -78,15 +97,6 @@ export default defineComponent({
             this.addNeighborNodesAndRelations(neighbors, relations);
         },
         /**
-         * Check if a node from the overview list was dropped
-         */
-        // eslint-disable-next-line
-        onNodeDrop(): void {
-            // Get the selected node
-            const node = this.$store.state.inventory.selectedNode;
-            if (!node) return;
-        },
-        /**
          * Displays the node in the neighbor view
          */
         displaySelectedNode(apiNode: ApiNode): void {
@@ -129,6 +139,31 @@ export default defineComponent({
             const scale = this.graph.paper.scale();
 
             this.graph.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
+        },
+        /**
+         * Drop: Retrieve possible relation types
+         */
+        // eslint-disable-next-line
+        async onNodeDrop(): Promise<void> {
+            // Get the selected node
+            const node = this.$store.state.inventory.selectedNode;
+            if (!node) return;
+
+            this.dropdownRelationTypes = await this.$store.dispatch(
+                "inventory/getPossibleRelationTypes",
+                this.$store.state.inventory.draggedNode.label,
+            );
+
+            this.showDialog = true;
+        },
+        /**
+         * Adds a new relation after dialog confirmation
+         */
+        addNewRelation(selection: string): void {
+            this.showDialog = false;
+
+            // TODO :: Add the relation (backend call)
+            console.log("Dialog confirmed:", selection);
         },
     },
 });

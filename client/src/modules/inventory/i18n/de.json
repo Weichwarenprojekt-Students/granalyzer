@@ -1,4 +1,13 @@
 {
-  "title": "Nachbarsbeziehungen",
-  "emptySelection": "Wähle ein Element aus, um dessen Beziehungen anzuzeigen"
+  "header": {
+    "title": "Nachbarsbeziehungen"
+  },
+  "graph": {
+    "emptySelection": "Wähle ein Element aus, um dessen Beziehungen anzuzeigen"
+  },
+  "dialog": {
+    "title": "Füge eine Relation hinzu",
+    "placeholder": "Wähle einen Relationstypen",
+    "empty": "Keine Optionen vorhanden"
+  }
 }
