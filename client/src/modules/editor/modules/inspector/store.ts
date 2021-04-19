@@ -24,6 +24,13 @@ export const inspector = {
     state: new InspectorState(),
     mutations: {
         /**
+         * Reset the current selection
+         */
+        resetSelection(state: InspectorState): void {
+            state.attributes = [];
+            state.elementName = "";
+        },
+        /**
          * Set the inspector items for nodes
          */
         setInspectorNodeItems(state: InspectorState, payload: { node: ApiNode; label: ApiLabel }): void {
@@ -104,6 +111,14 @@ export const inspector = {
             const relType: ApiRelationType = await result.json();
 
             context.commit("setInspectorRelationItems", { relation, relType });
+        },
+    },
+    getters: {
+        /**
+         * @return True if the inspector has data to show
+         */
+        isInspectorDataLoaded(state: InspectorState): boolean {
+            return state.elementName !== "";
         },
     },
 };

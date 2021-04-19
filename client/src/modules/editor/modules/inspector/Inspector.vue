@@ -1,5 +1,5 @@
 <template>
-    <div v-if="$store.state.editor.inspector.attributes.length > 0" class="content">
+    <div v-if="$store.getters['editor/isInspectorDataLoaded']" class="content">
         <div class="underlined-title">
             {{ $store.state.editor.inspector.elementName }}
         </div>
@@ -31,6 +31,9 @@ export default defineComponent({
     name: "Inspector",
     components: {
         AttributeItem,
+    },
+    mounted() {
+        this.$store.commit("editor/resetSelection");
     },
 });
 </script>
