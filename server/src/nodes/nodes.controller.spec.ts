@@ -8,7 +8,6 @@ import { Neo4jService } from "nest-neo4j/dist";
 import { NodesService } from "./nodes.service";
 import Node from "./node.model";
 import { NumberAttribute, StringAttribute } from "../data-scheme/models/attributes.model";
-import { InternalServerErrorException } from "@nestjs/common";
 import Relation from "../relations/relation.model";
 import { RelationType } from "../data-scheme/models/relation-type.model";
 import { Connection } from "../data-scheme/models/connection.model";
@@ -167,12 +166,6 @@ describe("NodesController", () => {
             expect(relations.length).toEqual(1);
             expect(relations[0].from).toEqual(movieNodeId);
             expect(relations[0].to).toEqual(validNodeId);
-        });
-
-        it("should throw an exception", async () => {
-            const invalidRelation = new Relation("isHobbitOf", movieNodeId, nmNodeID, { attrOne: "Smaug" });
-            invalidRelation.relationId = await testUtil.writeRelation(invalidRelation);
-            await expect(controller.getRelationsOfNode(movieNodeId)).rejects.toThrowError(InternalServerErrorException);
         });
     });
 });
