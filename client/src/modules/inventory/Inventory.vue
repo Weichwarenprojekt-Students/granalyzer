@@ -5,6 +5,7 @@
             :selectedItemId="$store.state.inventory.selectedNode?.nodeId"
             class="overview"
             @clicked-on-node="clickedOnNode"
+            @dragging-node="draggingNode"
         ></OverviewList>
         <div class="center">
             <InventoryHeader class="header"></InventoryHeader>
@@ -44,6 +45,12 @@ export default defineComponent({
 
             this.$store.commit("inventory/setSelectedNode", node);
             this.$store.dispatch("inventory/loadRelations", node);
+        },
+        /**
+         * Store dragged node
+         */
+        draggingNode(node: ApiNode): void {
+            this.$store.commit("inventory/setDraggedNode", node);
         },
     },
 });

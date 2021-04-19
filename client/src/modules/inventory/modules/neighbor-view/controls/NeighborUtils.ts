@@ -231,6 +231,7 @@ export class NeighborUtils {
             if (!nodeId) return;
             const node = await this.store.dispatch("inventory/getNode", nodeId[0]);
 
+            // TODO :: Prevent multi-clicking while loading
             this.store.commit("inventory/setSelectedNode", node);
             this.store.commit("inventory/reset");
             await this.store.dispatch("inventory/loadRelations", node);

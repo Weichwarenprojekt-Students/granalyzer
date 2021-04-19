@@ -18,9 +18,14 @@ export class EditorState {
     public diagram?: ApiDiagram;
 
     /**
-     * Replication of the overview item that is dragged into the diagram
+     * Replication of the overview item that currently selected
      */
     public selectedNode?: ApiNode;
+
+    /**
+     * Replication of the overview item that is dragged into the diagram
+     */
+    public draggedNode?: ApiNode;
 
     /**
      * Graph editor state
@@ -49,6 +54,12 @@ export const editor = {
          */
         setSelectedNode(state: EditorState, node?: ApiNode): void {
             state.selectedNode = node;
+        },
+        /**
+         * Set dragged item
+         */
+        setDraggedNode(state: EditorState, node?: ApiNode): void {
+            state.draggedNode = node;
         },
     },
     actions: {

@@ -6,9 +6,14 @@ import ApiRelation from "@/models/data-scheme/ApiRelation";
 
 export class InventoryState {
     /**
-     * Replication of the overview item that is selected or dragged into the diagram
+     * Replication of the overview item that currently selected
      */
     public selectedNode?: ApiNode;
+
+    /**
+     * Replication of the overview item that is dragged into the diagram
+     */
+    public draggedNode?: ApiNode;
 
     /**
      * First degree neighbors of the currently selected node
@@ -40,6 +45,13 @@ export const inventory = {
          */
         setSelectedNode(state: InventoryState, node: ApiNode): void {
             state.selectedNode = node;
+        },
+
+        /**
+         * Set dragged item
+         */
+        setDraggedNode(state: InventoryState, node?: ApiNode): void {
+            state.draggedNode = node;
         },
 
         /**
