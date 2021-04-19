@@ -11,6 +11,18 @@ import { RelationModeControls } from "@/modules/editor/modules/graph-editor/cont
 
 export class GraphHandler {
     /**
+     * Color for normal relations
+     */
+    public readonly NORMAL_RELATION_COLOR = "#333";
+    /**
+     * Color for visual relations
+     */
+    public readonly VISUAL_RELATION_COLOR = "#b33";
+    /**
+     * Color for faint DB relations
+     */
+    public readonly FAINT_RELATION_COLOR = "#bbb";
+    /**
      * The nodes/elements of the diagram
      */
     public nodes = new Map<string | number, Node>();

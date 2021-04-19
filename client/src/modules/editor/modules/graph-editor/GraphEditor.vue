@@ -1,5 +1,5 @@
 <template>
-    <div class="container" @mousemove="graph.mousemove">
+    <div class="container" @mousemove="mousemove">
         <ProgressBar
             v-show="$store.state.editor.graphEditor.editorLoading"
             mode="indeterminate"
@@ -20,7 +20,6 @@ import { defineComponent } from "vue";
 import { GraphHandler } from "./controls/GraphHandler";
 import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
-import { GraphControls } from "./controls/GraphControls";
 import { errorToast, infoToast } from "@/utility";
 
 export default defineComponent({
@@ -31,7 +30,6 @@ export default defineComponent({
     data() {
         return {
             graph: {} as JointGraph,
-            editorControls: {} as GraphControls,
         };
     },
     async mounted(): Promise<void> {
@@ -95,6 +93,14 @@ export default defineComponent({
                     index: 0,
                 },
             });
+        },
+        /**
+         * Call mousemove methods of JointGraph and RelationModeControls
+         */
+        // eslint-disable-next-line
+        mousemove(event: any): void {
+            this.$store.state.editor.graphEditor.graphHandler?.graph.mousemove(event);
+            this.$store.state.editor.graphEditor.graphHandler?.relationMode.mousemove(event);
         },
     },
 });

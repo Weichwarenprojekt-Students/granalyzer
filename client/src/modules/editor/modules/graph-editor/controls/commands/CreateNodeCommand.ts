@@ -13,7 +13,7 @@ export class CreateNodeCommand implements ICommand {
     /**
      * Array of relations that are already existing, needed for a redo
      */
-    private existingRelations: Array<[Relation, dia.Element]> = new Array<[Relation, dia.Element]>();
+    private existingRelations: Array<[Relation, dia.Link]> = new Array<[Relation, dia.Link]>();
 
     /**
      * Constructor
@@ -62,7 +62,7 @@ export class CreateNodeCommand implements ICommand {
                     // Register the created relation for a future redo
                     let newRelationObject;
                     if (relId !== undefined && (newRelationObject = this.graphHandler.relations.get(relId)))
-                        this.existingRelations.push([newRelationObject, this.graphHandler.getCellById(relId)]);
+                        this.existingRelations.push([newRelationObject, this.graphHandler.getLinkById(relId)]);
                 });
             });
         } else {

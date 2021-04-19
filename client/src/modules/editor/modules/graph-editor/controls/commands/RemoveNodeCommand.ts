@@ -14,7 +14,7 @@ export class RemoveNodeCommand implements ICommand {
     /**
      * The relations that affect this node
      */
-    private relations = new Array<[Relation, dia.Element]>();
+    private relations = new Array<[Relation, dia.Link]>();
 
     /**
      * Constructor
@@ -34,7 +34,7 @@ export class RemoveNodeCommand implements ICommand {
                 (value.from.uuid === node.ref.uuid && value.from.index === node.ref.index) ||
                 (value.to.uuid === node.ref.uuid && value.to.index === node.ref.index)
             )
-                this.relations.push([value, this.graphHandler.getCellById(id)]);
+                this.relations.push([value, this.graphHandler.getLinkById(id)]);
         });
     }
 

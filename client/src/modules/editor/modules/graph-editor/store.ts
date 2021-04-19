@@ -114,12 +114,15 @@ export const graphEditor = {
 
             // Deselect elements
             state.graphHandler.graph.deselectElements();
+
+            // Disable interactivity of nodes in relation mode
+            state.graphHandler.graph.setInteractivity(!value);
             state.relationModeActive = value;
         },
         /**
          * Enable a DB relation
          */
-        enableDbRelation(state: GraphEditorState, link: dia.Element): void {
+        enableDbRelation(state: GraphEditorState, link: dia.Link): void {
             if (state.graphHandler) {
                 const relation = state.graphHandler.faintRelations.get(link.id);
                 if (relation) {
@@ -131,7 +134,7 @@ export const graphEditor = {
         /**
          * Disable a DB relation
          */
-        disableDbRelation(state: GraphEditorState, link: dia.Element): void {
+        disableDbRelation(state: GraphEditorState, link: dia.Link): void {
             if (state.graphHandler) {
                 const relation = state.graphHandler.relations.get(link.id);
                 if (relation) {

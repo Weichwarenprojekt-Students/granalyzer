@@ -11,7 +11,7 @@ export class EnableDbRelationCommand implements ICommand {
      * @param link The link as dia.Element to be enabled as DB Relation
      * @param relation The relation object for the corresponding link in the graph
      */
-    constructor(private graphHandler: GraphHandler, private link: dia.Element, private relation: Relation) {}
+    constructor(private graphHandler: GraphHandler, private link: dia.Link, private relation: Relation) {}
 
     /**
      * The redo action which enables a db relation

@@ -1,6 +1,6 @@
 import { dia, g } from "jointjs";
 
-class GraphOptions implements dia.Paper.Options {
+class PaperOptions implements dia.Paper.Options {
     [key: string]: unknown;
 }
 
@@ -34,7 +34,7 @@ export class JointGraph {
      */
     constructor(canvas: string) {
         this.graph = new dia.Graph();
-        const config: GraphOptions = {
+        const config: PaperOptions = {
             el: document.getElementById(canvas),
             model: this.graph,
             width: "100%",
@@ -58,9 +58,12 @@ export class JointGraph {
     // eslint-disable-next-line
     public mousemove(event: any): void {
         if (!this.eventData) return;
-        const tx = event.pageX - this.eventData.x;
-        const ty = event.pageY - this.eventData.y;
-        if (this.panning) this.paper.translate(tx + this.eventData.px, ty + this.eventData.py);
+        requestAnimationFrame(() => {
+            if (!this.eventData) return;
+            const tx = event.pageX - this.eventData.x;
+            const ty = event.pageY - this.eventData.y;
+            if (this.panning) this.paper.translate(tx + this.eventData.px, ty + this.eventData.py);
+        });
     }
 
     /**
@@ -262,6 +265,7 @@ export class JointGraph {
                         .map((s) => s.vertices())
                         .filter((v) => v.length != 0)
                         .forEach((v) => {
+                            // TODO: Maybe use different threshold
                             if (vertex.distance(new g.Point(v[0])) < 10) {
                                 atCorrectPosition = false;
                             }

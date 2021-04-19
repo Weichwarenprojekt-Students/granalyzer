@@ -117,14 +117,14 @@ export class GraphControls {
      * @param target The target element
      * @param uuid An optional uuid for the relation
      * @param labelText An optional label for the relation
-     * @param asFaintRelation True if the relation should be added as a faint relation
+     * @param relationType Type of the relation
      */
     public addRelation(
         source: dia.Element,
         target: dia.Element,
         uuid?: string,
         labelText?: string,
-        asFaintRelation?: boolean,
+        relationType = "normal",
     ): string | number | undefined {
         // Check if the nodes exist
         const from = this.graphHandler.nodes.get(source.id);
@@ -156,7 +156,7 @@ export class GraphControls {
                     text: { text: labelText, textAnchor: "middle", textVerticalAnchor: "middle", fill: "#fff" },
                     rect: {
                         ref: "text",
-                        fill: "#333",
+                        fill: this.graphHandler.NORMAL_RELATION_COLOR,
                         stroke: "#000",
                         strokeWidth: 0,
                         refX: "-10%",
@@ -169,18 +169,8 @@ export class GraphControls {
                 },
             });
 
-        // Add the relation to the graph and to the other links
-        link.addTo(this.graphHandler.graph.graph);
-
-        // Check if relation should be added as faint relation
-        if (asFaintRelation) {
-            link.attr({ rect: { fill: "#bbb" }, line: { stroke: "#bbb" } });
-            this.graphHandler.faintRelations.set(link.id, relation);
-        } else {
-            this.graphHandler.relations.set(link.id, relation);
-        }
-
-        this.addLinkTools(link);
+        // Add the created link element
+        this.addExistingRelation(link, relation, relationType);
 
         return link.id;
     }
@@ -190,14 +180,34 @@ export class GraphControls {
      *
      * @param link The link object to add
      * @param relation The corresponding relation object to add
+     * @param relationType Type of the relation
      */
-    public addExistingRelation(link: dia.Element, relation: Relation): void {
+    public addExistingRelation(link: dia.Link, relation: Relation, relationType = "normal"): void {
         link.addTo(this.graphHandler.graph.graph);
 
-        link.attr({ rect: { fill: "#333" }, line: { stroke: "#333" } });
-        this.graphHandler.relations.set(link.id, relation);
+        // Check if relation should be added as faint relation
+        if (relationType === "faint") {
+            link.attr({
+                rect: { fill: this.graphHandler.FAINT_RELATION_COLOR },
+                line: { stroke: this.graphHandler.FAINT_RELATION_COLOR },
+            });
+            this.graphHandler.faintRelations.set(link.id, relation);
+        } else if (relationType === "visual") {
+            link.attr({
+                rect: { fill: this.graphHandler.VISUAL_RELATION_COLOR },
+                line: { stroke: this.graphHandler.VISUAL_RELATION_COLOR },
+            });
+            this.graphHandler.visualRelations.set(link.id, relation);
+            link.set("isVisualRelation", true);
+        } else {
+            link.attr({
+                rect: { fill: this.graphHandler.NORMAL_RELATION_COLOR },
+                line: { stroke: this.graphHandler.NORMAL_RELATION_COLOR },
+            });
+            this.graphHandler.relations.set(link.id, relation);
+        }
 
-        this.addLinkTools(link);
+        this.addLinkTools(link, relationType === "visual");
     }
 
     /**
@@ -205,7 +215,7 @@ export class GraphControls {
      *
      * @param relation The relation to be removed
      */
-    public removeRelation(relation: dia.Element): void {
+    public removeRelation(relation: dia.Element | dia.Link): void {
         this.graphHandler.relations.delete(relation.id);
         this.graphHandler.faintRelations.delete(relation.id);
         this.graphHandler.visualRelations.delete(relation.id);
@@ -216,18 +226,37 @@ export class GraphControls {
      * Add link tools to a link, so that vertices and segments can be manipulated
      *
      * @param link The link to add the link tools to
+     * @param visualRelation True if the the relation is visual
      * @private
      */
-    private addLinkTools(link: dia.Element | shapes.standard.Link) {
+    public addLinkTools(link: dia.Link | shapes.standard.Link, visualRelation = false): void {
+        // Find link view and remove tools
+        const linkView = link.findView(this.graphHandler.graph.paper);
+        linkView.removeTools();
+
+        let toolsView;
         // Prepare link tools for modifying vertices and segments
-        const verticesTool = new linkTools.Vertices({ stopPropagation: false });
-        const segmentsTool = new linkTools.Segments({ stopPropagation: false });
-        const toolsView = new dia.ToolsView({
-            tools: [verticesTool, segmentsTool],
-        });
+        if (!visualRelation) {
+            const verticesTool = new linkTools.Vertices({ stopPropagation: false });
+            const segmentsTool = new linkTools.Segments({ stopPropagation: false });
+            toolsView = new dia.ToolsView({
+                tools: [verticesTool, segmentsTool],
+            });
+        } else {
+            const sourceArrowTool = new linkTools.SourceArrowhead();
+            const targetArrowTool = new linkTools.TargetArrowhead();
+            const removeTool = new linkTools.Remove({
+                action: (evt, linkView) => {
+                    // TODO: Integrate with undo/redo
+                    this.removeRelation(linkView.model);
+                },
+            });
+            toolsView = new dia.ToolsView({
+                tools: [sourceArrowTool, targetArrowTool, removeTool],
+            });
+        }
 
         // Add these tools to the link
-        const linkView = link.findView(this.graphHandler.graph.paper);
         linkView.addTools(toolsView);
         linkView.hideTools();
     }
@@ -288,6 +317,7 @@ export class GraphControls {
 
         // Start dragging the vertex of a relation
         this.graphHandler.graph.paper.on("link:pointerdown", async (cell) => {
+            // TODO: Fix for single click, possibly use mouseenter additionally to pointerdown
             bendCommand = new BendRelationCommand(this.graphHandler, cell.model);
         });
 
@@ -296,21 +326,24 @@ export class GraphControls {
             if (bendCommand && bendCommand.verticesHaveChanged()) {
                 await this.store.dispatch("editor/addBendRelationCommand", bendCommand);
             }
+            bendCommand = undefined;
         });
 
         this.graphHandler.graph.paper.on("link:pointerdblclick", async () => {
             if (bendCommand && bendCommand.verticesHaveChanged()) {
                 await this.store.dispatch("editor/addBendRelationCommand", bendCommand);
             }
+            bendCommand = undefined;
         });
 
         // Show and hide tools for moving links
         this.graphHandler.graph.paper.on("link:mouseenter", (linkView) => {
-            if (!this.store.state.editor?.graphEditor?.relationModeActive) linkView.showTools();
+            if (!this.store.state.editor?.graphEditor?.relationModeActive || linkView.model.get("isVisualRelation"))
+                linkView.showTools();
         });
 
         this.graphHandler.graph.paper.on("link:mouseleave", (linkView) => {
-            if (!this.store.state.editor?.graphEditor?.relationModeActive) linkView.hideTools();
+            linkView.hideTools();
         });
     }
 }
