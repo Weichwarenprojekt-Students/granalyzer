@@ -205,7 +205,7 @@ export const graphEditor = {
             console.log(context);
 
             //TODO: change to correct route
-            //const res = await GET("/api/nodes/" + node.ref.uuid + "/relations");
+            const res = await GET("/api/nodes/" + node.ref.uuid + "/related");
             //const newVar: ApiRelation[] = await res.json();
 
             //TODO: add nodes with method above
