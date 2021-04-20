@@ -9,7 +9,7 @@
         </div>
 
         <!-- Neighbor preview graph -->
-        <div id="joint" @dragover.prevent @drop="showDialog = true" />
+        <div id="joint" @dragover.prevent @drop="nodeDrop" />
 
         <!-- Dialog for adding new relations -->
         <DropdownDialog
@@ -31,6 +31,7 @@ import { dia } from "jointjs";
 import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import DropdownDialog from "@/modules/inventory/modules/neighbor-view/components/DropdownDialog.vue";
+import { errorToast, successToast } from "@/utility";
 
 export default defineComponent({
     name: "NeighborView",
@@ -138,6 +139,10 @@ export default defineComponent({
 
             this.graph.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
         },
+        nodeDrop(): void {
+            if (this.selectedNode?.nodeId !== this.$store.state.inventory.draggedNode.nodeId) this.showDialog = true;
+            else errorToast(this.$t("inventory.drop.error.title"), this.$t("inventory.drop.error.description"));
+        },
         /**
          * Adds a new relation after dialog confirmation
          */
@@ -155,8 +160,18 @@ export default defineComponent({
                 type: payload.selectedRelationType,
             });
 
-            if (response.status !== 201) return; // TODO :: Toast failed
-            // TODO :: Toast added
+            if (response.status !== 201) {
+                errorToast(
+                    this.$t("inventory.newRelation.error.title"),
+                    this.$t("inventory.newRelation.error.description"),
+                );
+                return;
+            }
+
+            successToast(
+                this.$t("inventory.newRelation.success.title"),
+                this.$t("inventory.newRelation.success.description"),
+            );
 
             // TODO :: Instead of reloading the entire neighbors/relations push the latest neighbor into the store
             // TODO >> and just reload the graph

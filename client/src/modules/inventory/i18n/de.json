@@ -5,6 +5,22 @@
   "graph": {
     "emptySelection": "Wähle ein Element aus, um dessen Beziehungen anzuzeigen"
   },
+  "drop": {
+    "error": {
+      "title": "Relation kann nicht hinzugefügt werden",
+      "description": "Relation mit sich selbst nicht möglich"
+    }
+  },
+  "newRelation": {
+    "success": {
+      "title": "Neue Relation",
+      "description": "Eine neue Relation wurde hinzugefügt"
+    },
+    "error": {
+      "title": "Neue Relation",
+      "description": "Eine neue Relation konnte nicht erstellt werden"
+    }
+  },
   "dialog": {
     "title": "Füge eine Relation hinzu",
     "from": "Von",
@@ -13,6 +29,10 @@
     "dropdown": {
       "placeholder": "Wähle einen Relationstypen",
       "empty": "Keine Optionen vorhanden"
+    },
+    "emptyLabel": {
+      "title": "Wähle einen Relationstypen",
+      "description": "Relationstyp kann nicht leer sein"
     }
   }
 }

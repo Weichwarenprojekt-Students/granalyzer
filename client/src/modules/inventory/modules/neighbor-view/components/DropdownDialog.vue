@@ -1,6 +1,6 @@
 <template>
     <!-- Expand the base dialog -->
-    <BaseDialog :show="show" @confirm="$emit('input-confirm', { selectedRelationType, switched })">
+    <BaseDialog :show="show" @confirm="checkInput">
         <div class="mid-section">
             <svg class="icon-add">
                 <use :xlink:href="imageSrc"></use>
@@ -45,6 +45,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import BaseDialog from "@/components/dialog/BaseDialog.vue";
+import { errorToast } from "@/utility";
 
 export default defineComponent({
     name: "DropdownDialog",
@@ -102,6 +103,22 @@ export default defineComponent({
                 fromLabel: from,
                 toLabel: to,
             });
+        },
+        /**
+         * Check if dialog input is valid
+         */
+        checkInput(): void {
+            if (this.selectedRelationType)
+                this.$emit("input-confirm", {
+                    selectedRelationType: this.selectedRelationType,
+                    switched: this.switched,
+                });
+            else {
+                errorToast(
+                    this.$t("inventory.dialog.emptyLabel.title"),
+                    this.$t("inventory.dialog.emptyLabel.description"),
+                );
+            }
         },
     },
 });
