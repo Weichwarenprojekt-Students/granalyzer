@@ -2,7 +2,7 @@
 // https://stackoverflow.com/questions/54427218/parsing-complex-json-objects-with-inheritance
 import * as neo4j from "neo4j-driver";
 import { Datatype } from "./data-type.model";
-import { IsBoolean, IsDefined, IsEnum, IsString } from "class-validator";
+import { IsBoolean, IsDefined, IsEnum, IsOptional, IsString } from "class-validator";
 
 type SerializableAttribute = new () => { readonly datatype: string };
 
@@ -35,6 +35,9 @@ export abstract class Attribute {
      */
     @IsDefined()
     abstract defaultValue;
+
+    @IsOptional()
+    config?;
 
     /**
      * Decorator for automatically filling the data type registry
@@ -170,5 +173,44 @@ export class ColorAttribute extends Attribute {
         this.name = name ?? "";
         this.mandatory = mandatory ?? false;
         this.defaultValue = defaultValue ?? "#000";
+    }
+}
+
+/**
+ * enum attribute serializes attribute
+ */
+@Attribute.serializable
+export class EnumAttribute extends Attribute {
+    /**
+     * datatype of the enum attribute
+     */
+    readonly datatype = Datatype.ENUM;
+
+    /**
+     * List of all values
+     */
+    config: string[] = [];
+
+    /**
+     * Default enum value
+     */
+    defaultValue: string;
+
+    /**
+     * Constructor
+     *
+     * @param name name of the attribute
+     * @param mandatory indicate if the attribute is mandatory
+     * @param defaultValue default value if the attribute is mandatory
+     * @param config list of all values
+     */
+    constructor(name?: string, mandatory?: boolean, defaultValue?: string, config?: string[]) {
+        super();
+        this.name = name ?? "";
+        this.mandatory = mandatory ?? false;
+        this.config = config ?? [];
+        if (this.config.includes(defaultValue)) {
+            this.defaultValue = defaultValue ?? "";
+        }
     }
 }

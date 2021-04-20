@@ -5,4 +5,5 @@ export enum Datatype {
     NUMBER = "number",
     STRING = "string",
     COLOR = "color",
+    ENUM = "enum",
 }
