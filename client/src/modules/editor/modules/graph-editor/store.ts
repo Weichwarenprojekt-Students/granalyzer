@@ -13,6 +13,7 @@ import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/EnableDbRelationCommand";
 import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/DisableDbRelationCommand";
 import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/BendRelationCommand";
+import { ConnectRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/ConnectRelationCommand";
 
 export class GraphEditorState {
     /**
@@ -149,6 +150,13 @@ export const graphEditor = {
          */
         addBendRelationCommand(state: GraphEditorState, bendCommand: BendRelationCommand): void {
             state.graphHandler?.addCommand(bendCommand);
+        },
+
+        /**
+         * Add command for changed vertices to the undo redo stack
+         */
+        addConnectRelationCommand(state: GraphEditorState, connectRelationCommand: ConnectRelationCommand): void {
+            state.graphHandler?.addCommand(connectRelationCommand);
         },
     },
     actions: {
@@ -288,6 +296,17 @@ export const graphEditor = {
             bendCommand: BendRelationCommand,
         ): Promise<void> {
             context.commit("addBendRelationCommand", bendCommand);
+            await context.dispatch("saveChange");
+        },
+
+        /**
+         * Add command for changed vertices to the undo redo stack
+         */
+        async addConnectRelationCommand(
+            context: ActionContext<GraphEditorState, RootState>,
+            connectRelationCommand: ConnectRelationCommand,
+        ): Promise<void> {
+            context.commit("addConnectRelationCommand", connectRelationCommand);
             await context.dispatch("saveChange");
         },
     },

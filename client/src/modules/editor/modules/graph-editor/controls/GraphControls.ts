@@ -161,6 +161,7 @@ export class GraphControls {
                         strokeWidth: 0,
                         refX: "-10%",
                         refY: "-4%",
+                        // TODO: Use absolute values
                         refWidth: "120%",
                         refHeight: "108%",
                         rx: 0,
@@ -264,6 +265,7 @@ export class GraphControls {
     /**
      * Listen for node move events
      */
+    // TODO: Rename
     private registerNodeInteraction(): void {
         // Nothing selected
         this.graphHandler.graph.paper.on("blank:pointerclick", () => {
@@ -296,7 +298,7 @@ export class GraphControls {
         this.graphHandler.graph.paper.on("link:pointerdown", async (cell) => {
             if (!this.store.state.editor?.graphEditor?.relationModeActive) {
                 this.graphHandler.graph.selectElement(cell, true);
-                this.store.commit("editor/setSelectedElement", cell.model);
+                this.store.commit("editor/setSelectedElement", undefined);
 
                 // Set the currently selected relation for inspector
                 const relation = this.graphHandler.relations.get(cell.model.id);

@@ -101,6 +101,8 @@ export default defineComponent({
     position: absolute;
     top: 16px;
     right: 16px;
+
+    user-select: none;
 }
 
 .item {

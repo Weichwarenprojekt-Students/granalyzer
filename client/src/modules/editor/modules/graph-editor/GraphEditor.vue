@@ -149,11 +149,9 @@ export default defineComponent({
     }
 }
 
-#graphContainer {
-    > div {
-        > svg {
-            background: #f2f2f2;
-        }
+#joint {
+    > svg {
+        background: #f2f2f2;
     }
 }
 </style>

@@ -90,13 +90,29 @@ export class RelationModeControls {
         }
 
         // Remove all faint relations
-        this.graphHandler.faintRelations.forEach((node, id) => {
+        this.graphHandler.faintRelations.forEach((relation, id) => {
             this.graphHandler.controls.removeRelation(this.graphHandler.getCellById(id));
         });
 
         // Switch visual relations to normally displayed relations
-        this.graphHandler.visualRelations.forEach((node, id) => {
-            this.switchVisualRelation(id);
+        this.graphHandler.visualRelations.forEach((relation, id) => {
+            const link = this.graphHandler.getLinkById(id);
+            const [sourceId, targetId] = [link.source()?.id, link.target()?.id];
+
+            if (sourceId && targetId) {
+                this.switchVisualRelation(id);
+            } else {
+                const [oldSourceId, oldTargetId] = RelationModeControls.getElementIdsFromRelation(
+                    this.graphHandler,
+                    relation,
+                );
+
+                if (!oldSourceId || !oldTargetId) this.graphHandler.controls.removeRelation(link);
+                else {
+                    link.source({ id: oldSourceId });
+                    link.target({ id: oldTargetId });
+                }
+            }
         });
     }
 
@@ -145,6 +161,58 @@ export class RelationModeControls {
         } else return;
 
         this.switchRelation(id, deleteFrom, addTo, color);
+    }
+
+    /**
+     * Begin drawing a visual relation
+     * @param source Source element
+     * @param currentPoint The current point at which to start drawing the target of the relation
+     */
+    public beginDrawingVisualRelation(source: dia.Element, currentPoint: g.Point): dia.Link {
+        // Create the link
+        const link = new shapes.standard.Link();
+        link.source(source);
+        link.target(currentPoint);
+        link.attr({
+            line: {
+                strokeWidth: 4,
+            },
+        });
+        link.connector("rounded", { radius: 20 });
+
+        // Add the relation to the graph and to the other links
+        link.addTo(this.graphHandler.graph.graph);
+
+        // Set color of the relation to be a visual relation
+        link.attr({
+            rect: { fill: this.graphHandler.VISUAL_RELATION_COLOR },
+            line: { stroke: this.graphHandler.VISUAL_RELATION_COLOR },
+        });
+
+        return link;
+    }
+
+    /**
+     * Mousemove callback
+     */
+    // eslint-disable-next-line
+    public mousemove(event: any): void {
+        if (this.store.state.editor?.graphEditor?.relationModeActive && this.newVisualRelation) {
+            // During drawing of new visual relation, connect the new relation target to the mouse position
+            requestAnimationFrame(() => {
+                if (this.newVisualRelation) {
+                    const sourcePoint = this.newVisualRelation.getSourcePoint();
+                    const targetPoint = this.graphHandler.graph.paper.clientToLocalPoint(event.clientX, event.clientY);
+
+                    // Calculate unit vector of connection between source and mouse point
+                    const unitDirection = targetPoint.difference(sourcePoint).normalize(1);
+
+                    // Set new target to mouse position, but with a distance of a few pixel so that click events
+                    // aren't registered on the new link of the visual relation, but on other elements
+                    this.newVisualRelation.target(targetPoint.difference(unitDirection.scale(10, 10)));
+                }
+            });
+        }
     }
 
     /**
@@ -225,35 +293,6 @@ export class RelationModeControls {
     }
 
     /**
-     * Begin drawing a visual relation
-     * @param source Source element
-     * @param currentPoint The current point at which to start drawing the target of the relation
-     */
-    public beginDrawingVisualRelation(source: dia.Element, currentPoint: g.Point): dia.Link {
-        // Create the link
-        const link = new shapes.standard.Link();
-        link.source(source);
-        link.target(currentPoint);
-        link.attr({
-            line: {
-                strokeWidth: 4,
-            },
-        });
-        link.connector("rounded", { radius: 20 });
-
-        // Add the relation to the graph and to the other links
-        link.addTo(this.graphHandler.graph.graph);
-
-        // Set color of the relation to be a visual relation
-        link.attr({
-            rect: { fill: this.graphHandler.VISUAL_RELATION_COLOR },
-            line: { stroke: this.graphHandler.VISUAL_RELATION_COLOR },
-        });
-
-        return link;
-    }
-
-    /**
      * Listen for node move events
      */
     private registerNodeInteraction(): void {
@@ -269,8 +308,10 @@ export class RelationModeControls {
         });
 
         // Begin or end drawing a new visual relation
-        this.graphHandler.graph.paper.on("element:pointerclick", (cellView: dia.ElementView, evt, x, y) => {
-            if (this.store.state.editor?.graphEditor?.relationModeActive) {
+        this.graphHandler.graph.paper.on({
+            "element:pointerclick": (cellView: dia.ElementView, evt, x, y) => {
+                if (!this.store.state.editor?.graphEditor?.relationModeActive) return;
+
                 if (!this.newVisualRelation) {
                     // Begin drawing
                     this.newVisualRelation = this.beginDrawingVisualRelation(cellView.model, new g.Point(x, y));
@@ -301,7 +342,73 @@ export class RelationModeControls {
 
                     this.newVisualRelation = undefined;
                 }
-            }
+            },
+        });
+
+        this.graphHandler.graph.paper.on({
+            // "link:mouseenter": (linkView) => {
+            //     if (!this.store.state.editor?.graphEditor?.relationModeActive) return;
+            //
+            //     if (linkView.model.get("isVisualRelation") && !connectRelationCommand) {
+            //         connectRelationCommand = new ConnectRelationCommand(this.graphHandler, linkView.model);
+            //     }
+            // },
+            "link:connect": (linkView, evt, elementViewConnected, magnet, arrowhead) => {
+                const link = linkView.model;
+                const relation = this.graphHandler.visualRelations.get(link.id);
+
+                if (!relation) return;
+
+                // Reset connection if source and target are same element
+                if (link.source().id === link.target().id) {
+                    console.log();
+
+                    const [oldSourceId, oldTargetId] = RelationModeControls.getElementIdsFromRelation(
+                        this.graphHandler,
+                        relation,
+                    );
+
+                    link.source({ id: oldSourceId });
+                    link.target({ id: oldTargetId });
+
+                    return;
+                }
+
+                // const cmd = new ConnectRelationCommand(this.graphHandler, link);
+
+                // const connId = elementViewConnected.model.id;
+                // const newNode = this.graphHandler.nodes.get(connId);
+                //
+                // const newRelation = deepCopy(this.graphHandler.visualRelations.get(linkView.model.id));
+                //
+                // if (!newRelation || !newNode) return;
+                //
+                // let oldNodeRef;
+                // if (arrowhead === "target") {
+                //     oldNodeRef = deepCopy(newRelation.to);
+                //
+                //     newRelation.to = deepCopy(newNode.ref);
+                // } else if (arrowhead === "source") {
+                //     oldNodeRef = deepCopy(newRelation.from);
+                //
+                //     newRelation.from = deepCopy(newNode.ref);
+                // } else console.error("WTF!!!?");
+                //
+                // this.graphHandler.visualRelations.set(linkView.model.id, newRelation);
+            },
+            // "link:mouseleave": async () => {
+            //     if (!this.store.state.editor?.graphEditor?.relationModeActive) return;
+            //
+            //     if (connectRelationCommand && connectRelationCommand.connectionHasChanged()) {
+            //         console.log("congratulations!!!");
+            //         await this.store.dispatch("editor/addBendRelationCommand", connectRelationCommand);
+            //     }
+            //
+            //     connectRelationCommand = undefined;
+            // },
+            // "link:disconnect": (linkView, evt, elementViewConnected, magnet, arrowhead) => {
+            //     console.log("disconnect", arrowhead);
+            // },
         });
 
         // Interrupt drawing a new visual relation
@@ -313,26 +420,18 @@ export class RelationModeControls {
         });
     }
 
-    /**
-     * Mousemove callback
-     */
-    // eslint-disable-next-line
-    public mousemove(event: any): void {
-        if (this.store.state.editor?.graphEditor?.relationModeActive && this.newVisualRelation) {
-            // During drawing of new visual relation, connect the new relation target to the mouse position
-            requestAnimationFrame(() => {
-                if (this.newVisualRelation) {
-                    const sourcePoint = this.newVisualRelation.getSourcePoint();
-                    const targetPoint = this.graphHandler.graph.paper.clientToLocalPoint(event.clientX, event.clientY);
+    // TODO: Move somewhere else
+    public static getElementIdsFromRelation(
+        graphHandler: GraphHandler,
+        relation: Relation,
+    ): [string | number | undefined, string | number | undefined] {
+        let oldSourceId, oldTargetId;
 
-                    // Calculate unit vector of connection between source and mouse point
-                    const unitDirection = targetPoint.difference(sourcePoint).normalize(1);
+        graphHandler.nodes.forEach((node, id) => {
+            if (relation.from.uuid === node.ref.uuid && relation.from.index === node.ref.index) oldSourceId = id;
+            if (relation.to.uuid === node.ref.uuid && relation.to.index === node.ref.index) oldTargetId = id;
+        });
 
-                    // Set new target to mouse position, but with a distance of a few pixel so that click events
-                    // aren't registered on the new link of the visual relation, but on other elements
-                    this.newVisualRelation.target(targetPoint.difference(unitDirection.scale(10, 10)));
-                }
-            });
-        }
+        return [oldSourceId, oldTargetId];
     }
 }
