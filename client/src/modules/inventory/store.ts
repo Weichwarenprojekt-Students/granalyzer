@@ -198,10 +198,8 @@ export const inventory = {
         async addNewRelation(
             context: ActionContext<InventoryState, RootState>,
             payload: { from: string; to: string; type: string },
-        ): Promise<void> {
-            console.log(payload.from, payload.to, payload.type);
-
-            const res = await POST(
+        ): Promise<Response> {
+            return await POST(
                 "/api/relations",
                 JSON.stringify({
                     from: payload.from,
@@ -209,13 +207,6 @@ export const inventory = {
                     type: payload.type,
                 }),
             );
-
-            if (res.status === 201) {
-                // TODO :: Toast if successful
-                return;
-            }
-
-            // TODO :: Toast if failed
         },
     },
 };

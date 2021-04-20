@@ -7,7 +7,12 @@
   },
   "dialog": {
     "title": "Füge eine Relation hinzu",
-    "placeholder": "Wähle einen Relationstypen",
-    "empty": "Keine Optionen vorhanden"
+    "from": "Von",
+    "to": "Zu",
+    "type": "Typ",
+    "dropdown": {
+      "placeholder": "Wähle einen Relationstypen",
+      "empty": "Keine Optionen vorhanden"
+    }
   }
 }

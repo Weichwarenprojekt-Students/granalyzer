@@ -7,7 +7,12 @@
   },
   "dialog": {
     "title": "Add a relation",
-    "placeholder": "Choose a relationtype",
-    "empty": "No available options"
+    "from": "From",
+    "to": "To",
+    "type": "Type",
+    "dropdown": {
+      "placeholder": "Choose a relation type",
+      "empty": "No available options"
+    }
   }
 }

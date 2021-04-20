@@ -9,16 +9,16 @@
         </div>
 
         <!-- Neighbor preview graph -->
-        <div id="joint" @dragover.prevent @drop="onNodeDrop" />
+        <div id="joint" @dragover.prevent @drop="showDialog = true" />
 
         <!-- Dialog for adding new relations -->
         <DropdownDialog
             @input-confirm="addNewRelation"
             @cancel="showDialog = false"
             :show="showDialog"
+            :originNode="selectedNode"
+            :draggedNode="$store.state.inventory.draggedNode"
             :imageSrc="require('@/assets/img/icons.svg') + '#circle-plus'"
-            :title="$t('inventory.dialog.title')"
-            :relationTypes="dropdownRelationTypes"
         ></DropdownDialog>
     </div>
 </template>
@@ -30,7 +30,7 @@ import ApiNode from "@/models/data-scheme/ApiNode";
 import { dia } from "jointjs";
 import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import DropdownDialog from "@/components/dialog/DropdownDialog.vue";
+import DropdownDialog from "@/modules/inventory/modules/neighbor-view/components/DropdownDialog.vue";
 
 export default defineComponent({
     name: "NeighborView",
@@ -49,8 +49,6 @@ export default defineComponent({
             neighborUtils: {} as NeighborUtils,
             // True if the dialog is visible
             showDialog: false,
-            // Relation types for the dropdown
-            dropdownRelationTypes: [],
         };
     },
     watch: {
@@ -141,32 +139,24 @@ export default defineComponent({
             this.graph.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
         },
         /**
-         * Drop: Retrieve possible relation types
-         */
-        // eslint-disable-next-line
-        async onNodeDrop(): Promise<void> {
-            // Get the selected node
-            const node = this.$store.state.inventory.selectedNode;
-            if (!node || !this.selectedNode) return;
-
-            this.dropdownRelationTypes = await this.$store.dispatch("inventory/getPossibleRelationTypes", {
-                fromLabel: this.$store.state.inventory.draggedNode.label,
-                toLabel: this.selectedNode.label,
-            });
-
-            this.showDialog = true;
-        },
-        /**
          * Adds a new relation after dialog confirmation
          */
-        addNewRelation(selection: string): void {
+        async addNewRelation(payload: { selectedRelationType: string; switched: boolean }): Promise<void> {
             this.showDialog = false;
+            if (!payload.selectedRelationType) return;
 
-            this.$store.dispatch("inventory/addNewRelation", {
-                from: this.$store.state.inventory.draggedNode.nodeId,
-                to: (this.selectedNode as ApiNode).nodeId,
-                type: selection,
+            let from = this.$store.state.inventory.draggedNode.nodeId;
+            let to = (this.selectedNode as ApiNode).nodeId;
+            if (payload.switched) [from, to] = [to, from];
+
+            const response = await this.$store.dispatch("inventory/addNewRelation", {
+                from: from,
+                to: to,
+                type: payload.selectedRelationType,
             });
+
+            if (response.status !== 201) return; // TODO :: Toast failed
+            // TODO :: Toast added
 
             // TODO :: Instead of reloading the entire neighbors/relations push the latest neighbor into the store
             // TODO >> and just reload the graph
