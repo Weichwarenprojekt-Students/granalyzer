@@ -211,17 +211,22 @@ export class SchemeGenerator {
     }
 
     /**
-     * Create a full-text scheme index on all nodeId's
+     * Create a full-text scheme index on all nodeId's, if one already exists drop it first so it will be updated
      *
-     * @param labels
-     * @param indexedAttrs
+     * @param labels The labels that will be indexed
+     * @param indexedAttrs The attributes on those labels that will be indexed
      * @param session
      * @private
      */
     private static async createFullTextScheme(labels: string[], indexedAttrs: string[], session: Session) {
         // language=cypher
-        const cypher = `
+        const cypherWriteIndex = `
           CALL db.index.fulltext.createNodeIndex('allNodesIndex', $labels, $indexedAttrs)
+        `;
+
+        // language=cypher
+        const cypherDropIndex = `
+          CALL db.index.fulltext.drop('allNodesIndex')
         `;
 
         const params = {
@@ -229,14 +234,16 @@ export class SchemeGenerator {
             indexedAttrs,
         };
 
-        await session.run(cypher, params).catch((err) => {
+        await session.run(cypherDropIndex).catch((err) => {
             if (err instanceof Neo4jError) {
                 switch (err.code) {
                     case "Neo.ClientError.Procedure.ProcedureCallFailed":
-                        console.log("The full-text index has already been created");
+                        console.log("Index not dropped because it didn't exist");
                 }
             }
         });
+
+        await session.run(cypherWriteIndex, params).catch((err) => console.log(err));
     }
 
     /**

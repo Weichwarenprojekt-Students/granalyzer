@@ -8,6 +8,7 @@ import Relation from "../relations/relation.model";
 import { DataSchemeUtil } from "../util/data-scheme.util";
 import { Attribute } from "./models/attributes.model";
 import Node from "../nodes/node.model";
+import { Neo4jError } from "neo4j-driver";
 
 @Injectable()
 export class DataSchemeService {
@@ -79,9 +80,63 @@ export class DataSchemeService {
             return this.dataSchemeUtil.parseLabelScheme(res.records[0]);
         };
 
-        return this.neo4jService
+        const ret = this.neo4jService
             .write(cypher, params, this.database)
             .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
+
+        // Update the index on all nodes to contain the newly added label
+        await this.updateFullTextScheme();
+
+        return ret;
+    }
+
+    /**
+     * Removes the old allNodesIndex and adds it with the labels stored in the data-scheme
+     */
+    private async updateFullTextScheme() {
+        // language=cypher
+        const cypherTool = `
+          MATCH (ls:LabelScheme)
+          WITH ls.name AS name
+          RETURN name AS name
+        `;
+
+        // language=cypher
+        const cypherDropIndex = `
+          CALL db.index.fulltext.drop('allNodesIndex')
+        `;
+
+        // language=cypher
+        const cypherWriteIndex = `
+          CALL db.index.fulltext.createNodeIndex('allNodesIndex', $labelNames, ['nodeId'])
+        `;
+
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => res.records.map((rec) => rec.get("name"));
+
+        // Get all label names in tool DB
+        const labelNames = await this.neo4jService
+            .write(cypherTool, {}, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
+        const params = {
+            labelNames,
+        };
+
+        // Drop the current full-text index
+        await this.neo4jService.write(cypherDropIndex, params, process.env.DB_CUSTOMER).catch((err) => {
+            if (err instanceof Neo4jError) {
+                switch (err.code) {
+                    case "Neo.ClientError.Procedure.ProcedureCallFailed":
+                        console.log("Index does not exist, writing index now.");
+                }
+            }
+        });
+
+        // Write updated index
+        await this.neo4jService
+            .write(cypherWriteIndex, params, process.env.DB_CUSTOMER)
             .catch(this.databaseUtil.catchDbError);
     }
 

@@ -26,6 +26,8 @@ export class DatabaseUtil {
                     throw new BadRequestException(err.message);
                 case "Neo.ClientError.Schema.ConstraintValidationFailed":
                     throw new ConflictException(err.message);
+                case "Neo.ClientError.Procedure.ProcedureCallFailed":
+                    console.log("The full-text index has already been created");
             }
         }
 
