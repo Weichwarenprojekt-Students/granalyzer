@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { Scheme } from "./data-scheme.model";
 import { RelationType } from "./models/relation-type.model";
@@ -80,21 +80,18 @@ export class DataSchemeService {
             return this.dataSchemeUtil.parseLabelScheme(res.records[0]);
         };
 
-        const ret = this.neo4jService
+        await this.updateFullTextScheme(label.name);
+
+        return this.neo4jService
             .write(cypher, params, this.database)
             .then(resolveWrite)
             .catch(this.databaseUtil.catchDbError);
-
-        // Update the index on all nodes to contain the newly added label
-        await this.updateFullTextScheme();
-
-        return ret;
     }
 
     /**
      * Removes the old allNodesIndex and adds it with the labels stored in the data-scheme
      */
-    private async updateFullTextScheme() {
+    private async updateFullTextScheme(labelName: string) {
         // language=cypher
         const cypherTool = `
           MATCH (ls:LabelScheme)
@@ -116,23 +113,21 @@ export class DataSchemeService {
         const resolveRead = (res) => res.records.map((rec) => rec.get("name"));
 
         // Get all label names in tool DB
-        const labelNames = await this.neo4jService
+        const labelNames: string[] = await this.neo4jService
             .write(cypherTool, {}, this.database)
             .then(resolveRead)
-            .catch(this.databaseUtil.catchDbError);
+            .catch((err) => console.log(err.message));
+
+        labelNames.push(labelName);
+
         const params = {
             labelNames,
         };
 
-        // Drop the current full-text index
-        await this.neo4jService.write(cypherDropIndex, params, process.env.DB_CUSTOMER).catch((err) => {
-            if (err instanceof Neo4jError) {
-                switch (err.code) {
-                    case "Neo.ClientError.Procedure.ProcedureCallFailed":
-                        console.log("Index does not exist, writing index now.");
-                }
-            }
-        });
+        // Drop the current full-text index, don't throw error when it fails
+        await this.neo4jService
+            .write(cypherDropIndex, params, process.env.DB_CUSTOMER)
+            .catch((err) => Logger.log("No index existed at this point, creating one"));
 
         // Write updated index
         await this.neo4jService
