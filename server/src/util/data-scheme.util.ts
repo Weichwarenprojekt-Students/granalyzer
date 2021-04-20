@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import Node from "../nodes/node.model";
 import { Attribute } from "../data-scheme/models/attributes.model";
@@ -54,7 +54,9 @@ export class DataSchemeUtil {
      * @param queryKey The key of the record as specified in the query
      * @param labelScheme The label scheme of the node
      */
-    public async parseNode(record, queryKey = "node", labelScheme?: LabelScheme): Promise<Node> {
+    public async parseNode(record?, queryKey = "node", labelScheme?: LabelScheme): Promise<Node> {
+        if (!record) throw new NotFoundException("No results to return");
+
         const attributes = record.get(queryKey);
 
         const node = {
@@ -74,7 +76,9 @@ export class DataSchemeUtil {
      * @param queryKey The key of the record as specified in the query
      * @private
      */
-    async parseRelation(record, queryKey = "r"): Promise<Relation> {
+    async parseRelation(record?, queryKey = "r"): Promise<Relation> {
+        if (!record) throw new NotFoundException("No results to return");
+
         const attributes = record.get(queryKey);
 
         const relation = {
@@ -223,34 +227,6 @@ export class DataSchemeUtil {
         const testSixDigits = /^#[0-9A-F]{6}$/i.test(color);
         const testThreeDigits = /^#[0-9A-F]{3}$/i.test(color);
         return testSixDigits || testThreeDigits;
-    }
-
-    /**
-     * Checks if the attribute values match their datatype and throws an exception if not
-     * @param scheme The label or relation scheme
-     * @param element The node or relation to be checked
-     */
-    checkAttributesIntegrity(scheme: LabelScheme | RelationType, element: Node | Relation): void {
-        scheme.attributes.forEach((attribute) => {
-            const attr = element.attributes[attribute.name];
-
-            // Check if the the attributes have the right data format
-            switch (attribute.datatype) {
-                case Datatype.NUMBER: {
-                    if (attr && !this.isNumber(attr))
-                        throw new InternalServerErrorException(`Attribute '${attribute.name}' is not a number!`);
-                    break;
-                }
-                case Datatype.COLOR: {
-                    if (attr && !this.isColor(attr))
-                        throw new InternalServerErrorException(`Attribute '${attribute.name}' is not a color!`);
-                    break;
-                }
-                case Datatype.STRING:
-                default:
-                    break;
-            }
-        });
     }
 
     /**

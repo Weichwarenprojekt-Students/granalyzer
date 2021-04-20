@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsObject, IsString } from "class-validator";
 
 export default class Node {
     @ApiProperty({
@@ -7,6 +8,7 @@ export default class Node {
         name: "nodeId",
         description: "The id of the node",
     })
+    @IsString()
     public nodeId?: string;
 
     @ApiProperty({
@@ -15,6 +17,7 @@ export default class Node {
         name: "name",
         description: "The name of the node",
     })
+    @IsString()
     public name: string;
 
     @ApiProperty({
@@ -23,6 +26,7 @@ export default class Node {
         name: "label",
         description: "Label of the node",
     })
+    @IsString()
     public label: string;
 
     @ApiProperty({
@@ -31,6 +35,7 @@ export default class Node {
         name: "attributes",
         description: "The nodes attributes",
     })
+    @IsObject()
     public attributes: any;
 
     constructor(name: string, label: string, attributes: any, id = "") {

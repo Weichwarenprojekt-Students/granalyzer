@@ -4,7 +4,6 @@ import Node from "./node.model";
 import {
     ApiBody,
     ApiInternalServerErrorResponse,
-    ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -14,7 +13,7 @@ import {
 } from "@nestjs/swagger";
 import { NodesRelationsService } from "./nodes-relations.service";
 import Relation from "../relations/relation.model";
-import { NodesAttributesService } from "./nodes-attributes.service";
+import { ValidationPipe } from "../validation-pipe";
 
 @ApiTags("nodes")
 @Controller("nodes")
@@ -22,7 +21,6 @@ export class NodesController {
     constructor(
         private readonly nodesService: NodesService,
         private readonly nodesRelationsService: NodesRelationsService,
-        private readonly nodesAttributesService: NodesAttributesService,
     ) {}
 
     @Get()
@@ -81,40 +79,20 @@ export class NodesController {
         return this.nodesRelationsService.getRelationsOfNode(id);
     }
 
-    @Put(":id/setAttributes")
+    @Put(":id")
     @ApiOperation({ description: "Updates the attributes of the node" })
     @ApiOkResponse({ type: Node, description: "Returns the updated node" })
-    @ApiNotAcceptableResponse({ description: "Invalid node data" })
-    @ApiNotFoundResponse({ description: "Requested node unavailable" })
+    @ApiNotFoundResponse({ description: "Could not find any node for this uuid" })
     @ApiParam({
         name: "id",
         type: "string",
         description: "UUID of the node",
     })
     @ApiBody({
-        schema: {
-            type: "object",
-            properties: {
-                nodeId: {
-                    type: "string",
-                    description: "The UUID of the node",
-                },
-                name: {
-                    type: "string",
-                    description: "The display-name of the node",
-                },
-                label: {
-                    type: "string",
-                    description: "The label of the node",
-                },
-                attributes: {
-                    type: "any",
-                    description: "The JSON object attributes",
-                },
-            },
-        },
+        type: Node,
+        description: "The node to be modified",
     })
-    setAttributes(@Param("id") id: string, @Body() body: Node) {
-        return this.nodesAttributesService.setAttributes(id, body);
+    modifyNode(@Param("id") id: string, @Body(ValidationPipe) body: Node) {
+        return this.nodesService.modifyNode(id, body);
     }
 }

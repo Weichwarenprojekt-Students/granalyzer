@@ -58,4 +58,35 @@ export class RelationsService {
             .then(resolveRead)
             .catch(this.databaseUtil.catchDbError);
     }
+
+    /**
+     * Modifies the attributes of the specified relation
+     * @param relationId The UUID of the relation
+     * @param relation The node to be modified
+     */
+    modifyRelation(relationId: string, relation: Relation): Promise<Relation> {
+        //language=Cypher
+        const query = `MATCH(startNode)-[relation]->(endNode)
+                         WHERE relation.relationId = $relationId
+                       WITH startNode.nodeId AS from,
+                            endNode.nodeId AS to, relation
+                       SET relation = $attributes
+                       RETURN relation { .*, type:TYPE(relation), from:from, to:to} as relation;`;
+        const params = {
+            relationId,
+            attributes: {},
+        };
+
+        for (const [key, value] of Object.entries(relation.attributes)) {
+            params.attributes[key] = value;
+        }
+        // Restore/force override the missing relation id
+        params.attributes["relationId"] = relationId;
+
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], "relation");
+        return this.neo4jService
+            .write(query, params, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
+    }
 }

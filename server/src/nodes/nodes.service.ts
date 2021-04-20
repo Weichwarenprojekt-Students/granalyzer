@@ -128,4 +128,36 @@ export class NodesService {
         // Filter not valid labels
         return validLabels.filter((lbl) => labelFilter.includes(lbl));
     }
+
+    /**
+     * Modifies the attributes of the specified node
+     * @param nodeId The UUID of the node
+     * @param node The node to be modified
+     */
+    async modifyNode(nodeId: string, node: Node): Promise<Node> {
+        // language=Cypher
+        const query = `
+          MATCH(node)
+            WHERE node.nodeId = $nodeId
+          WITH LABELS(node) AS lbls, node
+          UNWIND lbls AS label
+          SET node = $attributes
+          RETURN node{. *, label:label} AS node`;
+        const params = {
+            nodeId,
+            attributes: {},
+        };
+
+        for (const [key, value] of Object.entries(node.attributes)) {
+            params.attributes[key] = value;
+        }
+        // Restore/force override the missing node id
+        params.attributes["nodeId"] = nodeId;
+
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0]);
+        return this.neo4jService
+            .write(query, params, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
+    }
 }

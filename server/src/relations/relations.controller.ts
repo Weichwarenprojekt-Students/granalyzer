@@ -3,7 +3,6 @@ import { Body, Controller, Get, Param, Put } from "@nestjs/common";
 import {
     ApiBody,
     ApiInternalServerErrorResponse,
-    ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -11,15 +10,12 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 import Relation from "./relation.model";
-import { RelationsAttributesService } from "./relations-attributes.service";
+import { ValidationPipe } from "../validation-pipe";
 
 @ApiTags("relations")
 @Controller("relations")
 export class RelationsController {
-    constructor(
-        private readonly relationsService: RelationsService,
-        private readonly relationAttributesService: RelationsAttributesService,
-    ) {}
+    constructor(private readonly relationsService: RelationsService) {}
 
     @Get()
     @ApiOperation({
@@ -39,48 +35,20 @@ export class RelationsController {
         return this.relationsService.getRelation(id);
     }
 
-    @Put(":id/setAttributes")
+    @Put(":id")
     @ApiOperation({ description: "Updates the attributes of the relation" })
     @ApiOkResponse({ description: "Returns the updated relation" })
-    @ApiNotAcceptableResponse({ description: "Invalid relation data" })
-    @ApiNotFoundResponse({ description: "Requested relation unavailable" })
+    @ApiNotFoundResponse({ description: "Could not find any relation for this uuid" })
     @ApiParam({
         name: "id",
         type: "string",
         description: "UUID of the relation",
     })
     @ApiBody({
-        schema: {
-            type: "object",
-            properties: {
-                relationId: {
-                    type: "string",
-                    description: "The UUID of the relation",
-                },
-
-                type: {
-                    type: "string",
-                    description: "The type of the relation",
-                },
-
-                attributes: {
-                    type: "any",
-                    description: "The JSON object attributes",
-                },
-
-                from: {
-                    type: "string",
-                    description: "The UUID of the source node",
-                },
-
-                to: {
-                    type: "string",
-                    description: "The UUID of the target node",
-                },
-            },
-        },
+        type: Relation,
+        description: "The relation to be modified",
     })
-    setAttributes(@Param("id") id: string, @Body() body: Relation) {
-        return this.relationAttributesService.setAttributes(id, body);
+    modifyRelation(@Param("id") id: string, @Body(ValidationPipe) body: Relation) {
+        return this.relationsService.modifyRelation(id, body);
     }
 }
