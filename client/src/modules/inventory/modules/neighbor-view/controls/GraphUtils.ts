@@ -12,7 +12,7 @@ import { JointGraph } from "@/shared/JointGraph";
 /**
  * Provides key functionality for placing nodes and relations
  */
-export class NeighborUtils {
+export class GraphUtils {
     /**
      * Distance between two nodes on a circle
      */
@@ -197,6 +197,17 @@ export class NeighborUtils {
     }
 
     /**
+     * Finds the node id that corresponds to a shape id
+     *
+     * @param id Id of the shape
+     */
+    public async getNodeByShapeId(id: string): Promise<ApiNode | undefined> {
+        const nodeId = [...this.mappedNodes].find(([, value]) => value === id);
+        if (!nodeId) return undefined;
+        return await this.store.dispatch("inventory/getNode", nodeId[0]);
+    }
+
+    /**
      * Returns the diagram-shape that belongs to a node
      *
      * @param id Id of the node that is supposed to be in the graph
@@ -226,10 +237,7 @@ export class NeighborUtils {
             // Get key of element by value
             if (!this.store.state.inventory) return;
 
-            const nodeId = [...this.mappedNodes].find(([, value]) => value === cell.model.id);
-
-            if (!nodeId) return;
-            const node = await this.store.dispatch("inventory/getNode", nodeId[0]);
+            const node = await this.getNodeByShapeId(cell.model.id);
 
             // TODO :: Prevent multi-clicking while loading
             this.store.commit("inventory/setSelectedNode", node);

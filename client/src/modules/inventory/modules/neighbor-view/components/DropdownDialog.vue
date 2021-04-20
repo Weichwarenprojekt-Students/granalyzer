@@ -14,11 +14,11 @@
                     <div class="flex-wrapper">
                         <div class="fromTo">
                             <div class="text">{{ $t("inventory.dialog.from") }}</div>
-                            <div class="node">{{ switched ? originNode.name : draggedNode.name }}</div>
+                            <div class="node">{{ switched ? toNode.name : fromNode.name }}</div>
                         </div>
                         <div class="fromTo">
                             <div class="text">{{ $t("inventory.dialog.to") }}</div>
-                            <div class="node">{{ switched ? draggedNode.name : originNode.name }}</div>
+                            <div class="node">{{ switched ? fromNode.name : toNode.name }}</div>
                         </div>
                     </div>
                     <svg class="icon-reload" @click="switchDirection">
@@ -57,10 +57,10 @@ export default defineComponent({
         show: Boolean,
         // The image source
         imageSrc: String,
-        // Node that is selected in the list
-        originNode: Object,
-        // Node that was dragged into the graph
-        draggedNode: Object,
+        // Node that the relation comes from
+        fromNode: Object,
+        // Node that the relation goes to
+        toNode: Object,
     },
     data() {
         return {
@@ -78,6 +78,7 @@ export default defineComponent({
          */
         show(visible) {
             if (!visible) return;
+            this.selectedRelationType = null;
             this.checkPossibleRelationTypes();
         },
     },
@@ -93,10 +94,10 @@ export default defineComponent({
          * Check for valid relation types
          */
         async checkPossibleRelationTypes(): Promise<void> {
-            if (!(this.draggedNode && this.originNode)) return;
+            if (!(this.toNode && this.fromNode)) return;
 
-            let from = this.draggedNode.label;
-            let to = this.originNode.label;
+            let from = this.fromNode.label;
+            let to = this.toNode.label;
             if (this.switched) [from, to] = [to, from];
 
             this.possibleRelationTypes = await this.$store.dispatch("inventory/getPossibleRelationTypes", {

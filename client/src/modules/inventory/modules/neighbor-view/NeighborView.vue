@@ -1,5 +1,5 @@
 <template>
-    <div class="container" @mousemove="graph.mousemove">
+    <div class="container" @mousemove="mouseMove">
         <!-- Info, when empty -->
         <div v-show="!$store.state.inventory.selectedNode" class="empty-warning">
             <svg>
@@ -16,8 +16,8 @@
             @input-confirm="addNewRelation"
             @cancel="showDialog = false"
             :show="showDialog"
-            :originNode="selectedNode"
-            :draggedNode="$store.state.inventory.draggedNode"
+            :fromNode="fromNode"
+            :toNode="toNode"
             :imageSrc="require('@/assets/img/icons.svg') + '#circle-plus'"
         ></DropdownDialog>
     </div>
@@ -28,10 +28,11 @@ import { defineComponent } from "vue";
 import { JointGraph } from "@/shared/JointGraph";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { dia } from "jointjs";
-import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
+import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import DropdownDialog from "@/modules/inventory/modules/neighbor-view/components/DropdownDialog.vue";
 import { errorToast, successToast } from "@/utility";
+import { RelationUtils } from "@/modules/inventory/modules/neighbor-view/controls/RelationUtils";
 
 export default defineComponent({
     name: "NeighborView",
@@ -47,9 +48,15 @@ export default defineComponent({
             // Root element that is currently displayed in the inventory
             selectedNodeShape: {} as dia.Element,
             // Utility functions for the neighbor view
-            neighborUtils: {} as NeighborUtils,
+            graphUtils: {} as GraphUtils,
+            // Utility functions for new relations
+            relationUtils: {} as RelationUtils,
             // True if the dialog is visible
             showDialog: false,
+            // Node the relation comes from
+            fromNode: {} as ApiNode,
+            // Node the relation goes to
+            toNode: {} as ApiNode,
         };
     },
     watch: {
@@ -66,11 +73,24 @@ export default defineComponent({
             if (loading || !this.selectedNode) return;
             this.graphLoaded();
         },
+        /**
+         * Display relation dialog if new relation is available
+         */
+        async "$store.state.inventory.newRelation"(relation: { sourceId: string; targetId: string }) {
+            const source = await this.graphUtils.getNodeByShapeId(relation.sourceId);
+            const target = await this.graphUtils.getNodeByShapeId(relation.targetId);
+
+            if (!(source && target)) return;
+            this.fromNode = source as ApiNode;
+            this.toNode = target as ApiNode;
+            this.showDialog = true;
+        },
     },
     mounted(): void {
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
-        this.neighborUtils = new NeighborUtils(this.graph, this.$store);
+        this.graphUtils = new GraphUtils(this.graph, this.$store);
+        this.relationUtils = new RelationUtils(this.graph, this.$store);
         this.centerGraph();
         this.$store.commit("inventory/setActive", true);
 
@@ -81,6 +101,7 @@ export default defineComponent({
         window.removeEventListener("resize", this.centerGraph);
     },
     methods: {
+        // TODO :: Clean up methods
         /**
          * Load graph
          */
@@ -92,14 +113,14 @@ export default defineComponent({
 
             // Display origin, neighbors and relations
             if (this.selectedNode) this.displaySelectedNode(this.selectedNode as ApiNode);
-            this.neighborUtils.setStepDistance(neighbors.length);
+            this.graphUtils.setStepDistance(neighbors.length);
             this.addNeighborNodesAndRelations(neighbors, relations);
         },
         /**
          * Displays the node in the neighbor view
          */
         displaySelectedNode(apiNode: ApiNode): void {
-            const shape = this.neighborUtils.addNodeToDiagram(apiNode);
+            const shape = this.graphUtils.addNodeToDiagram(apiNode);
             this.selectedNodeShape = shape;
 
             shape.attr("body/strokeWidth", 0);
@@ -109,10 +130,10 @@ export default defineComponent({
          */
         addNeighborNodesAndRelations(neighbors: ApiNode[], relations: ApiRelation[]): void {
             // Neighbor nodes
-            for (const apiNode of neighbors) this.neighborUtils.addNodeToDiagram(apiNode);
+            for (const apiNode of neighbors) this.graphUtils.addNodeToDiagram(apiNode);
 
             // Neighbor relations
-            for (const apiRelation of relations) this.neighborUtils.addRelationToDiagram(apiRelation);
+            for (const apiRelation of relations) this.graphUtils.addRelationToDiagram(apiRelation);
 
             // Split overlapping relations
             for (const shape of this.graph.graph.getElements()) this.graph.rearrangeOverlappingRelations(shape, false);
@@ -122,9 +143,9 @@ export default defineComponent({
          */
         clearGraphAndSettings(): void {
             if (Object.keys(this.selectedNodeShape).length !== 0) this.graph.graph.clear();
-            this.neighborUtils.resetNeighborPlacement();
+            this.graphUtils.resetNeighborPlacement();
             this.centerGraph();
-            this.neighborUtils.resetGraph();
+            this.graphUtils.resetGraph();
         },
         /**
          * Centers the graph
@@ -139,9 +160,23 @@ export default defineComponent({
 
             this.graph.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
         },
+        /**
+         * Dropping of a node into the preview
+         */
         nodeDrop(): void {
-            if (this.selectedNode?.nodeId !== this.$store.state.inventory.draggedNode.nodeId) this.showDialog = true;
-            else errorToast(this.$t("inventory.drop.error.title"), this.$t("inventory.drop.error.description"));
+            if (this.selectedNode?.nodeId !== this.$store.state.inventory.draggedNode.nodeId) {
+                this.toNode = this.selectedNode as ApiNode;
+                this.fromNode = this.$store.state.inventory.draggedNode as ApiNode;
+                this.showDialog = true;
+            } else errorToast(this.$t("inventory.drop.error.title"), this.$t("inventory.drop.error.description"));
+        },
+        /**
+         * Handle mouse over graph
+         */
+        // eslint-disable-next-line
+        mouseMove(event: any): void {
+            this.graph.mousemove(event);
+            this.relationUtils.mousemove(event);
         },
         /**
          * Adds a new relation after dialog confirmation
@@ -150,8 +185,8 @@ export default defineComponent({
             this.showDialog = false;
             if (!payload.selectedRelationType) return;
 
-            let from = this.$store.state.inventory.draggedNode.nodeId;
-            let to = (this.selectedNode as ApiNode).nodeId;
+            let from = this.fromNode.nodeId;
+            let to = this.toNode.nodeId;
             if (payload.switched) [from, to] = [to, from];
 
             const response = await this.$store.dispatch("inventory/addNewRelation", {
