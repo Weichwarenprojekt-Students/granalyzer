@@ -7,6 +7,11 @@
         :placeholder="$t('global.input.placeholder')"
     />
     <ColorMultiInput v-else-if="type === datatype.COLOR" v-model="value" class="input" />
+    <Dropdown v-else-if="type === datatype.ENUM" :value="modelValue">
+        <div :key="element" v-for="element in config" @click="value = element">
+            {{ element }}
+        </div>
+    </Dropdown>
     <label v-else>
         <input v-model="value" class="input text-input" :placeholder="$t('global.input.placeholder')" />
     </label>
@@ -17,10 +22,11 @@ import { defineComponent } from "vue";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import ColorMultiInput from "@/components/ColorMultiInput.vue";
 import { isColor } from "@/utility";
+import Dropdown from "@/components/Dropdown.vue";
 
 export default defineComponent({
     name: "DynamicInput",
-    components: { ColorMultiInput },
+    components: { Dropdown, ColorMultiInput },
     props: {
         // The v-model
         modelValue: {
@@ -32,6 +38,7 @@ export default defineComponent({
             type: String,
             default: ApiDatatype.STRING,
         },
+        config: Array,
     },
     data() {
         return {

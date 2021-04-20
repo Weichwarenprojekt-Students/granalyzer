@@ -39,6 +39,7 @@
                 v-model:mandatory="attribute.mandatory"
                 v-model:defaultValue="attribute.defaultValue"
                 v-model:datatype="attribute.datatype"
+                v-model:config="attribute.config"
                 @delete="deleteAttribute(index)"
             />
 

@@ -87,7 +87,8 @@
     "datatype": {
       "string": "Text",
       "number": "Number",
-      "color": "Color"
+      "color": "Color",
+      "enum": "Enum"
     },
     "nameRequired": {
       "title": "Name required",

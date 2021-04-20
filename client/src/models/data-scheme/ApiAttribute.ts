@@ -1,3 +1,5 @@
+import { EnumConfigElement } from "@/models/data-scheme/EnumConfigElement";
+
 export class ApiAttribute {
     /**
      * The model for an attribute (e.g. of a label) from the API
@@ -6,12 +8,14 @@ export class ApiAttribute {
      * @param name The name
      * @param mandatory True if the attribute is mandatory
      * @param defaultValue The default value
+     * @param config optional parameters describing the attribute
      */
     constructor(
         public name: string = "done",
         public datatype: string = "string",
         public mandatory: boolean = false,
         public defaultValue: string = "",
+        public config?: EnumConfigElement[] | unknown,
     ) {}
 
     /**
@@ -26,7 +30,8 @@ export class ApiAttribute {
             first.datatype === second.datatype &&
             first.name === second.name &&
             first.mandatory === second.mandatory &&
-            first.defaultValue === second.defaultValue
+            first.defaultValue === second.defaultValue &&
+            JSON.stringify(first.config) === JSON.stringify(second.config)
         );
     }
 }

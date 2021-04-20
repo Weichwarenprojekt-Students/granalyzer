@@ -19,14 +19,19 @@
         <div class="attribute-expanded">
             <div class="attribute-modification-row">
                 <span>{{ $t("schemes.attribute.type") }}</span>
-                <Dropdown
-                    :force-close="collapsed"
-                    :value="$t(`schemes.attribute.datatype.${modifiedAttribute.datatype}`)"
-                >
-                    <div :key="type" v-for="type in types" @click="modifiedAttribute.datatype = type">
-                        {{ $t(`schemes.attribute.datatype.${type}`) }}
-                    </div>
-                </Dropdown>
+                <div>
+                    <svg v-show="isEnum" class="enum-edit-icon" @click="showEditEnumModal">
+                        <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
+                    </svg>
+                    <Dropdown
+                        :force-close="collapsed"
+                        :value="$t(`schemes.attribute.datatype.${modifiedAttribute.datatype}`)"
+                    >
+                        <div :key="type" v-for="type in types" @click="modifiedAttribute.datatype = type">
+                            {{ $t(`schemes.attribute.datatype.${type}`) }}
+                        </div>
+                    </Dropdown>
+                </div>
             </div>
             <div class="attribute-modification-row">
                 <span>{{ $t("schemes.attribute.mandatory") }}</span>
@@ -34,10 +39,19 @@
             </div>
             <div class="attribute-modification-row">
                 <span>{{ $t("schemes.attribute.default") }}</span>
-                <DynamicInput v-model="modifiedAttribute.defaultValue" :type="modifiedAttribute.datatype" />
+                <DynamicInput
+                    v-model="modifiedAttribute.defaultValue"
+                    :config="modifiedAttribute.config"
+                    :type="modifiedAttribute.datatype"
+                />
             </div>
         </div>
     </div>
+    <EditEnumModal
+        v-if="isEditEnumModalVisible"
+        v-model:config="modifiedAttribute.config"
+        @close="hideEditEnumModal"
+    ></EditEnumModal>
 </template>
 
 <script lang="ts">
@@ -46,12 +60,14 @@ import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import Dropdown from "@/components/Dropdown.vue";
 import DynamicInput from "@/components/DynamicInput.vue";
+import EditEnumModal from "./EditEnumModal.vue";
 
 export default defineComponent({
     name: "AttributeView",
     components: {
         DynamicInput,
         Dropdown,
+        EditEnumModal,
     },
     props: {
         // The name of the attribute
@@ -62,6 +78,8 @@ export default defineComponent({
         defaultValue: String,
         // True if the attribute is mandatory
         mandatory: Boolean,
+        // Contains additional information like enum structure
+        config: Array,
     },
     data() {
         return {
@@ -71,10 +89,27 @@ export default defineComponent({
             modifiedAttribute: new ApiAttribute(),
             // The different data types
             types: ApiDatatype,
+            // Defines whether the modal is shown or not
+            isEditEnumModalVisible: false,
         };
     },
     created() {
-        this.modifiedAttribute = new ApiAttribute(this.name, this.datatype, this.mandatory, this.defaultValue);
+        this.modifiedAttribute = new ApiAttribute(
+            this.name,
+            this.datatype,
+            this.mandatory,
+            this.defaultValue,
+            this.config,
+        );
+    },
+    methods: {
+        showEditEnumModal() {
+            this.isEditEnumModalVisible = true;
+        },
+
+        hideEditEnumModal() {
+            this.isEditEnumModalVisible = false;
+        },
     },
     watch: {
         /**
@@ -86,8 +121,14 @@ export default defineComponent({
                 this.$emit("update:datatype", this.modifiedAttribute.datatype);
                 this.$emit("update:defaultValue", this.modifiedAttribute.defaultValue);
                 this.$emit("update:mandatory", this.modifiedAttribute.mandatory);
+                this.$emit("update:config", this.modifiedAttribute.config);
             },
             deep: true,
+        },
+    },
+    computed: {
+        isEnum(): boolean {
+            return this.datatype === ApiDatatype.ENUM;
         },
     },
 });
@@ -167,6 +208,14 @@ export default defineComponent({
     height: 12px;
     fill: @dark;
     cursor: pointer;
+}
+
+.enum-edit-icon {
+    width: 24px;
+    height: 24px;
+    fill: @dark;
+    cursor: pointer;
+    padding: 8px 8px 0 0;
 }
 
 .attribute-checkbox {
