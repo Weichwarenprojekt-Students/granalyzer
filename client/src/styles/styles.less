@@ -200,3 +200,13 @@ body {
   padding: 0;
   font-weight: normal;
 }
+
+/**
+ * Fix overflow hidden for height animations
+ * See AttributeView.vue
+ */
+@keyframes delay-overflow {
+  from {
+    overflow: hidden;
+  }
+}

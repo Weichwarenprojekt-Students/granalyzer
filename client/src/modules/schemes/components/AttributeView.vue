@@ -101,13 +101,15 @@ export default defineComponent({
 .attribute-view {
     height: @line_height;
     margin-bottom: 16px;
-    overflow: hidden;
     transition: height 400ms;
     margin-right: 18px;
+    overflow: hidden;
 }
 
 .attribute-view-expanded {
     height: @line_height + 3 * @attribute_edit_height;
+    overflow: initial;
+    animation: 0.4s delay-overflow forwards;
 
     .attribute-collapse-icon {
         transform: rotate(90deg);
