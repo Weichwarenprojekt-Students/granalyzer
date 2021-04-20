@@ -2,14 +2,12 @@
   "start": "Start",
   "editor": "Editor",
   "inventory": "Inventar",
-  "titleOverview": "Eintragsübersicht",
   "schemes": "Schemas",
   "dialog": {
     "confirm": "Bestätigen",
     "cancel": "Abbrechen"
   },
   "searchPlaceholder": "Suchen...",
-  "filterIcon": "Filtern",
   "input": {
     "placeholder": "Hier..."
   }

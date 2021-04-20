@@ -1,5 +1,6 @@
 <template>
     <div class="container" @mousemove="graph.mousemove">
+        <ProgressBar v-show="$store.state.inventory.loading" mode="indeterminate" class="loading" />
         <div v-show="!$store.state.inventory.selectedNode" class="empty-warning">
             <svg>
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
@@ -140,6 +141,13 @@ export default defineComponent({
 .container {
     position: relative;
     background: #f2f2f2;
+
+    .loading {
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        right: 0;
+    }
 }
 
 .empty-warning {

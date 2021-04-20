@@ -1,9 +1,9 @@
 <template>
     <div class="content">
         <!-- Title -->
-        <div class="title">
-            {{ $t("global.titleOverview") }}
-            <div v-tooltip="$t('global.filterIcon')">
+        <div class="underlined-title">
+            {{ $t("overviewList.title") }}
+            <div v-tooltip="$t('overviewList.filter')">
                 <svg @click="showLabelFilter = !showLabelFilter">
                     <use :xlink:href="require('@/assets/img/icons.svg') + '#filter'"></use>
                 </svg>
@@ -26,7 +26,7 @@
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
                 </svg>
-                <div class="message">{{ $t("editor.noNodes.description") }}</div>
+                <div class="message">{{ $t("overviewList.noNodes") }}</div>
             </div>
 
             <!-- Nodes -->
@@ -135,16 +135,12 @@ export default defineComponent({
     flex-flow: column;
 }
 
-.title {
-    flex: 0 0 auto;
-
-    font-size: @h2;
+.underlined-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid @primary_color;
-
     height: 64px;
+    padding: 0;
 
     div {
         cursor: pointer;

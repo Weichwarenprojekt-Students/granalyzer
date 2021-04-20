@@ -1,6 +1,6 @@
 <template>
     <div class="header">
-        <h1>{{ $t("inventory.title") }}</h1>
+        <h3>{{ $t("inventory.title") }}</h3>
     </div>
 </template>
 

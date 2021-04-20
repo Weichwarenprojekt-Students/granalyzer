@@ -4,7 +4,6 @@ import { RootState } from "@/store";
 import { GET } from "@/utility";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
-import { inspector, InspectorState } from "@/modules/editor/modules/inspector/store";
 
 /**
  * The local storage key for the opened diagram in the editor
@@ -26,11 +25,6 @@ export class EditorState {
      * Graph editor state
      */
     public graphEditor?: GraphEditorState;
-
-    /**
-     * Inspector state
-     */
-    public inspector?: InspectorState;
 }
 
 export const editor = {
@@ -79,6 +73,5 @@ export const editor = {
     },
     modules: {
         graphEditor,
-        inspector,
     },
 };

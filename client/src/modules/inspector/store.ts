@@ -1,4 +1,4 @@
-import { InspectorAttribute } from "@/modules/editor/modules/inspector/models/InspectorAttribute";
+import { InspectorAttribute } from "@/modules/inspector/models/InspectorAttribute";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
@@ -17,10 +17,11 @@ export class InspectorState {
     /**
      * The name of the currently displayed node or relation
      */
-    public elementName = "";
+    public element?: ApiRelation | ApiNode;
 }
 
 export const inspector = {
+    namespaced: true,
     state: new InspectorState(),
     mutations: {
         /**
@@ -28,17 +29,17 @@ export const inspector = {
          */
         resetSelection(state: InspectorState): void {
             state.attributes = [];
-            state.elementName = "";
+            state.element = undefined;
         },
         /**
          * Set the inspector items for nodes
          */
-        setInspectorNodeItems(state: InspectorState, payload: { node: ApiNode; label: ApiLabel }): void {
+        setAttributesFromNode(state: InspectorState, payload: { node: ApiNode; label: ApiLabel }): void {
             // Clear the attribute-items array
             state.attributes = new Array<InspectorAttribute>();
 
             // Set the inspector display name
-            state.elementName = payload.node.name;
+            state.element = payload.node;
 
             // Fill attributes from node and label data
             state.attributes = payload.label.attributes.map(
@@ -53,7 +54,7 @@ export const inspector = {
         /**
          * Set the inspector items for relations
          */
-        setInspectorRelationItems(
+        setAttributesFromRelation(
             state: InspectorState,
             payload: { relation: ApiRelation; relType: ApiRelationType },
         ): void {
@@ -61,7 +62,7 @@ export const inspector = {
             state.attributes = new Array<InspectorAttribute>();
 
             // Set the inspector display name
-            state.elementName = payload.relation.type;
+            state.element = payload.relation;
 
             // Fill attributes from relation and relation-type data
             state.attributes = payload.relType.attributes.map(
@@ -74,12 +75,11 @@ export const inspector = {
             );
         },
     },
-
     actions: {
         /**
          * Set the clicked node
          */
-        async viewNodeInInspector(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
+        async selectNode(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
             if (!uuid) return;
 
             // Fetch node data
@@ -90,14 +90,15 @@ export const inspector = {
             // Fetch scheme for the label of this node
             result = await GET(`/api/data-scheme/label/${node.label}`);
             if (result.status != 200) return;
+            const label: ApiLabel = await result.json();
 
-            context.commit("setInspectorNodeItems", { node, label: await result.json() });
+            context.commit("setAttributesFromNode", { node, label });
         },
 
         /**
          * Set the clicked relation
          */
-        async viewRelationInInspector(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
+        async selectRelation(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
             if (!uuid) return;
 
             // Fetch the relation data
@@ -110,15 +111,15 @@ export const inspector = {
             if (result.status != 200) return;
             const relType: ApiRelationType = await result.json();
 
-            context.commit("setInspectorRelationItems", { relation, relType });
+            context.commit("setAttributesFromRelation", { relation, relType });
         },
     },
     getters: {
         /**
          * @return True if the inspector has data to show
          */
-        isInspectorDataLoaded(state: InspectorState): boolean {
-            return state.elementName !== "";
+        isLoaded(state: InspectorState): boolean {
+            return !!state.element;
         },
     },
 };

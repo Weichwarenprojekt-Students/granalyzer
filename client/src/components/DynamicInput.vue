@@ -24,7 +24,7 @@ export default defineComponent({
     props: {
         // The v-model
         modelValue: {
-            type: String,
+            type: [String, Number],
             default: "",
         },
         // The type that the input should show
@@ -44,13 +44,34 @@ export default defineComponent({
         };
     },
     created() {
-        this.value = this.modelValue;
+        this.value = this.modelValue.toString();
+        this.parseValue();
     },
     watch: {
         /**
          * Watch for type changes and try to keep the last value
          */
         type() {
+            this.parseValue();
+        },
+        /**
+         * Watch for changes from the number input
+         */
+        numberValue() {
+            this.value = this.numberValue.toString();
+        },
+        /**
+         * Check for changes of the v model
+         */
+        value() {
+            this.$emit("update:modelValue", this.value);
+        },
+    },
+    methods: {
+        /**
+         * Parse the right value depending on the type
+         */
+        parseValue(): void {
             const number = parseFloat(this.value);
             switch (this.type) {
                 case ApiDatatype.NUMBER:
@@ -64,18 +85,6 @@ export default defineComponent({
                 default:
                     this.value = this.value.toString();
             }
-        },
-        /**
-         * Watch for changes from the number input
-         */
-        numberValue() {
-            this.value = this.numberValue.toString();
-        },
-        /**
-         * Check for changes of the v model
-         */
-        value() {
-            this.$emit("update:modelValue", this.value);
         },
     },
 });

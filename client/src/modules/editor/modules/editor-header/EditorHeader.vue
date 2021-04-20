@@ -1,6 +1,6 @@
 <template>
     <div class="header">
-        <h1>{{ $store.state.editor.diagram?.name }}</h1>
+        <h3>{{ $store.state.editor.diagram?.name }}</h3>
     </div>
 </template>
 

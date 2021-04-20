@@ -18,11 +18,11 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { InspectorAttribute } from "@/modules/editor/modules/inspector/models/InspectorAttribute";
+import { InspectorAttribute } from "@/modules/inspector/models/InspectorAttribute";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 
 export default defineComponent({
-    name: "AttributeItem",
+    name: "ReadAttribute",
     props: {
         attribute: {
             type: Object,
@@ -38,33 +38,12 @@ export default defineComponent({
 </script>
 
 <style lang="less" scoped>
-@import "~@/styles/global.less";
-
-.attribute-item {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 8px 16px;
-    margin-right: 18px;
-    margin-bottom: 8px;
-    gap: 24px;
-    border-bottom: 1px solid @grey;
-}
-
-.attribute-key {
-    font-weight: bold;
-}
+@import "../styles/inspector.less";
 
 .attribute-icon {
     width: 12px;
     height: 12px;
     margin-top: 2px;
     flex: 0 0 auto;
-}
-
-.attribute-value {
-    display: flex;
-    gap: 12px;
-    text-align: right;
 }
 </style>

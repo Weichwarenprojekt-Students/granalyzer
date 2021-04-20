@@ -9,7 +9,7 @@
             <EditorHeader class="header"></EditorHeader>
             <GraphEditor class="editor"></GraphEditor>
         </div>
-        <Inspector class="inspector"></Inspector>
+        <ReadInspector class="inspector"></ReadInspector>
     </div>
 </template>
 
@@ -18,7 +18,7 @@ import { defineComponent } from "vue";
 import EditorHeader from "@/modules/editor/modules/editor-header/EditorHeader.vue";
 import OverviewList from "@/modules/overview-list/OverviewList.vue";
 import GraphEditor from "@/modules/editor/modules/graph-editor/GraphEditor.vue";
-import Inspector from "@/modules/editor/modules/inspector/Inspector.vue";
+import ReadInspector from "@/modules/inspector/ReadInspector.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
 
 export default defineComponent({
@@ -27,7 +27,7 @@ export default defineComponent({
         GraphEditor,
         EditorHeader,
         OverviewList,
-        Inspector,
+        ReadInspector,
     },
     methods: {
         /**
@@ -35,7 +35,7 @@ export default defineComponent({
          */
         clickedOnNode(node: ApiNode): void {
             this.$store.commit("editor/setSelectedNode", node);
-            this.$store.dispatch("editor/viewNodeInInspector", node.nodeId);
+            this.$store.dispatch("inspector/selectNode", node.nodeId);
         },
     },
 });

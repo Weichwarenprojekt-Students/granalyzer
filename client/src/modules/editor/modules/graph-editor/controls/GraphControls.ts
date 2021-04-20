@@ -242,7 +242,7 @@ export class GraphControls {
             this.store.commit("editor/setSelectedElement", undefined);
 
             // Reset inspector selection
-            this.store.commit("editor/resetSelection");
+            this.store.commit("inspector/resetSelection");
         });
 
         // The move command instance
@@ -259,7 +259,7 @@ export class GraphControls {
 
                 // Set the currently selected node for inspector
                 const node = this.graphHandler.nodes.get(cell.model.id);
-                await this.store.dispatch("editor/viewNodeInInspector", node?.ref.uuid);
+                await this.store.dispatch("inspector/selectNode", node?.ref.uuid);
             }
         });
 
@@ -271,7 +271,7 @@ export class GraphControls {
 
                 // Set the currently selected relation for inspector
                 const relation = this.graphHandler.relations.get(cell.model.id);
-                await this.store.dispatch("editor/viewRelationInInspector", relation?.uuid);
+                await this.store.dispatch("inspector/selectRelation", relation?.uuid);
             }
         });
 
