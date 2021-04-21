@@ -16,14 +16,16 @@
                     v-on:keyup.enter="addEnumProp()"
                 />
             </div>
-            <ul class="enum-prop-list">
-                <li class="enum-prop-list-element" :key="el" v-for="el in modifiedConfig">
-                    {{ el }}
-                    <svg class="delete-enum-prop-icon" @click="removeEnumProp(el)">
-                        <use :xlink:href="`${require('@/assets/img/icons.svg')}#delete`"></use>
-                    </svg>
-                </li>
-            </ul>
+            <ScrollPanel class="list-wrapper">
+                <ul class="enum-prop-list">
+                    <li class="enum-prop-list-element" :key="el" v-for="el in modifiedConfig">
+                        {{ el }}
+                        <svg class="delete-enum-prop-icon" @click="removeEnumProp(el)">
+                            <use :xlink:href="`${require('@/assets/img/icons.svg')}#delete`"></use>
+                        </svg>
+                    </li>
+                </ul>
+            </ScrollPanel>
         </div>
     </BaseDialog>
 </template>
@@ -130,15 +132,17 @@ export default defineComponent({
     margin-left: 4px;
 }
 
+.list-wrapper {
+    height: 300px;
+    overflow: hidden;
+}
+
 .enum-prop-list {
     padding: 0;
     display: block;
     list-style: none;
     width: 100%;
     text-align: right;
-    max-height: 300px;
-    height: auto;
-    overflow: auto;
 }
 
 .enum-prop-list-element {
