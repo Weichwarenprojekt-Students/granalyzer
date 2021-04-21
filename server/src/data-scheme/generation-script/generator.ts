@@ -1,5 +1,5 @@
 import * as neo4j from "neo4j-driver";
-import { Driver, Session } from "neo4j-driver";
+import { Driver, Neo4jError, Session } from "neo4j-driver";
 import { Scheme } from "../data-scheme.model";
 import { LabelScheme } from "../models/label-scheme.model";
 import { StringAttribute } from "../models/attributes.model";
@@ -102,7 +102,8 @@ export class SchemeGenerator {
               MATCH(node)
                 WHERE $nodeName IN labels(node)
               UNWIND keys(node) AS keys
-              WITH keys WHERE keys <> "nodeId"
+              WITH keys
+                WHERE keys <> 'nodeId'
               RETURN DISTINCT keys`;
 
             const labelAttributes = await this.fetchData(query, { nodeName: labelName }, "keys", session);
@@ -114,6 +115,8 @@ export class SchemeGenerator {
 
             labels.push(newLabel);
         }
+
+        await this.createFullTextScheme(labelNames, ["nodeId"], session);
 
         return labels;
     }
@@ -143,7 +146,8 @@ export class SchemeGenerator {
               MATCH(startNode)-[relation]-(endNode)
                 WHERE type(relation) = $relType
               UNWIND keys(relation) AS keys
-              WITH keys WHERE keys <> "relationId"
+              WITH keys
+                WHERE keys <> 'relationId'
               RETURN DISTINCT keys`;
 
             const relationAttributes = await this.fetchData(query, { relType: relationName }, "keys", session);
@@ -190,12 +194,12 @@ export class SchemeGenerator {
      * @param session
      */
     private static async createCustomerLabelConstraint(labelScheme: LabelScheme, session: Session) {
-        // Automatically create the uuids with apoc
+        // Create UUID's on existing elements
         // language=cypher
         const createNodeUuidQuery = `
-        MATCH (node:${labelScheme.name})
-        WHERE NOT exists(node.nodeId)
-        SET node.nodeId = apoc.create.uuid()
+          MATCH (node:${labelScheme.name})
+            WHERE NOT exists(node.nodeId)
+          SET node.nodeId = apoc.create.uuid()
         `;
         await session.run(createNodeUuidQuery, {}).catch(console.error);
 
@@ -207,6 +211,42 @@ export class SchemeGenerator {
     }
 
     /**
+     * Create a full-text scheme index on all nodeId's, if one already exists drop it first so it will be updated
+     *
+     * @param labels The labels that will be indexed
+     * @param indexedAttrs The attributes on those labels that will be indexed
+     * @param session
+     * @private
+     */
+    private static async createFullTextScheme(labels: string[], indexedAttrs: string[], session: Session) {
+        // language=cypher
+        const cypherWriteIndex = `
+          CALL db.index.fulltext.createNodeIndex('allNodesIndex', $labels, $indexedAttrs)
+        `;
+
+        // language=cypher
+        const cypherDropIndex = `
+          CALL db.index.fulltext.drop('allNodesIndex')
+        `;
+
+        const params = {
+            labels,
+            indexedAttrs,
+        };
+
+        await session.run(cypherDropIndex).catch((err) => {
+            if (err instanceof Neo4jError) {
+                switch (err.code) {
+                    case "Neo.ClientError.Procedure.ProcedureCallFailed":
+                        console.log("Index not dropped because it didn't exist");
+                }
+            }
+        });
+
+        await session.run(cypherWriteIndex, params).catch((err) => console.log(err));
+    }
+
+    /**
      * Creates UUIDs for each relation.
      * There is no possibility to create a key constrain on relations, but we assert them to be unique.
      */
@@ -214,9 +254,9 @@ export class SchemeGenerator {
         // Create UUID for each relation
         // language=cypher
         const createRelationUuidQuery = `
-        MATCH ()-[rel:${relationType.name}]-()
-        WHERE NOT exists(rel.relationId)
-        SET rel.relationId = apoc.create.uuid()
+          MATCH ()-[rel:${relationType.name}]-()
+            WHERE NOT exists(rel.relationId)
+          SET rel.relationId = apoc.create.uuid()
         `;
         await session.run(createRelationUuidQuery, {}).catch(console.error);
     }
