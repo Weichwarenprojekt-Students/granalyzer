@@ -207,10 +207,30 @@ export const graphEditor = {
                 console.log("uuid: " + context.state.graphHandler?.nodes.get(context.state.selectedElement.id)?.ref.uuid);
 
                 const res = await GET("/api/nodes/" + context.state.graphHandler?.nodes.get(context.state.selectedElement.id)?.ref.uuid + "/related");
-                const newVar: ApiNode[] = await res.json();
+                const apiNodes: ApiNode[] = await res.json();
 
-                //TODO: add nodes with method above (addNode)
+                const nodes: Node[] = [];
 
+                // Add all nodes to diagram
+                apiNodes.forEach(function(apiNode) {
+
+                    const node: Node = {
+                        x: 0, //TODO: dont "spawn" everything in the same place
+                        y: 0,
+                        ref: {
+                            uuid: apiNode.nodeId,
+                            index: 0,
+                        },
+                        label: apiNode.label,
+                        name: apiNode.name,
+                        shape: "rectangle",
+                        color: "#eeeeee",
+                    };
+
+                    context.dispatch("addNode", node);
+                });
+
+                //context.dispatch("addNode", nodes);
             }
 
 
