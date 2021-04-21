@@ -81,6 +81,17 @@ export class NodesService {
      * @param node The node to be modified
      */
     async modifyNode(nodeId: string, node: Node): Promise<Node> {
+        const oldName = (await this.getNode(nodeId)).name;
+        const passedName = node.attributes["name"];
+        if (!passedName) {
+            node.attributes["name"] = oldName;
+        } else if (passedName && (typeof passedName != "string" || passedName.replace(" ", "").length < 1)) {
+            delete node.attributes["name"];
+            node.attributes["name"] = oldName;
+        } else {
+            node.attributes["name"] = oldName;
+        }
+
         // language=Cypher
         const query = `
           MATCH(node)
