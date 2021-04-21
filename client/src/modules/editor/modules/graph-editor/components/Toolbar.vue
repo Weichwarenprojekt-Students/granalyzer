@@ -97,7 +97,7 @@ export default defineComponent({
             this.$store.dispatch("editor/toggleRelationMode");
         },
         /**
-         * Add related nodes
+         * Add related nodes to last selected node
          */
         addRelatedNodes(): void {
             this.$store.dispatch("editor/addRelatedNodes");

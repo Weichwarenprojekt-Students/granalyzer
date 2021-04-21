@@ -88,6 +88,26 @@ export class DataSchemeUtil {
     }
 
     /**
+     * Parse record from the database for related nodes
+     *
+     * @param record The record
+     * @param queryKey The key of the record as specified in the query
+     * @private
+     */
+    async parseRelated(record, queryKey = "m"): Promise<Node> {
+        const attributes = record.get(queryKey);
+
+        const node = {
+            nodeId: record.get(queryKey).properties.nodeId,
+            name: record.get(queryKey).properties.name,
+            label: record.get(queryKey).labels[0],
+            attributes: attributes,
+        } as Node;
+
+        return this.parseRecordByLabel(node);
+    }
+
+    /**
      * Checks the node if it is valid to the scheme
      *
      * @param node The node that shall be parsed

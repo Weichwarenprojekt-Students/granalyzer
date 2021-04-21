@@ -13,6 +13,7 @@ import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/EnableDbRelationCommand";
 import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/DisableDbRelationCommand";
 import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/BendRelationCommand";
+import ApiNode from "@/models/data-scheme/ApiNode";
 
 export class GraphEditorState {
     /**
@@ -198,17 +199,20 @@ export const graphEditor = {
         /**
          * Add related nodes
          */
-        async addRelatedNodes(context: ActionContext<GraphEditorState, RootState>, node: Node): Promise<void> {
-            //TODO: implement
+        async addRelatedNodes(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
 
-            console.log(context);
+            if (context.state.selectedElement) {
 
-            //TODO: change to correct route
-            const res = await GET("/api/nodes/" + node.ref.uuid + "/related");
-            //const newVar: ApiRelation[] = await res.json();
+                console.log("uuid: " + context.state.graphHandler?.nodes.get(context.state.selectedElement.id)?.ref.uuid);
 
-            //TODO: add nodes with method above
+                const res = await GET("/api/nodes/" + context.state.graphHandler?.nodes.get(context.state.selectedElement.id)?.ref.uuid + "/related");
+                const newVar: ApiNode[] = await res.json();
+
+                //TODO: add nodes with method above (addNode)
+
+            }
+
 
 
 

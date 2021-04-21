@@ -23,13 +23,32 @@ export class NodesRelationsService {
      * @param id The id of the node
      */
     async getRelatedNodes(id: string): Promise<Node[]> {
-        //TODO: add cypher query to get related nodes
 
-        //TODO: add params
+        // Cypher query to get related nodes
+        // language=Cypher
+        const cypher = `
+        CALL db.index.fulltext.queryNodes("allNodesIndex", $nodeId) YIELD node AS n
+        MATCH (n)-[r]-(m)
+        RETURN m
+        `;
 
-        //TODO: create callback
+        const params = {
+            id,
+            nodeId: `\'\"${id}\"\'`,
+        };
 
-        return null; //TODO: return nodes
+        // create callback
+        const resolveRead = (result) => {
+            const relatedNodes = result.records.map(async (rec) => await this.dataSchemeUtil.parseRelated(rec));
+            // Filter relations which are not allowed by the scheme
+            return Promise.all(relatedNodes).then((res) => res.filter((el) => !!el));
+        };
+
+        // return nodes
+        return this.neo4jService
+            .read(cypher, params, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
