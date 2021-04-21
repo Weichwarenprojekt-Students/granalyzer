@@ -6,23 +6,23 @@
                 <!-- Title -->
                 <h1>{{ $t("inventory.dialog.title") }}</h1>
 
-                <!-- TODO :: style with grid instead of flexbox -->
-                <!-- Relation-direction selection -->
                 <div class="direction">
-                    <!-- From To -->
                     <div class="flex-wrapper">
-                        <div class="fromTo">
+                        <!-- From -->
+                        <div class="direction-item">
                             <div class="text">
                                 {{ switched ? $t("inventory.dialog.to") : $t("inventory.dialog.from") }}
                             </div>
                             <div class="node">{{ fromNode.name }}</div>
                         </div>
-                        <div class="fromTo">
+
+                        <!-- To -->
+                        <div class="direction-item">
                             <div class="text">
                                 {{ switched ? $t("inventory.dialog.from") : $t("inventory.dialog.to") }}
                             </div>
                             <Dropdown
-                                class="dropdown-relation"
+                                class="dropdown"
                                 v-model="selectedNode"
                                 :options="toNodes.map((node) => node.name).filter((node) => node !== fromNode.name)"
                                 :placeholder="$t('inventory.dialog.dropdown.neighbor.placeholder')"
@@ -31,17 +31,16 @@
                         </div>
                     </div>
 
-                    <!-- Switch icon -->
+                    <!-- Switch -->
                     <svg class="icon-reload" @click="switchDirection">
                         <use :xlink:href="`${require('@/assets/img/icons.svg')}#reload`"></use>
                     </svg>
                 </div>
 
-                <!-- Type selection -->
                 <div class="type">
                     <div class="text">{{ $t("inventory.dialog.type") }}</div>
                     <Dropdown
-                        class="dropdown-relation"
+                        class="dropdown"
                         v-model="selectedRelationType"
                         :options="possibleRelationTypes"
                         :placeholder="$t('inventory.dialog.dropdown.type.placeholder')"
@@ -160,58 +159,20 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global";
 
+@input_width: 360px;
+
 .mid-section {
     position: relative;
     padding: 32px;
     border-top: 8px solid @primary_color;
     display: flex;
     align-items: center;
-    width: 524px;
-}
+    width: 512px;
 
-.selection {
-    display: flex;
-    flex-direction: column;
-    width: calc(100% - 128px);
-
-    .direction {
-        margin-top: 12px;
+    .selection {
         display: flex;
-        align-items: center;
-
-        .flex-wrapper {
-            .fromTo {
-                display: flex;
-                align-items: center;
-
-                .node {
-                    border-bottom: 1px solid @grey;
-                    padding: 8px;
-                    margin-right: 12px;
-                    width: 256px;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-            }
-        }
-
-        .icon-reload {
-            fill: @dark;
-            height: 24px;
-            width: 24px;
-            cursor: pointer;
-        }
-    }
-
-    .type {
-        display: flex;
-        align-items: center;
-
-        .dropdown-relation {
-            padding-top: 8px;
-            width: 256px;
-        }
+        flex-direction: column;
+        width: 100%;
     }
 }
 
@@ -219,5 +180,47 @@ export default defineComponent({
     width: 40px;
     font-style: italic;
     font-size: @normal_text;
+}
+
+.dropdown {
+    width: @input_width;
+}
+
+.direction {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 8px;
+
+    .direction-item {
+        display: flex;
+        align-items: center;
+        padding-right: 8px;
+        margin-top: 4px;
+
+        .node {
+            border-bottom: 1px solid @grey;
+
+            width: @input_width;
+            padding: 8px;
+
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    .icon-reload {
+        fill: @dark;
+        height: 24px;
+        width: 24px;
+        cursor: pointer;
+    }
+}
+
+.type {
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
 }
 </style>
