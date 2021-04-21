@@ -164,11 +164,15 @@ let toast: ToastServiceMethods;
 
 /**
  * Set the toast service
- * TODO: Add überkrasses EasterEgg
  */
 export function setToastService(toastService: ToastServiceMethods): void {
     toast = toastService;
 }
+
+/**
+ * The current error toast count
+ */
+let toastCount = 0;
 
 /**
  * Show an error toast
@@ -184,6 +188,16 @@ export function errorToast(summary: string, detail: string, life = 3000): void {
         detail,
         life,
     });
+
+    // Track the toast
+    toastCount++;
+    setTimeout(() => (toastCount = Math.max(0, --toastCount)), life);
+
+    // Show easter egg toast
+    if (toastCount < 3) return;
+    toastCount = 0;
+    toast.removeAllGroups();
+    warnToast(i18n.global.t("global.stopSpamming.title"), i18n.global.t("global.stopSpamming.description"), 10000);
 }
 
 /**
@@ -203,7 +217,7 @@ export function successToast(summary: string, detail: string, life = 3000): void
 }
 
 /**
- * Show a success toast
+ * Show an info toast
  *
  * @param summary The title
  * @param detail The description
@@ -212,6 +226,22 @@ export function successToast(summary: string, detail: string, life = 3000): void
 export function infoToast(summary: string, detail: string, life = 3000): void {
     toast.add({
         severity: "info",
+        summary,
+        detail,
+        life,
+    });
+}
+
+/**
+ * Show a warn toast
+ *
+ * @param summary The title
+ * @param detail The description
+ * @param life The time the toast is shown (in milliseconds)
+ */
+export function warnToast(summary: string, detail: string, life = 3000): void {
+    toast.add({
+        severity: "warn",
         summary,
         detail,
         life,

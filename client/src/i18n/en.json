@@ -14,5 +14,9 @@
   "unexpected": {
     "title": "Ooops",
     "description": "Something went wrong..."
+  },
+  "stopSpamming": {
+    "title": "WHaT tHE FUcK",
+    "description": "Could you please stop fucking spamming OMG."
   }
 }
