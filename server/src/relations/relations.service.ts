@@ -65,7 +65,8 @@ export class RelationsService {
      * Creates a relation with a given type between two given nodes
      */
     async addRelation(type: string, from: string, to: string): Promise<Relation> {
-        // TODO :: Check if type is valid
+        await this.dataSchemeUtil.getRelationType(type);
+
         // language=cypher
         const query = `
           MATCH (from)
