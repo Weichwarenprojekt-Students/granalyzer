@@ -74,13 +74,10 @@ export class RelationsService {
                        RETURN relation { .*, type:TYPE(relation), from:from, to:to} as relation;`;
         const params = {
             relationId,
-            attributes: {},
+            attributes: relation.attributes,
         };
 
-        for (const [key, value] of Object.entries(relation.attributes)) {
-            params.attributes[key] = value;
-        }
-        // Restore/force override the missing relation id
+        // Set the id
         params.attributes["relationId"] = relationId;
 
         const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], "relation");

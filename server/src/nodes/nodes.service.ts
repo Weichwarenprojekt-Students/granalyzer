@@ -26,24 +26,17 @@ export class NodesService {
         await this.dataSchemeUtil.getLabelScheme(node.label);
 
         // language=Cypher
-        const query = `CREATE(node:${node.label})
-                       SET node.nodeId=apoc.create.uuid(), node.name=$name, node+=$attributes
-                       WITH LABELS(node) AS lbls, node
-                       UNWIND lbls AS label
-                       RETURN node {. *, label:label} AS node `;
+        const query = `
+          CREATE(node:${node.label})
+          SET node.nodeId = apoc.create.uuid(), node+=$attributes
+          WITH labels(node) AS lbls, node
+          UNWIND lbls AS label
+          RETURN node {. *, label:label} AS node `;
         const params = {
-            name: node.name,
-            attributes: {},
+            attributes: node.attributes,
         };
-
-        for (const [key, value] of Object.entries(node.attributes)) {
-            if (
-                (key != "nodeId" && key != "name") ||
-                (key === "name" && typeof value === "string" && value.replace(" ", "").length > 0)
-            ) {
-                params.attributes[key] = value;
-            }
-        }
+        delete params.attributes.nodeId;
+        params.attributes.name = node.name;
 
         const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0]);
         return this.neo4jService
@@ -58,12 +51,13 @@ export class NodesService {
      */
     async deleteNode(nodeId: string): Promise<Node> {
         // language=Cypher
-        const query = `MATCH(node)
-                         WHERE node.nodeId=$nodeId
-                       WITH LABELS(node) AS lbls, PROPERTIES(node) AS copyNode, node
-                       UNWIND lbls AS label
-                       DETACH DELETE node
-                       RETURN copyNode{. *, label:label} AS node`;
+        const query = `
+          MATCH(node)
+            WHERE node.nodeId = $nodeId
+          WITH labels(node) AS lbls, properties(node) AS copyNode, node
+          UNWIND lbls AS label
+          DETACH DELETE node
+          RETURN copyNode{. *, label:label} AS node`;
         const params = {
             nodeId,
         };
@@ -81,35 +75,22 @@ export class NodesService {
      * @param node The node to be modified
      */
     async modifyNode(nodeId: string, node: Node): Promise<Node> {
-        const oldName = (await this.getNode(nodeId)).name;
-        const passedName = node.attributes["name"];
-        if (!passedName) {
-            node.attributes["name"] = oldName;
-        } else if (passedName && (typeof passedName != "string" || passedName.replace(" ", "").length < 1)) {
-            delete node.attributes["name"];
-            node.attributes["name"] = oldName;
-        } else {
-            node.attributes["name"] = oldName;
-        }
-
         // language=Cypher
         const query = `
           MATCH(node)
             WHERE node.nodeId = $nodeId
-          WITH LABELS(node) AS lbls, node
+          WITH labels(node) AS lbls, node
           UNWIND lbls AS label
           SET node = $attributes
           RETURN node{. *, label:label} AS node`;
         const params = {
             nodeId,
-            attributes: {},
+            attributes: node.attributes,
         };
 
-        for (const [key, value] of Object.entries(node.attributes)) {
-            params.attributes[key] = value;
-        }
-        // Restore/force override the missing node id
+        // Set id and name
         params.attributes["nodeId"] = nodeId;
+        params.attributes["name"] = node.name;
 
         const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0]);
         return this.neo4jService
@@ -126,7 +107,7 @@ export class NodesService {
         const query = `
           MATCH (n)
             WHERE n.nodeId = $id
-          WITH LABELS(n) AS lbls, n
+          WITH labels(n) AS lbls, n
           UNWIND lbls AS label
           RETURN n {. *, label:label} AS node`;
         const params = {
@@ -165,7 +146,7 @@ export class NodesService {
         const query = `
           MATCH (n) ${filter}
 
-          WITH LABELS(n) AS lbls, n
+          WITH labels(n) AS lbls, n
           UNWIND lbls AS label
           RETURN n {. *, label:label} AS node
             ORDER BY n.name

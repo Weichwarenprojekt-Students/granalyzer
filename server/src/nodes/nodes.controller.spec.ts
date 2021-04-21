@@ -195,7 +195,7 @@ describe("NodesController", () => {
                 attrTwo: "updated",
                 attrThree: "Josh Groban",
                 nodeId: "Another Illegal Custom-UUID", // Should be ignored
-                name: " ", // Invalid name override with empty string, should be ignored
+                name: "", // Invalid name override with empty string, should be ignored
             },
         } as Node;
 
@@ -212,10 +212,10 @@ describe("NodesController", () => {
             expect(actualNode.nodeId).not.toEqual("IllegalCustom-UUID");
             expect(actualNode.nodeId).not.toEqual("Another Illegal Custom-UUID");
             expect(actualNode.label).toEqual("Movie");
-            expect(actualNode.name).toEqual("Avengers");
+            expect(actualNode.name).toEqual("The Polar Express");
             expect(actualNode.attributes).toEqual({
                 label: "Movie",
-                name: "Avengers",
+                name: "The Polar Express",
                 nodeId: modifiedNodeUUID,
                 attrTwo: "updated",
                 attrThree: "Josh Groban",
@@ -224,7 +224,7 @@ describe("NodesController", () => {
             delete newNode.attributes["name"];
             await nodesController.modifyNode(movieNode.nodeId, newNode);
             actualNode = await testUtil.readDBNode(modifiedNodeUUID);
-            expect(actualNode.name).toEqual("Avengers");
+            expect(actualNode.name).toEqual("The Polar Express");
         });
     });
 
