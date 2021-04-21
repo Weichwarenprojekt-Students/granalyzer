@@ -1,15 +1,16 @@
 <template>
     <div v-if="$store.getters['inspector/isLoaded']" class="content">
         <div class="underlined-title">
-            {{ $store.state.inspector.element.name }}
+            {{ $store.getters["inspector/getName"] }}
         </div>
-        <ScrollPanel class="scroll-panel">
+        <ScrollPanel v-if="$store.state.inspector.attributes.length > 0" class="scroll-panel">
             <ReadAttribute
                 v-for="attribute in $store.state.inspector.attributes"
                 :key="attribute.name"
                 :attribute="attribute"
             ></ReadAttribute>
         </ScrollPanel>
+        <h4 v-else class="attribute-item">{{ $t("inspector.noAttributes") }}</h4>
     </div>
     <DefaultInspector v-else />
 </template>
@@ -25,7 +26,7 @@ export default defineComponent({
         DefaultInspector,
         ReadAttribute,
     },
-    mounted() {
+    beforeCreate() {
         this.$store.commit("inspector/resetSelection");
     },
 });

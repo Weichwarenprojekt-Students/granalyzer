@@ -1,14 +1,20 @@
 <template>
     <InputNumber
         v-if="type === datatype.NUMBER"
-        v-model="numberValue"
+        v-model="value"
         showButtons
         class="input"
         :placeholder="$t('global.input.placeholder')"
+        :disabled="disabled"
     />
-    <ColorMultiInput v-else-if="type === datatype.COLOR" v-model="value" class="input" />
+    <ColorMultiInput v-else-if="type === datatype.COLOR" v-model="value" class="input" :disabled="disabled" />
     <label v-else>
-        <input v-model="value" class="input text-input" :placeholder="$t('global.input.placeholder')" />
+        <input
+            v-model="value"
+            class="input text-input"
+            :placeholder="$t('global.input.placeholder')"
+            :disabled="disabled"
+        />
     </label>
 </template>
 
@@ -32,19 +38,22 @@ export default defineComponent({
             type: String,
             default: ApiDatatype.STRING,
         },
+        // True if the input is disabled
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     data() {
         return {
-            // The number value required for the number input
-            numberValue: 0,
             // The value for the v model
-            value: "",
+            value: {},
             // The data type enum
             datatype: ApiDatatype,
         };
     },
     created() {
-        this.value = this.modelValue.toString();
+        this.value = this.modelValue;
         this.parseValue();
     },
     watch: {
@@ -53,12 +62,6 @@ export default defineComponent({
          */
         type() {
             this.parseValue();
-        },
-        /**
-         * Watch for changes from the number input
-         */
-        numberValue() {
-            this.value = this.numberValue.toString();
         },
         /**
          * Check for changes of the v model
@@ -72,15 +75,12 @@ export default defineComponent({
          * Parse the right value depending on the type
          */
         parseValue(): void {
-            const number = parseFloat(this.value);
             switch (this.type) {
                 case ApiDatatype.NUMBER:
-                    if (!isNaN(number)) this.numberValue = number;
-                    else this.numberValue = 0;
-                    this.value = this.numberValue.toString();
+                    if (isNaN(this.value as number)) this.value = 0;
                     break;
                 case ApiDatatype.COLOR:
-                    if (!isColor(this.value)) this.value = "#333333";
+                    if (!isColor(this.value as string)) this.value = "#333333";
                     break;
                 default:
                     this.value = this.value.toString();

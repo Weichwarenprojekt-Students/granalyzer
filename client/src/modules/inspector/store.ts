@@ -1,7 +1,7 @@
 import { InspectorAttribute } from "@/modules/inspector/models/InspectorAttribute";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { GET } from "@/utility";
+import { GET, PUT } from "@/utility";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
 import ApiNode from "@/models/data-scheme/ApiNode";
@@ -18,6 +18,11 @@ export class InspectorState {
      * The name of the currently displayed node or relation
      */
     public element?: ApiRelation | ApiNode;
+
+    /**
+     * The different types
+     */
+    public types?: Array<ApiLabel | ApiRelationType>;
 }
 
 export const inspector = {
@@ -34,45 +39,30 @@ export const inspector = {
         /**
          * Set the inspector items for nodes
          */
-        setAttributesFromNode(state: InspectorState, payload: { node: ApiNode; label: ApiLabel }): void {
-            // Clear the attribute-items array
-            state.attributes = new Array<InspectorAttribute>();
-
-            // Set the inspector display name
-            state.element = payload.node;
-
-            // Fill attributes from node and label data
-            state.attributes = payload.label.attributes.map(
-                (attribute: ApiAttribute) =>
-                    new InspectorAttribute(
-                        attribute.name,
-                        payload.node.attributes[attribute.name] as string,
-                        attribute.datatype,
-                    ),
-            );
-        },
-        /**
-         * Set the inspector items for relations
-         */
-        setAttributesFromRelation(
+        setAttributes(
             state: InspectorState,
-            payload: { relation: ApiRelation; relType: ApiRelationType },
+            payload: { item: ApiNode | ApiRelation; types: Array<ApiLabel | ApiRelationType> },
         ): void {
             // Clear the attribute-items array
             state.attributes = new Array<InspectorAttribute>();
 
-            // Set the inspector display name
-            state.element = payload.relation;
+            // Set the shown element
+            state.element = payload.item;
+            if (payload.types) state.types = payload.types;
 
-            // Fill attributes from relation and relation-type data
-            state.attributes = payload.relType.attributes.map(
-                (attribute) =>
-                    new InspectorAttribute(
-                        attribute.name,
-                        payload.relation.attributes[attribute.name] as string,
-                        attribute.datatype,
-                    ),
-            );
+            // Fill attributes from node and label data
+            const schemeName = state.element instanceof ApiNode ? state.element.label : state.element.type;
+            const scheme = state.types?.find((scheme) => scheme.name === schemeName);
+            state.attributes =
+                scheme?.attributes.map(
+                    (attribute: ApiAttribute) =>
+                        new InspectorAttribute(
+                            attribute.name,
+                            payload.item.attributes[attribute.name],
+                            attribute.datatype,
+                            !!payload.item.attributes[attribute.name],
+                        ),
+                ) ?? [];
         },
     },
     actions: {
@@ -88,13 +78,12 @@ export const inspector = {
             const node: ApiNode = await result.json();
 
             // Fetch scheme for the label of this node
-            result = await GET(`/api/data-scheme/label/${node.label}`);
+            result = await GET(`/api/data-scheme/label`);
             if (result.status != 200) return;
-            const label: ApiLabel = await result.json();
+            const types: Array<ApiLabel> = await result.json();
 
-            context.commit("setAttributesFromNode", { node, label });
+            context.commit("setAttributes", { item: Object.assign(new ApiNode(), node), types });
         },
-
         /**
          * Set the clicked relation
          */
@@ -107,11 +96,28 @@ export const inspector = {
             const relation: ApiRelation = await result.json();
 
             // Fetch scheme for the type of this relation
-            result = await GET(`/api/data-scheme/relation/${relation.type}`);
+            result = await GET(`/api/data-scheme/relation`);
             if (result.status != 200) return;
-            const relType: ApiRelationType = await result.json();
+            const types: Array<ApiRelationType> = await result.json();
 
-            context.commit("setAttributesFromRelation", { relation, relType });
+            context.commit("setAttributes", { item: Object.assign(new ApiRelation(), relation), types });
+        },
+        /**
+         * Update a label
+         */
+        async updateLabel(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
+            // TODO: Default toast for every unexpected result
+            const result = await PUT(`/api/nodes/${node.nodeId}`, JSON.stringify(node));
+            if (result.status != 200) return;
+            context.commit("setAttributes", { item: Object.assign(new ApiNode(), await result.json()) });
+        },
+        /**
+         * Update a relation
+         */
+        async updateRelation(context: ActionContext<InspectorState, RootState>, relation: ApiRelation): Promise<void> {
+            const result = await PUT(`/api/relations/${relation.relationId}`, JSON.stringify(relation));
+            if (result.status != 200) return;
+            context.commit("setAttributes", { item: Object.assign(new ApiRelation(), await result.json()) });
         },
     },
     getters: {
@@ -120,6 +126,29 @@ export const inspector = {
          */
         isLoaded(state: InspectorState): boolean {
             return !!state.element;
+        },
+        /**
+         * @return True if selected element is a label
+         */
+        isNode(state: InspectorState): boolean {
+            return state.element instanceof ApiNode;
+        },
+        /**
+         * @return True if the inspector is in create mode
+         */
+        createMode(state: InspectorState): boolean {
+            return !(
+                (state.element instanceof ApiRelation && !!state.element.relationId) ||
+                (state.element instanceof ApiNode && !!state.element.nodeId)
+            );
+        },
+        /**
+         * @return True if the inspector is in create mode
+         */
+        getName(state: InspectorState): string {
+            if (state.element instanceof ApiRelation) return state.element.type;
+            else if (state.element instanceof ApiNode) return state.element.name;
+            return "";
         },
     },
 };

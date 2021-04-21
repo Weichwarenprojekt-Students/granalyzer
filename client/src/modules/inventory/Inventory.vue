@@ -29,7 +29,7 @@ export default defineComponent({
         NeighborView,
         InventoryHeader,
     },
-    mounted() {
+    beforeCreate() {
         // Load the labels with the first load of matching nodes
         this.$store.dispatch("overview/loadLabelsAndNodes");
     },
@@ -38,12 +38,11 @@ export default defineComponent({
          * Store node that was selected
          */
         clickedOnNode(node: ApiNode): void {
+            this.$store.dispatch("inspector/selectNode", node.nodeId);
             if (this.$store.state.inventory.selectedNode?.nodeId === node.nodeId || this.$store.state.inventory.loading)
                 return;
-
             this.$store.commit("inventory/setSelectedNode", node);
             this.$store.dispatch("inventory/loadRelations", node);
-            this.$store.dispatch("inspector/selectNode", node.nodeId);
         },
     },
 });

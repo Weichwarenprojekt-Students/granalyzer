@@ -1,4 +1,15 @@
 {
   "title": "Inspector",
-  "nothingSelected": "Please select a node or relation to show the attributes"
+  "nothingSelected": "Please select a node or relation to show the attributes",
+  "save": "Save",
+  "delete": "Delete",
+  "deleteDialog": {
+    "title": "Delete Item",
+    "description": "Are you sure? The data cannot be recovered!"
+  },
+  "create": "Create",
+  "label": "Label",
+  "relationType": "Type",
+  "attributes": "Attributes",
+  "noAttributes": "No attributes found."
 }

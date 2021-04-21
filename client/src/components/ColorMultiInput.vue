@@ -1,8 +1,8 @@
 <template>
     <div class="color-input">
-        <ColorPicker v-model="color" defaultColor="#FFFFFF" format="hex" />
+        <ColorPicker v-model="color" defaultColor="#FFFFFF" format="hex" :disabled="disabled" />
         <label class="color-label">
-            <input :class="{ 'color-error': error }" v-model="color" maxlength="7" type="text" />
+            <input :class="{ 'color-error': error }" v-model="color" maxlength="7" type="text" :disabled="disabled" />
         </label>
     </div>
 </template>
@@ -14,9 +14,15 @@ import { isColor } from "@/utility";
 export default defineComponent({
     name: "ColorMultiInput",
     props: {
+        // The v-model
         modelValue: {
             type: String,
             default: "#FFFFFF",
+        },
+        // True if the input is disabled
+        disabled: {
+            type: Boolean,
+            default: false,
         },
     },
     data() {

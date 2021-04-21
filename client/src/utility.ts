@@ -150,6 +150,7 @@ let toast: ToastServiceMethods;
 
 /**
  * Set the toast service
+ * TODO: Add überkrasses EasterEgg
  */
 export function setToastService(toastService: ToastServiceMethods): void {
     toast = toastService;

@@ -12,7 +12,7 @@ export default class ApiRelation {
         public relationId: string = "",
         public type: string = "",
         public attributes: {
-            [key: string]: unknown;
+            [key: string]: string | number;
         } = {},
         public from: string = "",
         public to: string = "",

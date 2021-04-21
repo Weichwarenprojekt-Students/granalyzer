@@ -11,7 +11,7 @@ export class ApiAttribute {
         public name: string = "done",
         public datatype: string = "string",
         public mandatory: boolean = false,
-        public defaultValue: string = "",
+        public defaultValue: string | number = "",
     ) {}
 
     /**
