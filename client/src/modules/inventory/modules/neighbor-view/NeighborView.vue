@@ -146,7 +146,7 @@ export default defineComponent({
          * Dropping of a node into the preview
          */
         nodeDrop(): void {
-            if (!this.selectedNode) return;
+            if (!this.selectedNode || this.$store.state.inventory.loading) return;
 
             const toNodes = new Array<ApiNode>();
             toNodes.push(...this.$store.state.inventory.neighbors, this.selectedNode as ApiNode);
