@@ -94,9 +94,9 @@ export class RelationsService {
      * Deletes the specified relation by id
      * @param relationId
      */
-    deleteRelation(relationId: string): Promise<Relation> {
+    async deleteRelation(relationId: string): Promise<Relation> {
         // Backup the relation to return
-        const relation = this.getRelation(relationId);
+        const relation = await this.getRelation(relationId);
 
         // language=Cypher
         const query = `MATCH(startNode)-[relation]-(endNode) 
@@ -106,7 +106,7 @@ export class RelationsService {
             relationId,
         };
 
-        this.neo4jService.write(query, params, this.database).catch(this.databaseUtil.catchDbError);
+        await this.neo4jService.write(query, params, this.database).catch(this.databaseUtil.catchDbError);
         return relation;
     }
 }
