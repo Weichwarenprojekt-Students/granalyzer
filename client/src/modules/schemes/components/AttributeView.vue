@@ -20,7 +20,7 @@
             <div class="attribute-modification-row">
                 <span>{{ $t("schemes.attribute.type") }}</span>
                 <div>
-                    <svg v-show="isEnum" class="enum-edit-icon" @click="showEditEnumModal">
+                    <svg v-show="isEnum" class="enum-edit-icon" @click="isEditEnumModalVisible = true">
                         <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
                     </svg>
                     <Dropdown
@@ -48,9 +48,10 @@
         </div>
     </div>
     <EditEnumModal
-        v-if="isEditEnumModalVisible"
+        @confirm="isEditEnumModalVisible = false"
+        @cancel="cancelEditConfig"
         v-model:config="modifiedAttribute.config"
-        @close="hideEditEnumModal"
+        :show="isEditEnumModalVisible"
     ></EditEnumModal>
 </template>
 
@@ -103,12 +104,19 @@ export default defineComponent({
         );
     },
     methods: {
-        showEditEnumModal() {
-            this.isEditEnumModalVisible = true;
+        cancelEditConfig() {
+            this.isEditEnumModalVisible = false;
         },
 
-        hideEditEnumModal() {
-            this.isEditEnumModalVisible = false;
+        checkDefaultValue() {
+            if (
+                this.modifiedAttribute.datatype === ApiDatatype.ENUM &&
+                !(this.modifiedAttribute.config as Array<string>).includes(
+                    this.modifiedAttribute.defaultValue.toString(),
+                )
+            ) {
+                this.modifiedAttribute.defaultValue = (this.modifiedAttribute.config as Array<string>)[0] ?? "";
+            }
         },
     },
     watch: {
@@ -117,6 +125,9 @@ export default defineComponent({
          */
         modifiedAttribute: {
             handler() {
+                // Check if standard value is still possible
+                this.checkDefaultValue();
+
                 this.$emit("update:name", this.modifiedAttribute.name);
                 this.$emit("update:datatype", this.modifiedAttribute.datatype);
                 this.$emit("update:defaultValue", this.modifiedAttribute.defaultValue);

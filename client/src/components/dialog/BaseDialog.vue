@@ -23,12 +23,17 @@ export default defineComponent({
     props: {
         // True if the dialog should be shown
         show: Boolean,
+
+        bindKeyEvents: {
+            type: Boolean,
+            default: true,
+        },
     },
     mounted() {
-        window.addEventListener("keyup", this.onKeyUp);
+        if (this.bindKeyEvents) window.addEventListener("keyup", this.onKeyUp);
     },
     unmounted() {
-        window.removeEventListener("keyup", this.onKeyUp);
+        if (this.bindKeyEvents) window.removeEventListener("keyup", this.onKeyUp);
     },
     methods: {
         /**

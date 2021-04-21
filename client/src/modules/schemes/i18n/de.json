@@ -97,6 +97,11 @@
     "nameDuplicate": {
       "title": "Name doppelt",
       "description": "Das Attribut {name} ist bereits vorhanden!"
+    },
+    "editEnumConfig": {
+      "title": "Enum Werte editieren",
+      "add": "Hinzufügen",
+      "newElementPlaceholder": "Neues Enum Element"
     }
   },
   "conflictView": {

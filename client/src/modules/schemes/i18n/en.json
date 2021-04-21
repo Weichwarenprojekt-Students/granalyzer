@@ -97,6 +97,11 @@
     "nameDuplicate": {
       "title": "Name duplicate",
       "description": "The attribute {name} is defined multiple times!"
+    },
+    "editEnumConfig": {
+      "title": "Edit Enum values",
+      "add": "Add",
+      "newElementPlaceholder": "New Enum Element"
     }
   },
   "conflictView": {

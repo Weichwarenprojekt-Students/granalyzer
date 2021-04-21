@@ -1,13 +1,21 @@
 <template>
-    <div class="modal-background" @click="close"></div>
-    <div class="modal">
+    <!-- Expand the base dialog -->
+    <BaseDialog class="base-dialog" :show="show" :bind-key-events="false" @confirm="confirmConfig" @cancel="cancel">
         <div class="modal-header">
-            <h2>Edit Enum values</h2>
-            <svg class="close-icon" @click="close">
-                <use :xlink:href="`${require('@/assets/img/icons.svg')}#delete`"></use>
-            </svg>
+            <h1>{{ $t("schemes.attribute.editEnumConfig.title") }}</h1>
         </div>
         <div class="modal-body">
+            <div class="add-enum">
+                <button class="btn btn-normal" @click="addEnumProp()">
+                    {{ $t("schemes.attribute.editEnumConfig.add") }}
+                </button>
+                <input
+                    id="add-enum-txt"
+                    :placeholder="$t('schemes.attribute.editEnumConfig.newElementPlaceholder')"
+                    class="input text-input"
+                    v-on:keyup.enter="addEnumProp()"
+                />
+            </div>
             <ul class="enum-prop-list">
                 <li class="enum-prop-list-element" :key="el" v-for="el in modifiedConfig">
                     {{ el }}
@@ -16,27 +24,20 @@
                     </svg>
                 </li>
             </ul>
-            <div class="add-enum">
-                <input id="add-enum-txt" class="input text-input" v-on:keyup.enter="addEnumProp" />
-                <button class="btn btn-normal" @click="addEnumProp">Add</button>
-            </div>
         </div>
-        <div class="modal-footer">
-            <div class="footer-buttons">
-                <button class="btn btn-secondary" @click="close">Close</button>
-            </div>
-        </div>
-    </div>
+    </BaseDialog>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { EnumConfigElement } from "@/models/data-scheme/EnumConfigElement";
+import BaseDialog from "@/components/dialog/BaseDialog.vue";
+import { deepCopy } from "@/utility";
 
 export default defineComponent({
     name: "EditEnumModal",
-    props: ["config"],
-    emits: ["update:config", "close"],
+    components: { BaseDialog },
+    props: ["config", "show"],
     data() {
         return {
             modifiedConfig: [] as Array<EnumConfigElement>,
@@ -44,24 +45,29 @@ export default defineComponent({
         };
     },
     created() {
-        this.modifiedConfig = this.config ?? [];
-    },
-    mounted() {
-        window.addEventListener("keyup", this.onKeyUp);
-    },
-    unmounted() {
-        window.removeEventListener("keyup", this.onKeyUp);
+        this.modifiedConfig = deepCopy(this.config) ?? [];
     },
     methods: {
-        onKeyUp(e: KeyboardEvent): void {
-            if (e.key == "Escape") this.close();
+        /**
+         * Abort and return the old list
+         */
+        cancel(): void {
+            this.modifiedConfig = deepCopy(this.config);
+            this.$emit("update:config", this.config);
+            this.$emit("cancel");
         },
 
-        close() {
+        /**
+         * Confirms and return the edited list
+         */
+        confirmConfig(): void {
             this.$emit("update:config", this.modifiedConfig);
-            this.$emit("close");
+            this.$emit("confirm");
         },
 
+        /**
+         * Add a element to the list
+         */
         addEnumProp() {
             const inputElement = document.querySelector("#add-enum-txt") as HTMLInputElement;
             const value = inputElement.value.trim();
@@ -71,8 +77,11 @@ export default defineComponent({
             }
         },
 
+        /**
+         * Delete a element from the list
+         */
         removeEnumProp(el: string) {
-            this.modifiedConfig.splice(this.config.indexOf(el), 1);
+            this.modifiedConfig.splice(this.modifiedConfig.indexOf(el), 1);
         },
     },
 });
@@ -81,72 +90,42 @@ export default defineComponent({
 <style lang="less">
 @import "~@/styles/global.less";
 
-.modal-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(177, 177, 177, 0.5);
-}
-
-.modal {
-    position: fixed;
-    top: 20vh;
-    max-height: 40vh;
-    min-height: 25vh;
-    height: auto;
-    width: 500px;
-    background: white;
-}
-
 .modal-header,
-.modal-body,
-.modal-footer {
+.modal-body {
     padding: 16px;
-    width: 100%;
+    width: 500px;
 }
 
 .modal-header {
     position: relative;
-    border-bottom: 1px solid @secondary_color;
+    padding-bottom: 0;
+    padding-top: 20px;
+    margin-bottom: 8px;
+    border-top: 8px solid @primary_color;
 }
 
 .modal-body {
     height: auto;
+    max-height: 350px;
     min-height: 100px;
-    margin-bottom: 48px;
-}
-
-.modal-footer {
-    position: absolute;
-    bottom: 0;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.close-icon {
-    position: absolute;
-    top: 0;
-    right: 0;
-    cursor: pointer;
-    height: 48px;
-    width: 48px;
-    padding: 16px;
+    margin-bottom: 16px;
 }
 
 .add-enum {
     display: flex;
-    justify-items: end;
-    justify-content: end;
-    align-content: end;
+    flex-direction: row-reverse;
     gap: 8px;
     width: 100%;
+    padding-bottom: 8px;
+}
+
+.add-enum input {
+    flex-grow: 1;
 }
 
 .delete-enum-prop-icon {
-    height: 16px;
-    width: 16px;
+    height: 12px;
+    width: 12px;
     cursor: pointer;
     margin-left: 4px;
 }
@@ -157,12 +136,16 @@ export default defineComponent({
     list-style: none;
     width: 100%;
     text-align: right;
+    max-height: 300px;
+    height: auto;
+    overflow: auto;
 }
 
 .enum-prop-list-element {
     font-size: 18px;
     line-height: 24px;
     padding: 4px 8px;
+    text-align: left;
 
     svg {
         margin-left: 8px;
