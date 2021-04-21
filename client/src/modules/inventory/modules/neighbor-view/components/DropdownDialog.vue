@@ -120,12 +120,10 @@ export default defineComponent({
          * Check for valid relation types
          */
         async updatePossibleRelationTypes(): Promise<void> {
-            if (!this.fromNode) return;
-            if (this.selectedNode == null) return;
-            const nodes = this.toNodes as Array<ApiNode>;
+            if (!this.fromNode || !this.selectedNode) return;
 
             let from = this.fromNode.label;
-            let to = nodes.find((node) => node.name == this.selectedNode)?.label;
+            let to = (this.toNodes as Array<ApiNode>).find((node) => node.name == this.selectedNode)?.label;
             if (this.switched) [from, to] = [to, from];
 
             this.possibleRelationTypes = await this.$store.dispatch("inventory/getPossibleRelationTypes", {

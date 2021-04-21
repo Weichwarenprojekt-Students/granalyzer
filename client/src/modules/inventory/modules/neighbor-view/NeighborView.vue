@@ -26,7 +26,6 @@
 import { defineComponent } from "vue";
 import { JointGraph } from "@/shared/JointGraph";
 import ApiNode from "@/models/data-scheme/ApiNode";
-import { dia } from "jointjs";
 import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import DropdownDialog from "@/modules/inventory/modules/neighbor-view/components/DropdownDialog.vue";
@@ -42,8 +41,6 @@ export default defineComponent({
         return {
             // Graph of the inventory view
             graph: {} as JointGraph,
-            // Root element that is currently displayed in the inventory
-            selectedNodeShape: {} as dia.Element,
             // Utility functions for the neighbor view
             graphUtils: {} as GraphUtils,
             // True if the dialog is visible
@@ -73,17 +70,14 @@ export default defineComponent({
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
         this.graphUtils = new GraphUtils(this.graph, this.$store);
-        this.centerGraph();
-        this.$store.commit("inventory/setActive", true);
+        this.graphUtils.centerGraph();
 
-        window.addEventListener("resize", this.centerGraph);
+        window.addEventListener("resize", () => this.graphUtils.centerGraph());
     },
     unmounted(): void {
-        this.$store.commit("inventory/setActive", false);
-        window.removeEventListener("resize", this.centerGraph);
+        window.removeEventListener("resize", () => this.graphUtils.centerGraph());
     },
     methods: {
-        // TODO :: Clean up methods
         /**
          * Load graph
          */
@@ -103,8 +97,6 @@ export default defineComponent({
          */
         displaySelectedNode(apiNode: ApiNode): void {
             const shape = this.graphUtils.addNodeToDiagram(apiNode);
-            this.selectedNodeShape = shape;
-
             shape.attr("body/strokeWidth", 0);
         },
         /**
@@ -124,23 +116,9 @@ export default defineComponent({
          * Clears the previous graph + settings
          */
         clearGraphAndSettings(): void {
-            if (Object.keys(this.selectedNodeShape).length !== 0) this.graph.graph.clear();
             this.graphUtils.resetNeighborPlacement();
-            this.centerGraph();
             this.graphUtils.resetGraph();
-        },
-        /**
-         * Centers the graph
-         */
-        centerGraph(): void {
-            const area = this.graph.paper.getArea();
-            const xMiddle = area.x + area.width / 2;
-            const yMiddle = area.y + area.height / 2;
-
-            const translate = this.graph.paper.translate();
-            const scale = this.graph.paper.scale();
-
-            this.graph.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
+            this.graphUtils.centerGraph();
         },
         /**
          * Dropping of a node into the preview
@@ -167,8 +145,6 @@ export default defineComponent({
                 type: payload.selectedRelationType,
             });
 
-            // TODO :: Instead of reloading the entire neighbors/relations push the latest neighbor into the store
-            // TODO >> and just reload the graph
             this.$store.dispatch("inventory/loadRelations", this.selectedNode);
             this.graphLoaded();
         },

@@ -194,6 +194,21 @@ export class GraphUtils {
     public resetGraph(): void {
         this.mappedNodes.clear();
         this.mappedRelations.clear();
+        this.graph.graph.clear();
+    }
+
+    /**
+     * Centers the graph
+     */
+    public centerGraph(): void {
+        const area = this.graph.paper.getArea();
+        const xMiddle = area.x + area.width / 2;
+        const yMiddle = area.y + area.height / 2;
+
+        const translate = this.graph.paper.translate();
+        const scale = this.graph.paper.scale();
+
+        this.graph.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
     }
 
     /**
@@ -236,10 +251,10 @@ export class GraphUtils {
         this.graph.paper.on("element:pointerdblclick", async (cell) => {
             // Get key of element by value
             if (!this.store.state.inventory) return;
+            if (this.store.state.inventory.loading) return;
 
             const node = await this.getNodeByShapeId(cell.model.id);
 
-            // TODO :: Prevent multi-clicking while loading
             this.store.commit("inventory/setSelectedNode", node);
             this.store.commit("inventory/reset");
             await this.store.dispatch("inventory/loadRelations", node);
