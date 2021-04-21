@@ -8,7 +8,7 @@ import { DataSchemeService } from "./data-scheme.service";
 import { Neo4jService } from "nest-neo4j/dist";
 import { ConflictException, NotFoundException } from "@nestjs/common";
 import { LabelScheme } from "./models/label-scheme.model";
-import { ColorAttribute, NumberAttribute, StringAttribute } from "./models/attributes.model";
+import { ColorAttribute, EnumAttribute, NumberAttribute, StringAttribute } from "./models/attributes.model";
 import { RelationType } from "./models/relation-type.model";
 import { Connection } from "./models/connection.model";
 import { Scheme } from "./data-scheme.model";
@@ -59,12 +59,14 @@ describe("DataSchemeController", () => {
         movieLabel = new LabelScheme("Movie", "#666", [
             new StringAttribute("attrOne", true, "unknown"),
             new NumberAttribute("attrTwo"),
+            new EnumAttribute("rating", false,"",["good", "bad"]),
         ]);
         movieLabel.name = movieLabelName = await testUtil.writeLabelScheme(movieLabel);
 
         personLabel = new LabelScheme("Person", "#420", [
             new StringAttribute("attrOne", true, "Done Default"),
             new ColorAttribute("attrTwo"),
+            new EnumAttribute("mainHand", false, "right", ["left", "right"])
         ]);
         personLabel.name = personLabelName = await testUtil.writeLabelScheme(personLabel);
 
@@ -78,9 +80,9 @@ describe("DataSchemeController", () => {
         followsRelation = new RelationType("FOLLOWS", [], [new Connection("Person", "Person")]);
         followsRelation.name = followsRelationName = await testUtil.writeRelationType(followsRelation);
 
-        movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000 });
+        movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000, rating: "good" });
         movieNode1.nodeId = await testUtil.writeNode(movieNode1);
-        personNode1 = new Node("Keanu Reeves", "Person", { attrOne: "Keanu Reeves", attrTwo: "#420" });
+        personNode1 = new Node("Keanu Reeves", "Person", { attrOne: "Keanu Reeves", attrTwo: "#420", mainHand: "left" });
         personNode1.nodeId = await testUtil.writeNode(personNode1);
         relation1 = new Relation("ACTED_IN", personNode1.nodeId, movieNode1.nodeId, { attrOne: "Neo" });
         relation1.relationId = await testUtil.writeRelation(relation1);
@@ -133,6 +135,13 @@ describe("DataSchemeController", () => {
                     datatype: "string",
                     name: "attrTwo",
                     mandatory: false,
+                    defaultValue: "",
+                },
+                {
+                    datatype: "enum",
+                    name: "lowHigh",
+                    mandatory: false,
+                    config: ["low", "high"],
                     defaultValue: "",
                 },
             ]);
@@ -200,6 +209,13 @@ describe("DataSchemeController", () => {
                     mandatory: false,
                     defaultValue: "",
                 },
+                {
+                    datatype: "enum",
+                    name: "length",
+                    mandatory: false,
+                    config: ["long", "middle", "short"],
+                    defaultValue: "middle",
+                }
             ]);
             expect(await controller.updateLabelScheme(movieLabel.name, body, false)).toEqual(body);
         });
