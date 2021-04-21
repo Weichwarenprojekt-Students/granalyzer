@@ -23,25 +23,13 @@
                 <div class="attribute-key">
                     {{ $t("inspector.label") }}
                 </div>
-                <Dropdown :value="element.label">
-                    <div v-for="type in $store.state.inspector.types" :key="type.name" @click="selectLabel(type)">
-                        {{ type.name }}
-                    </div>
-                </Dropdown>
+                <div>{{ element.label }}</div>
             </div>
             <div v-else class="attribute-item">
                 <div class="attribute-key">
                     {{ $t("inspector.relationType") }}
                 </div>
-                <Dropdown :value="element.type">
-                    <div
-                        v-for="type in $store.state.inspector.types"
-                        :key="type.name"
-                        @click="selectRelationType(type)"
-                    >
-                        {{ type.name }}
-                    </div>
-                </Dropdown>
+                <div>{{ element.type }}</div>
             </div>
 
             <!-- The attributes -->
@@ -90,17 +78,12 @@ import { InspectorAttribute } from "@/modules/inspector/models/InspectorAttribut
 import { deepCopy, objectUUID } from "@/utility";
 import DynamicInput from "@/components/DynamicInput.vue";
 import ConfirmDialog from "@/components/dialog/ConfirmDialog.vue";
-import Dropdown from "@/components/Dropdown.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import ApiLabel from "@/models/data-scheme/ApiLabel";
-import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
-import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 
 export default defineComponent({
     name: "WriteInspector",
     components: {
-        Dropdown,
         ConfirmDialog,
         DynamicInput,
         DefaultInspector,
@@ -133,13 +116,9 @@ export default defineComponent({
          * @return True if the item was modified
          */
         isModified(): boolean {
-            // Check the name label and type
-            if (this.element instanceof ApiNode) {
-                if (this.element.name !== this.$store.state.inspector.element.name) return true;
-                if (this.element.label !== this.$store.state.inspector.element.label) return true;
-            } else if (this.element instanceof ApiRelation) {
-                if (this.element.type !== this.$store.state.inspector.element.type) return true;
-            }
+            // Check the name
+            if (this.element instanceof ApiNode && this.element.name !== this.$store.state.inspector.element.name)
+                return true;
 
             // Check the attributes
             if (this.$store.state.inspector.attributes.length !== this.attributes.length) return true;
@@ -154,36 +133,6 @@ export default defineComponent({
          * Forward the object uuid helper method for usage in template
          */
         objectUUID: objectUUID,
-        /**
-         * Select a new label
-         */
-        selectLabel(label: ApiLabel): void {
-            if (!(this.element instanceof ApiNode)) return;
-            this.element.label = label.name;
-            this.updateAttributes(label);
-        },
-        /**
-         * Select a new relation type
-         */
-        selectRelationType(relation: ApiRelationType): void {
-            if (!(this.element instanceof ApiRelation)) return;
-            this.element.type = relation.name;
-            this.updateAttributes(relation);
-        },
-        /**
-         * Update attributes after type switch
-         */
-        updateAttributes(type: ApiLabel | ApiRelationType): void {
-            this.attributes = type.attributes.map(
-                (attribute: ApiAttribute) =>
-                    new InspectorAttribute(
-                        attribute.name,
-                        attribute.defaultValue,
-                        attribute.datatype,
-                        attribute.mandatory,
-                    ),
-            );
-        },
         /**
          * Update the attributes of the item
          */

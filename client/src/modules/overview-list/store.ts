@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
-import { GET, getBrightness } from "@/utility";
+import { GET, getBrightness, isUnexpected } from "@/utility";
 import { RootState } from "@/store";
 
 export class OverviewState {
@@ -99,7 +99,7 @@ export const overview = {
             const filterString = generateFilterString(filter);
 
             const resNodes = await GET(`/api/nodes?limit=50&offset=${context.state.nodes.length}${filterString}`);
-            if (resNodes.status === 200) context.commit("extendNodes", await resNodes.json());
+            if (!isUnexpected(resNodes)) context.commit("extendNodes", await resNodes.json());
         },
     },
     getters: {

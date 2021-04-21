@@ -1,4 +1,5 @@
 import { ToastServiceMethods } from "primevue/toastservice";
+import i18n from "@/i18n";
 
 /**
  * The route names of the three main modules
@@ -144,6 +145,19 @@ export function DELETE(path: string): Promise<Response> {
 }
 
 /**
+ * Check if a response is unexpected
+ *
+ * @param response The response that shall be checked
+ */
+export function isUnexpected(response: Response): boolean {
+    if (response.status >= 300) {
+        errorToast(i18n.global.t("global.unexpected.title"), i18n.global.t("global.unexpected.description"));
+        return true;
+    }
+    return false;
+}
+
+/**
  * The toast service
  */
 let toast: ToastServiceMethods;
@@ -187,6 +201,7 @@ export function successToast(summary: string, detail: string, life = 3000): void
         life,
     });
 }
+
 /**
  * Show a success toast
  *

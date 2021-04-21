@@ -1,7 +1,7 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { GET } from "@/utility";
+import { GET, isUnexpected } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 
 export class InventoryState {
@@ -87,7 +87,7 @@ export const inventory = {
 
             // Get relations of the node
             const res = await GET(`/api/nodes/${node.nodeId}/relations`);
-            if (res.status !== 200) {
+            if (isUnexpected(res)) {
                 context.commit("setLoading", false);
                 return;
             }
@@ -154,7 +154,7 @@ export const inventory = {
          */
         async getNode(context: ActionContext<InventoryState, RootState>, nodeId: number): Promise<ApiNode | undefined> {
             const res = await GET("/api/nodes/" + nodeId);
-            if (res.status !== 200) return undefined;
+            if (isUnexpected(res)) return undefined;
             return await res.json();
         },
     },

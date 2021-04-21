@@ -1,7 +1,7 @@
 import { InspectorAttribute } from "@/modules/inspector/models/InspectorAttribute";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { GET, PUT } from "@/utility";
+import { GET, isUnexpected, PUT } from "@/utility";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
 import ApiNode from "@/models/data-scheme/ApiNode";
@@ -13,16 +13,14 @@ export class InspectorState {
      *  The currently listed attribute items in inspector
      */
     public attributes = new Array<InspectorAttribute>();
-
     /**
      * The name of the currently displayed node or relation
      */
     public element?: ApiRelation | ApiNode;
-
     /**
-     * The different types
+     * The type
      */
-    public types?: Array<ApiLabel | ApiRelationType>;
+    public type?: ApiLabel | ApiRelationType;
 }
 
 export const inspector = {
@@ -41,20 +39,18 @@ export const inspector = {
          */
         setAttributes(
             state: InspectorState,
-            payload: { item: ApiNode | ApiRelation; types: Array<ApiLabel | ApiRelationType> },
+            payload: { item: ApiNode | ApiRelation; type: ApiLabel | ApiRelationType },
         ): void {
             // Clear the attribute-items array
             state.attributes = new Array<InspectorAttribute>();
 
             // Set the shown element
             state.element = payload.item;
-            if (payload.types) state.types = payload.types;
+            if (payload.type) state.type = payload.type;
 
             // Fill attributes from node and label data
-            const schemeName = state.element instanceof ApiNode ? state.element.label : state.element.type;
-            const scheme = state.types?.find((scheme) => scheme.name === schemeName);
             state.attributes =
-                scheme?.attributes.map(
+                state.type?.attributes.map(
                     (attribute: ApiAttribute) =>
                         new InspectorAttribute(
                             attribute.name,
@@ -74,15 +70,15 @@ export const inspector = {
 
             // Fetch node data
             let result = await GET(`/api/nodes/${uuid}`);
-            if (result.status != 200) return;
+            if (isUnexpected(result)) return;
             const node: ApiNode = await result.json();
 
             // Fetch scheme for the label of this node
-            result = await GET(`/api/data-scheme/label`);
-            if (result.status != 200) return;
-            const types: Array<ApiLabel> = await result.json();
+            result = await GET(`/api/data-scheme/label/${node.label}`);
+            if (isUnexpected(result)) return;
+            const type: ApiLabel = await result.json();
 
-            context.commit("setAttributes", { item: Object.assign(new ApiNode(), node), types });
+            context.commit("setAttributes", { item: Object.assign(new ApiNode(), node), type });
         },
         /**
          * Set the clicked relation
@@ -92,23 +88,22 @@ export const inspector = {
 
             // Fetch the relation data
             let result = await GET(`/api/relations/${uuid}`);
-            if (result.status != 200) return;
+            if (isUnexpected(result)) return;
             const relation: ApiRelation = await result.json();
 
             // Fetch scheme for the type of this relation
-            result = await GET(`/api/data-scheme/relation`);
-            if (result.status != 200) return;
-            const types: Array<ApiRelationType> = await result.json();
+            result = await GET(`/api/data-scheme/relation/${relation.type}`);
+            if (isUnexpected(result)) return;
+            const type: ApiRelationType = await result.json();
 
-            context.commit("setAttributes", { item: Object.assign(new ApiRelation(), relation), types });
+            context.commit("setAttributes", { item: Object.assign(new ApiRelation(), relation), type });
         },
         /**
          * Update a label
          */
         async updateLabel(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
-            // TODO: Default toast for every unexpected result
             const result = await PUT(`/api/nodes/${node.nodeId}`, JSON.stringify(node));
-            if (result.status != 200) return;
+            if (isUnexpected(result)) return;
             context.commit("setAttributes", { item: Object.assign(new ApiNode(), await result.json()) });
         },
         /**
@@ -116,7 +111,7 @@ export const inspector = {
          */
         async updateRelation(context: ActionContext<InspectorState, RootState>, relation: ApiRelation): Promise<void> {
             const result = await PUT(`/api/relations/${relation.relationId}`, JSON.stringify(relation));
-            if (result.status != 200) return;
+            if (isUnexpected(result)) return;
             context.commit("setAttributes", { item: Object.assign(new ApiRelation(), await result.json()) });
         },
     },

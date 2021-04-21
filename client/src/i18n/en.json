@@ -10,5 +10,9 @@
   "searchPlaceholder": "Search...",
   "input": {
     "placeholder": "Here..."
+  },
+  "unexpected": {
+    "title": "Ooops",
+    "description": "Something went wrong..."
   }
 }
