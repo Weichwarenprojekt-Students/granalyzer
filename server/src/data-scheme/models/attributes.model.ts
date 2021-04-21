@@ -36,6 +36,9 @@ export abstract class Attribute {
     @IsDefined()
     abstract defaultValue;
 
+    /**
+     * The config of the value
+     */
     @IsOptional()
     config?;
 
