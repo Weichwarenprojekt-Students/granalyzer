@@ -28,11 +28,6 @@ export class InventoryState {
     public relations = [] as Array<ApiRelation>;
 
     /**
-     * Mouseclick relation parameters
-     */
-    public newRelation?: { sourceId: string; targetId: string };
-
-    /**
      * True, while the neighbors of the currently selected node are loading
      */
     public loading = false;
@@ -87,13 +82,6 @@ export const inventory = {
          */
         setActive(state: InventoryState, active: boolean): void {
             state.inventoryActive = active;
-        },
-
-        /**
-         * Set new relation that has been added with mouse clicks
-         */
-        newRelation(state: InventoryState, payload: { sourceId: string; targetId: string }): void {
-            state.newRelation = payload;
         },
 
         /**

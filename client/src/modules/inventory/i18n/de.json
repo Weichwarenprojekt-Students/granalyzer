@@ -27,12 +27,22 @@
     "to": "Zu",
     "type": "Typ",
     "dropdown": {
-      "placeholder": "Wähle einen Relationstypen",
-      "empty": "Keine Optionen vorhanden"
+      "type": {
+        "placeholder": "Wähle einen Relationstypen",
+        "empty": "Keine Optionen vorhanden"
+      },
+      "neighbor": {
+        "placeholder": "Wähle einen Nachbarn",
+        "empty": "Keine Optionen vorhanden"
+      }
     },
     "emptyLabel": {
       "title": "Wähle einen Relationstypen",
       "description": "Relationstyp kann nicht leer sein"
+    },
+    "emptyNode": {
+      "title": "Wähle einen Nachbarn",
+      "description": "Nachbarsfeld kann nicht leer sein"
     }
   }
 }

@@ -2,25 +2,36 @@
     <!-- Expand the base dialog -->
     <BaseDialog :show="show" @confirm="checkInput">
         <div class="mid-section">
-            <svg class="icon-add">
-                <use :xlink:href="imageSrc"></use>
-            </svg>
             <div class="selection">
                 <!-- Title -->
                 <h1>{{ $t("inventory.dialog.title") }}</h1>
 
+                <!-- TODO :: style with grid instead of flexbox -->
                 <!-- Relation-direction selection -->
                 <div class="direction">
+                    <!-- From To -->
                     <div class="flex-wrapper">
                         <div class="fromTo">
-                            <div class="text">{{ $t("inventory.dialog.from") }}</div>
-                            <div class="node">{{ switched ? toNode.name : fromNode.name }}</div>
+                            <div class="text">
+                                {{ switched ? $t("inventory.dialog.to") : $t("inventory.dialog.from") }}
+                            </div>
+                            <div class="node">{{ fromNode.name }}</div>
                         </div>
                         <div class="fromTo">
-                            <div class="text">{{ $t("inventory.dialog.to") }}</div>
-                            <div class="node">{{ switched ? fromNode.name : toNode.name }}</div>
+                            <div class="text">
+                                {{ switched ? $t("inventory.dialog.from") : $t("inventory.dialog.to") }}
+                            </div>
+                            <Dropdown
+                                class="dropdown-relation"
+                                v-model="selectedNode"
+                                :options="toNodes.map((node) => node.name).filter((node) => node !== fromNode.name)"
+                                :placeholder="$t('inventory.dialog.dropdown.neighbor.placeholder')"
+                                :emptyMessage="$t('inventory.dialog.dropdown.neighbor.empty')"
+                            />
                         </div>
                     </div>
+
+                    <!-- Switch icon -->
                     <svg class="icon-reload" @click="switchDirection">
                         <use :xlink:href="`${require('@/assets/img/icons.svg')}#reload`"></use>
                     </svg>
@@ -33,8 +44,8 @@
                         class="dropdown-relation"
                         v-model="selectedRelationType"
                         :options="possibleRelationTypes"
-                        :placeholder="$t('inventory.dialog.dropdown.placeholder')"
-                        :emptyMessage="$t('inventory.dialog.dropdown.empty')"
+                        :placeholder="$t('inventory.dialog.dropdown.type.placeholder')"
+                        :emptyMessage="$t('inventory.dialog.dropdown.type.empty')"
                     />
                 </div>
             </div>
@@ -46,6 +57,7 @@
 import { defineComponent } from "vue";
 import BaseDialog from "@/components/dialog/BaseDialog.vue";
 import { errorToast } from "@/utility";
+import ApiNode from "@/models/data-scheme/ApiNode";
 
 export default defineComponent({
     name: "DropdownDialog",
@@ -55,17 +67,17 @@ export default defineComponent({
     props: {
         // True if the dialog should be shown
         show: Boolean,
-        // The image source
-        imageSrc: String,
         // Node that the relation comes from
         fromNode: Object,
         // Node that the relation goes to
-        toNode: Object,
+        toNodes: Array,
     },
     data() {
         return {
             // Relation-dropdown selection
             selectedRelationType: null,
+            // Node-dropdown selection
+            selectedNode: null,
             // Possible relation types
             possibleRelationTypes: null,
             // True, if direction of relation was switched
@@ -74,12 +86,19 @@ export default defineComponent({
     },
     watch: {
         /**
-         * Check valid relation types when dialog is shown
+         * Reset dialog state
          */
         show(visible) {
             if (!visible) return;
             this.selectedRelationType = null;
-            this.checkPossibleRelationTypes();
+            this.selectedNode = null;
+            this.switched = false;
+        },
+        /**
+         * Check possible relation types
+         */
+        selectedNode() {
+            this.updatePossibleRelationTypes();
         },
     },
     methods: {
@@ -88,16 +107,19 @@ export default defineComponent({
          */
         switchDirection() {
             this.switched = !this.switched;
-            this.checkPossibleRelationTypes();
+            this.selectedRelationType = null;
+            this.updatePossibleRelationTypes();
         },
         /**
          * Check for valid relation types
          */
-        async checkPossibleRelationTypes(): Promise<void> {
-            if (!(this.toNode && this.fromNode)) return;
+        async updatePossibleRelationTypes(): Promise<void> {
+            if (!this.fromNode) return;
+            if (this.selectedNode == null) return;
+            const nodes = this.toNodes as Array<ApiNode>;
 
             let from = this.fromNode.label;
-            let to = this.toNode.label;
+            let to = nodes.find((node) => node.name == this.selectedNode)?.label;
             if (this.switched) [from, to] = [to, from];
 
             this.possibleRelationTypes = await this.$store.dispatch("inventory/getPossibleRelationTypes", {
@@ -109,15 +131,25 @@ export default defineComponent({
          * Check if dialog input is valid
          */
         checkInput(): void {
-            if (this.selectedRelationType)
+            if (this.selectedRelationType && this.selectedNode) {
+                const selection = (this.toNodes as Array<ApiNode>).find(
+                    (node: ApiNode) => node.name == this.selectedNode,
+                );
+
                 this.$emit("input-confirm", {
                     selectedRelationType: this.selectedRelationType,
-                    switched: this.switched,
+                    from: this.switched ? selection : this.fromNode,
+                    to: this.switched ? this.fromNode : selection,
                 });
-            else {
+            } else if (!this.selectedRelationType) {
                 errorToast(
                     this.$t("inventory.dialog.emptyLabel.title"),
                     this.$t("inventory.dialog.emptyLabel.description"),
+                );
+            } else if (!this.selectedNode) {
+                errorToast(
+                    this.$t("inventory.dialog.emptyNode.title"),
+                    this.$t("inventory.dialog.emptyNode.description"),
                 );
             }
         },
@@ -135,13 +167,6 @@ export default defineComponent({
     display: flex;
     align-items: center;
     width: 524px;
-
-    .icon-add {
-        fill: @dark;
-        height: 96px;
-        width: 96px;
-        margin-right: 32px;
-    }
 }
 
 .selection {

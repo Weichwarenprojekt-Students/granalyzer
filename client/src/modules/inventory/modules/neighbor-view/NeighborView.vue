@@ -1,5 +1,5 @@
 <template>
-    <div class="container" @mousemove="mouseMove">
+    <div class="container" @mousemove="graph.mousemove">
         <!-- Info, when empty -->
         <div v-show="!$store.state.inventory.selectedNode" class="empty-warning">
             <svg>
@@ -17,8 +17,7 @@
             @cancel="showDialog = false"
             :show="showDialog"
             :fromNode="fromNode"
-            :toNode="toNode"
-            :imageSrc="require('@/assets/img/icons.svg') + '#circle-plus'"
+            :toNodes="toNodes"
         ></DropdownDialog>
     </div>
 </template>
@@ -31,8 +30,6 @@ import { dia } from "jointjs";
 import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import DropdownDialog from "@/modules/inventory/modules/neighbor-view/components/DropdownDialog.vue";
-import { errorToast } from "@/utility";
-import { RelationUtils } from "@/modules/inventory/modules/neighbor-view/controls/RelationUtils";
 
 export default defineComponent({
     name: "NeighborView",
@@ -49,14 +46,12 @@ export default defineComponent({
             selectedNodeShape: {} as dia.Element,
             // Utility functions for the neighbor view
             graphUtils: {} as GraphUtils,
-            // Utility functions for new relations
-            relationUtils: {} as RelationUtils,
             // True if the dialog is visible
             showDialog: false,
             // Node the relation comes from
             fromNode: {} as ApiNode,
             // Node the relation goes to
-            toNode: {} as ApiNode,
+            toNodes: [] as Array<ApiNode>,
         };
     },
     watch: {
@@ -73,24 +68,11 @@ export default defineComponent({
             if (loading || !this.selectedNode) return;
             this.graphLoaded();
         },
-        /**
-         * Display relation dialog if new relation is available
-         */
-        async "$store.state.inventory.newRelation"(relation: { sourceId: string; targetId: string }) {
-            const source = await this.graphUtils.getNodeByShapeId(relation.sourceId);
-            const target = await this.graphUtils.getNodeByShapeId(relation.targetId);
-
-            if (!(source && target)) return;
-            this.fromNode = source as ApiNode;
-            this.toNode = target as ApiNode;
-            this.showDialog = true;
-        },
     },
     mounted(): void {
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
         this.graphUtils = new GraphUtils(this.graph, this.$store);
-        this.relationUtils = new RelationUtils(this.graph, this.$store);
         this.centerGraph();
         this.$store.commit("inventory/setActive", true);
 
@@ -164,37 +146,24 @@ export default defineComponent({
          * Dropping of a node into the preview
          */
         nodeDrop(): void {
-            const selectedNodeId = this.selectedNode?.nodeId;
-            const draggedNodeId = this.$store.state.inventory.draggedNode.nodeId;
+            if (!this.selectedNode) return;
 
-            if (selectedNodeId !== draggedNodeId) {
-                this.toNode = this.selectedNode as ApiNode;
-                this.fromNode = this.$store.state.inventory.draggedNode as ApiNode;
-                this.showDialog = true;
-            } else errorToast(this.$t("inventory.drop.error.title"), this.$t("inventory.drop.error.description"));
-        },
-        /**
-         * Handle mouse over graph
-         */
-        // eslint-disable-next-line
-        mouseMove(event: any): void {
-            this.graph.mousemove(event);
-            this.relationUtils.mousemove(event);
+            const toNodes = new Array<ApiNode>();
+            toNodes.push(...this.$store.state.inventory.neighbors, this.selectedNode as ApiNode);
+
+            this.fromNode = this.$store.state.inventory.draggedNode as ApiNode;
+            this.toNodes = toNodes;
+            this.showDialog = true;
         },
         /**
          * Adds a new relation after dialog confirmation
          */
-        async addNewRelation(payload: { selectedRelationType: string; switched: boolean }): Promise<void> {
+        async addNewRelation(payload: { selectedRelationType: string; from: ApiNode; to: ApiNode }): Promise<void> {
             this.showDialog = false;
-            if (!payload.selectedRelationType) return;
-
-            let from = this.fromNode.nodeId;
-            let to = this.toNode.nodeId;
-            if (payload.switched) [from, to] = [to, from];
 
             await this.$store.dispatch("inventory/addNewRelation", {
-                from: from,
-                to: to,
+                from: payload.from.nodeId,
+                to: payload.to.nodeId,
                 type: payload.selectedRelationType,
             });
 
