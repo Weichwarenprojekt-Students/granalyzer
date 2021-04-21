@@ -68,6 +68,9 @@ export class RelationUtils {
                 if (sourceId && targetId && sourceId !== targetId)
                     this.store.commit("inventory/newRelation", { sourceId, targetId });
 
+                this.mousemove(evt);
+                this.mouseMoved = false;
+
                 this.mouseLink.remove();
                 this.mouseLink = undefined;
             }
@@ -92,14 +95,16 @@ export class RelationUtils {
 
         // Create the link
         const link = new shapes.standard.Link();
+        // No target at creation, so it doesn't block the double click event
         link.source(source);
-        link.target(currentPoint);
+        link.target(currentPoint.translate(10, 10));
 
         // Hide relation before first movement
         link.attr({
             rect: { fill: "none" },
             line: { stroke: "none" },
         });
+        link.connector("rounded", { radius: 0 });
 
         // Add the relation to the graph and to the other links
         link.addTo(this.graph.graph);

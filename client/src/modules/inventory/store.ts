@@ -1,9 +1,10 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { GET, POST } from "@/utility";
+import { errorToast, GET, POST, successToast } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { RootObject } from "@/modules/inventory/modules/neighbor-view/models/RootObject";
+import i18n from "@/i18n";
 
 export class InventoryState {
     /**
@@ -210,8 +211,8 @@ export const inventory = {
         async addNewRelation(
             context: ActionContext<InventoryState, RootState>,
             payload: { from: string; to: string; type: string },
-        ): Promise<Response> {
-            return await POST(
+        ): Promise<void> {
+            const response = await POST(
                 "/api/relations",
                 JSON.stringify({
                     from: payload.from,
@@ -219,6 +220,17 @@ export const inventory = {
                     type: payload.type,
                 }),
             );
+
+            if (response.status !== 201)
+                errorToast(
+                    i18n.global.t("inventory.newRelation.error.title"),
+                    i18n.global.t("inventory.newRelation.error.description"),
+                );
+            else
+                successToast(
+                    i18n.global.t("inventory.newRelation.success.title"),
+                    i18n.global.t("inventory.newRelation.success.description"),
+                );
         },
     },
 };

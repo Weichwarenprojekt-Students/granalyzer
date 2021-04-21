@@ -161,7 +161,7 @@ export default defineComponent({
 
                 .node {
                     border-bottom: 1px solid @grey;
-                    padding: 12px 8px 8px 8px;
+                    padding: 8px;
                     margin-right: 12px;
                     width: 256px;
                     overflow: hidden;

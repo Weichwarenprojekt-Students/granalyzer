@@ -31,7 +31,7 @@ import { dia } from "jointjs";
 import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import DropdownDialog from "@/modules/inventory/modules/neighbor-view/components/DropdownDialog.vue";
-import { errorToast, successToast } from "@/utility";
+import { errorToast } from "@/utility";
 import { RelationUtils } from "@/modules/inventory/modules/neighbor-view/controls/RelationUtils";
 
 export default defineComponent({
@@ -164,7 +164,10 @@ export default defineComponent({
          * Dropping of a node into the preview
          */
         nodeDrop(): void {
-            if (this.selectedNode?.nodeId !== this.$store.state.inventory.draggedNode.nodeId) {
+            const selectedNodeId = this.selectedNode?.nodeId;
+            const draggedNodeId = this.$store.state.inventory.draggedNode.nodeId;
+
+            if (selectedNodeId !== draggedNodeId) {
                 this.toNode = this.selectedNode as ApiNode;
                 this.fromNode = this.$store.state.inventory.draggedNode as ApiNode;
                 this.showDialog = true;
@@ -189,24 +192,11 @@ export default defineComponent({
             let to = this.toNode.nodeId;
             if (payload.switched) [from, to] = [to, from];
 
-            const response = await this.$store.dispatch("inventory/addNewRelation", {
+            await this.$store.dispatch("inventory/addNewRelation", {
                 from: from,
                 to: to,
                 type: payload.selectedRelationType,
             });
-
-            if (response.status !== 201) {
-                errorToast(
-                    this.$t("inventory.newRelation.error.title"),
-                    this.$t("inventory.newRelation.error.description"),
-                );
-                return;
-            }
-
-            successToast(
-                this.$t("inventory.newRelation.success.title"),
-                this.$t("inventory.newRelation.success.description"),
-            );
 
             // TODO :: Instead of reloading the entire neighbors/relations push the latest neighbor into the store
             // TODO >> and just reload the graph
