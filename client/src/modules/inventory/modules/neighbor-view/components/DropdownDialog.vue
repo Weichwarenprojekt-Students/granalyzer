@@ -91,6 +91,13 @@ export default defineComponent({
             if (!visible) return;
             this.selectedRelationType = null;
             this.selectedNode = null;
+
+            const origin = this.$store.state.inventory.selectedNode.name;
+            if (origin !== this.fromNode?.name) {
+                this.selectedNode = origin;
+                this.updatePossibleRelationTypes();
+            }
+
             this.switched = false;
         },
         /**
