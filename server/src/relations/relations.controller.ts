@@ -1,8 +1,9 @@
 import { RelationsService } from "./relations.service";
-import { Body, Controller, Get, Param, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Put } from "@nestjs/common";
 import {
     ApiBody,
     ApiInternalServerErrorResponse,
+    ApiNotAcceptableResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -17,6 +18,14 @@ import { ValidationPipe } from "../validation-pipe";
 export class RelationsController {
     constructor(private readonly relationsService: RelationsService) {}
 
+    @Get(":id")
+    @ApiOperation({ description: "Returns a specific relation from the customer db matching by id" })
+    @ApiOkResponse({ description: "Return the relation with the given id", type: Relation })
+    @ApiInternalServerErrorResponse()
+    getRelation(@Param("id") id: string) {
+        return this.relationsService.getRelation(id);
+    }
+
     @Get()
     @ApiOperation({
         description: "Returns all the relations from the customer db",
@@ -27,18 +36,11 @@ export class RelationsController {
         return this.relationsService.getAllRelations();
     }
 
-    @Get(":id")
-    @ApiOperation({ description: "Returns a specific relation from the customer db matching by id" })
-    @ApiOkResponse({ description: "Return the relation with the given id", type: Relation })
-    @ApiInternalServerErrorResponse()
-    getRelation(@Param("id") id: string) {
-        return this.relationsService.getRelation(id);
-    }
-
     @Put(":id")
     @ApiOperation({ description: "Updates the attributes of the relation" })
-    @ApiOkResponse({ description: "Returns the updated relation" })
+    @ApiOkResponse({ description: "Returns the updated relation", type: Relation })
     @ApiNotFoundResponse({ description: "Could not find any relation for this uuid" })
+    @ApiNotAcceptableResponse({ description: "Cannot modify this relation due to violated constraints" })
     @ApiParam({
         name: "id",
         type: "string",
@@ -50,5 +52,18 @@ export class RelationsController {
     })
     modifyRelation(@Param("id") id: string, @Body(ValidationPipe) body: Relation) {
         return this.relationsService.modifyRelation(id, body);
+    }
+
+    @Delete(":id")
+    @ApiOperation({ description: "Deletes the specified relation" })
+    @ApiOkResponse({ description: "Returns the deleted relation", type: Relation })
+    @ApiNotFoundResponse({ description: "Could not find any relation for this uuid" })
+    @ApiParam({
+        name: "relationId",
+        type: "string",
+        description: "UUID of the relation",
+    })
+    deleteRelation(@Param("id") relationId: string): Promise<Relation> {
+        return this.relationsService.deleteRelation(relationId);
     }
 }

@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsObject, IsString } from "class-validator";
+import { IsObject, IsString, MinLength } from "class-validator";
 
 export default class Relation {
     @ApiProperty({
@@ -18,6 +18,7 @@ export default class Relation {
         description: "Type of the relation",
     })
     @IsString()
+    @MinLength(1)
     public type: string;
 
     @ApiProperty({
@@ -36,6 +37,7 @@ export default class Relation {
         description: "Id of the node where the relation starts",
     })
     @IsString()
+    @MinLength(1)
     public from: string;
 
     @ApiProperty({
@@ -45,6 +47,7 @@ export default class Relation {
         description: "Id of the node where the relation ends",
     })
     @IsString()
+    @MinLength(1)
     public to: string;
 
     /**

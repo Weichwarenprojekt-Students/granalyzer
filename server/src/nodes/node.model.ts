@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsObject, IsString } from "class-validator";
+import { IsObject, IsString, MinLength } from "class-validator";
 
 export default class Node {
     @ApiProperty({
@@ -18,6 +18,7 @@ export default class Node {
         description: "The name of the node",
     })
     @IsString()
+    @MinLength(1)
     public name: string;
 
     @ApiProperty({
@@ -27,6 +28,7 @@ export default class Node {
         description: "Label of the node",
     })
     @IsString()
+    @MinLength(1)
     public label: string;
 
     @ApiProperty({
