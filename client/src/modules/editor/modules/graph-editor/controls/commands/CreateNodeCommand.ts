@@ -1,84 +1,109 @@
-import { dia } from "jointjs";
-import { Node } from "../models/Node";
+import { NodeInfo } from "../models/NodeInfo";
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
-import { Relation } from "../models/Relation";
+import { RelationInfo } from "../models/RelationInfo";
+import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
+import { Relation, RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 
 export class CreateNodeCommand implements ICommand {
     /**
      * The created node
      */
-    private diagElement?: dia.Element;
+    private node?: Node;
 
     /**
      * Array of relations that are already existing, needed for a redo
      */
-    private existingRelations: Array<[Relation, dia.Link]> = new Array<[Relation, dia.Link]>();
+    private existingRelations: Array<Relation> = new Array<Relation>();
 
     /**
      * Constructor
      *
      * @param graphHandler The graph handler instance
-     * @param node The node that shall be added
+     * @param nodeInfo The node that shall be added
      * @param relations Relations to or from that node
+     * @param labelColor Color of the label of the node
      */
-    constructor(private graphHandler: GraphHandler, private node: Node, private relations: Relation[]) {}
+    constructor(
+        private graphHandler: GraphHandler,
+        private nodeInfo: NodeInfo,
+        private relations: RelationInfo[],
+        private labelColor?: string,
+    ) {}
 
     /**
      * The redo action which adds the node to the diagram
      */
     redo(): void {
         // Use existing node after first undo in order to keep the reference
-        if (!this.diagElement) this.diagElement = this.graphHandler.controls.addNode(this.node);
-        else this.graphHandler.controls.addExistingNode(this.node, this.diagElement);
+        if (this.node == null) this.node = this.graphHandler.nodes.new(this.nodeInfo, this.labelColor);
+        else this.graphHandler.nodes.addExisting(this.node);
 
         if (this.existingRelations.length === 0) {
-            this.relations.forEach((rel: Relation) => {
-                // Continue, if this.node is not part of the relation
-                if (rel.from.uuid !== this.node.ref.uuid && rel.to.uuid !== this.node.ref.uuid) return;
-
-                this.graphHandler.nodes.forEach((otherNode, id) => {
-                    // Continue if otherNode is not part of relation, or this.diagElement is undefined
-                    if (
-                        (rel.to.uuid !== otherNode.ref.uuid && rel.from.uuid !== otherNode.ref.uuid) ||
-                        this.node.ref.uuid === otherNode.ref.uuid ||
-                        !this.diagElement
-                    )
-                        return;
-
-                    // Set from and to element
-                    let from = this.diagElement;
-                    let to = this.graphHandler.getCellById(id);
-                    if (!to) return;
-
-                    // Switch them, if this.node is the end node
-                    if (rel.to.uuid === this.node.ref.uuid) {
-                        [to, from] = [from, to];
-                    }
-
-                    // Add relation to graph and get id of the relation
-                    const relId = this.graphHandler.controls.addRelation(from, to, rel.uuid, rel.type);
-
-                    // Register the created relation for a future redo
-                    let newRelationObject;
-                    if (relId !== undefined && (newRelationObject = this.graphHandler.relations.get(relId)))
-                        this.existingRelations.push([newRelationObject, this.graphHandler.getLinkById(relId)]);
-                });
-            });
+            // Existing relations are empty on first redo/execution of command
+            this.createNewRelations(this.node);
         } else {
             // If relations are already existing, but not displayed in the graph, just add them to the graph again
-            this.existingRelations.forEach(([relation, link]) => {
-                this.graphHandler.controls.addExistingRelation(link, relation);
+            this.existingRelations.forEach((relation) => {
+                this.graphHandler.relations.addExisting(relation, RelationModeType.NORMAL);
             });
         }
 
-        this.graphHandler.graph.rearrangeOverlappingRelations(this.diagElement);
+        // Rearrange any straight relations, so that they don't overlap
+        this.graphHandler.graph.rearrangeOverlappingRelations(this.node.jointElement, false);
     }
 
     /**
      * The undo action which removes the node from the diagram
      */
     undo(): void {
-        if (this.diagElement) this.graphHandler.controls.removeNode(this.diagElement);
+        if (this.node) this.graphHandler.nodes.removeExisting(this.node);
+    }
+
+    /**
+     * Create new relations when the node is first added to the diagram
+     *
+     * @param node The node object of the added node
+     * @private
+     */
+    private createNewRelations(node: Node) {
+        this.relations.forEach((rel: RelationInfo) => {
+            // Discard any relations from the node to itself
+            if (rel.from.uuid === rel.to.uuid) return;
+
+            // Array for all nodes with the uuid of the other side of the relation
+            let otherNodes: Array<Node>;
+            // True if the new node is the target node of the current relation
+            let toThisNode = false;
+
+            if (node.reference.uuid === rel.from.uuid) {
+                // Get list of target nodes
+                otherNodes = [...this.graphHandler.nodes.getByUuid(rel.to.uuid).values()];
+            } else if (node.reference.uuid === rel.to.uuid) {
+                // Get list of source nodes
+                otherNodes = [...this.graphHandler.nodes.getByUuid(rel.from.uuid).values()];
+                toThisNode = true;
+            } else return;
+
+            for (const otherNode of otherNodes) {
+                let sourceNode, targetNode;
+
+                // Assign source and target node according to the direction of the relation
+                if (toThisNode) [sourceNode, targetNode] = [otherNode, node];
+                else [sourceNode, targetNode] = [node, otherNode];
+
+                // Add new relation to graph
+                const newRelation = this.graphHandler.relations.new(
+                    sourceNode,
+                    targetNode,
+                    RelationModeType.NORMAL,
+                    rel.label,
+                    rel.uuid,
+                );
+
+                // Add new relation to existingRelations for a future redo
+                this.existingRelations.push(newRelation);
+            }
+        });
     }
 }

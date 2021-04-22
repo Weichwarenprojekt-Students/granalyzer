@@ -1,71 +1,50 @@
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
-import { Node } from "../models/Node";
 import { GraphHandler } from "../GraphHandler";
-import { dia } from "jointjs";
+import { g } from "jointjs";
+import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
 
 export class MoveNodeCommand implements ICommand {
     /**
-     * The node that was moved
+     * The initial position
      */
-    private readonly node?: Node;
+    private readonly startPos: g.Point;
 
     /**
-     * The initial x position
+     * The final position
      */
-    private readonly startXPos: number;
-
-    /**
-     * The initial y position
-     */
-    private readonly startYPos: number;
-
-    /**
-     * The final x position
-     */
-    private stopXPos = 0;
-
-    /**
-     * The final y position
-     */
-    private stopYPos = 0;
+    private stopPos?: g.Point;
 
     /**
      * Constructor
+     *
+     * @param graphHandler The graph handler instance
+     * @param node The node that was moved
      */
-    constructor(private graphHandler: GraphHandler, private diagElement: dia.Element) {
-        this.node = graphHandler.nodes.get(diagElement.id);
-        this.startXPos = diagElement.attributes.position.x;
-        this.startYPos = diagElement.attributes.position.y;
+    constructor(private graphHandler: GraphHandler, private node: Node) {
+        this.startPos = node.jointElement.position();
     }
 
     /**
      * Check if the node actually changed its position
      */
     public positionChanged(): boolean {
-        const xChanged = this.startXPos != this.diagElement.attributes.position.x;
-        const yChanged = this.startYPos != this.diagElement.attributes.position.y;
-        return xChanged || yChanged;
+        this.stopPos = this.node.jointElement.position();
+        return !this.startPos.equals(this.stopPos);
     }
 
     /**
-     * Set the stop-position of the node
-     */
-    public updateStopPosition(): void {
-        this.stopXPos = this.diagElement.attributes.position.x;
-        this.stopYPos = this.diagElement.attributes.position.y;
-    }
-
-    /**
-     * Moves the node to the new position
+     * Move the node to the new position
      */
     redo(): void {
-        if (this.node) this.diagElement.position(this.stopXPos, this.stopYPos);
+        if (this.node && this.stopPos != null) this.node.jointElement.position(this.stopPos.x, this.stopPos.y);
     }
 
     /**
-     * Moves the node to the old position
+     * Move the node to the old position
      */
     undo(): void {
-        if (this.node) this.diagElement.position(this.startXPos, this.startYPos);
+        if (this.node) {
+            this.node.jointElement.position(this.startPos.x, this.startPos.y);
+        }
     }
 }

@@ -2,29 +2,27 @@ import { ICommand } from "@/modules/editor/modules/graph-editor/controls/command
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { Relation, RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 
-export class DisableDbRelationCommand implements ICommand {
+/**
+ * Command to remove a relation
+ */
+export class RemoveRelationCommand implements ICommand {
     /**
      * Constructor
      *
      * @param graphHandler The graph handler instance
-     * @param relation The relation object
+     * @param relation The relation to remove
      */
     constructor(private graphHandler: GraphHandler, private relation: Relation) {}
 
     /**
-     * The redo action which disables a db relation
+     * The redo action which adds a relation
      */
     redo(): void {
-        if (this.graphHandler.relationMode.active) {
-            // During active relation mode, just switch the color
-            this.graphHandler.relations.switchToFaint(this.relation);
-        } else {
-            this.graphHandler.relations.removeExisting(this.relation);
-        }
+        this.graphHandler.relations.removeExisting(this.relation);
     }
 
     /**
-     * The undo action which enables a db relation
+     * The undo action which removes a relation
      */
     undo(): void {
         this.graphHandler.relations.addExisting(this.relation, RelationModeType.NORMAL);

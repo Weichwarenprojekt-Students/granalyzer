@@ -1,61 +1,42 @@
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
-import { dia } from "jointjs";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
-import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
-import { deepCopy } from "@/utility";
+import { Relation, RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 
 export class RemoveNodeCommand implements ICommand {
     /**
-     * The node that should be removed
-     */
-    private readonly node?: Node;
-
-    /**
      * The relations that affect this node
      */
-    private relations = new Array<[Relation, dia.Link]>();
+    private relations = new Array<Relation>();
 
     /**
      * Constructor
      *
      * @param graphHandler The GraphHandler instance
-     * @param diagElement The diagram element
+     * @param node The node to remove
      */
-    constructor(private graphHandler: GraphHandler, private readonly diagElement: dia.Element) {
-        // Create deep copy of the given node and exit if node is not set
-        const node = graphHandler.nodes.get(diagElement.id);
-        if (!node) return;
-        this.node = deepCopy(node);
-
-        // Create deep copy of all relations
-        this.graphHandler.relations.forEach((value, id) => {
-            if (
-                (value.from.uuid === node.ref.uuid && value.from.index === node.ref.index) ||
-                (value.to.uuid === node.ref.uuid && value.to.index === node.ref.index)
-            )
-                this.relations.push([value, this.graphHandler.getLinkById(id)]);
-        });
+    constructor(private graphHandler: GraphHandler, private readonly node: Node) {
+        // Save all incoming and outgoing relations
+        this.relations.push(...node.incomingRelations.values());
+        this.relations.push(...node.outgoingRelations.values());
     }
 
     /**
-     * The redo action
+     * The redo action which removes the node
      */
     redo(): void {
-        this.graphHandler.controls.removeNode(this.diagElement);
+        this.graphHandler.nodes.removeExisting(this.node);
     }
 
     /**
-     * The undo action
+     * The undo action which adds the node and all its relations
      */
     undo(): void {
-        // Restore the deleted diagram element from node copy
-        if (!this.node) return;
-        this.graphHandler.controls.addExistingNode(this.node, this.diagElement);
+        this.graphHandler.nodes.addExisting(this.node);
 
         // Restore the deleted relations from the relations copy
-        this.relations.forEach(([relation, link]) => {
-            this.graphHandler.controls.addExistingRelation(link, relation);
+        this.relations.forEach((relation) => {
+            this.graphHandler.relations.addExisting(relation, RelationModeType.NORMAL);
         });
     }
 }

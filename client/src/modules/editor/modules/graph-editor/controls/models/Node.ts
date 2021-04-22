@@ -1,35 +1,88 @@
 import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/models/NodeReference";
+import { JointID } from "@/shared/JointGraph";
+import { deepCopy, getBrightness } from "@/utility";
+import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/models/NodeInfo";
+import { dia } from "jointjs";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 
 /**
  * The data for a single node
  */
-export interface Node {
+export class Node {
     /**
-     * The x position
+     * The corresponding node info
      */
-    x: number;
+    public readonly nodeInfo: NodeInfo;
+
     /**
-     * The y position
+     * The joint element
      */
-    y: number;
+    public readonly jointElement: dia.Element;
+
     /**
-     * The node reference
+     * All incoming relations, managed by the corresponding relation objects themselves
      */
-    ref: NodeReference;
+    public readonly incomingRelations = new Map<JointID, Relation>();
+
     /**
-     * The label of the node
+     * All outgoing relations, managed by the corresponding relation objects themselves
      */
-    label: string;
+    public readonly outgoingRelations = new Map<JointID, Relation>();
+
     /**
-     * The name of the node
+     * Constructor
+     *
+     * @param nodeInfo NodeInfo object
+     * @param jointElement A joint element
      */
-    name: string;
+    constructor(nodeInfo: NodeInfo, jointElement: dia.Element) {
+        this.nodeInfo = nodeInfo;
+        this.jointElement = jointElement;
+    }
+
     /**
-     * The type
+     * The reference of the node containing uuid and index
      */
-    shape: string;
+    public get reference(): NodeReference {
+        return deepCopy(this.nodeInfo.ref);
+    }
+
     /**
-     * The color value
+     * The joint js uuid
      */
-    color: string;
+    public get jointId(): JointID {
+        return this.jointElement.id;
+    }
+
+    /**
+     * Get the node style for a new node
+     *
+     * @param nodeName Display name of the node
+     * @param nodeColor Color of the node
+     * @return Selectors for styling a joint js element
+     */
+    public static nodeStyle(nodeName: string, nodeColor: string): dia.Cell.Selectors {
+        return {
+            label: {
+                text: nodeName,
+                textAnchor: "middle",
+                textVerticalAnchor: "middle",
+                // Set text color to dark or white, according to the color brightness
+                fill: getBrightness(nodeColor) > 170 ? "#333" : "#FFF",
+            },
+            body: {
+                ref: "label",
+                fill: nodeColor,
+                strokeWidth: 0,
+                rx: 4,
+                ry: 4,
+                refWidth: 32,
+                refHeight: 16,
+                // Half of refWidth and refHeight
+                refX: -16,
+                refY: -8,
+                class: "node",
+            },
+        };
+    }
 }

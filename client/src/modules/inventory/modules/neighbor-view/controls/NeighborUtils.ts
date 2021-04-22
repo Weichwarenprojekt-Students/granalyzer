@@ -1,5 +1,5 @@
 import { dia, shapes } from "jointjs";
-import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
+import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/models/NodeInfo";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { Store } from "vuex";
 import { RootState } from "@/store";
@@ -72,7 +72,7 @@ export class NeighborUtils {
     public addNodeToDiagram(apiNode: ApiNode): dia.Element {
         this.calculateNewPosition();
 
-        const node: Node = {
+        const node: NodeInfo = {
             x: this.currentX,
             y: this.currentY,
             shape: "rectangle",
@@ -143,7 +143,6 @@ export class NeighborUtils {
         link.attr({
             line: { strokeWidth: 4 },
         });
-        link.connector("rounded", { radius: 20 });
 
         if (relation.type)
             link.appendLabel({

@@ -5,6 +5,11 @@ class PaperOptions implements dia.Paper.Options {
 }
 
 /**
+ * Type alias for better expressing joint js UUIDs
+ */
+export type JointID = string | number;
+
+/**
  * This class wraps some key functionality for the
  * joint graph so that it can be reused easily
  */
@@ -45,6 +50,7 @@ export class JointGraph {
                 if (cellView.model.get("disableInteraction")) return false;
                 return { labelMove: false, linkMove: false };
             },
+            defaultConnector: { name: "rounded", args: { radius: 10 } },
         };
         this.paper = new dia.Paper(config);
         this.paper.translate(500, 200);

@@ -1,43 +1,25 @@
-import { dia } from "jointjs";
-import { Relation } from "./models/Relation";
-import { Node } from "./models/Node";
+import { RelationInfo } from "./models/RelationInfo";
+import { NodeInfo } from "./models/NodeInfo";
 import { SerializableGraph } from "@/modules/editor/modules/graph-editor/controls/models/SerializableGraph";
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { JointGraph } from "@/shared/JointGraph";
 import { Store } from "vuex";
 import { RootState } from "@/store";
 import { GraphControls } from "@/modules/editor/modules/graph-editor/controls/GraphControls";
-import { RelationModeControls } from "@/modules/editor/modules/graph-editor/controls/RelationModeControls";
+import { RelationModeControls } from "@/modules/editor/modules/graph-editor/controls/relation-mode/RelationModeControls";
+import NodesController from "@/modules/editor/modules/graph-editor/controls/NodesController";
+import RelationsController from "@/modules/editor/modules/graph-editor/controls/RelationsController";
+import { Relation, RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 
 export class GraphHandler {
     /**
-     * Color for normal relations
-     */
-    public readonly NORMAL_RELATION_COLOR = "#333";
-    /**
-     * Color for visual relations
-     */
-    public readonly VISUAL_RELATION_COLOR = "#b33";
-    /**
-     * Color for faint DB relations
-     */
-    public readonly FAINT_RELATION_COLOR = "#bbb";
-    /**
      * The nodes/elements of the diagram
      */
-    public nodes = new Map<string | number, Node>();
+    public nodes = new NodesController(this);
     /**
      * The relations between the nodes of the diagram
      */
-    public relations = new Map<string | number, Relation>();
-    /**
-     * Relations from the DB that are not "in" the diagram, but are shown in relation edit mode
-     */
-    public faintRelations = new Map<string | number, Relation>();
-    /**
-     * Relations that have no counterpart in the DB are moved here during relation mode and displayed in a different color
-     */
-    visualRelations = new Map<string | number, Relation>();
+    public relations: RelationsController;
     /**
      * The extended controls for the graph
      */
@@ -65,10 +47,15 @@ export class GraphHandler {
      * @param store The vuex store
      * @param graph The joint graph object
      */
-    constructor(store: Store<RootState>, graph: JointGraph) {
+    constructor(private store: Store<RootState>, graph: JointGraph) {
         this.graph = graph;
+
+        this.relations = new RelationsController(this, store);
+
         this.controls = new GraphControls(this, store);
         this.relationMode = new RelationModeControls(this, store);
+
+        this.registerPaperEvents();
     }
 
     /**
@@ -80,25 +67,36 @@ export class GraphHandler {
         if (!jsonString || jsonString === "{}") return;
 
         const data: SerializableGraph = JSON.parse(jsonString);
-        const nodes: Array<Node> = data.nodes;
-        const relations: Array<Relation> = data.relations;
+        const nodes: Array<NodeInfo> = data.nodes;
+        const relations: Array<RelationInfo> = data.relations;
 
-        // Create the nodes
-        const mappedNodes = new Map<string, dia.Element>();
         nodes.forEach((node) => {
-            const newNode = this.controls.addNode(node);
-            const ref = this.nodes.get(newNode.id);
-            if (ref) mappedNodes.set(`${ref.ref.uuid}-${ref.ref.index}`, newNode);
+            // Get color for the label of the node for updating the diagram if the color changed
+            const labelColor = this.store.state.overview?.labelColor.get(node.label)?.color;
+
+            // Create new node
+            this.nodes.new(node, labelColor);
         });
 
         // Create the relations
         relations.forEach((relation) => {
-            const source = mappedNodes.get(`${relation.from.uuid}-${relation.from.index}`);
-            const target = mappedNodes.get(`${relation.to.uuid}-${relation.to.index}`);
+            // Get source and target nodes of the relation
+            const source = this.nodes.getByReference(relation.from.uuid, relation.from.index);
+            const target = this.nodes.getByReference(relation.to.uuid, relation.to.index);
+
             if (source && target) {
-                const newRelId = this.controls.addRelation(source, target, relation.uuid, relation.type);
-                if (newRelId && relation.vertices !== undefined)
-                    this.getLinkById(newRelId)?.vertices(relation.vertices);
+                // If both source and target exist, create new relation
+                const newRel = this.relations.new(
+                    source,
+                    target,
+                    RelationModeType.NORMAL,
+                    relation.label,
+                    relation.uuid,
+                );
+
+                // And set vertices of the new relation, if they were saved
+                // TODO: Restore anchors
+                if (relation.vertices != null) newRel.vertices = relation.vertices;
             }
         });
     }
@@ -108,56 +106,32 @@ export class GraphHandler {
      */
     public toJSON(): string {
         // Prepare the serialization object for each node
-        const nodes: Array<Node> = Array.from(this.nodes, ([id, node]) => {
-            const diagEl = this.getCellById(id);
+        const nodes: Array<NodeInfo> = Array.from(this.nodes, (node) => {
+            // Get current position of the element
+            const { x, y } = node.jointElement.position();
+
             return {
-                label: node.label,
-                ref: {
-                    index: node.ref.index,
-                    uuid: node.ref.uuid,
-                },
-                name: node.name,
-                color: node.color,
-                shape: node.shape,
-                x: diagEl.attributes.position.x,
-                y: diagEl.attributes.position.y,
-            };
+                ...node.nodeInfo,
+                // TODO: Check if deepCopy might be necessary
+                // ref: deepCopy(node.reference),
+                x,
+                y,
+            } as NodeInfo;
         });
 
-        // Define lambda for mapping relations
-        const relationMapFn = (param: [number | string, Relation]) => {
-            const [id, relation] = param;
-            return {
-                ...relation,
-                vertices: this.getLinkById(id)?.vertices(),
-            };
-        };
-
         // Map normal and visual relations to an array
-        const relations: Relation[] = Array.from(this.relations, relationMapFn);
-        relations.push(...Array.from(this.visualRelations, relationMapFn));
+        const relations: RelationInfo[] = Array.from(this.relations.savableRelations(), (relation: Relation) => {
+            return {
+                ...relation.relationInfo,
+                vertices: relation.vertices,
+            } as RelationInfo;
+        });
 
         // Compose the serializable graph and return the JSON string
         return JSON.stringify({
             nodes,
             relations,
-        });
-    }
-
-    /**
-     * Get cell from the graph by id
-     * @param id uuid of the cell
-     */
-    public getCellById(id: string | number): dia.Element {
-        return this.graph.graph.getCell(id) as dia.Element;
-    }
-
-    /**
-     * Get link from graph by id
-     * @param id The id of the link
-     */
-    public getLinkById(id: string | number): dia.Link {
-        return this.graph.graph.getCell(id) as dia.Link;
+        } as SerializableGraph);
     }
 
     /**
@@ -208,5 +182,54 @@ export class GraphHandler {
             command.redo();
             this.undoStack.push(command);
         }
+    }
+
+    /**
+     * Register callbacks to joint js events
+     * @private
+     */
+    private registerPaperEvents(): void {
+        this.graph.paper.on({
+            // Reset selection when clicking on a blank paper space
+            "blank:pointerclick": () => {
+                this.controls.resetSelection();
+            },
+            // Select node and begin registering a node movement
+            "element:pointerdown": async (elementView) => {
+                this.controls.startNodeMovement(elementView);
+                await this.controls.selectNode(elementView);
+            },
+            // Stop registering node movement
+            "element:pointerup": async () => {
+                await this.controls.stopNodeMovement();
+            },
+            // Pass element click to relation mode for handling the drawing of visual relations
+            "element:pointerclick": async (elementView, evt, x, y) => {
+                await this.relationMode.elementClick(elementView, evt, x, y);
+            },
+            // Select relation or switch it, depending on the state of the relation mode
+            "link:pointerdown": async (linkView) => {
+                await this.controls.selectRelation(linkView);
+
+                await this.relationMode.switchRelation(linkView);
+            },
+            // Register BendRelationCommand and display link tools
+            "link:mouseenter": (linkView) => {
+                // Start dragging a vertex
+                this.controls.startBendingRelation(linkView);
+
+                this.controls.showLinkTools(linkView);
+            },
+            // Stop registering bending of relations and hide link tools
+            "link:mouseleave": async (linkView) => {
+                await this.controls.stopBendingRelation();
+
+                this.controls.hideLinkTools(linkView);
+            },
+            // Register changes of relation connections
+            "link:connect": async (linkView) => {
+                await this.relationMode.connectRelation(linkView);
+            },
+        });
     }
 }
