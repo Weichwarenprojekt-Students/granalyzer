@@ -205,27 +205,15 @@ export const graphEditor = {
             const relatedNodeUtils = new RelatedNodesUtils();
 
             if (context.state.selectedElement) {
-                //TODO: coordinates do not change when changing in editor..
 
-                const selectedElement = context.state.graphHandler?.nodes.get(context.state.selectedElement.id);
-
-                let selectedX = selectedElement?.x;
-                let selectedY = selectedElement?.y;
-
-                // Prevent undefined error
-                if (selectedX === undefined || selectedY === undefined) {
-                    selectedX = 0;
-                    selectedY = 0;
-                }
-
-                const res = await GET("/api/nodes/" + selectedElement?.ref.uuid + "/related");
+                const res = await GET("/api/nodes/" + context.state.graphHandler?.nodes.get(context.state.selectedElement.id)?.ref.uuid + "/related");
                 const apiNodes: ApiNode[] = await res.json();
 
                 // Add all nodes to diagram
                 for (let i = 0; i < apiNodes.length; i++) {
                     const node: Node = {
-                        x: selectedX + relatedNodeUtils.randomRange(150, 500),
-                        y: selectedY + relatedNodeUtils.randomRange(150, 500),
+                        x: context.state.selectedElement.position().x + relatedNodeUtils.randomRange(150, 500),
+                        y: context.state.selectedElement.position().y + relatedNodeUtils.randomRange(150, 500),
                         ref: {
                             uuid: apiNodes[i].nodeId,
                             index: 0,
