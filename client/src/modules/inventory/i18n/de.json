@@ -44,5 +44,6 @@
       "title": "Wähle einen Nachbarn",
       "description": "Nachbarsfeld kann nicht leer sein"
     }
-  }
+  },
+  "createDiagram": "Diagram anlegen"
 }

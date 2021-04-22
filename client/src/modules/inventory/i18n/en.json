@@ -44,5 +44,6 @@
       "title": "Choose a neighbor",
       "description": "Neighbor cannot be empty"
     }
-  }
+  },
+  "createDiagram": "Create Diagram"
 }

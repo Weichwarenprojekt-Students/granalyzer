@@ -8,6 +8,7 @@ import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/model
 import { getBrightness } from "@/utility";
 import Cell = dia.Cell;
 import { JointGraph } from "@/shared/JointGraph";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 
 /**
  * Provides key functionality for placing nodes and relations
@@ -258,6 +259,62 @@ export class GraphUtils {
             this.store.commit("inventory/setSelectedNode", node);
             this.store.commit("inventory/reset");
             await this.store.dispatch("inventory/loadRelations", node);
+        });
+    }
+
+    /**
+     *  Returns the diagram as JSON string
+     */
+    public serializeToDiagram(): string {
+        if (!this.store?.state?.inventory) return "";
+
+        // Prepare the serialization object for each node
+        const nodes: Array<Node> = Array.from(
+            [this.store.state.inventory.selectedNode as ApiNode, ...this.store.state.inventory.neighbors],
+            (node) => {
+                const diagEl = this.getShapeById(node.nodeId);
+                return {
+                    label: node.label,
+                    ref: {
+                        index: 0,
+                        uuid: node.nodeId,
+                    },
+                    name: node.name,
+                    color: node.color,
+                    shape: "rectangle",
+                    x: diagEl?.attributes.position.x,
+                    y: diagEl?.attributes.position.y,
+                };
+            },
+        );
+
+        // Define lambda for mapping relations
+        const relationMapFn = (link: dia.Link) => {
+            const relation = this.store.state.inventory?.relations.filter(
+                (rel) => this.mappedRelations.get(rel.relationId) === link.id,
+            )[0] as ApiRelation;
+            return {
+                uuid: relation.relationId,
+                from: {
+                    uuid: relation.from,
+                    index: 0,
+                },
+                to: {
+                    uuid: relation.to,
+                    index: 0,
+                },
+                type: relation.type,
+                vertices: link.vertices(),
+            } as Relation;
+        };
+
+        // Map normal and visual relations to an array
+        const relations: Relation[] = Array.from(this.graph.graph.getLinks(), relationMapFn);
+
+        // Compose the serializable graph and return the JSON string
+        return JSON.stringify({
+            nodes,
+            relations,
         });
     }
 }

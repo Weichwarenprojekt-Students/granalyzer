@@ -5,6 +5,7 @@ import { errorToast, GET, POST, successToast } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { RootObject } from "@/modules/inventory/modules/neighbor-view/models/RootObject";
 import i18n from "@/i18n";
+import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
 
 export class InventoryState {
     /**
@@ -23,7 +24,7 @@ export class InventoryState {
     public neighbors = [] as Array<ApiNode>;
 
     /**
-     * Relations for the currently displayed graph
+     * Relations for the currently displayed graph FIXME: Dont rely on this array, contains duplicates
      */
     public relations = [] as Array<ApiRelation>;
 
@@ -31,6 +32,11 @@ export class InventoryState {
      * True, while the neighbors of the currently selected node are loading
      */
     public loading = false;
+
+    /**
+     * Utility functions for the neighbor view
+     */
+    public graphUtils = {} as GraphUtils;
 }
 
 export const inventory = {
@@ -70,6 +76,13 @@ export const inventory = {
          */
         setLoading(state: InventoryState, loading: boolean): void {
             state.loading = loading;
+        },
+
+        /**
+         * Set the neighbor utils
+         */
+        setGraphUtils(state: InventoryState, graphUtils: GraphUtils): void {
+            state.graphUtils = graphUtils;
         },
 
         /**

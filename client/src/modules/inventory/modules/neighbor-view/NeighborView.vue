@@ -72,6 +72,8 @@ export default defineComponent({
         this.graphUtils = new GraphUtils(this.graph, this.$store);
         this.graphUtils.centerGraph();
 
+        this.$store.commit("inventory/setGraphUtils", this.graphUtils);
+
         window.addEventListener("resize", () => this.graphUtils.centerGraph());
     },
     unmounted(): void {
