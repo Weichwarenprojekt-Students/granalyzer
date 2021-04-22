@@ -1,5 +1,6 @@
 import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/models/NodeReference";
 import { dia } from "jointjs";
+import Anchors from "@/modules/editor/modules/graph-editor/controls/models/Anchors";
 
 /**
  * The data for a single relation
@@ -25,4 +26,8 @@ export interface RelationInfo {
      * Vertices of the relation
      */
     vertices?: dia.Link.Vertex[];
+    /**
+     * Anchors of the relation
+     */
+    anchors?: Anchors;
 }

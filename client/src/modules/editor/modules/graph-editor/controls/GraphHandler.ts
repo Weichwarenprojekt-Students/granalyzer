@@ -96,8 +96,8 @@ export class GraphHandler {
                 );
 
                 // And set vertices of the new relation, if they were saved
-                // TODO: Restore anchors
                 if (relation.vertices != null) newRel.vertices = relation.vertices;
+                if (relation.anchors != null) newRel.anchors = relation.anchors;
             }
         });
     }
@@ -123,6 +123,7 @@ export class GraphHandler {
             return {
                 ...relation.relationInfo,
                 vertices: relation.vertices,
+                anchors: relation.anchors,
             } as RelationInfo;
         });
 

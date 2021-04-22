@@ -2,6 +2,7 @@ import { ICommand } from "@/modules/editor/modules/graph-editor/controls/command
 import { GraphHandler } from "../GraphHandler";
 import { dia } from "jointjs";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import Anchors from "@/modules/editor/modules/graph-editor/controls/models/Anchors";
 
 export class BendRelationCommand implements ICommand {
     /**
@@ -15,6 +16,18 @@ export class BendRelationCommand implements ICommand {
     private newVertices?: dia.Link.Vertex[];
 
     /**
+     * Original anchors of the link
+     * @private
+     */
+    private readonly originalAnchors: Anchors;
+
+    /**
+     * The new anchors of the link
+     * @private
+     */
+    private newAnchors?: Anchors;
+
+    /**
      * Constructor
      *
      * @param graphHandler The current graph handler
@@ -22,14 +35,16 @@ export class BendRelationCommand implements ICommand {
      */
     constructor(private graphHandler: GraphHandler, private relation: Relation) {
         this.originalVertices = relation.vertices;
+        this.originalAnchors = relation.anchors;
     }
 
     /**
      * Check if the vertices of the link have changed
      */
     public verticesHaveChanged(): boolean {
-        // Get current vertices of the link
+        // Get current vertices and anchors of the link
         this.newVertices = this.relation.vertices;
+        this.newAnchors = this.relation.anchors;
 
         // Use sets to filter out possible duplicate points
         const newVertexSet = new Set(this.newVertices.map((vert) => `${vert.x}@${vert.y}`));
@@ -44,16 +59,18 @@ export class BendRelationCommand implements ICommand {
     }
 
     /**
-     * Set the new vertices for the node
+     * Set the new vertices and anchors for the node
      */
     redo(): void {
         if (this.newVertices) this.relation.vertices = this.newVertices;
+        if (this.newAnchors) this.relation.anchors = this.newAnchors;
     }
 
     /**
-     * Reset the vertices of the node
+     * Reset the vertices and anchors of the node
      */
     undo(): void {
         this.relation.vertices = this.originalVertices;
+        this.relation.anchors = this.originalAnchors;
     }
 }

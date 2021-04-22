@@ -3,6 +3,7 @@ import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/mod
 import { JointID } from "@/shared/JointGraph";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
+import Anchors from "@/modules/editor/modules/graph-editor/controls/models/Anchors";
 
 /**
  * The data for a single relation
@@ -182,6 +183,26 @@ export class Relation {
         // Update relation info as well
         this.relationInfo.vertices = vertices;
         this.jointLink.vertices(vertices);
+    }
+
+    /**
+     * Anchors of the joint link
+     */
+    public get anchors(): Anchors {
+        return { sourceAnchor: this.jointLink.source().anchor, targetAnchor: this.jointLink.target().anchor };
+    }
+
+    /**
+     * Set anchors of the joint link
+     *
+     * @param anchors The new anchors of the link
+     */
+    public set anchors(anchors: Anchors) {
+        const { sourceAnchor, targetAnchor } = anchors;
+
+        // Set new anchors, if any are undefined, just set the center anchor
+        this.jointLink.source({ ...this.jointLink.source(), anchor: sourceAnchor ?? { name: "center" } });
+        this.jointLink.target({ ...this.jointLink.target(), anchor: targetAnchor ?? { name: "center" } });
     }
 
     /**
