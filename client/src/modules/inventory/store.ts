@@ -24,7 +24,7 @@ export class InventoryState {
     public neighbors = [] as Array<ApiNode>;
 
     /**
-     * Relations for the currently displayed graph FIXME: Dont rely on this array, contains duplicates
+     * All relations of the nodes in the currently displayed graph
      */
     public relations = [] as Array<ApiRelation>;
 
