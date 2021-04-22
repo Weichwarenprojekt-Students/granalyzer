@@ -4,7 +4,7 @@
     "undo": "Rückgängig (Strg + Z)",
     "redo": "Wiederholen (Strg + Y)",
     "delete": "Löschen",
-    "relation": "Beziehungen editieren",
+    "relation": "Beziehungen editieren (R)",
     "active": "Aktiv"
   },
   "inspector": {
