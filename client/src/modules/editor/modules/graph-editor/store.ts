@@ -14,6 +14,7 @@ import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/c
 import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/DisableDbRelationCommand";
 import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/BendRelationCommand";
 import ApiNode from "@/models/data-scheme/ApiNode";
+import { RelatedNodesUtils } from "./controls/RelatedNodesUtils";
 
 export class GraphEditorState {
     /**
@@ -196,53 +197,51 @@ export const graphEditor = {
 
             await context.dispatch("saveChange");
         },
+
         /**
          * Add related nodes
          */
         async addRelatedNodes(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
-            context.commit("setEditorLoading", true);
+            const relatedNodeUtils = new RelatedNodesUtils();
 
             if (context.state.selectedElement) {
+                //TODO: coordinates do not change when changing in editor..
+                //TODO: only add related nodes that are not already in diagram???
 
-                console.log("uuid: " + context.state.graphHandler?.nodes.get(context.state.selectedElement.id)?.ref.uuid);
+                const selectedElement = context.state.graphHandler?.nodes.get(context.state.selectedElement.id);
 
-                const res = await GET("/api/nodes/" + context.state.graphHandler?.nodes.get(context.state.selectedElement.id)?.ref.uuid + "/related");
+                let selectedX = selectedElement?.x;
+                let selectedY = selectedElement?.y;
+
+                // Prevent undefined error
+                if (selectedX === undefined || selectedY === undefined) {
+                    selectedX = 0;
+                    selectedY = 0;
+                }
+
+                const res = await GET("/api/nodes/" + selectedElement?.ref.uuid + "/related");
                 const apiNodes: ApiNode[] = await res.json();
 
-                const nodes: Node[] = [];
-
                 // Add all nodes to diagram
-                apiNodes.forEach(function(apiNode) {
-
+                for (let i = 0; i < apiNodes.length; i++) {
                     const node: Node = {
-                        x: 0, //TODO: dont "spawn" everything in the same place
-                        y: 0,
+                        x: selectedX + relatedNodeUtils.randomRange(150, 500),
+                        y: selectedY + relatedNodeUtils.randomRange(150, 500),
                         ref: {
-                            uuid: apiNode.nodeId,
+                            uuid: apiNodes[i].nodeId,
                             index: 0,
                         },
-                        label: apiNode.label,
-                        name: apiNode.name,
+                        label: apiNodes[i].label,
+                        name: apiNodes[i].name,
                         shape: "rectangle",
                         color: "#eeeeee",
                     };
 
-                    context.dispatch("addNode", node);
-                });
-
-                //context.dispatch("addNode", nodes);
+                    await context.dispatch("addNode", node);
+                }
             }
-
-
-
-
-
-
-
-            // finish editing
-            context.commit("setEditorLoading", false);
-            await context.dispatch("saveChange");
         },
+
         /**
          * Remove a node
          */
