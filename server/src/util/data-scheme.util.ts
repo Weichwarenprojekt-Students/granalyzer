@@ -8,6 +8,7 @@ import { LabelScheme } from "../data-scheme/models/label-scheme.model";
 import { Connection } from "../data-scheme/models/connection.model";
 import { DatabaseUtil } from "./database.util";
 import { Datatype } from "../data-scheme/models/data-type.model";
+import * as neo4j from "neo4j-driver";
 
 @Injectable()
 export class DataSchemeUtil {
@@ -138,6 +139,59 @@ export class DataSchemeUtil {
     }
 
     /**
+     * Transform attributes of nodes or relations according to the scheme
+     *
+     * @param scheme Scheme data
+     * @param originalAttributes The original attributes of the node or relation
+     */
+    private transformAttributes(scheme: LabelScheme | RelationType, originalAttributes) {
+        const attributes = {};
+        scheme.attributes.forEach((attribute) => {
+            attributes[attribute.name] = this.applyOnElement(attribute, originalAttributes[attribute.name]);
+        });
+        return attributes;
+    }
+
+    /**
+     * Converts an element according to a given label or relation scheme
+     *
+     * @param attribute The attribute scheme
+     * @param element The attribute to be converted
+     */
+    private applyOnElement(attribute: Attribute, element: any) {
+        if (!element && !attribute.mandatory) return undefined;
+        else if (!element && attribute.mandatory) {
+            if (attribute.datatype == Datatype.NUMBER) return Number(attribute["defaultValue"]);
+            else return attribute["defaultValue"];
+        } else {
+            switch (attribute.datatype) {
+                case Datatype.NUMBER:
+                    // Try casting to number if element is neo4j long which cannot be displayed in JS
+                    if (element && element.low !== undefined && element.high !== undefined)
+                        element = neo4j.integer.toNumber(element);
+                    // Check if element can be parsed to a number, set it to undefined if not
+                    else {
+                        const parsed = parseFloat(element);
+                        if (isNaN(parsed)) {
+                            element = attribute.mandatory ? Number(attribute.defaultValue) : undefined;
+                        } else element = parsed;
+                    }
+                    break;
+                case Datatype.COLOR:
+                    if (!this.isColor(element)) element = attribute.mandatory ? attribute.defaultValue : undefined;
+                    break;
+                case Datatype.STRING:
+                    // Try to cast neo4j-long into string
+                    if (element && element.low !== undefined && element.high !== undefined)
+                        element = neo4j.integer.toString(element);
+                    else if (typeof element != "string")
+                        element = attribute.mandatory ? attribute.defaultValue : undefined;
+            }
+            return element;
+        }
+    }
+
+    /**
      * Fetch the label with specific name
      */
     async getLabelScheme(name: string): Promise<LabelScheme> {
@@ -227,28 +281,6 @@ export class DataSchemeUtil {
         const testSixDigits = /^#[0-9A-F]{6}$/i.test(color);
         const testThreeDigits = /^#[0-9A-F]{3}$/i.test(color);
         return testSixDigits || testThreeDigits;
-    }
-
-    /**
-     * Transform attributes of nodes or relations according to the scheme
-     *
-     * @param scheme Scheme data
-     * @param originalAttributes The original attributes of the node or relation
-     */
-    private transformAttributes(scheme: LabelScheme | RelationType, originalAttributes) {
-        const attributes = {};
-
-        // Apply the different schemes for each attribute defined by the label or relation scheme
-        scheme.attributes.forEach((attribute) => {
-            let nodeAttribute = originalAttributes[attribute.name];
-
-            // Check for mandatory attributes and use default value from the corresponding scheme
-            if (attribute.mandatory && !nodeAttribute) nodeAttribute = attribute["defaultValue"];
-
-            // Add parsed and validated attribute to node
-            attributes[attribute.name] = Attribute.applyOnElement(attribute, nodeAttribute);
-        });
-        return attributes;
     }
 
     /**
