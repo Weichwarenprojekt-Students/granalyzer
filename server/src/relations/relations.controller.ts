@@ -1,5 +1,5 @@
 import { RelationsService } from "./relations.service";
-import { Body, Controller, Delete, Get, Param, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
 import {
     ApiBody,
     ApiInternalServerErrorResponse,
@@ -34,6 +34,18 @@ export class RelationsController {
     @ApiInternalServerErrorResponse()
     getAllRelations() {
         return this.relationsService.getAllRelations();
+    }
+
+    @Post()
+    @ApiBody({
+        type: Relation,
+        description: "The relation to be created",
+    })
+    @ApiOperation({ description: "Creates a relation between two nodes" })
+    @ApiOkResponse({ description: "Returns the created relation", type: Relation })
+    @ApiNotAcceptableResponse({ description: "Cannot create this relation due to violated constraints" })
+    createRelation(@Body(ValidationPipe) body: Relation): Promise<Relation> {
+        return this.relationsService.createRelation(body);
     }
 
     @Put(":id")

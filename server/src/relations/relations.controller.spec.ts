@@ -161,6 +161,12 @@ describe("RelationsController", () => {
     });
 
     describe("getRelation", () => {
+        it("should throw an exception because the uuid is not existent", async () => {
+            await expect(relationsController.getRelation("251608de-a05e-4690-a088-8f603c07768")).rejects.toThrowError(
+                NotFoundException,
+            );
+        });
+
         it("should return the correct relation", async () => {
             expect(await relationsController.getRelation(validRelation.relationId)).toEqual(validRelation);
         });
