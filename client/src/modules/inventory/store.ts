@@ -80,10 +80,20 @@ export const inventory = {
     },
     actions: {
         /**
-         * Loads the relations of a given node
+         * Load the neighbor data for a given node
          */
-        async loadRelations(context: ActionContext<InventoryState, RootState>, node: ApiNode): Promise<void> {
+        async loadNeighbors(context: ActionContext<InventoryState, RootState>, node: ApiNode): Promise<void> {
             context.commit("setLoading", true);
+
+            // Ensure that a node is loaded and that it is up to date
+            node = node ?? context.state.selectedNode;
+            const nodeRes = await GET(`api/nodes/${node ? node.nodeId : ""}`);
+            node = nodeRes.status === 200 ? await nodeRes.json() : undefined;
+            context.commit("setSelectedNode", node);
+            if (!node) {
+                context.commit("setLoading", false);
+                return;
+            }
 
             // Get relations of the node
             const res = await GET(`/api/nodes/${node.nodeId}/relations`);

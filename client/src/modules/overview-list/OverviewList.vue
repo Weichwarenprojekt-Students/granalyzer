@@ -20,7 +20,7 @@
         <!-- Search bar + Filter -->
         <OverviewFilter
             v-show="showLabelFilter"
-            v-model="filter.selectedLabels"
+            v-model="filter.labelFilter"
             :labels="$store.state.overview.labels"
             :labelColors="$store.state.overview.labelColor"
         />
@@ -56,6 +56,7 @@ import OverviewItem from "@/modules/overview-list/components/OverviewItem.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import Searchbar from "@/components/Searchbar.vue";
 import OverviewFilter from "@/modules/overview-list/components/OverviewFilter.vue";
+import { NodeFilter } from "@/modules/overview-list/models/NodeFilter.ts";
 
 export default defineComponent({
     name: "OverviewList",
@@ -79,10 +80,7 @@ export default defineComponent({
             // True if filter is shown
             showLabelFilter: false,
             // The filter
-            filter: {
-                nameFilter: "",
-                selectedLabels: new Array<string>(),
-            },
+            filter: new NodeFilter(),
         };
     },
     watch: {
@@ -95,7 +93,7 @@ export default defineComponent({
         /**
          * Watch for label filter changes
          */
-        "filter.selectedLabels"() {
+        "filter.labelFilter"() {
             this.updateOverview();
         },
     },

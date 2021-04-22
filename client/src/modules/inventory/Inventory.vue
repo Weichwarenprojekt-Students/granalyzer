@@ -42,8 +42,7 @@ export default defineComponent({
             this.$store.dispatch("inspector/selectNode", node.nodeId);
             if (this.$store.state.inventory.selectedNode?.nodeId === node.nodeId || this.$store.state.inventory.loading)
                 return;
-            this.$store.commit("inventory/setSelectedNode", node);
-            this.$store.dispatch("inventory/loadRelations", node);
+            this.$store.dispatch("inventory/loadNeighbors", node);
         },
     },
 });

@@ -132,6 +132,7 @@ export const inspector = {
             const result = await PUT(`/api/nodes/${node.nodeId}`, JSON.stringify(node));
             if (isUnexpected(result)) return;
             context.commit("setAttributes", { item: Object.assign(new ApiNode(), await result.json()) });
+            await context.dispatch("updateInspector");
         },
         /**
          * Update a relation
@@ -140,6 +141,7 @@ export const inspector = {
             const result = await PUT(`/api/relations/${relation.relationId}`, JSON.stringify(relation));
             if (isUnexpected(result)) return;
             context.commit("setAttributes", { item: Object.assign(new ApiRelation(), await result.json()) });
+            await context.dispatch("updateInspector");
         },
         /**
          * Update a node
@@ -148,6 +150,7 @@ export const inspector = {
             const result = await DELETE(`/api/nodes/${node.nodeId}`);
             if (isUnexpected(result)) return;
             context.commit("setAttributes", {});
+            await context.dispatch("updateInspector");
         },
         /**
          * Update a relation
@@ -156,6 +159,7 @@ export const inspector = {
             const result = await DELETE(`/api/relations/${relation.relationId}`);
             if (isUnexpected(result)) return;
             context.commit("setAttributes", {});
+            await context.dispatch("updateInspector");
         },
         /**
          * Create a label
@@ -164,6 +168,14 @@ export const inspector = {
             const result = await POST(`/api/nodes`, JSON.stringify(node));
             if (isUnexpected(result)) return;
             context.commit("setAttributes", { item: Object.assign(new ApiNode(), await result.json()) });
+            await context.dispatch("updateInspector");
+        },
+        /**
+         * Reload the shown inspector content
+         */
+        async updateInspector(context: ActionContext<InspectorState, RootState>): Promise<void> {
+            await context.dispatch("inventory/loadNeighbors", undefined, { root: true });
+            await context.dispatch("overview/reloadNodes", undefined, { root: true });
         },
         /**
          * Set a new node for creation

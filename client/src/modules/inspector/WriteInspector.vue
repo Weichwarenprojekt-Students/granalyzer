@@ -219,6 +219,7 @@ export default defineComponent({
          * Delete item
          */
         deleteItem(): void {
+            this.deleteDialog = false;
             if (this.element instanceof ApiNode) this.$store.dispatch("inspector/deleteNode", this.element);
             else if (this.element instanceof ApiRelation)
                 this.$store.dispatch("inspector/deleteRelation", this.element);
