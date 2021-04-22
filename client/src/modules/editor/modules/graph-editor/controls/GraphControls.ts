@@ -260,6 +260,9 @@ export class GraphControls {
                 // Set the currently selected node for inspector
                 const node = this.graphHandler.nodes.get(cell.model.id);
                 await this.store.dispatch("editor/viewNodeInInspector", node?.ref.uuid);
+
+                // Load amount of related nodes to display in toolbar
+                await this.store.dispatch("editor/updateRelatedNodesCount", node?.ref.uuid);
             }
         });
 

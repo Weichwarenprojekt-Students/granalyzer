@@ -36,6 +36,11 @@ export class GraphEditorState {
      * True if the relation edit mode is active
      */
     public relationModeActive = false;
+
+    /**
+     * Amount of related nodes of the selected node
+     */
+    public relatedNodesAmount = 0;
 }
 
 export const graphEditor = {
@@ -148,6 +153,14 @@ export const graphEditor = {
          */
         addBendRelationCommand(state: GraphEditorState, bendCommand: BendRelationCommand): void {
             state.graphHandler?.addCommand(bendCommand);
+        },
+
+        /**
+         * Updates the amount of nodes related to the selected nodes
+         */
+        updateRelatedNodesCount(state: GraphEditorState, relatedNodesAmount: number): void {
+            // Write amount of loaded related nodes to member
+            state.relatedNodesAmount = relatedNodesAmount;
         },
     },
     actions: {
@@ -333,6 +346,18 @@ export const graphEditor = {
             context.commit("addBendRelationCommand", bendCommand);
             await context.dispatch("saveChange");
         },
+
+        /**
+         * Updates the amount of nodes related to the selected nodes
+         */
+        async updateRelatedNodesCount(context: ActionContext<GraphEditorState, RootState>, uuid?: string): Promise<void> {
+            // Load related nodes from db
+            const res = await GET("/api/nodes/" + uuid + "/related");
+            const apiNodes: ApiNode[] = await res.json();
+
+            // Pass amount of nodes to mutation
+            context.commit("updateRelatedNodesCount", apiNodes.length)
+        },
     },
     getters: {
         /**
@@ -353,6 +378,13 @@ export const graphEditor = {
          */
         itemSelected(state: GraphEditorState): boolean {
             return state.selectedElement !== undefined;
+        },
+
+        /**
+         *@return Returns amount of related nodes to the selected node
+         */
+        relatedNodesAmount(state: GraphEditorState): number {
+            return state.relatedNodesAmount;
         },
     },
 };

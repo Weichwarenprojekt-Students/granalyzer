@@ -21,6 +21,7 @@
             <svg class="icon">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#diagram`"></use>
             </svg>
+            <p class="related-nodes-number">{{ $store.getters['editor/itemSelected'] ? $store.getters['editor/relatedNodesAmount'] : '' }}</p>
         </div>
         <div
             :class="['item', $store.getters['editor/undoAvailable'] ? '' : 'item-disabled']"
@@ -148,6 +149,18 @@ export default defineComponent({
         &:hover {
             background: @secondary_color;
         }
+    }
+
+    .related-nodes-number {
+        position: absolute;
+        top: 23px;
+        left: 73px;
+        border-radius: 2px;
+        background: #fff;
+        padding: 0 2px 0 2px;
+        font-size: 12px;
+        min-width: 20px;
+        text-align: center;
     }
 }
 
