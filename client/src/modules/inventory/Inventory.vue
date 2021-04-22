@@ -31,6 +31,11 @@ export default defineComponent({
     mounted() {
         // Load the labels with the first load of matching nodes
         this.$store.dispatch("overview/loadLabelsAndNodes");
+
+        // Restore last selection if revisiting
+        if (this.$store.state.inventory.selectedNode) {
+            this.$store.dispatch("inventory/loadRelations", this.$store.state.inventory.selectedNode);
+        }
     },
     methods: {
         /**
