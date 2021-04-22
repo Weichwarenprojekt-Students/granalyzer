@@ -271,7 +271,6 @@ export class JointGraph {
                         .map((s) => s.vertices())
                         .filter((v) => v.length != 0)
                         .forEach((v) => {
-                            // TODO: Maybe use different threshold
                             if (vertex.distance(new g.Point(v[0])) < 10) {
                                 atCorrectPosition = false;
                             }

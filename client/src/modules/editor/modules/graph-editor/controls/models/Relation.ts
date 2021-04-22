@@ -2,13 +2,7 @@ import { dia } from "jointjs";
 import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/models/RelationInfo";
 import { JointID } from "@/shared/JointGraph";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
-
-// TODO: Move to separate file?
-export enum RelationModeType {
-    NORMAL,
-    FAINT,
-    VISUAL,
-}
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
 
 /**
  * The data for a single relation
@@ -224,11 +218,10 @@ export class Relation {
                     fill: this.getColorForRelationModeType(relationModeType),
                     stroke: "#000",
                     strokeWidth: 0,
-                    // TODO: Use absolute values
-                    refWidth: "120%",
-                    refHeight: "108%",
-                    refX: "-10%",
-                    refY: "-4%",
+                    refWidth: 12,
+                    refHeight: 2,
+                    refX: -6,
+                    refY: -1,
                     rx: 0,
                     ry: 0,
                 },

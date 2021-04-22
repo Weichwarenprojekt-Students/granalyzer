@@ -1,7 +1,8 @@
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
-import { Relation, RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
 
 /**
  * Command for adding a new relation to the graph

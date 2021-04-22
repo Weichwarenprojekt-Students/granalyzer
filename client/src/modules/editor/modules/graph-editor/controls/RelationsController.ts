@@ -2,11 +2,12 @@ import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/mod
 import { dia, linkTools, shapes } from "jointjs";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { JointID } from "@/shared/JointGraph";
-import { Relation, RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
 import { RootState } from "@/store";
 import { Store } from "vuex";
 import { RemoveRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/RemoveRelationCommand";
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
 
 /**
  * Container for managing relations and easily accessing them by joint id or backend uuid
@@ -153,7 +154,6 @@ export default class RelationsController extends RelationsMap {
 
         // Create the link and connect it to source and target
         const link = new shapes.standard.Link();
-        // TODO: Add reference to the nodes
         link.source(source.jointElement);
         link.target(target.jointElement);
         link.attr({

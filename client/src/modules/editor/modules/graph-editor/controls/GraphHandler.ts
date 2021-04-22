@@ -9,7 +9,8 @@ import { GraphControls } from "@/modules/editor/modules/graph-editor/controls/Gr
 import { RelationModeControls } from "@/modules/editor/modules/graph-editor/controls/relation-mode/RelationModeControls";
 import NodesController from "@/modules/editor/modules/graph-editor/controls/NodesController";
 import RelationsController from "@/modules/editor/modules/graph-editor/controls/RelationsController";
-import { Relation, RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
 
 export class GraphHandler {
     /**
@@ -112,8 +113,6 @@ export class GraphHandler {
 
             return {
                 ...node.nodeInfo,
-                // TODO: Check if deepCopy might be necessary
-                // ref: deepCopy(node.reference),
                 x,
                 y,
             } as NodeInfo;

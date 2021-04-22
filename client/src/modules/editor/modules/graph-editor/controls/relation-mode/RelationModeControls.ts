@@ -4,11 +4,11 @@ import { RootState } from "@/store";
 import { GET } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { dia } from "jointjs";
-import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 import { VisualRelationControls } from "@/modules/editor/modules/graph-editor/controls/relation-mode/VisualRelationControls";
 import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/DisableDbRelationCommand";
 import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/EnableDbRelationCommand";
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
 
 export class RelationModeControls {
     /**

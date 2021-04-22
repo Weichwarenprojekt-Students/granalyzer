@@ -1,10 +1,11 @@
 import { dia, g, shapes } from "jointjs";
-import { Relation, RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { Store } from "vuex";
 import { RootState } from "@/store";
 import { NewRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/NewRelationCommand";
 import { ConnectRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/ConnectRelationCommand";
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
 
 export class VisualRelationControls {
     /**

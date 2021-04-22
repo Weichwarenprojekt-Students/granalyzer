@@ -3,7 +3,8 @@ import { ICommand } from "@/modules/editor/modules/graph-editor/controls/command
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { RelationInfo } from "../models/RelationInfo";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
-import { Relation, RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
 
 export class CreateNodeCommand implements ICommand {
     /**

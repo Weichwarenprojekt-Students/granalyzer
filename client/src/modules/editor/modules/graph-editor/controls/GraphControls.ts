@@ -4,7 +4,7 @@ import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { dia } from "jointjs";
 import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/BendRelationCommand";
-import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
 
 export class GraphControls {
     /**
