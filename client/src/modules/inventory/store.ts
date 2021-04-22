@@ -3,7 +3,7 @@ import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import { JointGraph } from "@/shared/JointGraph";
+import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
 
 export class InventoryState {
     /**
@@ -32,9 +32,9 @@ export class InventoryState {
     public inventoryActive = false;
 
     /**
-     * The neighbor graph visualized with jointjs
+     * Utility functions for the neighbor view
      */
-    public graph = {} as JointGraph;
+    public neighborUtils = {} as NeighborUtils;
 }
 
 export const inventory = {
@@ -74,6 +74,13 @@ export const inventory = {
          */
         setActive(state: InventoryState, active: boolean): void {
             state.inventoryActive = active;
+        },
+
+        /**
+         * Set the neighbor utils
+         */
+        setNeighborUtils(state: InventoryState, neighborUtils: NeighborUtils): void {
+            state.neighborUtils = neighborUtils;
         },
 
         /**

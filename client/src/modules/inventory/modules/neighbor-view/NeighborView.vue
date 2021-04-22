@@ -1,5 +1,5 @@
 <template>
-    <div class="container" @mousemove="$store.state.inventory.graph.mousemove">
+    <div class="container" @mousemove="graph.mousemove">
         <div v-show="!$store.state.inventory.selectedNode" class="empty-warning">
             <svg>
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
@@ -15,24 +15,23 @@ import { defineComponent } from "vue";
 import { JointGraph } from "@/shared/JointGraph";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { dia } from "jointjs";
-import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
+import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
 
 export default defineComponent({
     name: "NeighborView",
     props: {
         // Currently selected node in the overview list
         selectedNode: Object,
-
-        neighborUtils: {
-            type: Object as () => NeighborUtils,
-            default: null,
-        },
     },
     data() {
         return {
             // Root element that is currently displayed in the inventory
             selectedNodeShape: {} as dia.Element,
+            // Utility functions for the neighbor view
+            neighborUtils: {} as NeighborUtils,
+            // Graph of the inventory view
+            graph: {} as JointGraph,
         };
     },
     watch: {
@@ -52,9 +51,13 @@ export default defineComponent({
     },
     mounted(): void {
         // Set up the graph and the controls
-        this.$store.state.inventory.graph = new JointGraph("joint");
-        this.centerGraph();
+        this.graph = new JointGraph("joint");
+        this.neighborUtils = new NeighborUtils(this.graph, this.$store);
+
+        this.$store.commit("inventory/setNeighborUtils", this.neighborUtils);
         this.$store.commit("inventory/setActive", true);
+
+        this.centerGraph();
 
         window.addEventListener("resize", this.centerGraph);
     },
@@ -106,14 +109,13 @@ export default defineComponent({
             for (const apiRelation of relations) this.neighborUtils.addRelationToDiagram(apiRelation);
 
             // Split overlapping relations
-            for (const shape of this.$store.state.inventory.graph.graph.getElements())
-                this.$store.state.inventory.graph.rearrangeOverlappingRelations(shape, false);
+            for (const shape of this.graph.graph.getElements()) this.graph.rearrangeOverlappingRelations(shape, false);
         },
         /**
          * Clears the previous graph + settings
          */
         clearGraphAndSettings(): void {
-            if (Object.keys(this.selectedNodeShape).length !== 0) this.$store.state.inventory.graph.graph.clear();
+            if (Object.keys(this.selectedNodeShape).length !== 0) this.graph.graph.clear();
             this.neighborUtils.resetNeighborPlacement();
             this.centerGraph();
             this.neighborUtils.resetGraph();
@@ -122,17 +124,14 @@ export default defineComponent({
          * Centers the graph
          */
         centerGraph(): void {
-            const area = this.$store.state.inventory.graph.paper.getArea();
+            const area = this.graph.paper.getArea();
             const xMiddle = area.x + area.width / 2;
             const yMiddle = area.y + area.height / 2;
 
-            const translate = this.$store.state.inventory.graph.paper.translate();
-            const scale = this.$store.state.inventory.graph.paper.scale();
+            const translate = this.graph.paper.translate();
+            const scale = this.graph.paper.scale();
 
-            this.$store.state.inventory.graph.paper.translate(
-                translate.tx + xMiddle * scale.sx,
-                translate.ty + yMiddle * scale.sy,
-            );
+            this.graph.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
         },
     },
 });

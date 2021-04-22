@@ -7,12 +7,8 @@
             @clicked-on-node="clickedOnNode"
         ></OverviewList>
         <div class="center">
-            <InventoryHeader v-model:neighbor-utils="neighborUtils" class="header"></InventoryHeader>
-            <NeighborView
-                class="editor"
-                v-model:neighbor-utils="neighborUtils"
-                :selectedNode="$store.state.inventory.selectedNode"
-            ></NeighborView>
+            <InventoryHeader class="header"></InventoryHeader>
+            <NeighborView class="editor" :selectedNode="$store.state.inventory.selectedNode"></NeighborView>
         </div>
     </div>
 </template>
@@ -23,7 +19,6 @@ import OverviewList from "@/modules/overview-list/OverviewList.vue";
 import InventoryHeader from "@/modules/inventory/modules/inventory-header/InventoryHeader.vue";
 import NeighborView from "@/modules/inventory/modules/neighbor-view/NeighborView.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
-import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
 
 export default defineComponent({
     name: "Inventory",
@@ -32,17 +27,9 @@ export default defineComponent({
         NeighborView,
         InventoryHeader,
     },
-    data() {
-        return {
-            neighborUtils: {} as NeighborUtils,
-        };
-    },
     mounted() {
         // Load the labels with the first load of matching nodes
         this.$store.dispatch("overview/loadLabelsAndNodes");
-
-        // Create neighborUtils
-        this.neighborUtils = new NeighborUtils(this.$store.state.inventory.graph, this.$store);
     },
     methods: {
         /**
