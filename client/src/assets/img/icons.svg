@@ -50,6 +50,11 @@
             <title id="circle-plus-title">icon circle-plus</title>
             <path d="M11.5 0c6.347 0 11.5 5.153 11.5 11.5s-5.153 11.5-11.5 11.5-11.5-5.153-11.5-11.5 5.153-11.5 11.5-11.5zm0 1c5.795 0 10.5 4.705 10.5 10.5s-4.705 10.5-10.5 10.5-10.5-4.705-10.5-10.5 4.705-10.5 10.5-10.5zm.5 10h6v1h-6v6h-1v-6h-6v-1h6v-6h1v6z"/>
         </symbol>
+        <symbol viewBox="0 0 24 24" id="circle-plus-bold" aria-labelledby="circle-plus-bold-title" fill-rule="evenodd"
+                clip-rule="evenodd">
+            <title id="circle-plus-bold-title">icon circle-plus-bold</title>
+            <path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6 13h-5v5h-2v-5h-5v-2h5v-5h2v5h5v2z"/>
+        </symbol>
         <symbol viewBox="0 0 24 24" id="plus-bold" aria-labelledby="plus-bold-title" fill-rule="evenodd" clip-rule="evenodd">
             <title id="plus-bold-title">icon plus-bold</title>
             <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/>

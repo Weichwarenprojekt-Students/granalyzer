@@ -19,7 +19,20 @@
 
         <ScrollPanel class="scroll-panel">
             <!-- The type -->
-            <div v-if="$store.getters['inspector/isNode']" class="attribute-item">
+            <div
+                v-if="$store.getters['inspector/createMode'] && $store.getters['inspector/isNode']"
+                class="attribute-item"
+            >
+                <div class="attribute-key">
+                    {{ $t("inspector.label") }}
+                </div>
+                <Dropdown :value="element.label">
+                    <div v-for="type in $store.state.inspector.types" :key="type.name" @click="selectLabel(type)">
+                        {{ type.name }}
+                    </div>
+                </Dropdown>
+            </div>
+            <div v-else-if="$store.getters['inspector/isNode']" class="attribute-item">
                 <div class="attribute-key">
                     {{ $t("inspector.label") }}
                 </div>
@@ -75,15 +88,19 @@
 import { defineComponent } from "vue";
 import DefaultInspector from "@/modules/inspector/components/DefaultInspector.vue";
 import { InspectorAttribute } from "@/modules/inspector/models/InspectorAttribute";
-import { deepCopy, objectUUID } from "@/utility";
+import { deepCopy, errorToast, objectUUID } from "@/utility";
 import DynamicInput from "@/components/DynamicInput.vue";
 import ConfirmDialog from "@/components/dialog/ConfirmDialog.vue";
+import Dropdown from "@/components/Dropdown.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
+import ApiLabel from "@/models/data-scheme/ApiLabel";
+import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 
 export default defineComponent({
     name: "WriteInspector",
     components: {
+        Dropdown,
         ConfirmDialog,
         DynamicInput,
         DefaultInspector,
@@ -134,6 +151,14 @@ export default defineComponent({
          */
         objectUUID: objectUUID,
         /**
+         * Select a new label
+         */
+        selectLabel(label: ApiLabel): void {
+            if (!(this.element instanceof ApiNode)) return;
+            this.element.label = label.name;
+            this.updateAttributes(label);
+        },
+        /**
          * Update the attributes of the item
          */
         updateItem(): void {
@@ -144,20 +169,47 @@ export default defineComponent({
             }
         },
         /**
+         * Update attributes after type switch
+         */
+        updateAttributes(type: ApiLabel): void {
+            this.attributes = type.attributes.map(
+                (attribute: ApiAttribute) =>
+                    new InspectorAttribute(
+                        attribute.name,
+                        attribute.defaultValue,
+                        attribute.datatype,
+                        attribute.mandatory,
+                    ),
+            );
+        },
+        /**
          * Create item
          */
         createItem(): void {
             this.updateItem();
-            if (this.element instanceof ApiNode) this.$store.dispatch("inspector/createLabel", this.element);
-            else if (this.element instanceof ApiRelation)
-                this.$store.dispatch("inspector/createRelation", this.element);
+            if (!(this.element instanceof ApiNode)) return;
+
+            // Validate content
+            if (this.element.name.length < 1) {
+                errorToast(this.$t("inspector.nameRequired.title"), this.$t("inspector.nameRequired.description"));
+                return;
+            }
+
+            // Validate label
+            if (this.$store.state.inspector.types.length <= 0) {
+                errorToast(this.$t("inspector.labelInvalid.title"), this.$t("inspector.labelInvalid.description"));
+                return;
+            }
+
+            // Actually create the new item
+            this.$store.dispatch("inspector/createNode", this.element);
         },
         /**
          * Save item changes
          */
         saveItem(): void {
             this.updateItem();
-            if (this.element instanceof ApiNode) this.$store.dispatch("inspector/updateLabel", this.element);
+            if (this.element instanceof ApiNode) this.$store.dispatch("inspector/updateNode", this.element);
             else if (this.element instanceof ApiRelation)
                 this.$store.dispatch("inspector/updateRelation", this.element);
         },

@@ -11,5 +11,14 @@
   "label": "Label",
   "relationType": "Type",
   "attributes": "Attributes",
-  "noAttributes": "No attributes found."
+  "noAttributes": "No attributes found.",
+  "new": "New",
+  "nameRequired": {
+    "title": "Name required",
+    "description": "Your node needs a name!"
+  },
+  "labelInvalid": {
+    "title": "Label invalid",
+    "description": "The specified label is unknown!"
+  }
 }

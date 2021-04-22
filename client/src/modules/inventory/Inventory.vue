@@ -2,6 +2,7 @@
     <div class="content">
         <OverviewList
             :selectedItemId="$store.state.inventory.selectedNode?.nodeId"
+            :create="true"
             class="overview"
             @clicked-on-node="clickedOnNode"
         ></OverviewList>

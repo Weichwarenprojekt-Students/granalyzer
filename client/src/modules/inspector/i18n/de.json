@@ -11,5 +11,14 @@
   "label": "Label",
   "relationType": "Typ",
   "attributes": "Attribute",
-  "noAttributes": "Keine Attribute vorhanden."
+  "noAttributes": "Keine Attribute vorhanden.",
+  "new": "Neu",
+  "nameRequired": {
+    "title": "Name nötig",
+    "description": "Ihr Knoten braucht noch einen Namen!"
+  },
+  "labelInvalid": {
+    "title": "Label invalide",
+    "description": "Das angegebene Label ist unbekannt!"
+  }
 }

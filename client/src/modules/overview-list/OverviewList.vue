@@ -3,10 +3,17 @@
         <!-- Title -->
         <div class="underlined-title">
             {{ $t("overviewList.title") }}
-            <div v-tooltip="$t('overviewList.filter')">
-                <svg @click="showLabelFilter = !showLabelFilter">
-                    <use :xlink:href="require('@/assets/img/icons.svg') + '#filter'"></use>
-                </svg>
+            <div class="action-bar">
+                <div v-tooltip.bottom="$t('overviewList.filter')">
+                    <svg @click="showLabelFilter = !showLabelFilter">
+                        <use :xlink:href="`${require('@/assets/img/icons.svg')}#filter`"></use>
+                    </svg>
+                </div>
+                <div v-if="create" v-tooltip.bottom="$t('overviewList.addNode')">
+                    <svg @click="newNode">
+                        <use :xlink:href="`${require('@/assets/img/icons.svg')}#circle-plus-bold`"></use>
+                    </svg>
+                </div>
             </div>
         </div>
 
@@ -57,6 +64,11 @@ export default defineComponent({
     props: {
         // Id of the item that is selected in the overview
         selectedItemId: String,
+        // True if the overview also offers an create button
+        create: {
+            type: Boolean,
+            default: false,
+        },
     },
     data() {
         return {
@@ -119,6 +131,12 @@ export default defineComponent({
         updateOverview(): void {
             this.$store.dispatch("overview/loadLabelsAndNodes", this.filter);
         },
+        /**
+         * Add a new node
+         */
+        newNode(): void {
+            this.$store.dispatch("inspector/newNode");
+        },
     },
 });
 </script>
@@ -135,12 +153,10 @@ export default defineComponent({
     flex-flow: column;
 }
 
-.underlined-title {
+.action-bar {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 64px;
-    padding: 0;
+    gap: 12px;
+    flex-direction: row-reverse;
 
     div {
         cursor: pointer;
@@ -154,6 +170,14 @@ export default defineComponent({
             height: 100%;
         }
     }
+}
+
+.underlined-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+    padding: 0;
 }
 
 .scroll-panel {

@@ -1,5 +1,6 @@
 {
   "title": "Eintragsübersicht",
   "noNodes": "Keine Einträge gefunden!",
-  "filter": "Filtern"
+  "filter": "Filtern",
+  "addNode": "Neuer Knoten"
 }
