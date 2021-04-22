@@ -3,6 +3,7 @@ import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
+import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
 
 export class InventoryState {
     /**
@@ -16,7 +17,7 @@ export class InventoryState {
     public neighbors = [] as Array<ApiNode>;
 
     /**
-     * Relations for the currently displayed graph
+     * Relations for the currently displayed graph FIXME: Dont rely on this array, contains duplicates
      */
     public relations = [] as Array<ApiRelation>;
 
@@ -29,6 +30,11 @@ export class InventoryState {
      * Flag to handle the splitting of overlapping relations differently for the neighbor preview
      */
     public inventoryActive = false;
+
+    /**
+     * Utility functions for the neighbor view
+     */
+    public neighborUtils = {} as NeighborUtils;
 }
 
 export const inventory = {
@@ -68,6 +74,13 @@ export const inventory = {
          */
         setActive(state: InventoryState, active: boolean): void {
             state.inventoryActive = active;
+        },
+
+        /**
+         * Set the neighbor utils
+         */
+        setNeighborUtils(state: InventoryState, neighborUtils: NeighborUtils): void {
+            state.neighborUtils = neighborUtils;
         },
 
         /**

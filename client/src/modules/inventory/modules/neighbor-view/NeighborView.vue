@@ -15,8 +15,8 @@ import { defineComponent } from "vue";
 import { JointGraph } from "@/shared/JointGraph";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { dia } from "jointjs";
-import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
+import { NeighborUtils } from "@/modules/inventory/modules/neighbor-view/controls/NeighborUtils";
 
 export default defineComponent({
     name: "NeighborView",
@@ -26,12 +26,12 @@ export default defineComponent({
     },
     data() {
         return {
-            // Graph of the inventory view
-            graph: {} as JointGraph,
             // Root element that is currently displayed in the inventory
             selectedNodeShape: {} as dia.Element,
             // Utility functions for the neighbor view
             neighborUtils: {} as NeighborUtils,
+            // Graph of the inventory view
+            graph: {} as JointGraph,
         };
     },
     watch: {
@@ -53,8 +53,11 @@ export default defineComponent({
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
         this.neighborUtils = new NeighborUtils(this.graph, this.$store);
-        this.centerGraph();
+
+        this.$store.commit("inventory/setNeighborUtils", this.neighborUtils);
         this.$store.commit("inventory/setActive", true);
+
+        this.centerGraph();
 
         window.addEventListener("resize", this.centerGraph);
     },
