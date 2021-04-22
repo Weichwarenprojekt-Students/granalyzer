@@ -206,7 +206,6 @@ export const graphEditor = {
 
             if (context.state.selectedElement) {
                 //TODO: coordinates do not change when changing in editor..
-                //TODO: only add related nodes that are not already in diagram???
 
                 const selectedElement = context.state.graphHandler?.nodes.get(context.state.selectedElement.id);
 
@@ -237,7 +236,19 @@ export const graphEditor = {
                         color: "#eeeeee",
                     };
 
-                    await context.dispatch("addNode", node);
+                    // Filter nodes that are already in the diagram
+                    let alreadyInDiagram = false;
+
+                    if (context.state.graphHandler?.nodes) {
+                        for (const [key, value] of context.state.graphHandler?.nodes) {
+                            if (apiNodes[i].nodeId == value.ref.uuid) {
+                                alreadyInDiagram = true;
+                            }
+                        }
+                    }
+
+                    if (!alreadyInDiagram)
+                        await context.dispatch("addNode", node);
                 }
             }
         },
