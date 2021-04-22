@@ -269,7 +269,6 @@ export class NeighborUtils {
             const relation = this.store.state.inventory?.relations.filter(
                 (rel) => this.mappedRelations.get(rel.relationId) === link.id,
             )[0] as ApiRelation;
-            console.log("relation", relation);
             return {
                 uuid: relation.relationId,
                 from: {

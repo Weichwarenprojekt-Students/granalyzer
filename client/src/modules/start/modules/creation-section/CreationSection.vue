@@ -19,7 +19,7 @@
                 :title="$t('start.newDiagram.node.title')"
                 :description="$t('start.newDiagram.node.description')"
                 :icon-id="'from-diagram'"
-                @card-click="dialogAddEmpty = true"
+                @card-click="showInventory"
             ></CreationCard>
         </div>
     </div>
@@ -62,6 +62,13 @@ export default defineComponent({
                 this.$store.commit("editor/setActiveDiagram", await response.json());
                 await this.$router.push(routeNames.editor);
             }
+        },
+
+        /**
+         * Redirect to the inventory
+         */
+        async showInventory() {
+            await this.$router.push(routeNames.inventory);
         },
     },
 });
