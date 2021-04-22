@@ -1,9 +1,9 @@
 name: CD
 
-# Run action on every push an pull request on the main branch
+# Run action on every push and pull request on the main branch
 on:
   release:
-    types: [created]
+    types: [ created ]
 
 jobs:
 
@@ -39,11 +39,6 @@ jobs:
         run: |
           npm i
           npm run build
-
-#      # Build Docker
-#      - name: Build docker
-#        working-directory: ./server
-#        run: npm run build:docker:github
 
       - name: Login to GitHub Packages Docker Registry
         uses: docker/login-action@v1
