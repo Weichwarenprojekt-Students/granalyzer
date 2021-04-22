@@ -75,12 +75,4 @@ export default defineComponent({
 .create-diagram {
     margin-left: 16px;
 }
-
-.title-minus {
-    margin: 0 12px;
-}
-
-.title-node {
-    font-style: italic;
-}
 </style>
