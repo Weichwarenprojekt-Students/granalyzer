@@ -1,10 +1,10 @@
 import { NodeInfo } from "../models/NodeInfo";
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
-import { RelationInfo } from "../models/RelationInfo";
-import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
-import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
-import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
+import { RelationInfo } from "../../relations/models/RelationInfo";
+import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
 
 export class CreateNodeCommand implements ICommand {
     /**

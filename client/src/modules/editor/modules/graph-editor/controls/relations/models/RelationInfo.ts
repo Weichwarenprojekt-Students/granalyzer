@@ -1,6 +1,6 @@
-import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/models/NodeReference";
+import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeReference";
 import { dia } from "jointjs";
-import Anchors from "@/modules/editor/modules/graph-editor/controls/models/Anchors";
+import Anchors from "@/modules/editor/modules/graph-editor/controls/relations/models/Anchors";
 
 /**
  * The data for a single relation

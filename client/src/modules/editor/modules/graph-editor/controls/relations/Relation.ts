@@ -1,9 +1,9 @@
 import { dia } from "jointjs";
-import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/models/RelationInfo";
+import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationInfo";
 import { JointID } from "@/shared/JointGraph";
-import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
-import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
-import Anchors from "@/modules/editor/modules/graph-editor/controls/models/Anchors";
+import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
+import Anchors from "@/modules/editor/modules/graph-editor/controls/relations/models/Anchors";
 
 /**
  * The data for a single relation

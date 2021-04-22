@@ -1,7 +1,7 @@
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
-import { GraphHandler } from "../GraphHandler";
-import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
-import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { GraphHandler } from "../../GraphHandler";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
+import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 
 /**
  * Command for connecting a visual relation to different source and target nodes

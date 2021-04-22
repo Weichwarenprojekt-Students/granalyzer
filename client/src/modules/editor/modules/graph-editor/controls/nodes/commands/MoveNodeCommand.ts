@@ -1,7 +1,7 @@
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
-import { GraphHandler } from "../GraphHandler";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { GraphHandler } from "../../GraphHandler";
 import { g } from "jointjs";
-import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
+import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 
 export class MoveNodeCommand implements ICommand {
     /**

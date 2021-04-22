@@ -1,16 +1,16 @@
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { NodeInfo } from "./controls/models/NodeInfo";
+import { NodeInfo } from "./controls/nodes/models/NodeInfo";
 import { ApiDiagram } from "@/models/ApiDiagram";
-import { CreateNodeCommand } from "./controls/commands/CreateNodeCommand";
+import { CreateNodeCommand } from "./controls/nodes/commands/CreateNodeCommand";
 import { dia } from "jointjs";
-import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/RemoveNodeCommand";
+import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/RemoveNodeCommand";
 import { GET, PUT } from "@/utility";
-import { RelationInfo } from "./controls/models/RelationInfo";
+import { RelationInfo } from "./controls/relations/models/RelationInfo";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
-import { NewRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/NewRelationCommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { NewRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/NewRelationCommand";
 
 export class GraphEditorState {
     /**

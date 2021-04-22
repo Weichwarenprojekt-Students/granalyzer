@@ -1,5 +1,5 @@
-import { RelationInfo } from "./RelationInfo";
-import { NodeInfo } from "./NodeInfo";
+import { RelationInfo } from "../relations/models/RelationInfo";
+import { NodeInfo } from "../nodes/models/NodeInfo";
 
 /**
  * The data for the whole graph

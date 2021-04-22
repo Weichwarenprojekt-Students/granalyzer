@@ -1,10 +1,10 @@
 import { Store } from "vuex";
 import { RootState } from "@/store";
-import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/MoveNodeCommand";
+import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/MoveNodeCommand";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { dia } from "jointjs";
-import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/BendRelationCommand";
-import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
+import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/BendRelationCommand";
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
 
 export class GraphControls {
     /**

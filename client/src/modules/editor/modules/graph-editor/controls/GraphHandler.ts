@@ -1,16 +1,16 @@
-import { RelationInfo } from "./models/RelationInfo";
-import { NodeInfo } from "./models/NodeInfo";
+import { RelationInfo } from "./relations/models/RelationInfo";
+import { NodeInfo } from "./nodes/models/NodeInfo";
 import { SerializableGraph } from "@/modules/editor/modules/graph-editor/controls/models/SerializableGraph";
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
 import { JointGraph } from "@/shared/JointGraph";
 import { Store } from "vuex";
 import { RootState } from "@/store";
 import { GraphControls } from "@/modules/editor/modules/graph-editor/controls/GraphControls";
 import { RelationModeControls } from "@/modules/editor/modules/graph-editor/controls/relation-mode/RelationModeControls";
-import NodesController from "@/modules/editor/modules/graph-editor/controls/NodesController";
-import RelationsController from "@/modules/editor/modules/graph-editor/controls/RelationsController";
-import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
-import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/models/RelationModeType";
+import NodesController from "@/modules/editor/modules/graph-editor/controls/nodes/NodesController";
+import RelationsController from "@/modules/editor/modules/graph-editor/controls/relations/RelationsController";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
+import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
 
 export class GraphHandler {
     /**

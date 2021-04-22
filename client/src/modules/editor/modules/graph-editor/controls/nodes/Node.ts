@@ -1,9 +1,9 @@
-import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/models/NodeReference";
+import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeReference";
 import { JointID } from "@/shared/JointGraph";
 import { deepCopy, getBrightness } from "@/utility";
-import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/models/NodeInfo";
+import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 import { dia } from "jointjs";
-import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 
 /**
  * The data for a single node

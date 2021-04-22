@@ -1,10 +1,10 @@
 import { dia, shapes } from "jointjs";
-import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/models/NodeInfo";
+import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { Store } from "vuex";
 import { RootState } from "@/store";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/models/NodeShapes";
+import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeShapes";
 import { getBrightness } from "@/utility";
 import Cell = dia.Cell;
 import { JointGraph } from "@/shared/JointGraph";
