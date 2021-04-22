@@ -3,6 +3,7 @@ import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { GET } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
+import { JointGraph } from "@/shared/JointGraph";
 
 export class InventoryState {
     /**
@@ -16,7 +17,7 @@ export class InventoryState {
     public neighbors = [] as Array<ApiNode>;
 
     /**
-     * Relations for the currently displayed graph
+     * Relations for the currently displayed graph FIXME: Dont rely on this array, contains duplicates
      */
     public relations = [] as Array<ApiRelation>;
 
@@ -29,6 +30,11 @@ export class InventoryState {
      * Flag to handle the splitting of overlapping relations differently for the neighbor preview
      */
     public inventoryActive = false;
+
+    /**
+     * The neighbor graph visualized with jointjs
+     */
+    public graph = {} as JointGraph;
 }
 
 export const inventory = {

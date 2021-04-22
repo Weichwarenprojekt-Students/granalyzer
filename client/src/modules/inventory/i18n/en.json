@@ -1,4 +1,5 @@
 {
   "title": "Neighbor Relations",
-  "emptySelection": "Select an element to show its relations"
+  "emptySelection": "Select an element to show its relations",
+  "createDiagram": "Create Diagram"
 }

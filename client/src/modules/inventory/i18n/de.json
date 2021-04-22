@@ -1,4 +1,5 @@
 {
   "title": "Nachbarsbeziehungen",
-  "emptySelection": "Wähle ein Element aus, um dessen Beziehungen anzuzeigen"
+  "emptySelection": "Wähle ein Element aus, um dessen Beziehungen anzuzeigen",
+  "createDiagram": "Diagram anlegen"
 }
