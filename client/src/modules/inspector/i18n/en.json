@@ -8,6 +8,7 @@
     "description": "Are you sure? The data cannot be recovered!"
   },
   "create": "Create",
+  "name": "Name",
   "label": "Label",
   "relationType": "Type",
   "attributes": "Attributes",

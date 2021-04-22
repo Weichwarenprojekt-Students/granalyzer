@@ -8,6 +8,7 @@
     "description": "Sind Sie sicher? Die Daten können nicht wiederhergestellt werden!"
   },
   "create": "Erstellen",
+  "name": "Name",
   "label": "Label",
   "relationType": "Typ",
   "attributes": "Attribute",

@@ -12,6 +12,11 @@ const currentDiagramKey = "current-diag-id";
 
 export class EditorState {
     /**
+     * True if the toolbox is open (inspector otherwise)
+     */
+    public toolsOpen = true;
+
+    /**
      * The currently edited diagram
      */
     public diagram?: ApiDiagram;
@@ -43,6 +48,12 @@ export const editor = {
          */
         setSelectedNode(state: EditorState, node?: ApiNode): void {
             state.selectedNode = node;
+        },
+        /**
+         * Open either the toolbox or the inspector
+         */
+        openTools(state: EditorState, toolsOpen: boolean): void {
+            state.toolsOpen = toolsOpen;
         },
     },
     actions: {

@@ -21,7 +21,7 @@
             <!-- The type -->
             <div
                 v-if="$store.getters['inspector/createMode'] && $store.getters['inspector/isNode']"
-                class="attribute-item"
+                class="attribute-item attribute-item-fixed"
             >
                 <div class="attribute-key">
                     {{ $t("inspector.label") }}
@@ -61,7 +61,7 @@
                 class="attribute-item no-border"
             >
                 <Checkbox class="attribute-checkbox" v-model="attribute.active" :binary="true" />
-                <div :class="['attribute-key', { 'attribute-key-disabled': !attribute.active }]">
+                <div :class="['attribute-key', 'attributes-key', { 'attribute-key-disabled': !attribute.active }]">
                     {{ attribute.name }}
                 </div>
                 <div class="attribute-value">
@@ -124,7 +124,7 @@ export default defineComponent({
         "$store.state.inspector.element"() {
             if (this.$store.state.inspector.element instanceof ApiNode) {
                 this.element = Object.assign(new ApiNode(), deepCopy(this.$store.state.inspector.element));
-            } else if (this.$store.state.inspector.element instanceof ApiNode) {
+            } else if (this.$store.state.inspector.element instanceof ApiRelation) {
                 this.element = Object.assign(new ApiRelation(), deepCopy(this.$store.state.inspector.element));
             } else return;
             this.attributes = deepCopy(this.$store.state.inspector.attributes);
@@ -238,19 +238,6 @@ export default defineComponent({
     width: 100%;
 }
 
-.attribute-item {
-    align-items: center;
-    height: 50px;
-}
-
-.no-border {
-    border: 0;
-}
-
-.attribute-key {
-    flex: 1 1 auto;
-}
-
 .attribute-key-disabled {
     text-decoration: line-through;
 }
@@ -262,5 +249,13 @@ export default defineComponent({
     gap: 12px;
     display: flex;
     flex-direction: row-reverse;
+}
+
+.attribute-item {
+    align-items: center;
+}
+
+.attribute-key {
+    flex: 1 1 auto;
 }
 </style>

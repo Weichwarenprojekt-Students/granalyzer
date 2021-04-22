@@ -1,5 +1,5 @@
 <template>
-    <div class="content">
+    <div class="content main-content">
         <OverviewList
             :selectedItemId="$store.state.editor.selectedNode?.nodeId"
             class="overview"
@@ -9,7 +9,27 @@
             <EditorHeader class="header"></EditorHeader>
             <GraphEditor class="editor"></GraphEditor>
         </div>
-        <ReadInspector class="inspector"></ReadInspector>
+        <div class="editor-tools">
+            <!-- The tabs -->
+            <div class="tabs">
+                <div
+                    @click="$store.commit('editor/openTools', true)"
+                    :class="{ 'selected-tab': $store.state.editor.toolsOpen }"
+                >
+                    {{ $t("editor.toolbox") }}
+                </div>
+                <div
+                    @click="$store.commit('editor/openTools', false)"
+                    :class="{ 'selected-tab': !$store.state.editor.toolsOpen }"
+                >
+                    {{ $t("editor.inspector") }}
+                </div>
+            </div>
+
+            <!-- The content -->
+            <div v-if="$store.state.editor.toolsOpen">Toolbox</div>
+            <ReadInspector v-else></ReadInspector>
+        </div>
     </div>
 </template>
 
@@ -29,6 +49,9 @@ export default defineComponent({
         OverviewList,
         ReadInspector,
     },
+    beforeCreate() {
+        this.$store.commit("inspector/resetSelection");
+    },
     methods: {
         /**
          * Store node that was selected
@@ -44,7 +67,7 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
-.content {
+.main-content {
     width: 100%;
     height: 100%;
     background: @light_grey;
@@ -58,11 +81,13 @@ export default defineComponent({
     background: white;
 }
 
-.inspector {
+.editor-tools {
     width: @inspector_width;
     height: 100vh;
     flex: 0 0 auto;
     background: white;
+    border-left: 1px solid @grey;
+    padding: 0 16px;
 }
 
 .center {

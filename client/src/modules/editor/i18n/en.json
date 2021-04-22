@@ -7,10 +7,6 @@
     "relation": "Edit relations",
     "active": "Active"
   },
-  "inspector": {
-    "title": "Inspector",
-    "nothing-selected": "Please select a node or relation to show the attributes"
-  },
   "noDiagram": {
     "title": "No Diagram",
     "description": "You have to load a diagram first!"
@@ -21,5 +17,7 @@
   "relationModeToast": {
     "title": "Relation Edit Mode Active!",
     "description": "Nodes can't be added while the relation edit mode is active"
-  }
+  },
+  "toolbox": "Toolbox",
+  "inspector": "Inspector"
 }

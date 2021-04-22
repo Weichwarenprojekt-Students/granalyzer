@@ -1,6 +1,6 @@
 <template>
     <div class="content">
-        <div class="underlined-title">{{ $t("inspector.title") }}</div>
+        <div v-if="title" class="underlined-title">{{ $t("inspector.title") }}</div>
         <div class="empty-warning">
             <svg>
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
@@ -13,6 +13,13 @@
 <script lang="ts">
 export default {
     name: "DefaultInspector",
+    props: {
+        // True if the default screen shall include a title
+        title: {
+            type: Boolean,
+            default: true,
+        },
+    },
 };
 </script>
 
