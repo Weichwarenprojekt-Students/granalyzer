@@ -21,5 +21,8 @@
   "relationModeToast": {
     "title": "Relation Edit Mode Active!",
     "description": "Nodes can't be added while the relation edit mode is active"
+  },
+  "graphEditor": {
+    "setRelationName": "New visual relation"
   }
 }

@@ -81,7 +81,7 @@ export class VisualRelationControls {
 
         // Add new visual relation between the nodes of the drawn relation
         await this.store.dispatch(
-            "editor/addCommand",
+            "editor/openNewRelationDialog",
             new NewRelationCommand(this.graphHandler, source, target, RelationModeType.VISUAL),
         );
 

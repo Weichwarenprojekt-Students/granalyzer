@@ -10,6 +10,7 @@ import { GET, PUT } from "@/utility";
 import { RelationInfo } from "./controls/models/RelationInfo";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
+import { NewRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/NewRelationCommand";
 
 export class GraphEditorState {
     /**
@@ -31,6 +32,10 @@ export class GraphEditorState {
      * True if the relation edit mode is active
      */
     public relationModeActive = false;
+
+    public newRelationDialog = false;
+
+    public newRelationCommand?: NewRelationCommand;
 }
 
 export const graphEditor = {
@@ -115,6 +120,18 @@ export const graphEditor = {
          */
         addCommand(state: GraphEditorState, command: ICommand): void {
             state.graphHandler?.addCommand(command);
+        },
+        /**
+         * Set the flag for showing the new relation dialog
+         */
+        showNewRelationDialog(state: GraphEditorState, value: boolean): void {
+            state.newRelationDialog = value;
+        },
+        /**
+         * Set the temporary new relation command
+         */
+        setNewRelationCommand(state: GraphEditorState, command: NewRelationCommand | undefined): void {
+            state.newRelationCommand = command;
         },
     },
     actions: {
@@ -218,6 +235,39 @@ export const graphEditor = {
         async addCommand(context: ActionContext<GraphEditorState, RootState>, command: ICommand): Promise<void> {
             context.commit("addCommand", command);
             await context.dispatch("saveChange");
+        },
+        /**
+         * Open the new relation dialog and temporarily save the command for adding the new relation
+         */
+        async openNewRelationDialog(
+            context: ActionContext<GraphEditorState, RootState>,
+            command: NewRelationCommand,
+        ): Promise<void> {
+            context.commit("setNewRelationCommand", command);
+            context.commit("showNewRelationDialog", true);
+        },
+        /**
+         * Close the new relation dialog and remove the new relation command
+         */
+        async closeNewRelationDialog(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
+            context.commit("setNewRelationCommand", undefined);
+            context.commit("showNewRelationDialog", false);
+        },
+        /**
+         * Confirm the new relation dialog
+         */
+        async confirmNewRelationDialog(
+            context: ActionContext<GraphEditorState, RootState>,
+            labelText: string,
+        ): Promise<void> {
+            if (context.state.newRelationCommand) {
+                // Set the label text for the new relation
+                context.state.newRelationCommand.setLabelText(labelText);
+                // Add the command to the undo/redo stack
+                await context.dispatch("addCommand", context.state.newRelationCommand);
+            }
+
+            await context.dispatch("closeNewRelationDialog");
         },
     },
     getters: {

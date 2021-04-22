@@ -56,4 +56,13 @@ export class NewRelationCommand implements ICommand {
     undo(): void {
         if (this.relation != null) this.graphHandler.relations.removeExisting(this.relation);
     }
+
+    /**
+     * Set the text for the label
+     *
+     * @param labelText The text
+     */
+    public setLabelText(labelText: string): void {
+        this.labelText = labelText;
+    }
 }
