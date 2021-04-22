@@ -1,7 +1,7 @@
 import { InspectorAttribute } from "@/modules/inspector/models/InspectorAttribute";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { GET, isUnexpected, POST, PUT } from "@/utility";
+import { DELETE, GET, isUnexpected, POST, PUT } from "@/utility";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
 import ApiNode from "@/models/data-scheme/ApiNode";
@@ -47,14 +47,13 @@ export const inspector = {
             state: InspectorState,
             payload: { item: ApiNode | ApiRelation; type: ApiLabel | ApiRelationType },
         ): void {
-            // Clear the attribute-items array
-            state.attributes = new Array<InspectorAttribute>();
-
             // Set the shown element
             state.element = payload.item;
+            if (!state.element) return;
             if (payload.type) state.type = payload.type;
 
             // Fill attributes from node and label data
+            state.attributes = new Array<InspectorAttribute>();
             state.attributes =
                 state.type?.attributes.map(
                     (attribute: ApiAttribute) =>
@@ -141,6 +140,22 @@ export const inspector = {
             const result = await PUT(`/api/relations/${relation.relationId}`, JSON.stringify(relation));
             if (isUnexpected(result)) return;
             context.commit("setAttributes", { item: Object.assign(new ApiRelation(), await result.json()) });
+        },
+        /**
+         * Update a node
+         */
+        async deleteNode(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
+            const result = await DELETE(`/api/nodes/${node.nodeId}`);
+            if (isUnexpected(result)) return;
+            context.commit("setAttributes", {});
+        },
+        /**
+         * Update a relation
+         */
+        async deleteRelation(context: ActionContext<InspectorState, RootState>, relation: ApiRelation): Promise<void> {
+            const result = await DELETE(`/api/relations/${relation.relationId}`);
+            if (isUnexpected(result)) return;
+            context.commit("setAttributes", {});
         },
         /**
          * Create a label

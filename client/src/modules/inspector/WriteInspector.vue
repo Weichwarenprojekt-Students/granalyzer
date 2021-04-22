@@ -68,11 +68,13 @@
                     <DynamicInput v-model="attribute.value" :type="attribute.datatype" :disabled="!attribute.active" />
                 </div>
             </div>
-            <div class="bottom-bar">
-                <button v-if="$store.getters['inspector/createMode']" class="btn btn-secondary" @click="createItem">
+            <div v-if="$store.getters['inspector/createMode']" class="bottom-bar">
+                <button class="btn btn-secondary" @click="createItem">
                     {{ $t("inspector.create") }}
                 </button>
-                <button v-else class="btn btn-secondary" :disabled="!isModified" @click="saveItem">
+            </div>
+            <div v-else class="bottom-bar">
+                <button class="btn btn-secondary" :disabled="!isModified" @click="saveItem">
                     {{ $t("inspector.save") }}
                 </button>
                 <button class="btn btn-warn" @click="deleteDialog = true">
@@ -122,9 +124,9 @@ export default defineComponent({
         "$store.state.inspector.element"() {
             if (this.$store.state.inspector.element instanceof ApiNode) {
                 this.element = Object.assign(new ApiNode(), deepCopy(this.$store.state.inspector.element));
-            } else {
+            } else if (this.$store.state.inspector.element instanceof ApiNode) {
                 this.element = Object.assign(new ApiRelation(), deepCopy(this.$store.state.inspector.element));
-            }
+            } else return;
             this.attributes = deepCopy(this.$store.state.inspector.attributes);
         },
     },
@@ -217,7 +219,9 @@ export default defineComponent({
          * Delete item
          */
         deleteItem(): void {
-            return;
+            if (this.element instanceof ApiNode) this.$store.dispatch("inspector/deleteNode", this.element);
+            else if (this.element instanceof ApiRelation)
+                this.$store.dispatch("inspector/deleteRelation", this.element);
         },
     },
 });
