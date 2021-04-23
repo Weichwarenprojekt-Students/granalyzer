@@ -1,5 +1,49 @@
 {
-  "title": "Neighbor Relations",
-  "emptySelection": "Select an element to show its relations",
+  "header": {
+    "title": "Neighbor Relations"
+  },
+  "graph": {
+    "emptySelection": "Select an element to show its relations"
+  },
+  "drop": {
+    "error": {
+      "title": "Cannot add relation",
+      "description": "Cannot add node to itself"
+    }
+  },
+  "newRelation": {
+    "success": {
+      "title": "New Relation",
+      "description": "A new relation has been added"
+    },
+    "error": {
+      "title": "New Relation",
+      "description": "A new relation could not be created"
+    }
+  },
+  "dialog": {
+    "title": "Add a relation",
+    "from": "From",
+    "to": "To",
+    "type": "Type",
+    "dropdown": {
+      "type": {
+        "placeholder": "Choose a relation type",
+        "empty": "No available options"
+      },
+      "neighbor": {
+        "placeholder": "Choose a neighbor",
+        "empty": "No available options"
+      }
+    },
+    "emptyLabel": {
+      "title": "Choose a relation type",
+      "description": "Relation type cannot be empty"
+    },
+    "emptyNode": {
+      "title": "Choose a neighbor",
+      "description": "Neighbor cannot be empty"
+    }
+  },
   "createDiagram": "Create Diagram"
 }

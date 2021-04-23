@@ -12,13 +12,13 @@
             <CreationCard
                 :title="$t('start.newDiagram.blank.title')"
                 :description="$t('start.newDiagram.blank.description')"
-                :icon-id="'plus-orange'"
+                icon-id="plus"
                 @card-click="dialogAddEmpty = true"
             ></CreationCard>
             <CreationCard
                 :title="$t('start.newDiagram.node.title')"
                 :description="$t('start.newDiagram.node.description')"
-                :icon-id="'from-diagram'"
+                icon-id="from-diagram"
                 @card-click="showInventory"
             ></CreationCard>
         </div>

@@ -13,7 +13,7 @@ import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/
 /**
  * Provides key functionality for placing nodes and relations
  */
-export class NeighborUtils {
+export class GraphUtils {
     /**
      * Distance between two nodes on a circle
      */
@@ -195,6 +195,32 @@ export class NeighborUtils {
     public resetGraph(): void {
         this.mappedNodes.clear();
         this.mappedRelations.clear();
+        this.graph.graph.clear();
+    }
+
+    /**
+     * Centers the graph
+     */
+    public centerGraph(): void {
+        const area = this.graph.paper.getArea();
+        const xMiddle = area.x + area.width / 2;
+        const yMiddle = area.y + area.height / 2;
+
+        const translate = this.graph.paper.translate();
+        const scale = this.graph.paper.scale();
+
+        this.graph.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
+    }
+
+    /**
+     * Finds the node id that corresponds to a shape id
+     *
+     * @param id Id of the shape
+     */
+    public async getNodeByShapeId(id: string): Promise<ApiNode | undefined> {
+        const nodeId = [...this.mappedNodes].find(([, value]) => value === id);
+        if (!nodeId) return undefined;
+        return await this.store.dispatch("inventory/getNode", nodeId[0]);
     }
 
     /**
@@ -226,11 +252,9 @@ export class NeighborUtils {
         this.graph.paper.on("element:pointerdblclick", async (cell) => {
             // Get key of element by value
             if (!this.store.state.inventory) return;
+            if (this.store.state.inventory.loading) return;
 
-            const nodeId = [...this.mappedNodes].find(([, value]) => value === cell.model.id);
-
-            if (!nodeId) return;
-            const node = await this.store.dispatch("inventory/getNode", nodeId[0]);
+            const node = await this.getNodeByShapeId(cell.model.id);
 
             this.store.commit("inventory/setSelectedNode", node);
             this.store.commit("inventory/reset");

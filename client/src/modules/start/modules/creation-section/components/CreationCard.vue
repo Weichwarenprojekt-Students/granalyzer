@@ -46,6 +46,7 @@ export default defineComponent({
 
         svg {
             height: 100px;
+            fill: @primary_color;
         }
 
         &:hover {

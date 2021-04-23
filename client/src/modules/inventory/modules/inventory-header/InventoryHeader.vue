@@ -7,7 +7,7 @@
             :image-src="require('@/assets/img/icons.svg') + '#circle-plus'"
             :title="$t('inventory.createDiagram')"
         ></InputDialog>
-        <h1>{{ $t("inventory.title") }}</h1>
+        <h1>{{ $t("inventory.header.title") }}</h1>
         <button
             v-show="$store.state.inventory.selectedNode && !$store.state.inventory.loading"
             class="btn create-diagram"
@@ -45,14 +45,14 @@ export default defineComponent({
                 errorToast(this.$t("start.newDiagram.empty.title"), this.$t("start.newDiagram.empty.description"));
                 return;
             }
-            const neighborUtils = this.$store.state.inventory.neighborUtils;
+            const graphUtils = this.$store.state.inventory.graphUtils;
 
             // Hide the modal
             this.dialogAddDiagram = false;
 
             // Create the diagram object
             const newDiagram = new ApiDiagram(diagramName);
-            newDiagram.serialized = neighborUtils.serializeToDiagram();
+            newDiagram.serialized = graphUtils.serializeToDiagram();
 
             // Call backend to create the diagram
             const response = await this.$store.dispatch("start/addDiagram", newDiagram);
