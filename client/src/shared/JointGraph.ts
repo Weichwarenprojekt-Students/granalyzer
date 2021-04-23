@@ -53,6 +53,20 @@ export class JointGraph {
     }
 
     /**
+     * Centers the graph
+     */
+    public centerGraph(): void {
+        const area = this.paper.getArea();
+        const xMiddle = area.x + area.width / 2;
+        const yMiddle = area.y + area.height / 2;
+
+        const translate = this.paper.translate();
+        const scale = this.paper.scale();
+
+        this.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
+    }
+
+    /**
      * Move the diagram paper
      */
     // eslint-disable-next-line

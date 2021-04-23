@@ -45,6 +45,7 @@ export default defineComponent({
 
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
+        this.graph.centerGraph();
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
 
         // Generate the active diagram if available
