@@ -9,6 +9,7 @@ import { Connection } from "../data-scheme/models/connection.model";
 import { DatabaseUtil } from "./database.util";
 import { Datatype } from "../data-scheme/models/data-type.model";
 import * as neo4j from "neo4j-driver";
+import { isHexColor, isNumber } from "class-validator";
 
 @Injectable()
 export class DataSchemeUtil {
@@ -178,7 +179,7 @@ export class DataSchemeUtil {
                     }
                     break;
                 case Datatype.COLOR:
-                    if (!this.isColor(element)) element = attribute.mandatory ? attribute.defaultValue : undefined;
+                    if (!isHexColor(element)) element = attribute.mandatory ? attribute.defaultValue : undefined;
                     break;
                 case Datatype.STRING:
                     // Try to cast neo4j-long into string
@@ -253,34 +254,12 @@ export class DataSchemeUtil {
     hasConflict(attr: Attribute, node: Node): boolean {
         switch (attr.datatype) {
             case Datatype.NUMBER:
-                return !this.isNumber(node.attributes[attr.name]);
+                return !isNumber(node.attributes[attr.name]);
             case Datatype.COLOR:
-                return !this.isColor(node.attributes[attr.name]);
+                return !isHexColor(node.attributes[attr.name]);
             default:
                 return false;
         }
-    }
-
-    /**
-     * Check if string is a color
-     *
-     * @param number The string that shall be checked
-     * @return True if a given string is a color
-     */
-    isNumber(number: string): boolean {
-        return !isNaN(parseFloat(number));
-    }
-
-    /**
-     * Check if string is a color stored as hex value
-     *
-     * @param color The string that shall be checked
-     * @return True if a given string is a color
-     */
-    isColor(color: string): boolean {
-        const testSixDigits = /^#[0-9A-F]{6}$/i.test(color);
-        const testThreeDigits = /^#[0-9A-F]{3}$/i.test(color);
-        return testSixDigits || testThreeDigits;
     }
 
     /**

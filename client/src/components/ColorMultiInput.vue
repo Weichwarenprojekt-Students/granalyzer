@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { isColor } from "@/utility";
+import { isHexColor } from "class-validator";
 
 export default defineComponent({
     name: "ColorMultiInput",
@@ -44,7 +44,7 @@ export default defineComponent({
             this.color = this.color.toUpperCase();
 
             // Emit the new value (for v-model)
-            this.error = !isColor(this.color);
+            this.error = !isHexColor(this.color);
             if (!this.error) this.$emit("update:modelValue", this.color);
         },
     },

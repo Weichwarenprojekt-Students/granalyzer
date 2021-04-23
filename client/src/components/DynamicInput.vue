@@ -22,7 +22,7 @@
 import { defineComponent } from "vue";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import ColorMultiInput from "@/components/ColorMultiInput.vue";
-import { isColor } from "@/utility";
+import { isHexColor, isNumber } from "class-validator";
 
 export default defineComponent({
     name: "DynamicInput",
@@ -77,10 +77,10 @@ export default defineComponent({
         parseValue(): void {
             switch (this.type) {
                 case ApiDatatype.NUMBER:
-                    if (isNaN(this.value as number)) this.value = 0;
+                    if (!isNumber(this.value)) this.value = 0;
                     break;
                 case ApiDatatype.COLOR:
-                    if (!isColor(this.value as string)) this.value = "#333333";
+                    if (!isHexColor(this.value)) this.value = "#333333";
                     break;
                 default:
                     this.value = this.value.toString();
