@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsObject, IsString, MinLength } from "class-validator";
+import { IsString, MinLength } from "class-validator";
+import { IsAttributesObject } from "../data-scheme/validators/attribute.validator";
 
 export default class Node {
     @ApiProperty({
@@ -37,7 +38,7 @@ export default class Node {
         name: "attributes",
         description: "The nodes attributes",
     })
-    @IsObject()
+    @IsAttributesObject()
     public attributes: any;
 
     constructor(name: string, label: string, attributes: any, id = "") {

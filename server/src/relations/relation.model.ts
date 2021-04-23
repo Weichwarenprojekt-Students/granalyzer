@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsObject, IsString, MinLength } from "class-validator";
+import { IsString, MinLength } from "class-validator";
+import { IsAttributesObject } from "../data-scheme/validators/attribute.validator";
 
 export default class Relation {
     @ApiProperty({
@@ -27,7 +28,7 @@ export default class Relation {
         name: "attributes",
         description: "Attributes of the relation",
     })
-    @IsObject()
+    @IsAttributesObject()
     public attributes: any;
 
     @ApiProperty({
