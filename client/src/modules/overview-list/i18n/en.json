@@ -1,6 +1,4 @@
 {
   "title": "Node Overview",
-  "noNodes": "No nodes found!",
-  "filter": "Filter",
-  "addNode": "New Node"
+  "noNodes": "No nodes found!"
 }

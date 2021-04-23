@@ -3,28 +3,22 @@
         <!-- Title -->
         <div class="underlined-title">
             {{ $t("overviewList.title") }}
-            <div class="action-bar">
-                <div v-tooltip.bottom="$t('overviewList.filter')">
-                    <svg @click="showLabelFilter = !showLabelFilter">
-                        <use :xlink:href="`${require('@/assets/img/icons.svg')}#filter`"></use>
-                    </svg>
-                </div>
-                <div v-if="create" v-tooltip.bottom="$t('overviewList.addNode')">
-                    <svg @click="newNode">
-                        <use :xlink:href="`${require('@/assets/img/icons.svg')}#circle-plus-bold`"></use>
-                    </svg>
-                </div>
-            </div>
+            <button class="btn btn-secondary btn-icon" v-if="create" @click="newNode">
+                <svg>
+                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#plus-bold`"></use>
+                </svg>
+                Add Node
+            </button>
         </div>
 
         <!-- Search bar + Filter -->
+        <Searchbar v-model="filter.nameFilter" @show-filter="showLabelFilter = !showLabelFilter" />
         <OverviewFilter
             v-show="showLabelFilter"
             v-model="filter.labelFilter"
             :labels="$store.state.overview.labels"
             :labelColors="$store.state.overview.labelColor"
         />
-        <Searchbar v-model="filter.nameFilter" />
 
         <!-- Scrolling content -->
         <ScrollPanel class="scroll-panel">
@@ -149,25 +143,6 @@ export default defineComponent({
 
     display: flex;
     flex-flow: column;
-}
-
-.action-bar {
-    display: flex;
-    gap: 12px;
-    flex-direction: row-reverse;
-
-    div {
-        cursor: pointer;
-        width: 24px;
-        height: 24px;
-        margin-right: 8px;
-
-        svg {
-            fill: @dark;
-            width: 100%;
-            height: 100%;
-        }
-    }
 }
 
 .underlined-title {

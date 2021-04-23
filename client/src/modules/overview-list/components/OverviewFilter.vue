@@ -53,6 +53,9 @@ export default defineComponent({
 .filter {
     margin-top: 8px;
     max-height: 200px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid @light_grey;
 }
 
 .row {
