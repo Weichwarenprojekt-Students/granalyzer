@@ -84,8 +84,6 @@ export class VisualRelationControls {
             "editor/openNewRelationDialog",
             new NewRelationCommand(this.graphHandler, source, target, RelationModeType.VISUAL),
         );
-
-        this.graphHandler.graph.rearrangeOverlappingRelations(target.jointElement, false);
     }
 
     /**
