@@ -302,7 +302,7 @@ export class GraphUtils {
                     uuid: relation.to,
                     index: 0,
                 },
-                type: relation.type,
+                label: relation.type,
                 vertices: link.vertices(),
             } as RelationInfo;
         };
