@@ -8,6 +8,8 @@ import { NodesModule } from "./nodes/nodes.module";
 import { UtilModule } from "./util/util.module";
 import { DatabaseUtil } from "./util/database.util";
 import { RelationsModule } from "./relations/relations.module";
+import { ServeStaticModule } from "@nestjs/serve-static";
+import { join } from "path";
 
 @Module({
     imports: [
@@ -25,6 +27,9 @@ import { RelationsModule } from "./relations/relations.module";
         NodesModule,
         RelationsModule,
         UtilModule.forRoot(),
+        ServeStaticModule.forRoot({
+            rootPath: join(__dirname, "../../../client/dist"),
+        }),
     ],
 })
 export class AppModule {

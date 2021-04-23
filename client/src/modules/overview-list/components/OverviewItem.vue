@@ -2,7 +2,7 @@
     <!-- Nodes related to the label -->
     <div
         :class="['node', { selected: isSelected }]"
-        @mousedown="onClick($event)"
+        @mouseup="onClick($event)"
         draggable="true"
         @dragstart="startDrag($event)"
     >
@@ -19,7 +19,7 @@ import ApiNode from "@/models/data-scheme/ApiNode";
 
 export default defineComponent({
     name: "OverviewItem",
-    emits: ["clicked-on-node"],
+    emits: ["clicked-on-node", "dragging-node"],
     props: {
         node: {
             type: Object,
@@ -41,6 +41,8 @@ export default defineComponent({
          */
         // eslint-disable-next-line
         startDrag(evt: any): void {
+            this.$emit("dragging-node", { ...this.node, color: this.color });
+
             // Create the ghost-element
             const ghostElement = evt.currentTarget.cloneNode(true);
             if (ghostElement) {

@@ -160,12 +160,40 @@ describe("NodesController", () => {
 
     describe("getRelationsOfNode", () => {
         it("should return all valid relations of the node", async () => {
+            await writeFullTextScheme();
+
             const relations: Relation[] = await controller.getRelationsOfNode(movieNodeId);
 
             // Second relation of the node is not valid -> only one is returned
             expect(relations.length).toEqual(1);
             expect(relations[0].from).toEqual(movieNodeId);
             expect(relations[0].to).toEqual(validNodeId);
+
+            await dropFullTextScheme();
         });
     });
+
+    /**
+     * Write the full text scheme allNodesIndex to test getRelationsOfNode
+     */
+    async function writeFullTextScheme() {
+        // language=cypher
+        const cypher = `
+          CALL db.index.fulltext.createNodeIndex("allNodesIndex", $labels, $indexedAttrs)
+        `;
+
+        const params = {
+            labels: ["Movie", "validLabel", "nmLabel"],
+            indexedAttrs: ["nodeId"],
+        };
+
+        return neo4jService.write(cypher, params, process.env.DB_CUSTOMER).catch(databaseUtil.catchDbError);
+    }
+    /**
+     * Drop the fullTextScheme allNodesIndex
+     */
+    async function dropFullTextScheme() {
+        const dropIndex = 'CALL db.index.fulltext.drop("allNodesIndex")';
+        await neo4jService.write(dropIndex, {}, process.env.DB_CUSTOMER);
+    }
 });

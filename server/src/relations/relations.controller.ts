@@ -1,6 +1,6 @@
 import { RelationsService } from "./relations.service";
-import { Controller, Get, Param } from "@nestjs/common";
-import { ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { ApiBody, ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import Relation from "./relation.model";
 
 @ApiTags("relations")
@@ -24,5 +24,31 @@ export class RelationsController {
     @ApiInternalServerErrorResponse()
     getRelation(@Param("id") id: string) {
         return this.relationsService.getRelation(id);
+    }
+
+    @Post()
+    @ApiBody({
+        schema: {
+            type: "object",
+            properties: {
+                type: {
+                    type: "string",
+                    description: "Type of the relation",
+                },
+                from: {
+                    type: "string",
+                    description: "Id of the node the relation is coming from",
+                },
+                to: {
+                    type: "string",
+                    description: "Id of the node the relation is coming from",
+                },
+            },
+        },
+    })
+    @ApiOperation({ description: "Creates a relation between two nodes" })
+    @ApiOkResponse({ description: "Returns the created relation", type: Relation })
+    createRelation(@Body() body: Relation): Promise<Relation> {
+        return this.relationsService.addRelation(body.type, body.from, body.to);
     }
 }

@@ -87,7 +87,7 @@ export default defineComponent({
             }
 
             // Get the selected node
-            const node = this.$store.state.editor.selectedNode;
+            const node = this.$store.state.editor.draggedNode;
             if (!node) return;
 
             // Get the mouse position in the graph and add the node accordingly
