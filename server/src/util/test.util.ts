@@ -134,6 +134,30 @@ export default class TestUtil {
             .then((res) => res.records[0].get("rt").name);
     }
 
+    async createNodeKeyUNIQUEConstraint(name: string, label: string, key: string) {
+        // language=cypher
+        const cypher = `CREATE CONSTRAINT ${name} 
+        IF NOT EXISTS
+        ON (node:${label})ASSERT node.${key} IS UNIQUE`;
+        await this.neo4jService.write(cypher, {}, process.env.CUSTOMER);
+    }
+
+    async createNodeKeyEXISTSConstraint(name: string, label: string, key: string) {
+        // language=cypher
+        const cypher = `CREATE CONSTRAINT ${name} 
+        IF NOT EXISTS
+        ON (node:${label}) ASSERT EXISTS (node.${key})`;
+        await this.neo4jService.write(cypher, {}, process.env.CUSTOMER);
+    }
+
+    async createRelationKeyEXISTSConstraint(name: string, type: string, key: string) {
+        // language=cypher
+        const cypher = `CREATE CONSTRAINT ${name} 
+        IF NOT EXISTS
+        ON ()-[relation:${type}]-() ASSERT EXISTS (relation.${key})`;
+        await this.neo4jService.write(cypher, {}, process.env.CUSTOMER);
+    }
+
     async readDBNode(nodeId: string): Promise<Node> {
         // language=Cypher
         const query = `

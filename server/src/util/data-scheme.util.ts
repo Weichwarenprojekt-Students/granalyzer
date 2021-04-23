@@ -57,10 +57,10 @@ export class DataSchemeUtil {
      * @param labelScheme The label scheme of the node
      */
     public async parseNode(record?, queryKey = "node", labelScheme?: LabelScheme): Promise<Node> {
+        // Throw exception if there is no such node in DB
         if (!record) throw new NotFoundException("No results to return");
 
         const attributes = record.get(queryKey);
-
         const node = {
             nodeId: record.get(queryKey).nodeId,
             name: record.get(queryKey).name,
@@ -68,7 +68,30 @@ export class DataSchemeUtil {
             attributes: attributes,
         } as Node;
 
+        // If node is valid parse it, else return nothing
         return this.parseRecordByLabel(node, labelScheme);
+    }
+
+    /**
+     * Checks the node if it is valid to the scheme
+     *
+     * @param node The node that shall be parsed
+     * @param labelScheme The label scheme of the node
+     */
+    async parseRecordByLabel(node: Node, labelScheme?: LabelScheme): Promise<Node> | undefined {
+        try {
+            // Gets the label scheme which matches the nodes label name
+            const label: LabelScheme = labelScheme ?? (await this.getLabelScheme(node.label));
+
+            // Deep copy all attributes from the node
+            const nodeAttributes = JSON.parse(JSON.stringify(node.attributes));
+            // Deletes the node Attributes
+            node.attributes = this.transformAttributes(label, nodeAttributes);
+
+            return node;
+        } catch (ex) {
+            return;
+        }
     }
 
     /**
@@ -95,48 +118,57 @@ export class DataSchemeUtil {
     }
 
     /**
-     * Checks the node if it is valid to the scheme
-     *
-     * @param node The node that shall be parsed
-     * @param labelScheme The label scheme of the node
-     */
-    async parseRecordByLabel(node: Node, labelScheme?: LabelScheme) {
-        // Gets the label scheme which matches the nodes label name
-        const label: LabelScheme = labelScheme ?? (await this.getLabelScheme(node.label));
-        // Deep copy all attributes from the node
-        const nodeAttributes = JSON.parse(JSON.stringify(node.attributes));
-        // Deletes the node Attributes
-        node.attributes = this.transformAttributes(label, nodeAttributes);
-
-        return node;
-    }
-
-    /**
      * Parse the relation according to the data scheme
      *
      * @param relation The relation
      */
-    async parseRecordByRelationType(relation: Relation) {
-        // Get the scheme of the relation type
-        const relationType: RelationType = await this.getRelationType(relation.type);
+    async parseRecordByRelationType(relation: Relation): Promise<Relation> | undefined {
+        try {
+            // Get the scheme of the relation type
+            const relationType: RelationType = await this.getRelationType(relation.type);
 
-        const [from, to] = await this.getLabelsForRelation(relation);
+            const [from, to] = await this.getLabelsForRelation(relation);
 
-        // Check if the relation has a valid connection according to the scheme of the relation type
-        const hasValidConnection = relationType.connections.some((conn) => conn.from === from && conn.to === to);
+            // Check if the relation has a valid connection according to the scheme of the relation type
+            const hasValidConnection = relationType.connections.some((conn) => conn.from === from && conn.to === to);
+            if (!hasValidConnection) return;
 
-        // If not valid skip
-        if (!hasValidConnection) {
+            // Deep copy of attributes
+            const relationAttributes = JSON.parse(JSON.stringify(relation.attributes));
+
+            // Parse attributes which are contained in the scheme of the relation type
+            relation.attributes = this.transformAttributes(relationType, relationAttributes);
+
+            return relation;
+        } catch (ex) {
             return;
         }
+    }
 
-        // Deep copy of attributes
-        const relationAttributes = JSON.parse(JSON.stringify(relation.attributes));
+    /**
+     * Fetch the relation with specific name
+     */
+    async getRelationType(name: string): Promise<RelationType> {
+        // language=cypher
+        const cypher = `
+          MATCH (rt:RelationType)
+            WHERE rt.name = $name
+          RETURN rt {. *} AS dataScheme`;
 
-        // Parse attributes which are contained in the scheme of the relation type
-        relation.attributes = this.transformAttributes(relationType, relationAttributes);
+        const params = {
+            name,
+        };
 
-        return relation;
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => {
+            if (!res.records.length) throw new NotFoundException("Relation: " + name + " not found");
+            return this.parseRelationType(res.records[0]);
+        };
+
+        return this.neo4jService
+            .read(cypher, params, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
     }
 
     /**
@@ -161,35 +193,32 @@ export class DataSchemeUtil {
      */
     private applyOnElement(attribute: Attribute, element: any) {
         if (!element && !attribute.mandatory) return undefined;
-        else if (!element && attribute.mandatory) {
-            if (attribute.datatype == Datatype.NUMBER) return Number(attribute["defaultValue"]);
-            else return attribute["defaultValue"];
-        } else {
-            switch (attribute.datatype) {
-                case Datatype.NUMBER:
-                    // Try casting to number if element is neo4j long which cannot be displayed in JS
-                    if (element && element.low !== undefined && element.high !== undefined)
-                        element = neo4j.integer.toNumber(element);
-                    // Check if element can be parsed to a number, set it to undefined if not
-                    else {
-                        const parsed = parseFloat(element);
-                        if (isNaN(parsed)) {
-                            element = attribute.mandatory ? Number(attribute.defaultValue) : undefined;
-                        } else element = parsed;
-                    }
-                    break;
-                case Datatype.COLOR:
-                    if (!isHexColor(element)) element = attribute.mandatory ? attribute.defaultValue : undefined;
-                    break;
-                case Datatype.STRING:
-                    // Try to cast neo4j-long into string
-                    if (element && element.low !== undefined && element.high !== undefined)
-                        element = neo4j.integer.toString(element);
-                    else if (typeof element != "string")
-                        element = attribute.mandatory ? attribute.defaultValue : undefined;
-            }
-            return element;
+        if (!element && attribute.mandatory) {
+            return attribute["defaultValue"];
         }
+        switch (attribute.datatype) {
+            case Datatype.NUMBER:
+                // Try casting to number if element is neo4j long which cannot be displayed in JS
+                if (element && element.low !== undefined && element.high !== undefined)
+                    element = neo4j.integer.toNumber(element);
+                // Check if element can be parsed to a number, set it to undefined if not
+                else {
+                    const parsed = parseFloat(element);
+                    if (isNaN(parsed)) {
+                        element = attribute.mandatory ? attribute.defaultValue : undefined;
+                    } else element = parsed;
+                }
+                break;
+            case Datatype.COLOR:
+                if (!isHexColor(element)) element = attribute.mandatory ? attribute.defaultValue : undefined;
+                break;
+            case Datatype.STRING:
+                // Try to cast neo4j-long into string
+                if (element && element.low !== undefined && element.high !== undefined)
+                    element = neo4j.integer.toString(element);
+                else if (typeof element != "string") element = attribute.mandatory ? attribute.defaultValue : undefined;
+        }
+        return element;
     }
 
     /**
@@ -210,32 +239,6 @@ export class DataSchemeUtil {
         const resolveRead = (res) => {
             if (!res.records.length) throw new NotFoundException("LabelScheme: " + name + " not found");
             return this.parseLabelScheme(res.records[0]);
-        };
-
-        return this.neo4jService
-            .read(cypher, params, this.database)
-            .then(resolveRead)
-            .catch(this.databaseUtil.catchDbError);
-    }
-
-    /**
-     * Fetch the relation with specific name
-     */
-    async getRelationType(name: string): Promise<RelationType> {
-        // language=cypher
-        const cypher = `
-          MATCH (rt:RelationType)
-            WHERE rt.name = $name
-          RETURN rt {. *} AS dataScheme`;
-
-        const params = {
-            name,
-        };
-
-        // Callback function which is applied on the neo4j response
-        const resolveRead = (res) => {
-            if (!res.records.length) throw new NotFoundException("Relation: " + name + " not found");
-            return this.parseRelationType(res.records[0]);
         };
 
         return this.neo4jService
@@ -275,6 +278,9 @@ export class DataSchemeUtil {
         };
 
         const result = await this.neo4jService.read(cypher, params, process.env.DB_CUSTOMER);
+        if (!result.records.length)
+            throw new NotFoundException("Could not fetch the node labels of relation " + relation.type);
+
         return [result.records[0].get("s").labels[0], result.records[0].get("e").labels[0]];
     }
 }

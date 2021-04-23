@@ -41,7 +41,7 @@ export class NodesRelationsService {
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then(resolveRead)
+            .then(await resolveRead)
             .catch(this.databaseUtil.catchDbError);
     }
 }

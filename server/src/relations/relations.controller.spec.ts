@@ -47,6 +47,8 @@ describe("RelationsController", () => {
         await databaseUtil.clearDatabase();
     });
 
+    // TODO: Check constraints
+
     // Create the test data
     beforeEach(async () => {
         // Write the labels
@@ -161,22 +163,18 @@ describe("RelationsController", () => {
     });
 
     describe("getRelation", () => {
+        it("should return the correct relation", async () => {
+            expect(await relationsController.getRelation(validRelation.relationId)).toEqual(validRelation);
+        });
+
         it("should throw an exception because the uuid is not existent", async () => {
             await expect(relationsController.getRelation("251608de-a05e-4690-a088-8f603c07768")).rejects.toThrowError(
                 NotFoundException,
             );
         });
 
-        it("should return the correct relation", async () => {
-            expect(await relationsController.getRelation(validRelation.relationId)).toEqual(validRelation);
-        });
-
-        it("should return attributes which are in data-scheme only", async () => {
-            validRelation.attributes["attrTwo"] = "additional";
-            const response = await relationsController.getRelation(validRelation.relationId);
-            expect(response.attributes).toEqual({
-                attrOne: "Gandalf",
-            });
+        it("returns nothing because the relation type is not in data scheme", async () => {
+            // TODO
         });
     });
 
