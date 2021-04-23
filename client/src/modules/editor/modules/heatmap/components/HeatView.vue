@@ -1,41 +1,56 @@
 <template>
     <div :class="['heat-view', { 'heat-view-expanded': !collapsed }]">
-
         <!-- The Header -->
         <div class="heat-header">
             <svg class="heat-collapse-icon" @click="collapsed = !collapsed">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#arrow`"></use>
             </svg>
             <label>{{ name }}</label>
+            <Dropdown :force-close="collapsed" :value="value">
+                <div @click="value='-'">-</div>
+                <div @click="value='Enum'">Enum</div>
+                <div @click="value='Number'">Number</div>
+            </Dropdown>
             <div class="heat-spacer" />
         </div>
 
         <!-- The expandable content -->
         <div class="heat-expanded">
             <div class="heat-row">
-                <label>from 0</label>
+                <span>From</span>
+                <DynamicInput/>
             </div>
             <div class="heat-row">
-                <label>to 10</label>
+                <div class="input-row">
+                    <label>To</label>
+                </div>
             </div>
         </div>
-
     </div>
 </template>
 
 <script>
 import { defineComponent } from "vue";
+import Dropdown from "@/components/Dropdown";
+import DynamicInput from "@/components/DynamicInput";
 
-export default defineComponent( {
+
+export default defineComponent({
     name: "HeatView",
+    components: {
+        Dropdown,
+        DynamicInput,
+    },
     data() {
         return {
-            collapsed: true,
-        }
+            collapsed: false,
+            value: "-",
+        };
     },
     props: {
         name: String,
-    }
+        labelAttributes: [],
+    },
 });
 </script>
 
@@ -55,9 +70,11 @@ export default defineComponent( {
 
 .heat-view-expanded {
     height: @line_height + 3 * @attribute_edit_height;
+
     .heat-collapse-icon {
         transform: rotate(90deg);
     }
+
     .heat-expanded {
         height: 3 * @attribute_edit_height;
     }
@@ -94,7 +111,7 @@ export default defineComponent( {
 }
 
 .heat-expanded {
-    margin-left: 100px;
+    margin-left: 60px;
     padding: 0 16px;
     height: 0;
     border-bottom: 1px solid @grey;
@@ -107,5 +124,12 @@ export default defineComponent( {
     display: flex;
     justify-content: space-between;
 }
-
+.dropdown {
+    position: absolute;
+    left: 160px;
+}
+.DynamicInput {
+    position: absolute;
+    left: 100px;
+}
 </style>

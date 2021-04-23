@@ -21,7 +21,7 @@ export default {
 <style lang="less" scoped>
 .heat-map {
     position: absolute;
-    bottom: 16px;
+    Top: 350px;
     width: 100%;
 }
 
