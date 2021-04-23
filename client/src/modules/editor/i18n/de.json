@@ -21,5 +21,9 @@
   "relationModeToast": {
     "title": "Beziehungsmodus is aktiv!",
     "description": "Im Beziehungsmodus können keine neuen Nodes hinzugefügt werden"
+  },
+  "heatmap": {
+    "title": "Heat View",
+    "name": "Name:"
   }
 }

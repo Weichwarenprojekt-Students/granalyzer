@@ -9,6 +9,7 @@
                 :key="attribute.name"
                 :attribute="attribute"
             ></AttributeItem>
+            <HeatMap class="heatmap"/>
         </ScrollPanel>
     </div>
     <div v-else class="content">
@@ -19,17 +20,20 @@
             </svg>
             <div class="message">{{ $t("editor.inspector.nothing-selected") }}</div>
         </div>
+        <HeatMap class="heatmap"/>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import AttributeItem from "@/modules/editor/modules/inspector/components/AttributeItem.vue";
+import HeatMap from "@/modules/editor/modules/heatmap/HeatMap.vue";
 
 export default defineComponent({
     name: "Inspector",
     components: {
         AttributeItem,
+        HeatMap,
     },
     mounted() {
         this.$store.commit("editor/resetSelection");
