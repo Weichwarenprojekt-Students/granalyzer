@@ -1,14 +1,14 @@
 import { dia, shapes } from "jointjs";
-import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
+import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { Store } from "vuex";
 import { RootState } from "@/store";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/models/NodeShapes";
+import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeShapes";
 import { getBrightness } from "@/utility";
 import Cell = dia.Cell;
 import { JointGraph } from "@/shared/JointGraph";
-import { Relation } from "@/modules/editor/modules/graph-editor/controls/models/Relation";
+import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationInfo";
 
 /**
  * Provides key functionality for placing nodes and relations
@@ -73,7 +73,7 @@ export class GraphUtils {
     public addNodeToDiagram(apiNode: ApiNode): dia.Element {
         this.calculateNewPosition();
 
-        const node: Node = {
+        const node: NodeInfo = {
             x: this.currentX,
             y: this.currentY,
             shape: "rectangle",
@@ -144,7 +144,6 @@ export class GraphUtils {
         link.attr({
             line: { strokeWidth: 4 },
         });
-        link.connector("rounded", { radius: 20 });
 
         if (relation.type)
             link.appendLabel({
@@ -269,7 +268,7 @@ export class GraphUtils {
         if (!this.store?.state?.inventory) return "";
 
         // Prepare the serialization object for each node
-        const nodes: Array<Node> = Array.from(
+        const nodes: Array<NodeInfo> = Array.from(
             [this.store.state.inventory.selectedNode as ApiNode, ...this.store.state.inventory.neighbors],
             (node) => {
                 const diagEl = this.getShapeById(node.nodeId);
@@ -303,13 +302,13 @@ export class GraphUtils {
                     uuid: relation.to,
                     index: 0,
                 },
-                type: relation.type,
+                label: relation.type,
                 vertices: link.vertices(),
-            } as Relation;
+            } as RelationInfo;
         };
 
         // Map normal and visual relations to an array
-        const relations: Relation[] = Array.from(this.graph.graph.getLinks(), relationMapFn);
+        const relations: RelationInfo[] = Array.from(this.graph.graph.getLinks(), relationMapFn);
 
         // Compose the serializable graph and return the JSON string
         return JSON.stringify({

@@ -1,5 +1,13 @@
 <template>
-    <div class="container" @mousemove="graph.mousemove">
+    <div class="container" @mousemove="mousemove">
+        <!-- The dialog for adding a new visual relation -->
+        <InputDialog
+            @input-confirm="addNewVisualRelation"
+            @cancel="$store.dispatch('editor/closeNewRelationDialog')"
+            :show="$store.state.editor.graphEditor.newRelationDialog"
+            :image-src="`${require('@/assets/img/icons.svg')}#relation`"
+            :title="$t('editor.graphEditor.setRelationName')"
+        ></InputDialog>
         <ProgressBar
             v-show="$store.state.editor.graphEditor.editorLoading"
             mode="indeterminate"
@@ -20,18 +28,18 @@ import { defineComponent } from "vue";
 import { GraphHandler } from "./controls/GraphHandler";
 import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
-import { GraphControls } from "./controls/GraphControls";
 import { errorToast, infoToast } from "@/utility";
+import InputDialog from "@/components/dialog/InputDialog.vue";
 
 export default defineComponent({
     name: "GraphEditor",
     components: {
         Toolbar,
+        InputDialog,
     },
     data() {
         return {
             graph: {} as JointGraph,
-            editorControls: {} as GraphControls,
         };
     },
     async mounted(): Promise<void> {
@@ -96,6 +104,22 @@ export default defineComponent({
                 },
             });
         },
+        /**
+         * Call mousemove methods of JointGraph and RelationModeControls
+         */
+        // eslint-disable-next-line
+        mousemove(event: any): void {
+            this.$store.state.editor.graphEditor.graphHandler?.graph.mousemove(event);
+            this.$store.state.editor.graphEditor.graphHandler?.relationMode.mousemove(event);
+        },
+        /**
+         * Callback for the new relation dialog to add a new relation
+         *
+         * @param relationName name of the relation
+         */
+        addNewVisualRelation(relationName: string): void {
+            this.$store.dispatch("editor/confirmNewRelationDialog", relationName);
+        },
     },
 });
 </script>
@@ -143,11 +167,9 @@ export default defineComponent({
     }
 }
 
-#graphContainer {
-    > div {
-        > svg {
-            background: #f2f2f2;
-        }
+#joint {
+    > svg {
+        background: #f2f2f2;
     }
 }
 </style>
