@@ -111,11 +111,14 @@ export class GraphControls {
      * Stop bending a relation
      */
     public async stopBendingRelation(): Promise<void> {
+        // Only add the BendRelationCommand to the undo/redo stack if the vertices have actually changed
         if (this.bendCommand && this.bendCommand.verticesHaveChanged()) {
-            // Only add the BendRelationCommand to the undo/redo stack if the vertices have actually changed
-            await this.store.dispatch("editor/addCommand", this.bendCommand);
-        }
-        this.bendCommand = undefined;
+            // Use local variable for bend command, so that this.bendCommand can be reset before dispatch is awaited
+            const cmd = this.bendCommand;
+            this.bendCommand = undefined;
+
+            await this.store.dispatch("editor/addCommand", cmd);
+        } else this.bendCommand = undefined;
     }
 
     /**
