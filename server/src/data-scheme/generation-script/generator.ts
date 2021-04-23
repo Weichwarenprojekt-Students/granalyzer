@@ -259,5 +259,13 @@ export class SchemeGenerator {
           SET rel.relationId = apoc.create.uuid()
         `;
         await session.run(createRelationUuidQuery, {}).catch(console.error);
+
+        // Create the exists constraints for the specific relation type
+        const createConstraintQuery = `
+          CREATE CONSTRAINT ${relationType.name}Key IF NOT exists
+          ON ()-[type:${relationType.name}]-()
+          ASSERT exists(type.relationId)
+        `;
+        await session.run(createConstraintQuery).catch(console.error);
     }
 }
