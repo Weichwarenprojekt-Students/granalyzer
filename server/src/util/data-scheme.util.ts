@@ -35,11 +35,13 @@ export class DataSchemeUtil {
         if (!element && !attribute.mandatory) return undefined;
         switch (attribute.datatype) {
             case Datatype.NUMBER:
-                // Try casting to number if element is neo4j long which cannot be displayed in JS
+                // Try converting to number if element is neo4j long (Which cannot be displayed in JS)
                 if (element && element.low !== undefined && element.high !== undefined)
                     element = neo4j.integer.toNumber(element);
-                // Check if element can be parsed to a number, set it to undefined if not
-                else element = undefined;
+                // Try converting to number(float) if element is neo4j float/integer
+                else if (!isNaN(parseFloat(element))) {
+                    element = parseFloat(element);
+                } else element = undefined;
                 break;
             case Datatype.COLOR:
                 if (!isHexColor(element)) element = undefined;

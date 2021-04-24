@@ -7,7 +7,7 @@ import { NodesController } from "./nodes.controller";
 import { Neo4jService } from "nest-neo4j/dist";
 import { NodesService } from "./nodes.service";
 import Node from "./node.model";
-import { NumberAttribute, StringAttribute } from "../data-scheme/models/attributes.model";
+import { ColorAttribute, NumberAttribute, StringAttribute } from "../data-scheme/models/attributes.model";
 import Relation from "../relations/relation.model";
 import { RelationType } from "../data-scheme/models/relation-type.model";
 import { Connection } from "../data-scheme/models/connection.model";
@@ -141,7 +141,12 @@ describe("NodesController", () => {
     describe("createNode", () => {
         it("correctly writes the data to DB", async () => {
             // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", []);
+            const movieLabel = new LabelScheme("Movie", "#EEE", [
+                new NumberAttribute("released", false, 0),
+                new StringAttribute("genre", false, ""),
+                new StringAttribute("director", false, ""),
+                new ColorAttribute("color", false, ""),
+            ]);
             movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
 
             const newNode = {
@@ -156,17 +161,17 @@ describe("NodesController", () => {
             } as Node;
 
             const uuid = (await nodesController.createNode(newNode)).nodeId;
-            const actualNode = await testUtil.readDBNode(uuid);
+            const actualNode = await nodesController.getNode(uuid);
 
             expect(actualNode).toEqual({
                 nodeId: uuid,
                 name: newNode.name,
                 label: newNode.label,
                 attributes: {
-                    ...newNode.attributes,
-                    nodeId: uuid,
-                    name: newNode.name,
-                    label: newNode.label,
+                    released: 2004,
+                    genre: "Fantasy",
+                    director: "Robert Zemeckis",
+                    color: "#0000ff",
                 },
             });
         });
