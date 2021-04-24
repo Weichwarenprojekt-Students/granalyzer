@@ -9,6 +9,7 @@ import { Connection } from "../data-scheme/models/connection.model";
 import { DatabaseUtil } from "./database.util";
 import { Datatype } from "../data-scheme/models/data-type.model";
 import { isHexColor, isNumber, isString } from "class-validator";
+import * as neo4j from "neo4j-driver";
 
 @Injectable()
 export class DataSchemeUtil {
@@ -26,12 +27,14 @@ export class DataSchemeUtil {
      * @param element The attribute to be converted
      * @param includeDefaults True if the transformation should automatically place the defaults
      */
-    private static applyOnElement(
-        attribute: Attribute,
-        element: any,
-        includeDefaults: boolean,
-    ): string | number | undefined {
+    public applyOnElement(attribute: Attribute, element: any, includeDefaults: boolean): string | number | undefined {
         if (!element && !attribute.mandatory) return undefined;
+
+        // Check if element is a neo4j integer and try to parse
+        if (element && element.low !== undefined && element.high !== undefined)
+            element = neo4j.integer.toNumber(element);
+
+        // Ensure the type is right
         switch (attribute.datatype) {
             case Datatype.NUMBER:
                 if (isString(element)) element = parseFloat(element);
@@ -43,7 +46,10 @@ export class DataSchemeUtil {
             case Datatype.STRING:
                 if (element) element = element.toString();
         }
+
+        // Insert the attribute's default value if necessary
         if (!element && attribute.mandatory && includeDefaults) return attribute["defaultValue"];
+
         return element;
     }
 
@@ -212,24 +218,6 @@ export class DataSchemeUtil {
     }
 
     /**
-     * Check if an attribute in a node has a conflict
-     *
-     * @param attr The attribute to be checked
-     * @param node The node to be checked
-     * @return True if the attribute has a conflict
-     */
-    hasConflict(attr: Attribute, node: Node): boolean {
-        switch (attr.datatype) {
-            case Datatype.NUMBER:
-                return !isNumber(node.attributes[attr.name]);
-            case Datatype.COLOR:
-                return !isHexColor(node.attributes[attr.name]);
-            default:
-                return false;
-        }
-    }
-
-    /**
      * Transform attributes of nodes or relations according to the scheme
      *
      * @param scheme Scheme data
@@ -243,7 +231,7 @@ export class DataSchemeUtil {
     ) {
         const attributes = {};
         scheme.attributes.forEach((attribute) => {
-            attributes[attribute.name] = DataSchemeUtil.applyOnElement(
+            attributes[attribute.name] = this.applyOnElement(
                 attribute,
                 originalAttributes[attribute.name],
                 includeDefaults,

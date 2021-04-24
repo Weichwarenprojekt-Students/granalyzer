@@ -321,7 +321,8 @@ export class DataSchemeService {
             if (element.mandatory)
                 missingConflicts += (await this.getEntityAttrDependant(element.name, label, false)).length;
             exists.forEach((node) => {
-                diffConflicts += this.dataSchemeUtil.hasConflict(element, node) ? 1 : 0;
+                const attribute = node.attributes[element.name];
+                diffConflicts += !!this.dataSchemeUtil.applyOnElement(element, attribute, false) ? 0 : 1;
             });
         }
 
