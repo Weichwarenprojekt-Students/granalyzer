@@ -59,7 +59,7 @@ export default defineComponent({
         // The datatype of the attribute
         datatype: String,
         // The default value for the attribute
-        defaultValue: String,
+        defaultValue: [String, Number],
         // True if the attribute is mandatory
         mandatory: Boolean,
     },

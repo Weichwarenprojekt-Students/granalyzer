@@ -51,11 +51,10 @@ export default defineComponent({
 @import "~@/styles/global.less";
 
 .filter {
-    margin-top: 8px;
     max-height: 200px;
-    padding-bottom: 16px;
-    margin-bottom: 16px;
-    border-bottom: 2px solid @light_grey;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid @grey;
 }
 
 .row {
