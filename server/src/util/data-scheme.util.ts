@@ -10,6 +10,7 @@ import { DatabaseUtil } from "./database.util";
 import { Datatype } from "../data-scheme/models/data-type.model";
 import { isHexColor, isNumber, isString } from "class-validator";
 import * as neo4j from "neo4j-driver";
+import { Record } from "neo4j-driver";
 
 @Injectable()
 export class DataSchemeUtil {
@@ -88,7 +89,7 @@ export class DataSchemeUtil {
      * @param record Single record response from db
      * @param includeDefaults True if the transformation should automatically place the defaults
      */
-    public async parseNode(record?, includeDefaults = true): Promise<Node> {
+    public async parseNode(record: Record, includeDefaults = true): Promise<Node> {
         // Throw exception if there is no such node in DB
         if (!record) throw new NotFoundException("No results to return");
 
@@ -118,14 +119,14 @@ export class DataSchemeUtil {
     /**
      * Parse record from the database as relation
      *
-     * @param record The record
-     * @param queryKey The key of the record as specified in the query
-     * @private
+     * @param record Single record response from db
+     * @param includeDefaults True if the transformation should automatically place the defaults
      */
-    async parseRelation(record?, queryKey = "r"): Promise<Relation> {
+    async parseRelation(record: Record, includeDefaults = true): Promise<Relation> {
         // Throw exception if there is no such relation in DB
         if (!record) throw new NotFoundException("No results to return");
 
+        const queryKey = "relation";
         const attributes = record.get(queryKey);
         const relation = {
             relationId: record.get(queryKey).relationId,
@@ -135,18 +136,13 @@ export class DataSchemeUtil {
             attributes: attributes,
         } as Relation;
 
+        // Get the relation information (to check if relation is invalid)
         let relationType: RelationType;
-        let from: string;
-        let to: string;
-
+        let from: string, to: string;
         try {
             // Try to get the scheme of the passed relation type
             relationType = await this.getRelationType(relation.type);
-        } catch (ex) {
-            return;
-        }
 
-        try {
             // Try to get the labels for the connected nodes
             [from, to] = await this.getLabelsForRelation(relation);
         } catch {
@@ -161,7 +157,7 @@ export class DataSchemeUtil {
         const relationAttributes = JSON.parse(JSON.stringify(relation.attributes));
 
         // Parse attributes which are contained in the scheme of the relation type
-        relation.attributes = this.transformAttributes(relationType, relationAttributes);
+        relation.attributes = this.transformAttributes(relationType, relationAttributes, includeDefaults);
         return relation;
     }
 

@@ -38,7 +38,7 @@ export class NodesService {
         delete params.attributes.nodeId;
         params.attributes.name = node.name;
 
-        const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0]);
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0], false);
         return this.neo4jService
             .write(query, params, this.database)
             .then(resolveRead)
@@ -92,7 +92,7 @@ export class NodesService {
         params.attributes["nodeId"] = nodeId;
         params.attributes["name"] = node.name;
 
-        const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0]);
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0], false);
         return this.neo4jService
             .write(query, params, this.database)
             .then(resolveRead)

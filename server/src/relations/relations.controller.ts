@@ -1,5 +1,16 @@
 import { RelationsService } from "./relations.service";
-import { Body, Controller, Delete, Get, Param, Post, Put } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    DefaultValuePipe,
+    Delete,
+    Get,
+    Param,
+    ParseBoolPipe,
+    Post,
+    Put,
+    Query,
+} from "@nestjs/common";
 import {
     ApiBody,
     ApiInternalServerErrorResponse,
@@ -8,6 +19,7 @@ import {
     ApiOkResponse,
     ApiOperation,
     ApiParam,
+    ApiQuery,
     ApiTags,
 } from "@nestjs/swagger";
 import Relation from "./relation.model";
@@ -19,11 +31,15 @@ export class RelationsController {
     constructor(private readonly relationsService: RelationsService) {}
 
     @Get(":id")
+    @ApiQuery({ name: "includeDefaults", type: "number" })
     @ApiOperation({ description: "Returns a specific relation from the customer db matching by id" })
     @ApiOkResponse({ description: "Return the relation with the given id", type: Relation })
     @ApiInternalServerErrorResponse()
-    getRelation(@Param("id") id: string) {
-        return this.relationsService.getRelation(id);
+    getRelation(
+        @Param("id") id: string,
+        @Query("includeDefaults", new DefaultValuePipe(true), ParseBoolPipe) includeDefaults: boolean,
+    ) {
+        return this.relationsService.getRelation(id, includeDefaults);
     }
 
     @Get()

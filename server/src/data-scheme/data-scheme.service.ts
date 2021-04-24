@@ -421,10 +421,10 @@ export class DataSchemeService {
         const cypher = attributeExists
             ? `MATCH ()-[rel:${relationTypeName}]-()
                 WHERE exists(rel.${attributeName})
-                RETURN DISTINCT rel {.*, type: $relationTypeName} AS r`
+                RETURN DISTINCT rel {.*, type: $relationTypeName} AS relation`
             : `MATCH ()-[rel:${relationTypeName}]-()
                 WHERE NOT exists(rel.${attributeName})
-                RETURN DISTINCT rel {.*, type: $relationTypeName} AS r`;
+                RETURN DISTINCT rel {.*, type: $relationTypeName} AS relation`;
 
         const resolveRead = (result) => Promise.all(result.records.map((el) => this.dataSchemeUtil.parseRelation(el)));
         return await this.neo4jService

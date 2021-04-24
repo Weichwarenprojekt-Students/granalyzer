@@ -19,12 +19,13 @@ export class RelationsService {
 
     /**
      * Creates a relation with a given type between two given nodes
+     *
      * @param relation The relation to be created
      */
     async createRelation(relation: Relation): Promise<Relation> {
         // language=Cypher
         const query = `
-          MATCH (from) 
+          MATCH (from)
           WITH from
           MATCH (to)
             WHERE from.nodeId = $from AND to.nodeId = $to
@@ -41,7 +42,7 @@ export class RelationsService {
         delete params.attributes.relationId;
 
         // Callback which parses the received data
-        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], "relation");
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], false);
 
         return await this.neo4jService
             .write(query, params, this.database)
@@ -51,17 +52,19 @@ export class RelationsService {
 
     /**
      * Modifies the attributes of the specified relation
+     *
      * @param relationId The UUID of the relation
      * @param relation The node to be modified
      */
     modifyRelation(relationId: string, relation: Relation): Promise<Relation> {
         //language=Cypher
-        const query = `MATCH(startNode)-[relation]->(endNode)
-                         WHERE relation.relationId = $relationId
-                       WITH startNode.nodeId AS from,
-                            endNode.nodeId AS to, relation
-                       SET relation = $attributes
-                       RETURN relation { .*, type:TYPE(relation), from:from, to:to} as relation;`;
+        const query = `
+          MATCH(startNode)-[relation]->(endNode)
+            WHERE relation.relationId = $relationId
+          WITH startNode.nodeId AS from,
+               endNode.nodeId AS to, relation
+          SET relation = $attributes
+          RETURN relation {. *, type:type(relation), from:from, to:to} AS relation;`;
         const params = {
             relationId,
             attributes: relation.attributes,
@@ -70,7 +73,7 @@ export class RelationsService {
         // Set the id
         params.attributes["relationId"] = relationId;
 
-        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], "relation");
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], false);
         return this.neo4jService
             .write(query, params, this.database)
             .then(resolveRead)
@@ -79,16 +82,18 @@ export class RelationsService {
 
     /**
      * Deletes the specified relation by id
+     *
      * @param relationId
      */
     async deleteRelation(relationId: string): Promise<Relation> {
         // Backup the relation to return
-        const relation = await this.getRelation(relationId);
+        const relation = await this.getRelation(relationId, true);
 
         // language=Cypher
-        const query = `MATCH(startNode)-[relation]-(endNode) 
-                         WHERE relation.relationId=$relationId
-                       DELETE relation;`;
+        const query = `
+          MATCH(startNode)-[relation]-(endNode)
+            WHERE relation.relationId = $relationId
+          DELETE relation;`;
         const params = {
             relationId,
         };
@@ -99,18 +104,22 @@ export class RelationsService {
 
     /**
      * Returns a specific relation by id
+     *
+     * @param id The nodeId
+     * @param includeDefaults True if the transformation should automatically place the defaults
      */
-    async getRelation(id: string): Promise<Relation> {
+    async getRelation(id: string, includeDefaults: boolean): Promise<Relation> {
         // language=cypher
-        const query = `MATCH(startNode)-[relation]->(endNode) 
-                         WHERE relation.relationId = $id
-                       WITH startNode.nodeId AS from,
-                            endNode.nodeId AS to, relation
-                       RETURN relation { .*, type:TYPE(relation), from:from, to:to} as relation;`;
+        const query = `
+          MATCH(startNode)-[relation]->(endNode)
+            WHERE relation.relationId = $id
+          WITH startNode.nodeId AS from,
+               endNode.nodeId AS to, relation
+          RETURN relation {. *, type:type(relation), from:from, to:to} AS relation;`;
         const params = { id };
 
         // Callback which parses the received data
-        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], "relation");
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], includeDefaults);
 
         return this.neo4jService
             .read(query, params, this.database)
@@ -123,10 +132,11 @@ export class RelationsService {
      */
     async getAllRelations(): Promise<Relation[]> {
         // language=cypher
-        const query = `MATCH(startNode)-[relation]->(endNode)
-                       WITH startNode.nodeId AS from, 
-                            endNode.nodeId AS to, relation 
-                       RETURN relation { .*, type:TYPE(relation), from:from, to:to} as relation;`;
+        const query = `
+          MATCH(startNode)-[relation]->(endNode)
+          WITH startNode.nodeId AS from,
+               endNode.nodeId AS to, relation
+          RETURN relation {. *, type:type(relation), FROM:from, to:to} AS relation;`;
         const params = {};
 
         // Callback which is applied on the database response
