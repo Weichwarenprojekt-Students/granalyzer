@@ -1,7 +1,7 @@
 import { buildMessage, isNumber, isObject, isString, registerDecorator, ValidationOptions } from "class-validator";
 
 /**
- * A custom validator for attributes
+ * A custom validator for actual attribute values
  */
 export function IsAttributesObject(validationOptions?: ValidationOptions) {
     return function (object: unknown, propertyName: string) {

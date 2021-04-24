@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, MinLength } from "class-validator";
-import { IsAttributesObject } from "../data-scheme/validators/attribute.validator";
+import { IsAttributesObject } from "../data-scheme/validators/attributes.validator";
 
 export default class Node {
     @ApiProperty({

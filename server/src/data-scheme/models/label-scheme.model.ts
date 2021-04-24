@@ -1,7 +1,8 @@
 import { Attribute } from "./attributes.model";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsHexColor, IsString, ValidateNested } from "class-validator";
+import { IsHexColor, IsString, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
+import { IsAttributeDefinition } from "../validators/scheme-attribute.validator";
 
 export class LabelScheme {
     @ApiProperty({
@@ -28,9 +29,9 @@ export class LabelScheme {
         name: "attributes",
         description: "Array containing all attributes of the label scheme",
     })
-    @IsArray()
     @Type(() => Attribute)
     @ValidateNested({ each: true })
+    @IsAttributeDefinition()
     attributes: Attribute[];
 
     /**
