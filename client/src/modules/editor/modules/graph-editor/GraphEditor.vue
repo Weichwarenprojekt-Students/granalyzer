@@ -30,6 +30,7 @@ import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
 import { errorToast, infoToast } from "@/utility";
 import InputDialog from "@/components/dialog/InputDialog.vue";
+import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
 
 export default defineComponent({
     name: "GraphEditor",
@@ -49,7 +50,7 @@ export default defineComponent({
         await this.$store.dispatch("editor/fetchActiveDiagram");
 
         // Load the labels with the first load of matching nodes
-        await this.$store.dispatch("overview/loadLabelsAndNodes");
+        await this.$store.dispatch("overview/loadLabelsAndNodes", new NodeFilter());
 
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");

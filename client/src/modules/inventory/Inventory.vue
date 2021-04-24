@@ -18,7 +18,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import OverviewList from "@/modules/overview-list/OverviewList.vue";
-import InventoryHeader from "@/modules/inventory/modules/inventory-header/InventoryHeader.vue";
+import InventoryHeader from "@/modules/inventory/components/InventoryHeader.vue";
 import NeighborView from "@/modules/inventory/modules/neighbor-view/NeighborView.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import WriteInspector from "@/modules/inspector/WriteInspector.vue";
@@ -36,8 +36,10 @@ export default defineComponent({
         this.$store.dispatch("overview/loadLabelsAndNodes");
 
         // Restore last selection if revisiting
-        if (this.$store.state.inventory.selectedNode)
+        if (this.$store.state.inventory.selectedNode) {
             this.$store.dispatch("inventory/loadNeighbors", this.$store.state.inventory.selectedNode);
+            this.$store.dispatch("inspector/selectNode", this.$store.state.inventory.selectedNode.nodeId);
+        }
     },
     methods: {
         /**

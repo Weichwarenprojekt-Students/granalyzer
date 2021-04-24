@@ -1,18 +1,5 @@
 <template>
     <div class="container" @mousemove="graph.mousemove">
-        <ProgressBar v-show="$store.state.inventory.loading" mode="indeterminate" class="loading" />
-
-        <!-- Info, when empty -->
-        <div v-show="!$store.state.inventory.selectedNode" class="empty-warning">
-            <svg>
-                <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
-            </svg>
-            <div class="message">{{ $t("inventory.graph.emptySelection") }}</div>
-        </div>
-
-        <!-- Neighbor preview graph -->
-        <div id="joint" @dragover.prevent @drop="nodeDrop" />
-
         <!-- Dialog for adding new relations -->
         <DropdownDialog
             @input-confirm="addNewRelation"
@@ -21,6 +8,19 @@
             :fromNode="fromNode"
             :toNodes="toNodes"
         ></DropdownDialog>
+
+        <ProgressBar v-show="$store.state.inventory.loading" mode="indeterminate" class="loading" />
+
+        <!-- Info, when empty -->
+        <div v-if="!$store.state.inventory.selectedNode" class="empty-warning">
+            <svg>
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
+            </svg>
+            <div class="message">{{ $t("inventory.graph.emptySelection") }}</div>
+        </div>
+
+        <!-- Neighbor preview graph -->
+        <div id="joint" @dragover.prevent @drop="nodeDrop" />
     </div>
 </template>
 
@@ -162,27 +162,6 @@ export default defineComponent({
         top: 0;
         left: 0;
         right: 0;
-    }
-}
-
-.empty-warning {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 18px;
-    flex-direction: column;
-
-    svg {
-        fill: @dark_grey;
-        height: 64px;
-        width: 64px;
-        margin-top: 128px;
-        margin-bottom: 16px;
-    }
-
-    .message {
-        color: @dark;
-        font-size: @h3;
     }
 }
 </style>

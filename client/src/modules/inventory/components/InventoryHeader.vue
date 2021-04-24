@@ -9,8 +9,8 @@
         ></InputDialog>
         <h3>{{ $t("inventory.header.title") }}</h3>
         <button
-            v-show="$store.state.inventory.selectedNode && !$store.state.inventory.loading"
-            class="btn create-diagram"
+            :disabled="!$store.state.inventory.selectedNode || $store.state.inventory.loading"
+            class="btn btn-secondary btn-icon"
             @click="dialogAddDiagram = true"
         >
             <svg>
@@ -70,9 +70,11 @@ export default defineComponent({
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
-.create-diagram {
-    margin-left: 16px;
+button {
+    position: absolute;
+    right: 16px;
 }
 </style>

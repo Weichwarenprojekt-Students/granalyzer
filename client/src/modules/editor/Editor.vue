@@ -36,7 +36,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import EditorHeader from "@/modules/editor/modules/editor-header/EditorHeader.vue";
+import EditorHeader from "@/modules/editor/components/EditorHeader.vue";
 import OverviewList from "@/modules/overview-list/OverviewList.vue";
 import GraphEditor from "@/modules/editor/modules/graph-editor/GraphEditor.vue";
 import ReadInspector from "@/modules/inspector/ReadInspector.vue";
