@@ -8,7 +8,6 @@ import { LabelScheme } from "../data-scheme/models/label-scheme.model";
 import { Connection } from "../data-scheme/models/connection.model";
 import { DatabaseUtil } from "./database.util";
 import { Datatype } from "../data-scheme/models/data-type.model";
-import * as neo4j from "neo4j-driver";
 import { isHexColor, isNumber, isString } from "class-validator";
 
 @Injectable()
@@ -35,22 +34,14 @@ export class DataSchemeUtil {
         if (!element && !attribute.mandatory) return undefined;
         switch (attribute.datatype) {
             case Datatype.NUMBER:
-                // Try converting to number if element is neo4j long (Which cannot be displayed in JS)
-                if (element && element.low !== undefined && element.high !== undefined)
-                    element = neo4j.integer.toNumber(element);
-                // Try converting to number(float) if element is neo4j float/integer
-                else if (!isNaN(parseFloat(element))) {
-                    element = parseFloat(element);
-                } else element = undefined;
+                if (isString(element)) element = parseFloat(element);
+                if (!isNumber(element)) element = undefined;
                 break;
             case Datatype.COLOR:
                 if (!isHexColor(element)) element = undefined;
                 break;
             case Datatype.STRING:
-                // Try to cast neo4j-long into string
-                if (element && element.low !== undefined && element.high !== undefined)
-                    element = neo4j.integer.toString(element);
-                else if (!isString(element)) element = undefined;
+                element = element.toString();
         }
         if (!element && attribute.mandatory && includeDefaults) return attribute["defaultValue"];
         return element;
