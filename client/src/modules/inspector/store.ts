@@ -96,7 +96,7 @@ export const inspector = {
             if (!uuid) return;
 
             // Fetch node data
-            let result = await GET(`/api/nodes/${uuid}`);
+            let result = await GET(`/api/nodes/${uuid}?includeDefaults=false`);
             if (isUnexpected(result)) return;
             const node: ApiNode = await result.json();
 
@@ -114,7 +114,7 @@ export const inspector = {
             if (!uuid) return;
 
             // Fetch the relation data
-            let result = await GET(`/api/relations/${uuid}`);
+            let result = await GET(`/api/relations/${uuid}?includeDefaults=false`);
             if (isUnexpected(result)) return;
             const relation: ApiRelation = await result.json();
 
