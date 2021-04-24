@@ -25,6 +25,7 @@ export class NodesService {
         // language=Cypher
         const query = `
           CALL apoc.create.node([$label], {}) YIELD node
+
           SET node.nodeId = apoc.create.uuid(), node+=$attributes
           WITH labels(node) AS lbls, node
           UNWIND lbls AS label
@@ -133,15 +134,7 @@ export class NodesService {
      * @param nameFilter
      * @param labelFilter
      */
-    async getAllNodes(
-        limit: number,
-        offset: number,
-        nameFilter?: string,
-        labelFilter?: Array<string>,
-    ): Promise<Node[]> {
-        // Convert single filters to array to keep handling consistent
-        labelFilter = Array.isArray(labelFilter) ? labelFilter : [labelFilter];
-
+    async getAllNodes(limit: number, offset: number, nameFilter: string, labelFilter: Array<string>): Promise<Node[]> {
         // Create the filter part of the cypher query
         const filter = await this.generateFilterString(nameFilter, labelFilter);
 
@@ -178,9 +171,8 @@ export class NodesService {
      *
      * @param nameFilter Name to filter by
      * @param labelFilter Labels to filter by
-     * @private
      */
-    private async generateFilterString(nameFilter?: string, labelFilter?: string[]): Promise<string> {
+    private async generateFilterString(nameFilter: string, labelFilter: string[]): Promise<string> {
         // Validates the given labels to prevent injections
         labelFilter = await this.validateLabelFilter(labelFilter);
 

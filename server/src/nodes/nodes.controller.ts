@@ -1,4 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    DefaultValuePipe,
+    Delete,
+    Get,
+    Param,
+    ParseArrayPipe,
+    ParseBoolPipe,
+    ParseIntPipe,
+    Post,
+    Put,
+    Query,
+} from "@nestjs/common";
 import { NodesService } from "./nodes.service";
 import Node from "./node.model";
 import {
@@ -77,8 +90,11 @@ export class NodesController {
         type: Node,
     })
     @ApiInternalServerErrorResponse()
-    getNode(@Param("id") id: string) {
-        return this.nodesService.getNode(id, true);
+    getNode(
+        @Param("id") id,
+        @Query("includeDefaults", new DefaultValuePipe(true), ParseBoolPipe) includeDefaults: boolean,
+    ) {
+        return this.nodesService.getNode(id, includeDefaults);
     }
 
     @Get()
@@ -95,15 +111,11 @@ export class NodesController {
     })
     @ApiInternalServerErrorResponse()
     getAllNodes(
-        @Query("limit") limit?: number,
-        @Query("offset") offset?: number,
-        @Query("nameFilter") nameFilter?: string,
-        @Query("labelFilter") labelFilter?: Array<string>,
+        @Query("limit", new DefaultValuePipe(20), ParseIntPipe) limit: number,
+        @Query("offset", new DefaultValuePipe(0), ParseIntPipe) offset: number,
+        @Query("nameFilter", new DefaultValuePipe("")) nameFilter: string,
+        @Query("labelFilter", new DefaultValuePipe([]), ParseArrayPipe) labelFilter: Array<string>,
     ) {
-        limit = limit ?? 20;
-        offset = offset ?? 0;
-        nameFilter = nameFilter ?? "";
-        labelFilter = labelFilter ?? [];
         return this.nodesService.getAllNodes(limit, offset, nameFilter, labelFilter);
     }
 
