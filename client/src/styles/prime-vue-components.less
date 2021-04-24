@@ -96,6 +96,7 @@
 .pi {
   color: white;
 }
+
 .p-inputtext {
   padding: 6px 12px !important;
   border: 0 !important;
@@ -104,12 +105,14 @@
   box-shadow: none !important;
   font-family: "Fira Sans", normal, sans-serif !important;
 }
+
 .p-inputnumber-input {
   width: 124px !important;
   border: 0 !important;
   color: @dark !important;
   background: @light_grey !important;
 }
+
 .p-inputnumber-button {
   background: @dark !important;
   border: 0 !important;
@@ -142,6 +145,7 @@
   justify-content: center;
   align-items: center;
 }
+
 .p-colorpicker-preview {
   width: 24px !important;
   height: 24px !important;
@@ -169,6 +173,7 @@
     background: @accent_color !important;
   }
 }
+
 .p-checkbox-box.p-highlight {
   background: @secondary_color !important;
 }
@@ -177,4 +182,61 @@
   color: @dark !important;
   font-size: 16px !important;
   font-weight: bold !important;
+}
+
+/**
+ * Dropdown
+ */
+.p-dropdown {
+  background: white !important;
+  border-radius: 0 !important;
+  border: none !important;
+  border-bottom: 1px solid @grey !important;
+  padding-top: 4px !important;
+}
+
+.p-dropdown:not(.p-disabled).p-focus {
+  box-shadow: none !important;
+  border-color: @grey !important;
+}
+
+.p-dropdown:not(p.disabled):hover {
+  border-color: @grey !important;
+}
+
+.p-dropdown .p-dropdown-trigger {
+  border-radius: 0 !important;
+}
+
+.p-dropdown-panel {
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid @grey !important;
+  border-top: none !important;
+}
+
+.p-dropdown-items {
+  padding: 0 !important;
+}
+
+.p-dropdown-item {
+  padding: 8px !important;
+  color: @dark_grey !important;
+}
+
+.p-highlight {
+  background: @accent_color !important;
+}
+
+.p-dropdown-item:hover {
+  background: @accent_color !important;
+}
+
+.pi-chevron-down:before {
+  color: @grey;
+}
+
+.p-inputtext {
+  border: none !important;
+  padding: 8px !important;
 }

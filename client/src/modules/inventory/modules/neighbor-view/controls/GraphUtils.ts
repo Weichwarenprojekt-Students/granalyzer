@@ -1,18 +1,18 @@
 import { dia, shapes } from "jointjs";
-import { Node } from "@/modules/editor/modules/graph-editor/controls/models/Node";
+import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { Store } from "vuex";
 import { RootState } from "@/store";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/models/NodeShapes";
+import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeShapes";
 import { getBrightness } from "@/utility";
 import { JointGraph } from "@/shared/JointGraph";
-import Cell = dia.Cell;
+import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationInfo";
 
 /**
  * Provides key functionality for placing nodes and relations
  */
-export class NeighborUtils {
+export class GraphUtils {
     /**
      * Maps the uuid of a node to the id of a diagram shape
      */
@@ -65,7 +65,7 @@ export class NeighborUtils {
     public addNodeToDiagram(apiNode: ApiNode): dia.Element {
         this.calculateNewPosition();
 
-        const node: Node = {
+        const node: NodeInfo = {
             x: this.currentX,
             y: this.currentY,
             shape: "rectangle",
@@ -136,7 +136,6 @@ export class NeighborUtils {
         link.attr({
             line: { strokeWidth: 4 },
         });
-        link.connector("rounded", { radius: 20 });
 
         if (relation.type)
             link.appendLabel({
@@ -187,6 +186,32 @@ export class NeighborUtils {
     public resetGraph(): void {
         this.mappedNodes.clear();
         this.mappedRelations.clear();
+        this.graph.graph.clear();
+    }
+
+    /**
+     * Centers the graph
+     */
+    public centerGraph(): void {
+        const area = this.graph.paper.getArea();
+        const xMiddle = area.x + area.width / 2;
+        const yMiddle = area.y + area.height / 2;
+
+        const translate = this.graph.paper.translate();
+        const scale = this.graph.paper.scale();
+
+        this.graph.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
+    }
+
+    /**
+     * Finds the node id that corresponds to a shape id
+     *
+     * @param id Id of the shape
+     */
+    public async getNodeByShapeId(id: string): Promise<ApiNode | undefined> {
+        const nodeId = [...this.mappedNodes].find(([, value]) => value === id);
+        if (!nodeId) return undefined;
+        return await this.store.dispatch("inventory/getNode", nodeId[0]);
     }
 
     /**
@@ -195,7 +220,7 @@ export class NeighborUtils {
      * @param id Id of the node that is supposed to be in the graph
      * @private
      */
-    private getShapeById(id: string): Cell | undefined {
+    private getShapeById(id: string): dia.Cell | undefined {
         const shapeId = this.mappedNodes.get(id);
         if (shapeId) return this.graph.graph.getCell(shapeId);
         return undefined;
@@ -218,15 +243,13 @@ export class NeighborUtils {
         // Change centered element of neighborhood graph on double click
         this.graph.paper.on("element:pointerdblclick", async (cell) => {
             if (!this.store.state.inventory) return;
+            if (this.store.state.inventory.loading) return;
 
-            const nodeId = [...this.mappedNodes].find(([, value]) => value === cell.model.id);
-
-            if (!nodeId) return;
-            const node = await this.store.dispatch("inventory/getNode", nodeId[0]);
+            const node = await this.getNodeByShapeId(cell.model.id);
 
             this.store.commit("inventory/setSelectedNode", node);
             this.store.commit("inventory/reset");
-            await this.store.dispatch("inventory/loadRelations", node);
+            await this.store.dispatch("inventory/loadNeighbors", node);
         });
 
         // Make links selectable and show them in the inspector on click
@@ -245,6 +268,62 @@ export class NeighborUtils {
                 await this.store.dispatch("inspector/selectNode", nodeId[0]);
                 this.graph.selectElement(cell);
             }
+        });
+    }
+
+    /**
+     *  Returns the diagram as JSON string
+     */
+    public serializeToDiagram(): string {
+        if (!this.store?.state?.inventory) return "";
+
+        // Prepare the serialization object for each node
+        const nodes: Array<NodeInfo> = Array.from(
+            [this.store.state.inventory.selectedNode as ApiNode, ...this.store.state.inventory.neighbors],
+            (node) => {
+                const diagEl = this.getShapeById(node.nodeId);
+                return {
+                    label: node.label,
+                    ref: {
+                        index: 0,
+                        uuid: node.nodeId,
+                    },
+                    name: node.name,
+                    color: node.color,
+                    shape: "rectangle",
+                    x: diagEl?.attributes.position.x,
+                    y: diagEl?.attributes.position.y,
+                };
+            },
+        );
+
+        // Define lambda for mapping relations
+        const relationMapFn = (link: dia.Link) => {
+            const relation = this.store.state.inventory?.relations.filter(
+                (rel) => this.mappedRelations.get(rel.relationId) === link.id,
+            )[0] as ApiRelation;
+            return {
+                uuid: relation.relationId,
+                from: {
+                    uuid: relation.from,
+                    index: 0,
+                },
+                to: {
+                    uuid: relation.to,
+                    index: 0,
+                },
+                label: relation.type,
+                vertices: link.vertices(),
+            } as RelationInfo;
+        };
+
+        // Map normal and visual relations to an array
+        const relations: RelationInfo[] = Array.from(this.graph.graph.getLinks(), relationMapFn);
+
+        // Compose the serializable graph and return the JSON string
+        return JSON.stringify({
+            nodes,
+            relations,
         });
     }
 }

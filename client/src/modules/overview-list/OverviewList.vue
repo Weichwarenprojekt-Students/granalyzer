@@ -39,6 +39,7 @@
                 :font-color="$store.state.overview.labelColor.get(node.label).fontColor"
                 :isSelected="node.nodeId === selectedItemId"
                 @clicked-on-node="clickedOnNode"
+                @dragging-node="draggingNode"
             />
         </ScrollPanel>
     </div>
@@ -55,7 +56,7 @@ import { NodeFilter } from "@/modules/overview-list/models/NodeFilter.ts";
 export default defineComponent({
     name: "OverviewList",
     components: { OverviewFilter, Searchbar, OverviewItem },
-    emits: ["clicked-on-node"],
+    emits: ["clicked-on-node", "dragging-node"],
     props: {
         // Id of the item that is selected in the overview
         selectedItemId: String,
@@ -116,6 +117,12 @@ export default defineComponent({
          */
         clickedOnNode(node: ApiNode) {
             this.$emit("clicked-on-node", node);
+        },
+        /**
+         *  Emit the dragged node to the editor/inventory
+         */
+        draggingNode(node: ApiNode) {
+            this.$emit("dragging-node", node);
         },
         /**
          * Filter nodes by labels

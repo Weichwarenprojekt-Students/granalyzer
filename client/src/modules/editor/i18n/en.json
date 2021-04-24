@@ -4,7 +4,7 @@
     "undo": "Undo (Ctrl + Z)",
     "redo": "Redo (Ctrl + Y)",
     "delete": "Delete",
-    "relation": "Edit relations",
+    "relation": "Edit relations (R)",
     "active": "Active"
   },
   "noDiagram": {
@@ -19,5 +19,8 @@
     "description": "Nodes can't be added while the relation edit mode is active"
   },
   "toolbox": "Toolbox",
-  "inspector": "Inspector"
+  "inspector": "Inspector",
+  "graphEditor": {
+    "setRelationName": "New visual relation"
+  }
 }

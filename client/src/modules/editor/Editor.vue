@@ -4,6 +4,7 @@
             :selectedItemId="$store.state.editor.selectedNode?.nodeId"
             class="overview"
             @clicked-on-node="clickedOnNode"
+            @dragging-node="draggingNode"
         ></OverviewList>
         <div class="center">
             <EditorHeader class="header"></EditorHeader>
@@ -59,6 +60,12 @@ export default defineComponent({
         clickedOnNode(node: ApiNode): void {
             this.$store.commit("editor/setSelectedNode", node);
             this.$store.dispatch("inspector/selectNode", node.nodeId);
+        },
+        /**
+         * Store dragged node
+         */
+        draggingNode(node: ApiNode): void {
+            this.$store.commit("editor/setDraggedNode", node);
         },
     },
 });

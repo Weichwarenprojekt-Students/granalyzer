@@ -41,7 +41,7 @@ export class DataSchemeUtil {
                 if (!isHexColor(element)) element = undefined;
                 break;
             case Datatype.STRING:
-                element = element.toString();
+                if (element) element = element.toString();
         }
         if (!element && attribute.mandatory && includeDefaults) return attribute["defaultValue"];
         return element;
