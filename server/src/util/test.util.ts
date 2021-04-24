@@ -13,6 +13,10 @@ import { RelationType } from "../data-scheme/models/relation-type.model";
  */
 @Injectable()
 export default class TestUtil {
+    // TODO: Remove most of the methods since they don't make sense for
+    //       blackbox testing of controllers.
+    //       Other possibility would be to create separate test suites
+    //       for testing how our backend reacts based on existing invalid data
     constructor(private readonly neo4jService: Neo4jService) {}
 
     /**
@@ -174,13 +178,12 @@ export default class TestUtil {
         if (!record) throw new NotFoundException("No results to return");
 
         const attributes = record.get("node");
-        const node = {
+        return {
             nodeId: record.get("node").nodeId,
             name: record.get("node").name,
             label: record.get("node").label,
             attributes: attributes,
         } as Node;
-        return node;
     }
 
     async readDBRelation(relationId: string): Promise<Relation> {
@@ -196,13 +199,12 @@ export default class TestUtil {
         if (!record) throw new NotFoundException("No results to return");
 
         const attributes = record.get("relation");
-        const relation = {
+        return {
             relationId: record.get("relation").relationId,
             type: record.get("relation").type,
             from: record.get("relation").from,
             to: record.get("relation").to,
             attributes: attributes,
         } as Relation;
-        return relation;
     }
 }

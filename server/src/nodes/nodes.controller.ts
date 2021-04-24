@@ -68,6 +68,7 @@ export class NodesController {
     }
 
     @Get(":id")
+    @ApiQuery({ name: "includeDefaults", type: "number" })
     @ApiOperation({
         description: "Returns a specific node from the customer db matching by id",
     })
@@ -77,7 +78,7 @@ export class NodesController {
     })
     @ApiInternalServerErrorResponse()
     getNode(@Param("id") id: string) {
-        return this.nodesService.getNode(id);
+        return this.nodesService.getNode(id, true);
     }
 
     @Get()

@@ -9,7 +9,7 @@ import { Connection } from "../data-scheme/models/connection.model";
 import { DatabaseUtil } from "./database.util";
 import { Datatype } from "../data-scheme/models/data-type.model";
 import * as neo4j from "neo4j-driver";
-import { isHexColor, isNumber } from "class-validator";
+import { isHexColor, isNumber, isString } from "class-validator";
 
 @Injectable()
 export class DataSchemeUtil {
@@ -19,6 +19,36 @@ export class DataSchemeUtil {
     private readonly database = process.env.DB_TOOL;
 
     constructor(private readonly neo4jService: Neo4jService, private readonly databaseUtil: DatabaseUtil) {}
+
+    /**
+     * Converts an element according to a given label or relation scheme
+     *
+     * @param attribute The attribute scheme
+     * @param element The attribute to be converted
+     * @param includeDefaults True if the transformation should automatically place the defaults
+     */
+    private static applyOnElement(attribute: Attribute, element: any, includeDefaults: boolean): string | number {
+        if (!element && !attribute.mandatory) return undefined;
+        switch (attribute.datatype) {
+            case Datatype.NUMBER:
+                // Try casting to number if element is neo4j long which cannot be displayed in JS
+                if (element && element.low !== undefined && element.high !== undefined)
+                    element = neo4j.integer.toNumber(element);
+                // Check if element can be parsed to a number, set it to undefined if not
+                else element = undefined;
+                break;
+            case Datatype.COLOR:
+                if (!isHexColor(element)) element = undefined;
+                break;
+            case Datatype.STRING:
+                // Try to cast neo4j-long into string
+                if (element && element.low !== undefined && element.high !== undefined)
+                    element = neo4j.integer.toString(element);
+                else if (!isString(element)) element = undefined;
+        }
+        if (!element && attribute.mandatory && includeDefaults) return attribute["defaultValue"];
+        return element;
+    }
 
     /**
      * Parses the record to labels
@@ -53,13 +83,13 @@ export class DataSchemeUtil {
      * Parse the db response into a Node
      *
      * @param record Single record response from db
-     * @param queryKey The key of the record as specified in the query
-     * @param labelScheme The label scheme of the node
+     * @param includeDefaults True if the transformation should automatically place the defaults
      */
-    public async parseNode(record?, queryKey = "node", labelScheme?: LabelScheme): Promise<Node> {
+    public async parseNode(record?, includeDefaults = true): Promise<Node> {
         // Throw exception if there is no such node in DB
         if (!record) throw new NotFoundException("No results to return");
 
+        const queryKey = "node";
         const attributes = record.get(queryKey);
         const node = {
             nodeId: record.get(queryKey).nodeId,
@@ -68,30 +98,18 @@ export class DataSchemeUtil {
             attributes: attributes,
         } as Node;
 
-        // If node is valid parse it, else return nothing
-        return this.parseRecordByLabel(node, labelScheme);
-    }
-
-    /**
-     * Checks the node if it is valid to the scheme
-     *
-     * @param node The node that shall be parsed
-     * @param labelScheme The label scheme of the node
-     */
-    async parseRecordByLabel(node: Node, labelScheme?: LabelScheme): Promise<Node> | undefined {
+        // Gets the label scheme which matches the nodes label name
+        let label: LabelScheme;
         try {
-            // Gets the label scheme which matches the nodes label name
-            const label: LabelScheme = labelScheme ?? (await this.getLabelScheme(node.label));
-
-            // Deep copy all attributes from the node
-            const nodeAttributes = JSON.parse(JSON.stringify(node.attributes));
-            // Deletes the node Attributes
-            node.attributes = this.transformAttributes(label, nodeAttributes);
-
-            return node;
-        } catch (ex) {
-            return;
+            label = await this.getLabelScheme(node.label);
+        } catch {
+            return undefined;
         }
+
+        // Deletes the node Attributes
+        node.attributes = this.transformAttributes(label, node.attributes, includeDefaults);
+
+        return node;
     }
 
     /**
@@ -172,56 +190,6 @@ export class DataSchemeUtil {
     }
 
     /**
-     * Transform attributes of nodes or relations according to the scheme
-     *
-     * @param scheme Scheme data
-     * @param originalAttributes The original attributes of the node or relation
-     */
-    private transformAttributes(scheme: LabelScheme | RelationType, originalAttributes) {
-        const attributes = {};
-        scheme.attributes.forEach((attribute) => {
-            attributes[attribute.name] = this.applyOnElement(attribute, originalAttributes[attribute.name]);
-        });
-        return attributes;
-    }
-
-    /**
-     * Converts an element according to a given label or relation scheme
-     *
-     * @param attribute The attribute scheme
-     * @param element The attribute to be converted
-     */
-    private applyOnElement(attribute: Attribute, element: any) {
-        if (!element && !attribute.mandatory) return undefined;
-        if (!element && attribute.mandatory) {
-            return attribute["defaultValue"];
-        }
-        switch (attribute.datatype) {
-            case Datatype.NUMBER:
-                // Try casting to number if element is neo4j long which cannot be displayed in JS
-                if (element && element.low !== undefined && element.high !== undefined)
-                    element = neo4j.integer.toNumber(element);
-                // Check if element can be parsed to a number, set it to undefined if not
-                else {
-                    const parsed = parseFloat(element);
-                    if (isNaN(parsed)) {
-                        element = attribute.mandatory ? attribute.defaultValue : undefined;
-                    } else element = parsed;
-                }
-                break;
-            case Datatype.COLOR:
-                if (!isHexColor(element)) element = attribute.mandatory ? attribute.defaultValue : undefined;
-                break;
-            case Datatype.STRING:
-                // Try to cast neo4j-long into string
-                if (element && element.low !== undefined && element.high !== undefined)
-                    element = neo4j.integer.toString(element);
-                else if (typeof element != "string") element = attribute.mandatory ? attribute.defaultValue : undefined;
-        }
-        return element;
-    }
-
-    /**
      * Fetch the label with specific name
      */
     async getLabelScheme(name: string): Promise<LabelScheme> {
@@ -263,6 +231,29 @@ export class DataSchemeUtil {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Transform attributes of nodes or relations according to the scheme
+     *
+     * @param scheme Scheme data
+     * @param originalAttributes The original attributes of the node or relation
+     * @param includeDefaults True if the transformation should automatically place the defaults
+     */
+    private transformAttributes(
+        scheme: LabelScheme | RelationType,
+        originalAttributes: Attribute[],
+        includeDefaults = true,
+    ) {
+        const attributes = {};
+        scheme.attributes.forEach((attribute) => {
+            attributes[attribute.name] = DataSchemeUtil.applyOnElement(
+                attribute,
+                originalAttributes[attribute.name],
+                includeDefaults,
+            );
+        });
+        return attributes;
     }
 
     /**

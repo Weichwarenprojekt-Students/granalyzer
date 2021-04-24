@@ -101,8 +101,11 @@ export class NodesService {
 
     /**
      * Returns a specific node by id
+     *
+     * @param id The nodeId
+     * @param includeDefaults True if the transformation should automatically place the defaults
      */
-    async getNode(id: string): Promise<Node> {
+    async getNode(id: string, includeDefaults: boolean): Promise<Node> {
         // language=Cypher
         const query = `
           MATCH (n)
@@ -115,7 +118,7 @@ export class NodesService {
         };
 
         // Callback which parses the received data
-        const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0]);
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0], includeDefaults);
 
         return this.neo4jService
             .read(query, params, this.database)
@@ -125,6 +128,7 @@ export class NodesService {
 
     /**
      * Return all nodes with limit and offset (pagination) from the neo4j db
+     *
      * @param limit
      * @param offset
      * @param nameFilter
@@ -159,7 +163,10 @@ export class NodesService {
         };
 
         // Callback which is applied on the database response
-        const resolveRead = (result) => Promise.all(result.records.map((el) => this.dataSchemeUtil.parseNode(el)));
+        const resolveRead = (result) =>
+            Promise.all(result.records.map((el) => this.dataSchemeUtil.parseNode(el))).then((nodes) =>
+                nodes.filter((node) => !!node),
+            );
 
         return this.neo4jService
             .read(query, params, this.database)
