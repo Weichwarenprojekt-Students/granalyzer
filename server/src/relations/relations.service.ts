@@ -22,19 +22,18 @@ export class RelationsService {
      * @param relation The relation to be created
      */
     async createRelation(relation: Relation): Promise<Relation> {
-        await this.dataSchemeUtil.getRelationType(relation.type);
-
         // language=Cypher
         const query = `
           MATCH (from) 
           WITH from
           MATCH (to)
             WHERE from.nodeId = $from AND to.nodeId = $to
-          CREATE(from)-[relation:${relation.type}]->(to)
+            CALL apoc.create.relationship(from, $type, {}, to) YIELD rel AS relation
           SET relation.relationId = apoc.create.uuid(), relation +=$attributes
           RETURN relation {. *, type:type(relation), from:from.nodeId, to:to.nodeId} AS relation;`;
 
         const params = {
+            type: relation.type,
             from: relation.from,
             to: relation.to,
             attributes: relation.attributes,

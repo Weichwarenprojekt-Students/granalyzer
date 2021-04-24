@@ -22,17 +22,16 @@ export class NodesService {
      * @param node The node to be created
      */
     async createNode(node: Node): Promise<Node> {
-        // Throws an exception if there is no such label
-        await this.dataSchemeUtil.getLabelScheme(node.label);
-
         // language=Cypher
         const query = `
-          CREATE(node:${node.label})
+          CALL apoc.create.node([$label], {}) YIELD node
           SET node.nodeId = apoc.create.uuid(), node+=$attributes
           WITH labels(node) AS lbls, node
           UNWIND lbls AS label
           RETURN node {. *, label:label} AS node `;
+
         const params = {
+            label: node.label,
             attributes: node.attributes,
         };
         delete params.attributes.nodeId;
