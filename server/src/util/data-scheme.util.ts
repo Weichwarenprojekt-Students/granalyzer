@@ -27,7 +27,11 @@ export class DataSchemeUtil {
      * @param element The attribute to be converted
      * @param includeDefaults True if the transformation should automatically place the defaults
      */
-    private static applyOnElement(attribute: Attribute, element: any, includeDefaults: boolean): string | number {
+    private static applyOnElement(
+        attribute: Attribute,
+        element: any,
+        includeDefaults: boolean,
+    ): string | number | undefined {
         if (!element && !attribute.mandatory) return undefined;
         switch (attribute.datatype) {
             case Datatype.NUMBER:
@@ -100,15 +104,15 @@ export class DataSchemeUtil {
 
         // Gets the label scheme which matches the nodes label name
         let label: LabelScheme;
+
         try {
             label = await this.getLabelScheme(node.label);
         } catch {
-            return undefined;
+            return;
         }
 
-        // Deletes the node Attributes
+        // Parse attributes which are contained in the scheme of the node label
         node.attributes = this.transformAttributes(label, node.attributes, includeDefaults);
-
         return node;
     }
 
@@ -120,10 +124,10 @@ export class DataSchemeUtil {
      * @private
      */
     async parseRelation(record?, queryKey = "r"): Promise<Relation> {
+        // Throw exception if there is no such relation in DB
         if (!record) throw new NotFoundException("No results to return");
 
         const attributes = record.get(queryKey);
-
         const relation = {
             relationId: record.get(queryKey).relationId,
             type: record.get(queryKey).type,
@@ -132,35 +136,34 @@ export class DataSchemeUtil {
             attributes: attributes,
         } as Relation;
 
-        return this.parseRecordByRelationType(relation);
-    }
+        let relationType: RelationType;
+        let from: string;
+        let to: string;
 
-    /**
-     * Parse the relation according to the data scheme
-     *
-     * @param relation The relation
-     */
-    async parseRecordByRelationType(relation: Relation): Promise<Relation> | undefined {
         try {
-            // Get the scheme of the relation type
-            const relationType: RelationType = await this.getRelationType(relation.type);
-
-            const [from, to] = await this.getLabelsForRelation(relation);
-
-            // Check if the relation has a valid connection according to the scheme of the relation type
-            const hasValidConnection = relationType.connections.some((conn) => conn.from === from && conn.to === to);
-            if (!hasValidConnection) return;
-
-            // Deep copy of attributes
-            const relationAttributes = JSON.parse(JSON.stringify(relation.attributes));
-
-            // Parse attributes which are contained in the scheme of the relation type
-            relation.attributes = this.transformAttributes(relationType, relationAttributes);
-
-            return relation;
+            // Try to get the scheme of the passed relation type
+            relationType = await this.getRelationType(relation.type);
         } catch (ex) {
             return;
         }
+
+        try {
+            // Try to get the labels for the connected nodes
+            [from, to] = await this.getLabelsForRelation(relation);
+        } catch {
+            return;
+        }
+
+        // Check if the relation has a valid connection according to the scheme of the relation type
+        const hasValidConnection = relationType.connections.some((conn) => conn.from === from && conn.to === to);
+        if (!hasValidConnection) return;
+
+        // Deep copy of attributes
+        const relationAttributes = JSON.parse(JSON.stringify(relation.attributes));
+
+        // Parse attributes which are contained in the scheme of the relation type
+        relation.attributes = this.transformAttributes(relationType, relationAttributes);
+        return relation;
     }
 
     /**

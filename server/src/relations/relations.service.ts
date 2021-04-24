@@ -129,9 +129,11 @@ export class RelationsService {
                        RETURN relation { .*, type:TYPE(relation), from:from, to:to} as relation;`;
         const params = {};
 
-        // Callback which parses the received data
-        const resolveRead = async (res) =>
-            Promise.all(res.records.map((el) => this.dataSchemeUtil.parseRelation(el, "relation")));
+        // Callback which is applied on the database response
+        const resolveRead = (result) =>
+            Promise.all(result.records.map((el) => this.dataSchemeUtil.parseRelation(el))).then((relations) =>
+                relations.filter((relation) => !!relation),
+            );
 
         return this.neo4jService
             .read(query, params, this.database)
