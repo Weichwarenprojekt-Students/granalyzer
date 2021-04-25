@@ -7,6 +7,11 @@
                 <h1>{{ $t("inventory.dialog.title") }}</h1>
 
                 <div class="direction">
+                    <!-- Switch -->
+                    <svg @click="switchDirection">
+                        <use :xlink:href="`${require('@/assets/img/icons.svg')}#reload`"></use>
+                    </svg>
+
                     <div class="flex-wrapper">
                         <!-- From -->
                         <div class="direction-item">
@@ -30,11 +35,6 @@
                             />
                         </div>
                     </div>
-
-                    <!-- Switch -->
-                    <svg class="icon-reload" @click="switchDirection">
-                        <use :xlink:href="`${require('@/assets/img/icons.svg')}#reload`"></use>
-                    </svg>
                 </div>
 
                 <div class="type">
@@ -60,7 +60,7 @@ import ApiNode from "@/models/data-scheme/ApiNode";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 
 export default defineComponent({
-    name: "DropdownDialog",
+    name: "NewRelationDialog",
     components: {
         BaseDialog,
     },
@@ -168,7 +168,7 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global";
 
-@input_width: 360px;
+@input_width: 320px;
 
 .mid-section {
     position: relative;
@@ -176,7 +176,6 @@ export default defineComponent({
     border-top: 8px solid @primary_color;
     display: flex;
     align-items: center;
-    width: 512px;
 
     .selection {
         display: flex;
@@ -186,7 +185,7 @@ export default defineComponent({
 }
 
 .text {
-    width: 40px;
+    width: 48px;
     font-style: italic;
     font-size: @normal_text;
 }
@@ -197,21 +196,19 @@ export default defineComponent({
 
 .direction {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-top: 8px;
+    margin-top: 12px;
 
     .direction-item {
         display: flex;
         align-items: center;
-        padding-right: 8px;
         margin-top: 4px;
 
         .node {
             border-bottom: 1px solid @grey;
 
             width: @input_width;
-            padding: 8px;
+            padding: 8px 12px;
 
             overflow: hidden;
             text-overflow: ellipsis;
@@ -219,10 +216,11 @@ export default defineComponent({
         }
     }
 
-    .icon-reload {
+    svg {
         fill: @dark;
         height: 24px;
         width: 24px;
+        margin-right: 20px;
         cursor: pointer;
     }
 }
@@ -230,6 +228,13 @@ export default defineComponent({
 .type {
     display: flex;
     align-items: center;
-    margin-top: 16px;
+    margin-top: 4px;
+    margin-left: 44px;
+}
+
+.p-dropdown {
+    background: white !important;
+    border-bottom: 1px solid @grey !important;
+    padding: 2px 0 !important;
 }
 </style>

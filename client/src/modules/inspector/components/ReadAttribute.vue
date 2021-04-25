@@ -47,6 +47,12 @@ export default defineComponent({
     flex: 0 0 auto;
 }
 
+.attribute-key {
+    overflow: hidden;
+    max-width: 100px;
+    text-overflow: ellipsis;
+}
+
 .attribute-value {
     flex: 1 1 auto;
     justify-content: flex-end;

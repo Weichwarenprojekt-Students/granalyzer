@@ -20,13 +20,13 @@
             <div class="attribute-modification-row">
                 <span>{{ $t("schemes.attribute.type") }}</span>
                 <Dropdown
-                    :force-close="collapsed"
-                    :value="$t(`schemes.attribute.datatype.${modifiedAttribute.datatype}`)"
-                >
-                    <div :key="type" v-for="type in types" @click="modifiedAttribute.datatype = type">
-                        {{ $t(`schemes.attribute.datatype.${type}`) }}
-                    </div>
-                </Dropdown>
+                    :options="types"
+                    optionLabel="name"
+                    optionValue="value"
+                    v-model="modifiedAttribute.datatype"
+                    :placeholder="$t('global.dropdown.choose')"
+                    :emptyMessage="$t('global.dropdown.empty')"
+                />
             </div>
             <div class="attribute-modification-row">
                 <span>{{ $t("schemes.attribute.mandatory") }}</span>
@@ -44,14 +44,12 @@
 import { defineComponent } from "vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
-import Dropdown from "@/components/Dropdown.vue";
 import DynamicInput from "@/components/DynamicInput.vue";
 
 export default defineComponent({
     name: "AttributeView",
     components: {
         DynamicInput,
-        Dropdown,
     },
     props: {
         // The name of the attribute
@@ -69,8 +67,13 @@ export default defineComponent({
             collapsed: true,
             // The modified attribute object
             modifiedAttribute: new ApiAttribute(),
-            // The different data types
-            types: ApiDatatype,
+            // The different data types (prepared for the dropdown)
+            types: Object.values(ApiDatatype).map((datatype) => {
+                return {
+                    name: this.$t(`schemes.attribute.datatype.${datatype}`),
+                    value: datatype,
+                };
+            }),
         };
     },
     created() {

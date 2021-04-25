@@ -3,17 +3,23 @@
         <!-- The header -->
         <div class="attribute-header">
             <span class="attribute-type">from</span>
-            <Dropdown :value="fromModified">
-                <div :key="label.name" v-for="label in $store.state.schemes.labels" @click="fromModified = label.name">
-                    {{ label.name }}
-                </div>
-            </Dropdown>
+            <Dropdown
+                :options="$store.state.schemes.labels"
+                optionLabel="name"
+                optionValue="name"
+                v-model="fromModified"
+                :placeholder="$t('global.dropdown.choose')"
+                :emptyMessage="$t('global.dropdown.empty')"
+            />
             <span class="attribute-type">to</span>
-            <Dropdown :value="toModified">
-                <div :key="label.name" v-for="label in $store.state.schemes.labels" @click="toModified = label.name">
-                    {{ label.name }}
-                </div>
-            </Dropdown>
+            <Dropdown
+                :options="$store.state.schemes.labels"
+                optionLabel="name"
+                optionValue="name"
+                v-model="toModified"
+                :placeholder="$t('global.dropdown.choose')"
+                :emptyMessage="$t('global.dropdown.empty')"
+            />
             <div class="attribute-spacer" />
             <svg class="attribute-delete-icon" @click="$emit('delete')">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#delete`"></use>
@@ -24,13 +30,9 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Dropdown from "@/components/Dropdown.vue";
 
 export default defineComponent({
     name: "ConnectionView",
-    components: {
-        Dropdown,
-    },
     props: {
         // The possible source label of a connection
         from: String,

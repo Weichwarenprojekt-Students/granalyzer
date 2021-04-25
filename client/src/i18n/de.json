@@ -18,5 +18,9 @@
   "stopSpamming": {
     "title": "WHaT tHE FUcK",
     "description": "Könnten Sie bitte aufhören zu spammen? Was zum Himmel !?"
+  },
+  "dropdown":{
+    "choose": "Wähle",
+    "empty": "Keine Optionen verfügbar."
   }
 }

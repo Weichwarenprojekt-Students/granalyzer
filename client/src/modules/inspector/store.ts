@@ -72,20 +72,10 @@ export const inspector = {
             // Create a new node
             state.element = new ApiNode(i18n.global.t("inspector.new"));
             state.types = types ?? [];
-            state.element.label = "-";
             if (types.length <= 0) return;
 
             // Set default label
-            state.element.label = types[0].name;
-            state.attributes = types[0].attributes.map(
-                (attribute: ApiAttribute) =>
-                    new InspectorAttribute(
-                        attribute.name,
-                        attribute.defaultValue,
-                        attribute.datatype,
-                        attribute.mandatory,
-                    ),
-            );
+            state.type = types[0];
         },
     },
     actions: {

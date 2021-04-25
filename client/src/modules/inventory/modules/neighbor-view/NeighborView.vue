@@ -1,13 +1,13 @@
 <template>
     <div class="container" @mousemove="graph.mousemove">
         <!-- Dialog for adding new relations -->
-        <DropdownDialog
+        <NewRelationDialog
             @input-confirm="addNewRelation"
             @cancel="showDialog = false"
             :show="showDialog"
             :fromNode="fromNode"
             :toNodes="toNodes"
-        ></DropdownDialog>
+        ></NewRelationDialog>
 
         <ProgressBar v-show="$store.state.inventory.loading" mode="indeterminate" class="loading" />
 
@@ -30,11 +30,11 @@ import { JointGraph } from "@/shared/JointGraph";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import DropdownDialog from "@/modules/inventory/modules/neighbor-view/components/DropdownDialog.vue";
+import NewRelationDialog from "@/modules/inventory/modules/neighbor-view/components/NewRelationDialog.vue";
 
 export default defineComponent({
     name: "NeighborView",
-    components: { DropdownDialog },
+    components: { NewRelationDialog },
     props: {
         // Currently selected node in the overview list
         selectedNode: Object,

@@ -26,11 +26,13 @@
                 <div class="attribute-key">
                     {{ $t("inspector.label") }}
                 </div>
-                <Dropdown :value="element.label">
-                    <div v-for="type in $store.state.inspector.types" :key="type.name" @click="selectLabel(type)">
-                        {{ type.name }}
-                    </div>
-                </Dropdown>
+                <Dropdown
+                    :options="$store.state.inspector.types"
+                    optionLabel="name"
+                    v-model="label"
+                    :placeholder="$t('global.dropdown.choose')"
+                    :emptyMessage="$t('global.dropdown.empty')"
+                />
             </div>
             <div v-else-if="$store.getters['inspector/isNode']" class="attribute-item">
                 <div class="attribute-key">
@@ -93,7 +95,6 @@ import { InspectorAttribute } from "@/modules/inspector/models/InspectorAttribut
 import { deepCopy, errorToast, objectUUID } from "@/utility";
 import DynamicInput from "@/components/DynamicInput.vue";
 import ConfirmDialog from "@/components/dialog/ConfirmDialog.vue";
-import Dropdown from "@/components/Dropdown.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
@@ -102,7 +103,6 @@ import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 export default defineComponent({
     name: "WriteInspector",
     components: {
-        Dropdown,
         ConfirmDialog,
         DynamicInput,
         DefaultInspector,
@@ -115,19 +115,44 @@ export default defineComponent({
             attributes: new Array<InspectorAttribute>(),
             // True if the delete dialog is open
             deleteDialog: false,
+            // The selected label
+            label: {} as ApiLabel,
         };
     },
     beforeCreate() {
         this.$store.commit("inspector/resetSelection");
     },
     watch: {
+        /**
+         * Check if new element was selected
+         */
         "$store.state.inspector.element"() {
             if (this.$store.state.inspector.element instanceof ApiNode) {
                 this.element = Object.assign(new ApiNode(), deepCopy(this.$store.state.inspector.element));
+                this.label = this.$store.state.inspector.type;
             } else if (this.$store.state.inspector.element instanceof ApiRelation) {
                 this.element = Object.assign(new ApiRelation(), deepCopy(this.$store.state.inspector.element));
             } else return;
             this.attributes = deepCopy(this.$store.state.inspector.attributes);
+        },
+        /**
+         * Check if a new label was selected
+         */
+        label() {
+            // Update the element's label
+            if (!(this.element instanceof ApiNode) || !this.$store.getters["inspector/createMode"]) return;
+            this.element.label = this.label.name;
+
+            // Update the attributes
+            this.attributes = this.label.attributes.map(
+                (attribute: ApiAttribute) =>
+                    new InspectorAttribute(
+                        attribute.name,
+                        attribute.defaultValue,
+                        attribute.datatype,
+                        attribute.mandatory,
+                    ),
+            );
         },
     },
     computed: {
@@ -153,14 +178,6 @@ export default defineComponent({
          */
         objectUUID: objectUUID,
         /**
-         * Select a new label
-         */
-        selectLabel(label: ApiLabel): void {
-            if (!(this.element instanceof ApiNode)) return;
-            this.element.label = label.name;
-            this.updateAttributes(label);
-        },
-        /**
          * Update the attributes of the item
          */
         updateItem(): void {
@@ -169,20 +186,6 @@ export default defineComponent({
                 for (let attribute of this.attributes)
                     if (attribute.active) this.element.attributes[attribute.name] = attribute.value;
             }
-        },
-        /**
-         * Update attributes after type switch
-         */
-        updateAttributes(type: ApiLabel): void {
-            this.attributes = type.attributes.map(
-                (attribute: ApiAttribute) =>
-                    new InspectorAttribute(
-                        attribute.name,
-                        attribute.defaultValue,
-                        attribute.datatype,
-                        attribute.mandatory,
-                    ),
-            );
         },
         /**
          * Create item
@@ -258,5 +261,8 @@ export default defineComponent({
 
 .attribute-key {
     flex: 1 1 auto;
+    min-width: 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 </style>

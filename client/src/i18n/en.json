@@ -18,5 +18,9 @@
   "stopSpamming": {
     "title": "WHaT tHE FUcK",
     "description": "Could you please stop fucking spamming OMG."
+  },
+  "dropdown":{
+    "choose": "Choose",
+    "empty": "No available options"
   }
 }

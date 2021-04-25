@@ -1,3 +1,5 @@
+import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
+
 export class ApiAttribute {
     /**
      * The model for an attribute (e.g. of a label) from the API
@@ -9,7 +11,7 @@ export class ApiAttribute {
      */
     constructor(
         public name: string = "done",
-        public datatype: string = "string",
+        public datatype: string = ApiDatatype.STRING,
         public mandatory: boolean = false,
         public defaultValue: string | number = "",
     ) {}

@@ -102,6 +102,7 @@
   border: 0 !important;
   border-radius: 0 !important;
   outline: 0 !important;
+  color: @dark !important;
   box-shadow: none !important;
   font-family: "Fira Sans", normal, sans-serif !important;
 }
@@ -188,11 +189,15 @@
  * Dropdown
  */
 .p-dropdown {
-  background: white !important;
+  width: @input_width;
+  background: @light_grey !important;
   border-radius: 0 !important;
   border: none !important;
-  border-bottom: 1px solid @grey !important;
-  padding-top: 4px !important;
+  padding: 0 !important;
+}
+
+.p-dropdown-label {
+  color: @dark;
 }
 
 .p-dropdown:not(.p-disabled).p-focus {
@@ -209,7 +214,6 @@
 }
 
 .p-dropdown-panel {
-  box-shadow: none !important;
   border-radius: 0 !important;
   border-bottom: 1px solid @grey !important;
   border-top: none !important;
@@ -217,10 +221,16 @@
 
 .p-dropdown-items {
   padding: 0 !important;
+  background: @light_grey !important;
 }
 
 .p-dropdown-item {
-  padding: 8px !important;
+  padding: 6px 12px !important;
+  color: @dark !important;
+}
+
+.p-dropdown-label.p-placeholder,
+.p-dropdown-empty-message {
   color: @dark_grey !important;
 }
 
@@ -233,10 +243,5 @@
 }
 
 .pi-chevron-down:before {
-  color: @grey;
-}
-
-.p-inputtext {
-  border: none !important;
-  padding: 8px !important;
+  color: @dark;
 }
