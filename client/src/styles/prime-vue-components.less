@@ -245,3 +245,23 @@
 .pi-chevron-down:before {
   color: @dark;
 }
+
+/**
+ * Adjust scrollbar style for dropdown
+ * (Dropdown uses native scrollbar inside its Dropdown component.
+ * That's why this hacky solution is required to make the scrollbar
+ * match the ScrollPanel style at least for Chrome etc.)
+ */
+.p-dropdown-items-wrapper::-webkit-scrollbar {
+  padding-left: 12px;
+  width: 6px;
+}
+
+.p-dropdown-items-wrapper::-webkit-scrollbar-track {
+  background: @light_grey;
+}
+
+.p-dropdown-items-wrapper::-webkit-scrollbar-thumb {
+  background: @grey;
+  border-radius: 3px;
+}
