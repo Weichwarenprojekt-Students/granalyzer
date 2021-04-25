@@ -191,10 +191,9 @@ export const inventory = {
             payload: { fromLabel: string; toLabel: string },
         ): Promise<Array<string> | undefined> {
             const res = await GET("/api/data-scheme/relation");
-            if (res.status !== 200) return undefined;
+            if (isUnexpected(res)) return undefined;
 
             const data: Array<ApiRelationType> = await res.json();
-
             return data
                 .filter((relation) =>
                     relation.connections.some(

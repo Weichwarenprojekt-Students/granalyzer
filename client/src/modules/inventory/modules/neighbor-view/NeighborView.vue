@@ -155,7 +155,6 @@ export default defineComponent({
 
 .container {
     position: relative;
-    background: #f2f2f2;
 
     .loading {
         position: absolute !important;
