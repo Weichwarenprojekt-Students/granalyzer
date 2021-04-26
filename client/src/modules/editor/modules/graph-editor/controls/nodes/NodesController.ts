@@ -1,8 +1,8 @@
 import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
-import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeShapes";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 import { NodesMap } from "@/modules/editor/modules/graph-editor/controls/nodes/NodesMap";
+import { parseNodeShape } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeShapes";
 
 /**
  * Controller for all nodes in the joint js graph
@@ -31,7 +31,7 @@ export default class NodesController extends NodesMap {
         nodeInfo.ref.index = Math.max(-1, ...existingNodesWithUuid.keys()) + 1;
 
         // Create the shape
-        const shape = NodeShapes.parseType(nodeInfo.shape);
+        const shape = parseNodeShape(nodeInfo.shape);
         shape.position(nodeInfo.x, nodeInfo.y);
 
         // Use label color, node color or default color for coloring the node

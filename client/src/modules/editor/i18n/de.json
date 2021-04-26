@@ -22,5 +22,8 @@
   "inspector": "Inspektor",
   "graphEditor": {
     "setRelationName": "Neue visuelle Beziehung"
+  },
+  "visualElements": {
+    "title": "Visuelle Elemente"
   }
 }

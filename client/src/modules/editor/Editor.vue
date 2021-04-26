@@ -28,7 +28,14 @@
             </div>
 
             <!-- The content -->
-            <div v-if="$store.state.editor.toolsOpen">Toolbox</div>
+            <div v-if="$store.state.editor.toolsOpen" class="toolbox">
+                <VisualElements />
+                <div>
+                    <div style="border-color: #333; padding: 8px 0; height: auto" class="underlined-title">
+                        Heat Map
+                    </div>
+                </div>
+            </div>
             <ReadInspector v-else></ReadInspector>
         </div>
     </div>
@@ -41,10 +48,12 @@ import OverviewList from "@/modules/overview-list/OverviewList.vue";
 import GraphEditor from "@/modules/editor/modules/graph-editor/GraphEditor.vue";
 import ReadInspector from "@/modules/inspector/ReadInspector.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
+import VisualElements from "@/modules/editor/modules/visual-elements/VisualElements.vue";
 
 export default defineComponent({
     name: "Editor",
     components: {
+        VisualElements,
         GraphEditor,
         EditorHeader,
         OverviewList,
@@ -92,6 +101,8 @@ export default defineComponent({
     width: @inspector_width;
     height: 100vh;
     flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
     background: white;
     border-left: 1px solid @grey;
     padding: 0 16px;
@@ -112,5 +123,11 @@ export default defineComponent({
 
 .editor {
     flex: 1 1 auto;
+}
+
+.toolbox {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
 }
 </style>
