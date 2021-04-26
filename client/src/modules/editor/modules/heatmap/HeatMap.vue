@@ -1,11 +1,7 @@
 <template>
-    <div class="heat-map">
+    <div>
         <div class="underlined-title">{{ $t("editor.heatMap.title") }}</div>
-        <HeatView
-            v-for="label in $store.state.overview.labels"
-            :key="label.name"
-            :name="label.name"
-        />
+        <HeatView v-for="label in $store.state.editor.heatMap.labels" :key="label" :label="label" />
     </div>
 </template>
 
@@ -19,13 +15,12 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.heat-map {
-    position: absolute;
-    Top: 350px;
-    width: 100%;
-}
+@import "~@/styles/global";
 
 .underlined-title {
-    padding: 0;
+    padding: 8px 0;
+    height: auto;
+    margin-top: 12px;
+    border-color: @dark;
 }
 </style>

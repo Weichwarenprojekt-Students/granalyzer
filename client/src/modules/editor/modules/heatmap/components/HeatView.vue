@@ -5,24 +5,25 @@
             <svg class="heat-collapse-icon" @click="collapsed = !collapsed">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#arrow`"></use>
             </svg>
-            <label>{{ name }}</label>
-            <Dropdown
-                :placeholder="$t('global.dropdown.choose')"
-                :emptyMessage="$t('global.dropdown.empty')"
-            />
+            <label>{{ label.name }}</label>
             <div class="heat-spacer" />
+          <Dropdown
+              :options="label.attributes"
+              optionsLabel="name"
+              :placeholder="$t('global.dropdown.choose')"
+              :emptyMessage="$t('global.dropdown.empty')"
+          />
         </div>
 
         <!-- The expandable content -->
         <div class="heat-expanded">
             <div class="heat-row">
-                <span>From</span>
-                <DynamicInput/>
+                <label>From</label>
+                <InputNumber showButtons />
             </div>
             <div class="heat-row">
-                <div class="input-row">
-                    <label>To</label>
-                </div>
+                <label>To</label>
+                <InputNumber showButtons />
             </div>
         </div>
     </div>
@@ -30,13 +31,11 @@
 
 <script>
 import { defineComponent } from "vue";
-import DynamicInput from "@/components/DynamicInput";
-
+import ApiLabel from "@/models/data-scheme/ApiLabel";
 
 export default defineComponent({
     name: "HeatView",
     components: {
-        DynamicInput,
     },
     data() {
         return {
@@ -45,35 +44,31 @@ export default defineComponent({
         };
     },
     props: {
-        name: String,
-        labelAttributes: [],
+        label: {
+          type: Object,
+          default: new ApiLabel(),
+        },
     },
 });
 </script>
 
 <style lang="less" scoped>
-@import "../../../../schemes/styles/schemes";
-
-@attribute_edit_height: 30px;
+@import "~@/styles/global";
 
 .heat-view {
-    height: @line_height;
     margin-bottom: 8px;
     margin-top: 8px;
     overflow: hidden;
     transition: height 400ms;
-    margin-right: 18px;
 }
 
 .heat-view-expanded {
-    height: @line_height + 3 * @attribute_edit_height;
-
     .heat-collapse-icon {
         transform: rotate(90deg);
     }
 
     .heat-expanded {
-        height: 3 * @attribute_edit_height;
+        display: flex;
     }
 }
 
@@ -81,7 +76,6 @@ export default defineComponent({
     padding-left: 4px;
     padding-right: 16px;
     align-items: center;
-    height: @line_height;
     display: flex;
     border-bottom: 1px solid @grey;
 
@@ -102,31 +96,22 @@ export default defineComponent({
 
 .heat-name {
     width: 100px;
-    height: @line_height;
-    line-height: @line_height;
     margin-right: 16px;
 }
 
 .heat-expanded {
     margin-left: 60px;
-    padding: 0 16px;
-    height: 0;
+    padding: 0 16px 8px 16px;
+    display: none;
     border-bottom: 1px solid @grey;
     transition: height 400ms;
+    flex-direction: column;
 }
 
 .heat-row {
     align-items: center;
-    height: @attribute_edit_height;
     display: flex;
     justify-content: space-between;
-}
-.dropdown {
-    position: absolute;
-    left: 160px;
-}
-.DynamicInput {
-    position: absolute;
-    left: 100px;
+    margin-top: 8px;
 }
 </style>

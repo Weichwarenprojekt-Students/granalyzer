@@ -283,12 +283,19 @@ export const graphEditor = {
         redoAvailable(state: GraphEditorState): boolean {
             return !!state.graphHandler?.hasRedo();
         },
-
         /**
-         *@return True if element is being in selection
+         * @return True if element is being in selection
          */
         itemSelected(state: GraphEditorState): boolean {
             return state.selectedElement !== undefined;
+        },
+        /**
+         * @return Set of labels in the diagram
+         */
+        labels(state: GraphEditorState): Set<string> {
+            const labels = new Set<string>();
+            if (state.graphHandler) for (const node of state.graphHandler?.nodes) labels.add(node.nodeInfo.label);
+            return labels;
         },
     },
 };
