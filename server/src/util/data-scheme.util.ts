@@ -29,10 +29,10 @@ export class DataSchemeUtil {
      * @param includeDefaults True if the transformation should automatically place the defaults
      */
     public applyOnElement(attribute: Attribute, element: any, includeDefaults: boolean): string | number | undefined {
-        if (!element && !attribute.mandatory) return undefined;
+        if (element === undefined && !attribute.mandatory) return undefined;
 
         // Check if element is a neo4j integer and try to parse
-        if (element && element.low !== undefined && element.high !== undefined)
+        if (element !== undefined && element.low !== undefined && element.high !== undefined)
             element = neo4j.integer.toNumber(element);
 
         // Ensure the type is right
@@ -45,12 +45,11 @@ export class DataSchemeUtil {
                 if (!isHexColor(element)) element = undefined;
                 break;
             case Datatype.STRING:
-                if (element) element = element.toString();
+                if (!isString(element)) element = JSON.stringify(element);
         }
 
         // Insert the attribute's default value if necessary
-        if (!element && attribute.mandatory && includeDefaults) return attribute["defaultValue"];
-
+        if (element === undefined && attribute.mandatory && includeDefaults) return attribute["defaultValue"];
         return element;
     }
 

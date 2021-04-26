@@ -109,6 +109,7 @@ export class RelationsService {
      * @param includeDefaults True if the transformation should automatically place the defaults
      */
     async getRelation(id: string, includeDefaults: boolean): Promise<Relation> {
+        // TODO Throw 404 if type not existent
         // language=cypher
         const query = `
           MATCH(startNode)-[relation]->(endNode)

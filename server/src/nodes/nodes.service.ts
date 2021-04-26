@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import Node from "./node.model";
 import { DataSchemeUtil } from "../util/data-scheme.util";
@@ -118,7 +118,11 @@ export class NodesService {
         };
 
         // Callback which parses the received data
-        const resolveRead = async (res) => await this.dataSchemeUtil.parseNode(res.records[0], includeDefaults);
+        const resolveRead = async (res) => {
+            const node = await this.dataSchemeUtil.parseNode(res.records[0], includeDefaults);
+            if (node) return node;
+            else throw new NotFoundException("No results to return");
+        };
 
         return this.neo4jService
             .read(query, params, this.database)

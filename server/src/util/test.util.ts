@@ -4,7 +4,7 @@ import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
 import { UtilModule } from "./util.module";
 import Node from "../nodes/node.model";
 import Relation from "../relations/relation.model";
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { LabelScheme } from "../data-scheme/models/label-scheme.model";
 import { RelationType } from "../data-scheme/models/relation-type.model";
 
@@ -160,51 +160,5 @@ export default class TestUtil {
         IF NOT EXISTS
         ON ()-[relation:${type}]-() ASSERT EXISTS (relation.${key})`;
         await this.neo4jService.write(cypher, {}, process.env.CUSTOMER);
-    }
-
-    async readDBNode(nodeId: string): Promise<Node> {
-        // language=Cypher
-        const query = `
-          MATCH (n)
-            WHERE n.nodeId = $nodeId
-          WITH LABELS(n) AS lbls, n
-          UNWIND lbls AS label
-          RETURN n {. *, label:label} AS node`;
-        const params = {
-            nodeId,
-        };
-
-        const record = (await this.neo4jService.read(query, params, process.env.DB_CUSTOMER)).records[0];
-        if (!record) throw new NotFoundException("No results to return");
-
-        const attributes = record.get("node");
-        return {
-            nodeId: record.get("node").nodeId,
-            name: record.get("node").name,
-            label: record.get("node").label,
-            attributes: attributes,
-        } as Node;
-    }
-
-    async readDBRelation(relationId: string): Promise<Relation> {
-        // language=cypher
-        const query = `MATCH(startNode)-[relation]->(endNode) 
-                         WHERE relation.relationId = $relationId
-                       WITH startNode.nodeId AS from,
-                            endNode.nodeId AS to, relation
-                       RETURN relation { .*, type:TYPE(relation), from:from, to:to} as relation;`;
-        const params = { relationId };
-
-        const record = (await this.neo4jService.read(query, params, process.env.DB_CUSTOMER)).records[0];
-        if (!record) throw new NotFoundException("No results to return");
-
-        const attributes = record.get("relation");
-        return {
-            relationId: record.get("relation").relationId,
-            type: record.get("relation").type,
-            from: record.get("relation").from,
-            to: record.get("relation").to,
-            attributes: attributes,
-        } as Relation;
     }
 }
