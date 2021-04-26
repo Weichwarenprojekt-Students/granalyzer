@@ -7,7 +7,6 @@ import ApiLabel from "@/models/data-scheme/ApiLabel";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
-import i18n from "@/i18n";
 
 export class InspectorState {
     /**
@@ -70,7 +69,7 @@ export const inspector = {
          */
         newNode(state: InspectorState, types: Array<ApiLabel>): void {
             // Create a new node
-            state.element = new ApiNode(i18n.global.t("inspector.new"));
+            state.element = new ApiNode();
             state.types = types ?? [];
             if (types.length <= 0) return;
 

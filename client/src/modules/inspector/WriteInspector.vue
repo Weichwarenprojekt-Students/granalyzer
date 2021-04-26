@@ -1,5 +1,5 @@
 <template>
-    <div v-if="$store.getters['inspector/isLoaded']" class="content">
+    <div v-if="$store.getters['inspector/isLoaded']" class="content" @keydown="keydown">
         <!-- The dialog for deleting a node -->
         <ConfirmDialog
             @confirm="deleteItem"
@@ -11,7 +11,7 @@
 
         <!-- The title -->
         <div v-if="$store.getters['inspector/isNode']" class="underlined-title">
-            <input class="name-input" v-model="element.name" />
+            <input class="name-input" :placeholder="$t('inspector.name')" v-model="element.name" />
         </div>
         <div v-else class="underlined-title">
             {{ element.type }}
@@ -214,6 +214,13 @@ export default defineComponent({
          */
         saveItem(): void {
             this.updateItem();
+
+            // Validate content
+            if (this.element instanceof ApiNode && this.element.name.length < 1) {
+                errorToast(this.$t("inspector.nameRequired.title"), this.$t("inspector.nameRequired.description"));
+                return;
+            }
+
             if (this.element instanceof ApiNode) this.$store.dispatch("inspector/updateNode", this.element);
             else if (this.element instanceof ApiRelation)
                 this.$store.dispatch("inspector/updateRelation", this.element);
@@ -226,6 +233,16 @@ export default defineComponent({
             if (this.element instanceof ApiNode) this.$store.dispatch("inspector/deleteNode", this.element);
             else if (this.element instanceof ApiRelation)
                 this.$store.dispatch("inspector/deleteRelation", this.element);
+        },
+        /**
+         * Check if enter key was pressed
+         */
+        keydown(evt: KeyboardEvent): void {
+            if (evt.code === "Enter") {
+                (evt.target as HTMLElement).blur();
+                if (this.$store.getters["inspector/createMode"]) this.createItem();
+                else this.saveItem();
+            }
         },
     },
 });

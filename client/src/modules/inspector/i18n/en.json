@@ -13,7 +13,6 @@
   "relationType": "Type",
   "attributes": "Attributes",
   "noAttributes": "No attributes found.",
-  "new": "New",
   "nameRequired": {
     "title": "Name required",
     "description": "Your node needs a name!"

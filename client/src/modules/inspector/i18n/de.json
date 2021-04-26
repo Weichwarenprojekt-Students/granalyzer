@@ -13,7 +13,6 @@
   "relationType": "Typ",
   "attributes": "Attribute",
   "noAttributes": "Keine Attribute vorhanden.",
-  "new": "Neu",
   "nameRequired": {
     "title": "Name nötig",
     "description": "Ihr Knoten braucht noch einen Namen!"
