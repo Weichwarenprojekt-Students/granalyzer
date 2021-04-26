@@ -1,5 +1,5 @@
 <template>
-    <ScrollPanel class="filter">
+    <ScrollPanel ref="scroll" :class="['filter', { 'filter-expanded': expanded }]">
         <div class="row" v-for="label in labels" :key="label.name">
             <Checkbox v-model="selectedLabels" :value="label.name" :id="label.name" />
             <label class="label" :for="label.name">
@@ -23,6 +23,8 @@ export default defineComponent({
         labelColors: Object,
         // The filter
         modelValue: Array,
+        // True if the filter shall be expanded
+        expanded: Boolean,
     },
     data() {
         return {
@@ -35,6 +37,13 @@ export default defineComponent({
     },
     watch: {
         /**
+         * Check if the filter was expanded and start updating the view
+         * (necessary for scroll panel to update)
+         */
+        expanded() {
+            if (this.expanded) this.refresh();
+        },
+        /**
          * Watch filter property for changes to trigger label filtering
          */
         selectedLabels: {
@@ -44,6 +53,15 @@ export default defineComponent({
             deep: true,
         },
     },
+    methods: {
+        /**
+         * Refresh the view (necessary for scroll panel)
+         */
+        refresh(start: number = Date.now()): void {
+            this.$forceUpdate();
+            if (Date.now() - start < 400) window.requestAnimationFrame(() => this.refresh(start));
+        },
+    },
 });
 </script>
 
@@ -51,10 +69,16 @@ export default defineComponent({
 @import "~@/styles/global.less";
 
 .filter {
-    max-height: 200px;
+    max-height: 0;
+    transition: max-height 400ms;
     padding-bottom: 8px;
     margin-bottom: 8px;
     border-bottom: 1px solid @grey;
+    height: auto !important;
+}
+
+.filter-expanded {
+    max-height: 200px;
 }
 
 .row {

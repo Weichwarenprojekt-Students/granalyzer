@@ -14,8 +14,8 @@
         <!-- Search bar + Filter -->
         <Searchbar v-model="filter.nameFilter" @show-filter="showLabelFilter = !showLabelFilter" />
         <OverviewFilter
-            v-show="showLabelFilter"
             v-model="filter.labelFilter"
+            :expanded="showLabelFilter"
             :labels="$store.state.overview.labels"
             :labelColors="$store.state.overview.labelColor"
         />
