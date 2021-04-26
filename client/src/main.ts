@@ -6,13 +6,14 @@ import i18n from "@/i18n";
 import PrimeVue from "primevue/config";
 import Tooltip from "primevue/tooltip";
 import ToastService from "primevue/toastservice";
+import Checkbox from "primevue/checkbox";
+import ColorPicker from "primevue/colorpicker";
 import Dialog from "primevue/dialog";
-import Toast from "primevue/toast";
+import Dropdown from "primevue/dropdown";
 import InputNumber from "primevue/inputnumber";
 import ProgressBar from "primevue/progressbar";
 import ScrollPanel from "primevue/scrollpanel";
-import ColorPicker from "primevue/colorpicker";
-import Checkbox from "primevue/checkbox";
+import Toast from "primevue/toast";
 
 // Load the prime vue styles
 import "primevue/resources/themes/saga-blue/theme.css";
@@ -28,6 +29,7 @@ app.use(ToastService).component("Toast", Toast);
 app.component("Checkbox", Checkbox);
 app.component("ColorPicker", ColorPicker);
 app.component("Dialog", Dialog);
+app.component("Dropdown", Dropdown);
 app.component("InputNumber", InputNumber);
 app.component("ProgressBar", ProgressBar);
 app.component("ScrollPanel", ScrollPanel);

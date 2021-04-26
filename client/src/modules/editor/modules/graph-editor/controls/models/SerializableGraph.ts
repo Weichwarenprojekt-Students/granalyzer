@@ -1,5 +1,5 @@
-import { Relation } from "./Relation";
-import { Node } from "./Node";
+import { RelationInfo } from "../relations/models/RelationInfo";
+import { NodeInfo } from "../nodes/models/NodeInfo";
 
 /**
  * The data for the whole graph
@@ -8,9 +8,9 @@ export interface SerializableGraph {
     /**
      * All the nodes contained in the graph
      */
-    nodes: Array<Node>;
+    nodes: Array<NodeInfo>;
     /**
      * All the relations contained in the graph
      */
-    relations: Array<Relation>;
+    relations: Array<RelationInfo>;
 }

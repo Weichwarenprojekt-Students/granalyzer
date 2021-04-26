@@ -1,9 +1,9 @@
-import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/models/NodeReference";
+import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeReference";
 
 /**
  * The data for a single node
  */
-export interface Node {
+export interface NodeInfo {
     /**
      * The x position
      */

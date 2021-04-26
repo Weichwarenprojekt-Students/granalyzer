@@ -1,0 +1,58 @@
+name: CD
+
+# Run action on every push and pull request on the main branch
+on:
+  release:
+    types: [ created ]
+
+jobs:
+
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set env
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      # Install NodeJS
+      - name: Install NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14.16.0'
+
+      # Install dependencies in the frontend
+      - name: Install dependencies in the frontend
+        working-directory: ./client
+        run: |
+          npm i
+          npm run build
+
+      # Install dependencies in the backend
+      - name: Install dependencies in the backend
+        working-directory: ./server
+        run: |
+          npm i
+          npm run build
+
+      - name: Login to GitHub Packages Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Push docker to github packages
+      - name: Push docker to github packages
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/weichwarenprojekt/granalyzer:latest
+            ghcr.io/weichwarenprojekt/granalyzer:${{ env.RELEASE_VERSION }}
