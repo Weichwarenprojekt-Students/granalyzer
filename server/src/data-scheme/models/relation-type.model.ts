@@ -3,6 +3,7 @@ import { Connection } from "./connection.model";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsString, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
+import { IsAttributeDefinition } from "../validators/scheme-attribute.validator";
 
 export class RelationType {
     @ApiProperty({
@@ -20,9 +21,9 @@ export class RelationType {
         name: "attributes",
         description: "Array containing all attributes of the relation type scheme",
     })
-    @IsArray()
     @Type(() => Attribute)
     @ValidateNested({ each: true })
+    @IsAttributeDefinition()
     attributes: Attribute[];
 
     @ApiProperty({

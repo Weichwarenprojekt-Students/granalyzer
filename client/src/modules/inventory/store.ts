@@ -1,11 +1,11 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { errorToast, GET, POST, successToast } from "@/utility";
+import { errorToast, GET, POST, successToast, isUnexpected } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import { RootObject } from "@/modules/inventory/modules/neighbor-view/models/RootObject";
 import i18n from "@/i18n";
 import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
+import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
 
 export class InventoryState {
     /**
@@ -95,14 +95,24 @@ export const inventory = {
     },
     actions: {
         /**
-         * Loads the relations of a given node
+         * Load the neighbor data for a given node
          */
-        async loadRelations(context: ActionContext<InventoryState, RootState>, node: ApiNode): Promise<void> {
+        async loadNeighbors(context: ActionContext<InventoryState, RootState>, node: ApiNode): Promise<void> {
             context.commit("setLoading", true);
+
+            // Ensure that a node is loaded and that it is up to date
+            node = node ?? context.state.selectedNode;
+            const nodeRes = await GET(`api/nodes/${node ? node.nodeId : ""}`);
+            node = nodeRes.status === 200 ? await nodeRes.json() : undefined;
+            context.commit("setSelectedNode", node);
+            if (!node) {
+                context.commit("setLoading", false);
+                return;
+            }
 
             // Get relations of the node
             const res = await GET(`/api/nodes/${node.nodeId}/relations`);
-            if (res.status !== 200) {
+            if (isUnexpected(res)) {
                 context.commit("setLoading", false);
                 return;
             }
@@ -169,7 +179,7 @@ export const inventory = {
          */
         async getNode(context: ActionContext<InventoryState, RootState>, nodeId: number): Promise<ApiNode | undefined> {
             const res = await GET("/api/nodes/" + nodeId);
-            if (res.status !== 200) return undefined;
+            if (isUnexpected(res)) return undefined;
             return await res.json();
         },
 
@@ -181,10 +191,9 @@ export const inventory = {
             payload: { fromLabel: string; toLabel: string },
         ): Promise<Array<string> | undefined> {
             const res = await GET("/api/data-scheme/relation");
-            if (res.status !== 200) return undefined;
+            if (isUnexpected(res)) return undefined;
 
-            const data: Array<RootObject> = await res.json();
-
+            const data: Array<ApiRelationType> = await res.json();
             return data
                 .filter((relation) =>
                     relation.connections.some(
@@ -197,29 +206,21 @@ export const inventory = {
         /**
          * Adds a new relation between two nodes, given their ids
          */
-        async addNewRelation(
-            context: ActionContext<InventoryState, RootState>,
-            payload: { from: string; to: string; type: string },
-        ): Promise<void> {
-            const response = await POST(
-                "/api/relations",
-                JSON.stringify({
-                    from: payload.from,
-                    to: payload.to,
-                    type: payload.type,
-                }),
-            );
+        async addNewRelation(context: ActionContext<InventoryState, RootState>, relation: ApiRelation): Promise<void> {
+            const response = await POST("/api/relations", JSON.stringify(relation));
 
             if (response.status !== 201)
                 errorToast(
                     i18n.global.t("inventory.newRelation.error.title"),
                     i18n.global.t("inventory.newRelation.error.description"),
                 );
-            else
+            else {
+                await context.dispatch("loadNeighbors");
                 successToast(
                     i18n.global.t("inventory.newRelation.success.title"),
                     i18n.global.t("inventory.newRelation.success.description"),
                 );
+            }
         },
     },
 };

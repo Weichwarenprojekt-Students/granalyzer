@@ -7,10 +7,6 @@
     "relation": "Beziehungen editieren (R)",
     "active": "Aktiv"
   },
-  "inspector": {
-    "title": "Inspektor",
-    "nothing-selected": "Bitte Node oder Relation auswählen, um Attribute anzuzeigen"
-  },
   "noDiagram": {
     "title": "Kein Diagram",
     "description": "Laden Sie erst ein Diagramm!"
@@ -22,6 +18,8 @@
     "title": "Beziehungsmodus is aktiv!",
     "description": "Im Beziehungsmodus können keine neuen Nodes hinzugefügt werden"
   },
+  "toolbox": "Toolbox",
+  "inspector": "Inspektor",
   "graphEditor": {
     "setRelationName": "Neue visuelle Beziehung"
   }

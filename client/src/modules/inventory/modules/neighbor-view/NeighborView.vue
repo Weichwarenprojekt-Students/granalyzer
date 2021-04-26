@@ -1,7 +1,18 @@
 <template>
     <div class="container" @mousemove="graph.mousemove">
+        <!-- Dialog for adding new relations -->
+        <NewRelationDialog
+            @input-confirm="addNewRelation"
+            @cancel="showDialog = false"
+            :show="showDialog"
+            :fromNode="fromNode"
+            :toNodes="toNodes"
+        ></NewRelationDialog>
+
+        <ProgressBar v-show="$store.state.inventory.loading" mode="indeterminate" class="loading" />
+
         <!-- Info, when empty -->
-        <div v-show="!$store.state.inventory.selectedNode" class="empty-warning">
+        <div v-if="!$store.state.inventory.selectedNode" class="empty-warning">
             <svg>
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
             </svg>
@@ -10,15 +21,6 @@
 
         <!-- Neighbor preview graph -->
         <div id="joint" @dragover.prevent @drop="nodeDrop" />
-
-        <!-- Dialog for adding new relations -->
-        <DropdownDialog
-            @input-confirm="addNewRelation"
-            @cancel="showDialog = false"
-            :show="showDialog"
-            :fromNode="fromNode"
-            :toNodes="toNodes"
-        ></DropdownDialog>
     </div>
 </template>
 
@@ -28,11 +30,11 @@ import { JointGraph } from "@/shared/JointGraph";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import DropdownDialog from "@/modules/inventory/modules/neighbor-view/components/DropdownDialog.vue";
+import NewRelationDialog from "@/modules/inventory/modules/neighbor-view/components/NewRelationDialog.vue";
 
 export default defineComponent({
     name: "NeighborView",
-    components: { DropdownDialog },
+    components: { NewRelationDialog },
     props: {
         // Currently selected node in the overview list
         selectedNode: Object,
@@ -138,16 +140,10 @@ export default defineComponent({
         /**
          * Adds a new relation after dialog confirmation
          */
-        async addNewRelation(payload: { selectedRelationType: string; from: ApiNode; to: ApiNode }): Promise<void> {
+        async addNewRelation(relation: ApiRelation): Promise<void> {
             this.showDialog = false;
 
-            await this.$store.dispatch("inventory/addNewRelation", {
-                from: payload.from.nodeId,
-                to: payload.to.nodeId,
-                type: payload.selectedRelationType,
-            });
-
-            this.$store.dispatch("inventory/loadRelations", this.selectedNode);
+            await this.$store.dispatch("inventory/addNewRelation", relation);
             this.graphLoaded();
         },
     },
@@ -159,27 +155,12 @@ export default defineComponent({
 
 .container {
     position: relative;
-    background: #f2f2f2;
-}
 
-.empty-warning {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 18px;
-    flex-direction: column;
-
-    svg {
-        fill: @dark_grey;
-        height: 64px;
-        width: 64px;
-        margin-top: 128px;
-        margin-bottom: 16px;
-    }
-
-    .message {
-        color: @dark;
-        font-size: @h3;
+    .loading {
+        position: absolute !important;
+        top: 0;
+        left: 0;
+        right: 0;
     }
 }
 </style>

@@ -6,7 +6,6 @@ import { RootState } from "@/store";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeShapes";
 import { getBrightness } from "@/utility";
-import Cell = dia.Cell;
 import { JointGraph } from "@/shared/JointGraph";
 import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationInfo";
 
@@ -15,44 +14,37 @@ import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/rel
  */
 export class GraphUtils {
     /**
-     * Distance between two nodes on a circle
-     */
-    private stepDistance = 0;
-
-    /**
-     * Amount of neighbors already placed
-     */
-    private neighborsPlaced = 0;
-
-    /**
-     * Radius of the circle
-     */
-    private radius = 0;
-
-    /**
-     * Current x position of the shape to be placed
-     */
-    private currentX = 0;
-
-    /**
-     * Current y position of the shape to be placed
-     */
-    private currentY = 0;
-
-    /**
-     *  True, if first node (origin) has been placed
-     */
-    private rootNodeSet = false;
-
-    /**
      * Maps the uuid of a node to the id of a diagram shape
      */
     public mappedNodes = new Map<string, string | number>();
-
     /**
      * Maps the uuid of a relation to the id of a diagram link
      */
     public mappedRelations = new Map<string, string | number>();
+    /**
+     * Distance between two nodes on a circle
+     */
+    private stepDistance = 0;
+    /**
+     * Amount of neighbors already placed
+     */
+    private neighborsPlaced = 0;
+    /**
+     * Radius of the circle
+     */
+    private radius = 0;
+    /**
+     * Current x position of the shape to be placed
+     */
+    private currentX = 0;
+    /**
+     * Current y position of the shape to be placed
+     */
+    private currentY = 0;
+    /**
+     *  True, if first node (origin) has been placed
+     */
+    private rootNodeSet = false;
 
     /**
      * Constructor
@@ -152,7 +144,7 @@ export class GraphUtils {
                     rect: {
                         ref: "text",
                         fill: "#333",
-                        stroke: "#fff",
+                        stroke: "#000",
                         strokeWidth: 0,
                         refX: "-10%",
                         refY: "-4%",
@@ -228,7 +220,7 @@ export class GraphUtils {
      * @param id Id of the node that is supposed to be in the graph
      * @private
      */
-    private getShapeById(id: string): Cell | undefined {
+    private getShapeById(id: string): dia.Cell | undefined {
         const shapeId = this.mappedNodes.get(id);
         if (shapeId) return this.graph.graph.getCell(shapeId);
         return undefined;
@@ -248,8 +240,8 @@ export class GraphUtils {
      * Listen for node move events
      */
     private registerNodeInteraction(): void {
+        // Change centered element of neighborhood graph on double click
         this.graph.paper.on("element:pointerdblclick", async (cell) => {
-            // Get key of element by value
             if (!this.store.state.inventory) return;
             if (this.store.state.inventory.loading) return;
 
@@ -257,7 +249,25 @@ export class GraphUtils {
 
             this.store.commit("inventory/setSelectedNode", node);
             this.store.commit("inventory/reset");
-            await this.store.dispatch("inventory/loadRelations", node);
+            await this.store.dispatch("inventory/loadNeighbors", node);
+        });
+
+        // Make links selectable and show them in the inspector on click
+        this.graph.paper.on("link:pointerdown", async (cell) => {
+            const relationId = [...this.mappedRelations].find(([, value]) => value === cell.model.id);
+            if (relationId) {
+                await this.store.dispatch("inspector/selectRelation", relationId[0]);
+                this.graph.selectElement(cell, true);
+            }
+        });
+
+        // Make nodes selectable and show them in the inspector on click
+        this.graph.paper.on("element:pointerdown", async (cell) => {
+            const nodeId = [...this.mappedNodes].find(([, value]) => value === cell.model.id);
+            if (nodeId) {
+                await this.store.dispatch("inspector/selectNode", nodeId[0]);
+                this.graph.selectElement(cell);
+            }
         });
     }
 

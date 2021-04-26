@@ -9,12 +9,12 @@ export default class ApiRelation {
      * @param attributes Attributes of the relation
      */
     constructor(
-        public relationId: string = "",
-        public type: string = "",
-        public attributes: {
-            [key: string]: unknown;
-        } = {},
         public from: string = "",
         public to: string = "",
+        public type: string = "",
+        public relationId: string = "",
+        public attributes: {
+            [key: string]: string | number;
+        } = {},
     ) {}
 }

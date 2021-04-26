@@ -3,7 +3,7 @@
     <div :class="['main-content', $store.state.sidebarMinimized ? 'main-content-minimized' : 'main-content-expanded']">
         <router-view />
     </div>
-    <Toast position="top-center" />
+    <Toast position="bottom-center" />
 </template>
 
 <script lang="ts">
