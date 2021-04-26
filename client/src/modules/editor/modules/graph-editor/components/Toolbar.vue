@@ -19,7 +19,7 @@
                 $store.getters['editor/itemSelected'] ? '' : 'item-disabled',
                 $store.getters['editor/relatedNodesAmount'] !== 0 ? '' : 'item-disabled',
             ]"
-            v-tooltip.bottom="$t('editor.toolbar.related')"
+            v-tooltip.bottom="$t('editor.toolbar.related', {amount: $store.getters['editor/relatedNodesAmount']})"
             @click="addRelatedNodes"
         >
             <svg class="icon">

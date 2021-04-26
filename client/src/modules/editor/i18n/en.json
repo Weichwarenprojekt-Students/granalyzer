@@ -5,7 +5,7 @@
     "redo": "Redo (Ctrl + Y)",
     "delete": "Delete",
     "relation": "Edit relations (R)",
-    "related": "Add related nodes",
+    "related": "Add {amount} related nodes",
     "active": "Active"
   },
   "noDiagram": {

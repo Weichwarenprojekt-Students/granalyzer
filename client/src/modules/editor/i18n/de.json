@@ -5,7 +5,7 @@
     "redo": "Wiederholen (Strg + Y)",
     "delete": "Löschen",
     "relation": "Beziehungen editieren (R)",
-    "related": "Verwandte Elemente hinzufügen",
+    "related": "{amount} Verwandte Elemente hinzufügen",
     "active": "Aktiv"
   },
   "noDiagram": {
