@@ -76,15 +76,7 @@ export class FoldersController {
         description: "The identifier of the diagram",
     })
     @ApiBody({
-        schema: {
-            type: "object",
-            properties: {
-                name: {
-                    type: "string",
-                    description: "New name of the folder",
-                },
-            },
-        },
+        type: Folder,
     })
     updateFolder(@Param("id") id: string, @Body(ValidationPipe) folder: Folder) {
         return this.foldersService.updateFolder(id, folder.name);
@@ -101,15 +93,7 @@ export class FoldersController {
     @ApiNotAcceptableResponse({ description: "Requested resource is not a folder" })
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiBody({
-        schema: {
-            type: "object",
-            properties: {
-                name: {
-                    type: "string",
-                    description: "The name of the new folder",
-                },
-            },
-        },
+        type: Folder,
     })
     addFolder(@Body(ValidationPipe) folder: Folder) {
         return this.foldersService.addFolder(folder.name);
@@ -159,15 +143,7 @@ export class FoldersController {
     @ApiNotAcceptableResponse({ description: "Requested resource is not a folder" })
     @ApiNotFoundResponse({ description: "Requested resource does not exist" })
     @ApiBody({
-        schema: {
-            type: "object",
-            properties: {
-                name: {
-                    type: "string",
-                    description: "The name of the new folder",
-                },
-            },
-        },
+        type: Folder,
     })
     createFolderInFolder(@Body(ValidationPipe) folder: Folder, @Param("parentId") parentId: string) {
         return this.foldersService.addFolderInFolder(parentId, folder.name);

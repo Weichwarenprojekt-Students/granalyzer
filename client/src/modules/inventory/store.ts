@@ -1,14 +1,22 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { GET } from "@/utility";
+import { errorToast, GET, POST, successToast, isUnexpected } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
+import i18n from "@/i18n";
+import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
+import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
 
 export class InventoryState {
     /**
-     * Replication of the overview item that is selected or dragged into the diagram
+     * Replication of the overview item that currently selected
      */
     public selectedNode?: ApiNode;
+
+    /**
+     * Replication of the overview item that is dragged into the diagram
+     */
+    public draggedNode?: ApiNode;
 
     /**
      * First degree neighbors of the currently selected node
@@ -16,7 +24,7 @@ export class InventoryState {
     public neighbors = [] as Array<ApiNode>;
 
     /**
-     * Relations for the currently displayed graph
+     * All relations of the nodes in the currently displayed graph
      */
     public relations = [] as Array<ApiRelation>;
 
@@ -26,9 +34,9 @@ export class InventoryState {
     public loading = false;
 
     /**
-     * Flag to handle the splitting of overlapping relations differently for the neighbor preview
+     * Utility functions for the neighbor view
      */
-    public inventoryActive = false;
+    public graphUtils = {} as GraphUtils;
 }
 
 export const inventory = {
@@ -40,6 +48,13 @@ export const inventory = {
          */
         setSelectedNode(state: InventoryState, node: ApiNode): void {
             state.selectedNode = node;
+        },
+
+        /**
+         * Set dragged item
+         */
+        setDraggedNode(state: InventoryState, node?: ApiNode): void {
+            state.draggedNode = node;
         },
 
         /**
@@ -64,10 +79,10 @@ export const inventory = {
         },
 
         /**
-         * Sets the active state of the inventory
+         * Set the neighbor utils
          */
-        setActive(state: InventoryState, active: boolean): void {
-            state.inventoryActive = active;
+        setGraphUtils(state: InventoryState, graphUtils: GraphUtils): void {
+            state.graphUtils = graphUtils;
         },
 
         /**
@@ -80,14 +95,24 @@ export const inventory = {
     },
     actions: {
         /**
-         * Loads the relations of a given node
+         * Load the neighbor data for a given node
          */
-        async loadRelations(context: ActionContext<InventoryState, RootState>, node: ApiNode): Promise<void> {
+        async loadNeighbors(context: ActionContext<InventoryState, RootState>, node: ApiNode): Promise<void> {
             context.commit("setLoading", true);
+
+            // Ensure that a node is loaded and that it is up to date
+            node = node ?? context.state.selectedNode;
+            const nodeRes = await GET(`api/nodes/${node ? node.nodeId : ""}`);
+            node = nodeRes.status === 200 ? await nodeRes.json() : undefined;
+            context.commit("setSelectedNode", node);
+            if (!node) {
+                context.commit("setLoading", false);
+                return;
+            }
 
             // Get relations of the node
             const res = await GET(`/api/nodes/${node.nodeId}/relations`);
-            if (res.status !== 200) {
+            if (isUnexpected(res)) {
                 context.commit("setLoading", false);
                 return;
             }
@@ -154,8 +179,48 @@ export const inventory = {
          */
         async getNode(context: ActionContext<InventoryState, RootState>, nodeId: number): Promise<ApiNode | undefined> {
             const res = await GET("/api/nodes/" + nodeId);
-            if (res.status !== 200) return undefined;
+            if (isUnexpected(res)) return undefined;
             return await res.json();
+        },
+
+        /**
+         * Gets the relation types that are possible for a specific label
+         */
+        async getPossibleRelationTypes(
+            context: ActionContext<InventoryState, RootState>,
+            payload: { fromLabel: string; toLabel: string },
+        ): Promise<Array<string> | undefined> {
+            const res = await GET("/api/data-scheme/relation");
+            if (isUnexpected(res)) return undefined;
+
+            const data: Array<ApiRelationType> = await res.json();
+            return data
+                .filter((relation) =>
+                    relation.connections.some(
+                        (connection) => connection.from === payload.fromLabel && connection.to === payload.toLabel,
+                    ),
+                )
+                .map((entry) => entry.name);
+        },
+
+        /**
+         * Adds a new relation between two nodes, given their ids
+         */
+        async addNewRelation(context: ActionContext<InventoryState, RootState>, relation: ApiRelation): Promise<void> {
+            const response = await POST("/api/relations", JSON.stringify(relation));
+
+            if (response.status !== 201)
+                errorToast(
+                    i18n.global.t("inventory.newRelation.error.title"),
+                    i18n.global.t("inventory.newRelation.error.description"),
+                );
+            else {
+                await context.dispatch("loadNeighbors");
+                successToast(
+                    i18n.global.t("inventory.newRelation.success.title"),
+                    i18n.global.t("inventory.newRelation.success.description"),
+                );
+            }
         },
     },
 };

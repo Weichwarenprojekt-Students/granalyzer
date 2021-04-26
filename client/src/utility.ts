@@ -1,4 +1,5 @@
 import { ToastServiceMethods } from "primevue/toastservice";
+import i18n from "@/i18n";
 
 /**
  * The route names of the three main modules
@@ -9,18 +10,6 @@ export const routeNames = {
     inventory: "/inventory",
     schemes: "/schemes",
 };
-
-/**
- * Check if string is a color
- *
- * @param color The string that shall be checked
- * @return True if a given string is a color
- */
-export function isColor(color: string): boolean {
-    const s = new Option().style;
-    s.color = color;
-    return s.color !== "";
-}
 
 /**
  * Calculate the brightness for a given color
@@ -144,6 +133,19 @@ export function DELETE(path: string): Promise<Response> {
 }
 
 /**
+ * Check if a response is unexpected
+ *
+ * @param response The response that shall be checked
+ */
+export function isUnexpected(response: Response): boolean {
+    if (response.status >= 300) {
+        errorToast(i18n.global.t("global.unexpected.title"), i18n.global.t("global.unexpected.description"));
+        return true;
+    }
+    return false;
+}
+
+/**
  * The toast service
  */
 let toast: ToastServiceMethods;
@@ -154,6 +156,11 @@ let toast: ToastServiceMethods;
 export function setToastService(toastService: ToastServiceMethods): void {
     toast = toastService;
 }
+
+/**
+ * The current error toast count
+ */
+let toastCount = 0;
 
 /**
  * Show an error toast
@@ -169,6 +176,16 @@ export function errorToast(summary: string, detail: string, life = 3000): void {
         detail,
         life,
     });
+
+    // Track the toast
+    toastCount++;
+    setTimeout(() => (toastCount = Math.max(0, --toastCount)), life);
+
+    // Show easter egg toast
+    if (toastCount < 3) return;
+    toastCount = 0;
+    toast.removeAllGroups();
+    warnToast(i18n.global.t("global.stopSpamming.title"), i18n.global.t("global.stopSpamming.description"), 10000);
 }
 
 /**
@@ -186,8 +203,9 @@ export function successToast(summary: string, detail: string, life = 3000): void
         life,
     });
 }
+
 /**
- * Show a success toast
+ * Show an info toast
  *
  * @param summary The title
  * @param detail The description
@@ -196,6 +214,22 @@ export function successToast(summary: string, detail: string, life = 3000): void
 export function infoToast(summary: string, detail: string, life = 3000): void {
     toast.add({
         severity: "info",
+        summary,
+        detail,
+        life,
+    });
+}
+
+/**
+ * Show a warn toast
+ *
+ * @param summary The title
+ * @param detail The description
+ * @param life The time the toast is shown (in milliseconds)
+ */
+export function warnToast(summary: string, detail: string, life = 3000): void {
+    toast.add({
+        severity: "warn",
         summary,
         detail,
         life,

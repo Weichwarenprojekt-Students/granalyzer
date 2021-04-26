@@ -198,21 +198,6 @@ export default defineComponent({
     position: relative;
 }
 
-.tabs {
-    display: flex;
-    height: @header-height;
-    padding-top: 12px;
-    border-bottom: 2px solid @secondary_color;
-
-    div {
-        flex: 1 1 auto;
-        font-size: @h3;
-        cursor: pointer;
-        text-align: center;
-        line-height: @header-height - 12px;
-    }
-}
-
 .add-button {
     display: flex;
     margin-top: 24px;
@@ -226,10 +211,6 @@ export default defineComponent({
         width: 16px;
         height: 16px;
     }
-}
-
-.selected-tab {
-    background: @secondary_color;
 }
 
 .tab-content {

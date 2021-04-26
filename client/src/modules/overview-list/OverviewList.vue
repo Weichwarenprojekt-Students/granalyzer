@@ -1,23 +1,24 @@
 <template>
     <div class="content">
         <!-- Title -->
-        <div class="title">
-            {{ $t("global.titleOverview") }}
-            <div v-tooltip="$t('global.filterIcon')">
-                <svg @click="showLabelFilter = !showLabelFilter">
-                    <use :xlink:href="require('@/assets/img/icons.svg') + '#filter'"></use>
+        <div class="underlined-title">
+            {{ $t("overviewList.title") }}
+            <button class="btn btn-secondary btn-icon" v-if="create" @click="newNode">
+                <svg>
+                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#plus-bold`"></use>
                 </svg>
-            </div>
+                Add Node
+            </button>
         </div>
 
         <!-- Search bar + Filter -->
+        <Searchbar v-model="filter.nameFilter" @show-filter="showLabelFilter = !showLabelFilter" />
         <OverviewFilter
             v-show="showLabelFilter"
-            v-model="filter.selectedLabels"
+            v-model="filter.labelFilter"
             :labels="$store.state.overview.labels"
             :labelColors="$store.state.overview.labelColor"
         />
-        <Searchbar v-model="filter.nameFilter" />
 
         <!-- Scrolling content -->
         <ScrollPanel class="scroll-panel">
@@ -26,7 +27,7 @@
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#not-found`"></use>
                 </svg>
-                <div class="message">{{ $t("editor.noNodes.description") }}</div>
+                <div class="message">{{ $t("overviewList.noNodes") }}</div>
             </div>
 
             <!-- Nodes -->
@@ -38,6 +39,7 @@
                 :font-color="$store.state.overview.labelColor.get(node.label).fontColor"
                 :isSelected="node.nodeId === selectedItemId"
                 @clicked-on-node="clickedOnNode"
+                @dragging-node="draggingNode"
             />
         </ScrollPanel>
     </div>
@@ -49,14 +51,20 @@ import OverviewItem from "@/modules/overview-list/components/OverviewItem.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import Searchbar from "@/components/Searchbar.vue";
 import OverviewFilter from "@/modules/overview-list/components/OverviewFilter.vue";
+import { NodeFilter } from "@/modules/overview-list/models/NodeFilter.ts";
 
 export default defineComponent({
     name: "OverviewList",
     components: { OverviewFilter, Searchbar, OverviewItem },
-    emits: ["clicked-on-node"],
+    emits: ["clicked-on-node", "dragging-node"],
     props: {
         // Id of the item that is selected in the overview
         selectedItemId: String,
+        // True if the overview also offers an create button
+        create: {
+            type: Boolean,
+            default: false,
+        },
     },
     data() {
         return {
@@ -67,10 +75,7 @@ export default defineComponent({
             // True if filter is shown
             showLabelFilter: false,
             // The filter
-            filter: {
-                nameFilter: "",
-                selectedLabels: new Array<string>(),
-            },
+            filter: new NodeFilter(),
         };
     },
     watch: {
@@ -83,7 +88,7 @@ export default defineComponent({
         /**
          * Watch for label filter changes
          */
-        "filter.selectedLabels"() {
+        "filter.labelFilter"() {
             this.updateOverview();
         },
     },
@@ -114,10 +119,22 @@ export default defineComponent({
             this.$emit("clicked-on-node", node);
         },
         /**
+         *  Emit the dragged node to the editor/inventory
+         */
+        draggingNode(node: ApiNode) {
+            this.$emit("dragging-node", node);
+        },
+        /**
          * Filter nodes by labels
          */
         updateOverview(): void {
             this.$store.dispatch("overview/loadLabelsAndNodes", this.filter);
+        },
+        /**
+         * Add a new node
+         */
+        newNode(): void {
+            this.$store.dispatch("inspector/newNode");
         },
     },
 });
@@ -135,29 +152,12 @@ export default defineComponent({
     flex-flow: column;
 }
 
-.title {
-    flex: 0 0 auto;
-
-    font-size: @h2;
+.underlined-title {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 2px solid @primary_color;
-
     height: 64px;
-
-    div {
-        cursor: pointer;
-        width: 24px;
-        height: 24px;
-        margin-right: 8px;
-
-        svg {
-            fill: @dark;
-            width: 100%;
-            height: 100%;
-        }
-    }
+    padding: 0;
 }
 
 .scroll-panel {

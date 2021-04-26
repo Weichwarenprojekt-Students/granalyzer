@@ -1,18 +1,16 @@
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { Node } from "./controls/models/Node";
+import { NodeInfo } from "./controls/nodes/models/NodeInfo";
 import { ApiDiagram } from "@/models/ApiDiagram";
-import { CreateNodeCommand } from "./controls/commands/CreateNodeCommand";
+import { CreateNodeCommand } from "./controls/nodes/commands/CreateNodeCommand";
 import { dia } from "jointjs";
-import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/RemoveNodeCommand";
+import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/RemoveNodeCommand";
 import { GET, PUT } from "@/utility";
-import { Relation } from "./controls/models/Relation";
-import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/commands/MoveNodeCommand";
+import { RelationInfo } from "./controls/relations/models/RelationInfo";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/EnableDbRelationCommand";
-import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/DisableDbRelationCommand";
-import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/commands/BendRelationCommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { NewRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/NewRelationCommand";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { RelatedNodesUtils } from "./controls/RelatedNodesUtils";
 
@@ -36,6 +34,10 @@ export class GraphEditorState {
      * True if the relation edit mode is active
      */
     public relationModeActive = false;
+
+    public newRelationDialog = false;
+
+    public newRelationCommand?: NewRelationCommand;
 
     /**
      * Amount of related nodes of the selected node
@@ -67,13 +69,6 @@ export const graphEditor = {
         },
 
         /**
-         * Add command for changed vertices to the undo redo stack
-         */
-        addMoveCommand(state: GraphEditorState, moveCommand: MoveNodeCommand): void {
-            if (state.graphHandler) state.graphHandler.addCommand(moveCommand);
-        },
-
-        /**
          * Change the active diagram
          */
         undo(state: GraphEditorState): void {
@@ -88,19 +83,20 @@ export const graphEditor = {
         /**
          * Add a node
          */
-        addNode(state: GraphEditorState, payload: [node: Node, rels: Relation[]]): void {
-            if (state.graphHandler) {
-                const command = new CreateNodeCommand(state.graphHandler, payload[0], payload[1]);
-                state.graphHandler.addCommand(command);
-            }
+        addNode(
+            state: GraphEditorState,
+            { node, relations, labelColor }: { node: NodeInfo; relations: RelationInfo[]; labelColor?: string },
+        ): void {
+            state.graphHandler?.addCommand(new CreateNodeCommand(state.graphHandler, node, relations, labelColor));
         },
         /**
          * Remove a node
          */
         removeNode(state: GraphEditorState): void {
             if (state.graphHandler && state.selectedElement) {
-                const command = new RemoveNodeCommand(state.graphHandler, state.selectedElement);
-                state.graphHandler.addCommand(command);
+                const node = state.graphHandler.nodes.getByJointId(state.selectedElement.id);
+
+                if (node != null) state.graphHandler.addCommand(new RemoveNodeCommand(state.graphHandler, node));
             }
             state.selectedElement = undefined;
         },
@@ -121,38 +117,28 @@ export const graphEditor = {
 
             // Deselect elements
             state.graphHandler.graph.deselectElements();
+
+            // Disable interactivity of nodes in relation mode
+            // state.graphHandler.graph.setInteractivity(!value);
             state.relationModeActive = value;
         },
         /**
-         * Enable a DB relation
+         * Add new command for undo/redo
          */
-        enableDbRelation(state: GraphEditorState, link: dia.Element): void {
-            if (state.graphHandler) {
-                const relation = state.graphHandler.faintRelations.get(link.id);
-                if (relation) {
-                    const command = new EnableDbRelationCommand(state.graphHandler, link, relation);
-                    state.graphHandler.addCommand(command);
-                }
-            }
+        addCommand(state: GraphEditorState, command: ICommand): void {
+            state.graphHandler?.addCommand(command);
         },
         /**
-         * Disable a DB relation
+         * Set the flag for showing the new relation dialog
          */
-        disableDbRelation(state: GraphEditorState, link: dia.Element): void {
-            if (state.graphHandler) {
-                const relation = state.graphHandler.relations.get(link.id);
-                if (relation) {
-                    const command = new DisableDbRelationCommand(state.graphHandler, link, relation);
-                    state.graphHandler.addCommand(command);
-                }
-            }
+        showNewRelationDialog(state: GraphEditorState, value: boolean): void {
+            state.newRelationDialog = value;
         },
-
         /**
-         * Add command for changed vertices to the undo redo stack
+         * Set the temporary new relation command
          */
-        addBendRelationCommand(state: GraphEditorState, bendCommand: BendRelationCommand): void {
-            state.graphHandler?.addCommand(bendCommand);
+        setNewRelationCommand(state: GraphEditorState, command: NewRelationCommand | undefined): void {
+            state.newRelationCommand = command;
         },
 
         /**
@@ -189,7 +175,7 @@ export const graphEditor = {
         /**
          * Add a node with its relations
          */
-        async addNode(context: ActionContext<GraphEditorState, RootState>, node: Node): Promise<void> {
+        async addNode(context: ActionContext<GraphEditorState, RootState>, node: NodeInfo): Promise<void> {
             context.commit("setEditorLoading", true);
 
             // Perform api request
@@ -197,15 +183,18 @@ export const graphEditor = {
             const newVar: ApiRelation[] = await res.json();
 
             // Transform relations from api into Relation objects
-            const relations: Relation[] = newVar.map((rel) => {
+            const relations: RelationInfo[] = newVar.map((rel) => {
                 return {
                     from: { uuid: rel.from, index: 0 },
                     to: { uuid: rel.to, index: 0 },
                     uuid: rel.relationId,
-                    type: rel.type,
-                };
+                    label: rel.type,
+                } as RelationInfo;
             });
-            context.commit("addNode", [node, relations]);
+
+            const labelColor = context.rootState.overview?.labelColor.get(node.label)?.color;
+
+            context.commit("addNode", { node, relations, labelColor });
             context.commit("setEditorLoading", false);
 
             await context.dispatch("saveChange");
@@ -217,40 +206,38 @@ export const graphEditor = {
         async addRelatedNodes(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             const relatedNodeUtils = new RelatedNodesUtils();
 
-            if (context.state.selectedElement) {
+            const graphHandler = context.state.graphHandler;
+            if (!graphHandler) return;
 
-                const res = await GET("/api/nodes/" + context.state.graphHandler?.nodes.get(context.state.selectedElement.id)?.ref.uuid + "/related");
-                const apiNodes: ApiNode[] = await res.json();
+            if (!context.state.selectedElement) return;
 
-                // Add all nodes to diagram
-                for (let i = 0; i < apiNodes.length; i++) {
-                    const node: Node = {
-                        x: context.state.selectedElement.position().x + relatedNodeUtils.randomRange(150, 500),
-                        y: context.state.selectedElement.position().y + relatedNodeUtils.randomRange(150, 500),
-                        ref: {
-                            uuid: apiNodes[i].nodeId,
-                            index: 0,
-                        },
-                        label: apiNodes[i].label,
-                        name: apiNodes[i].name,
-                        shape: "rectangle",
-                        color: "#eeeeee",
-                    };
+            const nodeUuid = graphHandler.nodes.getByJointId(context.state.selectedElement.id)?.reference.uuid;
+            if (nodeUuid == null) return;
+            const res = await GET("/api/nodes/" + nodeUuid + "/related");
+            const apiNodes: ApiNode[] = await res.json();
 
-                    // Filter nodes that are already in the diagram
-                    let alreadyInDiagram = false;
+            for (const apiNode of apiNodes) {
+                const node: NodeInfo = {
+                    x: context.state.selectedElement.position().x + relatedNodeUtils.randomRange(150, 500),
+                    y: context.state.selectedElement.position().y + relatedNodeUtils.randomRange(150, 500),
+                    ref: {
+                        uuid: apiNode.nodeId,
+                        index: 0,
+                    },
+                    label: apiNode.label,
+                    name: apiNode.name,
+                    shape: "rectangle",
+                    color: "#eeeeee",
+                };
 
-                    if (context.state.graphHandler?.nodes) {
-                        for (const [key, value] of context.state.graphHandler?.nodes) {
-                            if (apiNodes[i].nodeId == value.ref.uuid) {
-                                alreadyInDiagram = true;
-                            }
-                        }
-                    }
+                // Filter nodes that are already in the diagram
+                let alreadyInDiagram = false;
 
-                    if (!alreadyInDiagram)
-                        await context.dispatch("addNode", node);
+                if (graphHandler.nodes.getByUuid(apiNode.nodeId).size !== 0) {
+                    alreadyInDiagram = true;
                 }
+
+                if (!alreadyInDiagram) await context.dispatch("addNode", node);
             }
         },
 
@@ -262,17 +249,6 @@ export const graphEditor = {
             context.commit("removeNode");
             context.commit("setEditorLoading", false);
 
-            await context.dispatch("saveChange");
-        },
-
-        /**
-         * Add move command to the undo redo stack
-         */
-        async addMoveCommand(
-            context: ActionContext<GraphEditorState, RootState>,
-            moveCommand: MoveNodeCommand,
-        ): Promise<void> {
-            context.commit("addMoveCommand", moveCommand);
             await context.dispatch("saveChange");
         },
 
@@ -298,7 +274,7 @@ export const graphEditor = {
             context.commit("setSelectedElement", undefined);
 
             // Reset inspector selection
-            context.commit("resetSelection");
+            context.commit("inspector/resetSelection", undefined, { root: true });
 
             context.commit("setRelationMode", value);
         },
@@ -311,52 +287,59 @@ export const graphEditor = {
         },
 
         /**
-         * Enable a DB relation
+         * Add any command to the undo/redo stack
          */
-        async enableDbRelation(
-            context: ActionContext<GraphEditorState, RootState>,
-            relation: dia.Element,
-        ): Promise<void> {
-            context.commit("setEditorLoading", true);
-            context.commit("enableDbRelation", relation);
-            context.commit("setEditorLoading", false);
+        async addCommand(context: ActionContext<GraphEditorState, RootState>, command: ICommand): Promise<void> {
+            context.commit("addCommand", command);
             await context.dispatch("saveChange");
         },
-
         /**
-         * Disable a DB relation
+         * Open the new relation dialog and temporarily save the command for adding the new relation
          */
-        async disableDbRelation(
+        async openNewRelationDialog(
             context: ActionContext<GraphEditorState, RootState>,
-            relation: dia.Element,
+            command: NewRelationCommand,
         ): Promise<void> {
-            context.commit("setEditorLoading", true);
-            context.commit("disableDbRelation", relation);
-            context.commit("setEditorLoading", false);
-            await context.dispatch("saveChange");
+            context.commit("setNewRelationCommand", command);
+            context.commit("showNewRelationDialog", true);
         },
-
         /**
-         * Add command for changed vertices to the undo redo stack
+         * Close the new relation dialog and remove the new relation command
          */
-        async addBendRelationCommand(
+        async closeNewRelationDialog(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
+            context.commit("setNewRelationCommand", undefined);
+            context.commit("showNewRelationDialog", false);
+        },
+        /**
+         * Confirm the new relation dialog
+         */
+        async confirmNewRelationDialog(
             context: ActionContext<GraphEditorState, RootState>,
-            bendCommand: BendRelationCommand,
+            labelText: string,
         ): Promise<void> {
-            context.commit("addBendRelationCommand", bendCommand);
-            await context.dispatch("saveChange");
+            if (context.state.newRelationCommand) {
+                // Set the label text for the new relation
+                context.state.newRelationCommand.setLabelText(labelText);
+                // Add the command to the undo/redo stack
+                await context.dispatch("addCommand", context.state.newRelationCommand);
+            }
+
+            await context.dispatch("closeNewRelationDialog");
         },
 
         /**
          * Updates the amount of nodes related to the selected nodes
          */
-        async updateRelatedNodesCount(context: ActionContext<GraphEditorState, RootState>, uuid?: string): Promise<void> {
+        async updateRelatedNodesCount(
+            context: ActionContext<GraphEditorState, RootState>,
+            uuid?: string,
+        ): Promise<void> {
             // Load related nodes from db
             const res = await GET("/api/nodes/" + uuid + "/related");
             const apiNodes: ApiNode[] = await res.json();
 
             // Pass amount of nodes to mutation
-            context.commit("updateRelatedNodesCount", apiNodes.length)
+            context.commit("updateRelatedNodesCount", apiNodes.length);
         },
     },
     getters: {

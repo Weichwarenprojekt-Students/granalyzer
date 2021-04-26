@@ -23,13 +23,14 @@ export class NodesRelationsService {
      * @param id The id of the node
      */
     async getRelatedNodes(id: string): Promise<Node[]> {
-
         // Cypher query to get related nodes
         // language=Cypher
         const cypher = `
         CALL db.index.fulltext.queryNodes("allNodesIndex", $nodeId) YIELD node AS n
         MATCH (n)-[r]-(m)
-        RETURN m
+        WITH labels(m) AS lbls, m
+        UNWIND lbls AS label
+        RETURN m {. *, label:label} AS node
         `;
 
         const params = {
@@ -39,7 +40,7 @@ export class NodesRelationsService {
 
         // create callback
         const resolveRead = (result) => {
-            const relatedNodes = result.records.map(async (rec) => await this.dataSchemeUtil.parseRelated(rec));
+            const relatedNodes = result.records.map(async (rec) => await this.dataSchemeUtil.parseNode(rec));
             // Filter relations which are not allowed by the scheme
             return Promise.all(relatedNodes).then((res) => res.filter((el) => !!el));
         };
@@ -61,8 +62,7 @@ export class NodesRelationsService {
         const cypher = `
           CALL db.index.fulltext.queryNodes("allNodesIndex", $nodeId) YIELD node AS n
           MATCH (n)-[r]-(m)
-          RETURN r {.*, type:type(r), from:startNode(r).nodeId, to:endNode(r).nodeId}
-        `;
+          RETURN r {. *, type:type(r), from:startNode(r).nodeId, to:endNode(r).nodeId} AS relation`;
         const params = {
             id,
             nodeId: `\'\"${id}\"\'`,
@@ -77,7 +77,7 @@ export class NodesRelationsService {
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then(resolveRead)
+            .then(await resolveRead)
             .catch(this.databaseUtil.catchDbError);
     }
 }

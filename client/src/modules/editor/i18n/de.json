@@ -4,13 +4,9 @@
     "undo": "Rückgängig (Strg + Z)",
     "redo": "Wiederholen (Strg + Y)",
     "delete": "Löschen",
-    "relation": "Beziehungen editieren",
+    "relation": "Beziehungen editieren (R)",
     "related": "Verwandte Elemente hinzufügen",
     "active": "Aktiv"
-  },
-  "inspector": {
-    "title": "Inspektor",
-    "nothing-selected": "Bitte Node oder Relation auswählen, um Attribute anzuzeigen"
   },
   "noDiagram": {
     "title": "Kein Diagram",
@@ -22,5 +18,10 @@
   "relationModeToast": {
     "title": "Beziehungsmodus is aktiv!",
     "description": "Im Beziehungsmodus können keine neuen Nodes hinzugefügt werden"
+  },
+  "toolbox": "Toolbox",
+  "inspector": "Inspektor",
+  "graphEditor": {
+    "setRelationName": "Neue visuelle Beziehung"
   }
 }

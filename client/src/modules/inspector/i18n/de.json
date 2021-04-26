@@ -1,0 +1,24 @@
+{
+  "title": "Inspektor",
+  "nothingSelected": "Bitte Node oder Relation auswählen, um Attribute anzuzeigen",
+  "save": "Speichern",
+  "delete": "Löschen",
+  "deleteDialog": {
+    "title": "Element löschen",
+    "description": "Sind Sie sicher? Die Daten können nicht wiederhergestellt werden!"
+  },
+  "create": "Erstellen",
+  "name": "Name",
+  "label": "Label",
+  "relationType": "Typ",
+  "attributes": "Attribute",
+  "noAttributes": "Keine Attribute vorhanden.",
+  "nameRequired": {
+    "title": "Name nötig",
+    "description": "Ihr Knoten braucht noch einen Namen!"
+  },
+  "labelInvalid": {
+    "title": "Label invalide",
+    "description": "Das angegebene Label ist unbekannt!"
+  }
+}

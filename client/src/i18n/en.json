@@ -3,14 +3,24 @@
   "editor": "Editor",
   "inventory": "Inventory",
   "schemes": "Schemes",
-  "titleOverview": "Node Overview",
   "dialog": {
     "confirm": "Confirm",
     "cancel": "Cancel"
   },
   "searchPlaceholder": "Search...",
-  "filterIcon": "Filter",
   "input": {
     "placeholder": "Here..."
+  },
+  "unexpected": {
+    "title": "Ooops",
+    "description": "Something went wrong..."
+  },
+  "stopSpamming": {
+    "title": "WHaT tHE FUcK",
+    "description": "Could you please stop fucking spamming OMG."
+  },
+  "dropdown":{
+    "choose": "Choose",
+    "empty": "No available options"
   }
 }
