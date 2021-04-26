@@ -1,5 +1,3 @@
-import { Store } from "vuex";
-import { RootState } from "@/store";
 import { MoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/MoveNodeCommand";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { dia } from "jointjs";
@@ -23,9 +21,8 @@ export class GraphControls {
      * Constructor
      *
      * @param graphHandler The graph handler object
-     * @param store The vuex store
      */
-    constructor(private graphHandler: GraphHandler, private store: Store<RootState>) {}
+    constructor(private graphHandler: GraphHandler) {}
 
     /**
      * Select node in the graph and display it in the inspector
@@ -34,13 +31,13 @@ export class GraphControls {
      */
     public async selectNode(elementView: dia.ElementView): Promise<void> {
         // Only select nodes outside of relation mode
-        if (!this.store.state.editor?.graphEditor?.relationModeActive) {
+        if (!this.graphHandler.relationMode.active) {
             this.graphHandler.graph.selectElement(elementView);
-            this.store.commit("editor/setSelectedElement", elementView.model);
+            this.graphHandler.store.commit("editor/setSelectedElement", elementView.model);
 
             // Set the currently selected node for inspector
             const node = this.graphHandler.nodes.getByJointId(elementView.model.id);
-            await this.store.dispatch("inspector/selectNode", node?.reference.uuid);
+            await this.graphHandler.store.dispatch("inspector/selectNode", node?.reference.uuid);
         }
     }
 
@@ -51,13 +48,13 @@ export class GraphControls {
      */
     public async selectRelation(linkView: dia.LinkView): Promise<void> {
         // Only select relations outside of relation mode
-        if (!this.store.state.editor?.graphEditor?.relationModeActive) {
+        if (!this.graphHandler.relationMode.active) {
             this.graphHandler.graph.selectElement(linkView, true);
-            this.store.commit("editor/setSelectedElement", undefined);
+            this.graphHandler.store.commit("editor/setSelectedElement", undefined);
 
             // Set the currently selected relation for inspector
             const relation = this.graphHandler.relations.getByJointId(linkView.model.id);
-            await this.store.dispatch("inspector/selectRelation", relation?.uuid);
+            await this.graphHandler.store.dispatch("inspector/selectRelation", relation?.uuid);
         }
     }
 
@@ -66,10 +63,10 @@ export class GraphControls {
      */
     public resetSelection(): void {
         this.graphHandler.graph.deselectElements();
-        this.store.commit("editor/setSelectedElement", undefined);
+        this.graphHandler.store.commit("editor/setSelectedElement", undefined);
 
         // Reset inspector selection
-        this.store.commit("inspector/resetSelection");
+        this.graphHandler.store.commit("inspector/resetSelection");
     }
 
     /**
@@ -91,7 +88,7 @@ export class GraphControls {
     public async stopNodeMovement(): Promise<void> {
         if (this.moveCommand && this.moveCommand.positionChanged()) {
             // Only add the MoveNodeCommand to the undo/redo stack if the position has actually changed
-            await this.store.dispatch("editor/addCommand", this.moveCommand);
+            await this.graphHandler.store.dispatch("editor/addCommand", this.moveCommand);
         }
         this.moveCommand = undefined;
     }
@@ -117,7 +114,7 @@ export class GraphControls {
             const cmd = this.bendCommand;
             this.bendCommand = undefined;
 
-            await this.store.dispatch("editor/addCommand", cmd);
+            await this.graphHandler.store.dispatch("editor/addCommand", cmd);
         } else this.bendCommand = undefined;
     }
 
@@ -129,7 +126,7 @@ export class GraphControls {
     public showLinkTools(linkView: dia.LinkView): void {
         // Only show tools outside of relation mode or always for visual relations
         if (
-            !this.store.state.editor?.graphEditor?.relationModeActive ||
+            !this.graphHandler.relationMode.active ||
             this.graphHandler.relations.getByJointId(linkView.model.id)?.relationModeType === RelationModeType.VISUAL
         ) {
             linkView.showTools();

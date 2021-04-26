@@ -33,8 +33,14 @@ export class GraphEditorState {
      */
     public relationModeActive = false;
 
+    /**
+     * True if the dialog for creating a new relation should be displayed
+     */
     public newRelationDialog = false;
 
+    /**
+     * Temporarily save a new relation command while the new relation dialog is open
+     */
     public newRelationCommand?: NewRelationCommand;
 }
 
@@ -165,6 +171,7 @@ export const graphEditor = {
 
             // Perform api request
             const res = await GET("/api/nodes/" + node.ref.uuid + "/relations");
+            // TODO: catch errors
             const newVar: ApiRelation[] = await res.json();
 
             // Transform relations from api into Relation objects

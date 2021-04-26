@@ -1,6 +1,4 @@
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
-import { Store } from "vuex";
-import { RootState } from "@/store";
 import { GET } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { dia } from "jointjs";
@@ -21,17 +19,16 @@ export class RelationModeControls {
      * Constructor
      *
      * @param graphHandler The graph handler object
-     * @param store The vuex store
      */
-    constructor(private graphHandler: GraphHandler, private store: Store<RootState>) {
-        this.visualRelationControls = new VisualRelationControls(this.graphHandler, store);
+    constructor(private graphHandler: GraphHandler) {
+        this.visualRelationControls = new VisualRelationControls(this.graphHandler);
     }
 
     /**
      * True if the relation mode is active
      */
     public get active(): boolean {
-        return !!this.store.state.editor?.graphEditor?.relationModeActive;
+        return !!this.graphHandler.store.state.editor?.graphEditor?.relationModeActive;
     }
 
     /**
@@ -120,7 +117,7 @@ export class RelationModeControls {
      */
     public async switchRelation(linkView: dia.LinkView): Promise<void> {
         // Only switch when relation mode is active
-        if (this.store.state.editor?.graphEditor?.relationModeActive) {
+        if (this.active) {
             // Get the corresponding relation to the link, if there isn't one cancel
             const relation = this.graphHandler.relations.getByJointId(linkView.model.id);
             if (relation == null) return;
@@ -134,7 +131,7 @@ export class RelationModeControls {
                 command = new EnableDbRelationCommand(this.graphHandler, relation);
             } else return;
 
-            await this.store.dispatch("editor/addCommand", command);
+            await this.graphHandler.dispatchCommand(command);
         }
     }
 

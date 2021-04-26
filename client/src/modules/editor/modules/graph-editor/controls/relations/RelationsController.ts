@@ -3,8 +3,6 @@ import { dia, linkTools, shapes } from "jointjs";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
-import { RootState } from "@/store";
-import { Store } from "vuex";
 import { RemoveRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/RemoveRelationCommand";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
 import { RelationsMap } from "@/modules/editor/modules/graph-editor/controls/relations/RelationsMap";
@@ -17,9 +15,8 @@ export default class RelationsController extends RelationsMap {
      * Constructor
      *
      * @param graphHandler Instance of the graph handler
-     * @param store
      */
-    constructor(private readonly graphHandler: GraphHandler, private store: Store<RootState>) {
+    constructor(private readonly graphHandler: GraphHandler) {
         super();
     }
 
@@ -149,10 +146,7 @@ export default class RelationsController extends RelationsMap {
                     action: async (evt, linkView) => {
                         const rel = this.graphHandler.relations.getByJointId(linkView.model.id);
                         if (rel)
-                            await this.store.dispatch(
-                                "editor/addCommand",
-                                new RemoveRelationCommand(this.graphHandler, rel),
-                            );
+                            await this.graphHandler.dispatchCommand(new RemoveRelationCommand(this.graphHandler, rel));
                     },
                 });
 

@@ -1,8 +1,6 @@
 import { dia, g, shapes } from "jointjs";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
-import { Store } from "vuex";
-import { RootState } from "@/store";
 import { NewRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/NewRelationCommand";
 import { ConnectRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/ConnectRelationCommand";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
@@ -17,9 +15,8 @@ export class VisualRelationControls {
      * Constructor
      *
      * @param graphHandler Instance of the graph handler
-     * @param store Vuex store
      */
-    constructor(private graphHandler: GraphHandler, private store: Store<RootState>) {}
+    constructor(private graphHandler: GraphHandler) {}
 
     /**
      * @return True during drawing a relation
@@ -38,7 +35,7 @@ export class VisualRelationControls {
      */
     public startDrawing(elementView: dia.ElementView, evt: dia.Event, x: number, y: number): void {
         // Abort if relation mode isn't active
-        if (!this.store.state.editor?.graphEditor?.relationModeActive) return;
+        if (!this.graphHandler.relationMode.active) return;
 
         // Create the link
         const link = new shapes.standard.Link();
@@ -80,9 +77,9 @@ export class VisualRelationControls {
         if (source == null || target == null) return;
 
         // Add new visual relation between the nodes of the drawn relation
-        await this.store.dispatch(
-            "editor/openNewRelationDialog",
+        await this.graphHandler.dispatchCommand(
             new NewRelationCommand(this.graphHandler, source, target, RelationModeType.VISUAL),
+            "editor/openNewRelationDialog",
         );
     }
 
@@ -99,7 +96,7 @@ export class VisualRelationControls {
      */
     // eslint-disable-next-line
     public mousemove(event: any): void {
-        if (this.store.state.editor?.graphEditor?.relationModeActive && this.newVisualRelation) {
+        if (this.graphHandler.relationMode.active && this.newVisualRelation) {
             // During drawing of new visual relation, connect the new relation target to the mouse position
             requestAnimationFrame(() => {
                 if (this.newVisualRelation) {
@@ -143,6 +140,6 @@ export class VisualRelationControls {
         if (sourceId == null || targetId == null) return;
 
         const cmd = new ConnectRelationCommand(this.graphHandler, relation);
-        if (cmd.connectionHasChanged()) await this.store.dispatch("editor/addCommand", cmd);
+        if (cmd.connectionHasChanged()) await this.graphHandler.dispatchCommand(cmd);
     }
 }

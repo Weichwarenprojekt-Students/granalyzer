@@ -48,13 +48,13 @@ export class GraphHandler {
      * @param store The vuex store
      * @param graph The joint graph object
      */
-    constructor(private store: Store<RootState>, graph: JointGraph) {
+    constructor(public store: Store<RootState>, graph: JointGraph) {
         this.graph = graph;
 
-        this.relations = new RelationsController(this, store);
+        this.relations = new RelationsController(this);
 
-        this.controls = new GraphControls(this, store);
-        this.relationMode = new RelationModeControls(this, store);
+        this.controls = new GraphControls(this);
+        this.relationMode = new RelationModeControls(this);
 
         this.registerPaperEvents();
     }
@@ -182,6 +182,16 @@ export class GraphHandler {
             command.redo();
             this.undoStack.push(command);
         }
+    }
+
+    /**
+     * Dispatch a new command to the store, so that "saveChange" will also be dispatched
+     *
+     * @param command The command to be dispatched to the store
+     * @param storeAction An optional action string, in case a different action than the default "addCommand" is needed
+     */
+    public async dispatchCommand(command: ICommand, storeAction = "editor/addCommand"): Promise<void> {
+        await this.store.dispatch(storeAction, command);
     }
 
     /**
