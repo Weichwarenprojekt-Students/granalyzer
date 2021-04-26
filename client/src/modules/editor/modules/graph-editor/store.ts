@@ -334,12 +334,24 @@ export const graphEditor = {
             context: ActionContext<GraphEditorState, RootState>,
             uuid?: string,
         ): Promise<void> {
+            const graphHandler = context.state.graphHandler;
+            if (!graphHandler) return;
+
             // Load related nodes from db
             const res = await GET("/api/nodes/" + uuid + "/related");
             const apiNodes: ApiNode[] = await res.json();
 
+            let count = 0;
+
+            // Don't count nodes that are already in diagram
+            for (const apiNode of apiNodes) {
+                if (graphHandler.nodes.getByUuid(apiNode.nodeId).size == 0) {
+                    count++;
+                }
+            }
+
             // Pass amount of nodes to mutation
-            context.commit("updateRelatedNodesCount", apiNodes.length);
+            context.commit("updateRelatedNodesCount", count);
         },
     },
     getters: {

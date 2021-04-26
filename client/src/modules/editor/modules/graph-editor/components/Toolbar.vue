@@ -14,14 +14,22 @@
             </span>
         </div>
         <div
-            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            :class="[
+                'item',
+                $store.getters['editor/itemSelected'] ? '' : 'item-disabled',
+                $store.getters['editor/relatedNodesAmount'] !== 0 ? '' : 'item-disabled',
+            ]"
             v-tooltip.bottom="$t('editor.toolbar.related')"
             @click="addRelatedNodes"
         >
             <svg class="icon">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#diagram`"></use>
             </svg>
-            <p class="related-nodes-number">{{ $store.getters['editor/itemSelected'] ? $store.getters['editor/relatedNodesAmount'] : '' }}</p>
+            <p class="related-nodes-number">
+                {{
+                    $store.getters["editor/relatedNodesAmount"] !== 0 ? $store.getters["editor/relatedNodesAmount"] : ""
+                }}
+            </p>
         </div>
         <div
             :class="['item', $store.getters['editor/undoAvailable'] ? '' : 'item-disabled']"
@@ -103,6 +111,7 @@ export default defineComponent({
          */
         addRelatedNodes(): void {
             this.$store.dispatch("editor/addRelatedNodes");
+            this.$store.dispatch("editor/updateRelatedNodesCount");
         },
     },
 });
