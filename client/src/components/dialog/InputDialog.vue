@@ -29,12 +29,25 @@ export default defineComponent({
         title: String,
         // The image source
         imageSrc: String,
+        // Default value
+        default: {
+            type: String,
+            default: "",
+        },
     },
     data() {
         return {
             // The value of the input field
             name: "",
         };
+    },
+    mounted() {
+        this.name = this.default;
+    },
+    watch: {
+        default() {
+            this.name = this.default;
+        },
     },
     updated() {
         // Auto focus the input field

@@ -4,6 +4,7 @@
             @input-confirm="createDiagram"
             @cancel="dialogAddDiagram = false"
             :show="dialogAddDiagram"
+            :default="$store.state.inventory.selectedNode?.name"
             :image-src="require('@/assets/img/icons.svg') + '#circle-plus'"
             :title="$t('inventory.createDiagram')"
         ></InputDialog>
