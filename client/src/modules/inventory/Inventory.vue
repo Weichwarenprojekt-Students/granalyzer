@@ -1,8 +1,8 @@
 <template>
     <div class="content">
-        <ProgressBar v-show="$store.state.inventory.loading" mode="indeterminate" class="loading" />
         <OverviewList
             :selectedItemId="$store.state.inventory.selectedNode?.nodeId"
+            :create="true"
             class="overview"
             @clicked-on-node="clickedOnNode"
             @dragging-node="draggingNode"
@@ -11,30 +11,34 @@
             <InventoryHeader class="header"></InventoryHeader>
             <NeighborView class="editor" :selectedNode="$store.state.inventory.selectedNode"></NeighborView>
         </div>
+        <WriteInspector class="inspector" />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import OverviewList from "@/modules/overview-list/OverviewList.vue";
-import InventoryHeader from "@/modules/inventory/modules/inventory-header/InventoryHeader.vue";
+import InventoryHeader from "@/modules/inventory/components/InventoryHeader.vue";
 import NeighborView from "@/modules/inventory/modules/neighbor-view/NeighborView.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
+import WriteInspector from "@/modules/inspector/WriteInspector.vue";
 
 export default defineComponent({
     name: "Inventory",
     components: {
+        WriteInspector,
         OverviewList,
         NeighborView,
         InventoryHeader,
     },
-    mounted() {
+    beforeCreate() {
         // Load the labels with the first load of matching nodes
         this.$store.dispatch("overview/loadLabelsAndNodes");
 
         // Restore last selection if revisiting
         if (this.$store.state.inventory.selectedNode) {
-            this.$store.dispatch("inventory/loadRelations", this.$store.state.inventory.selectedNode);
+            this.$store.dispatch("inventory/loadNeighbors", this.$store.state.inventory.selectedNode);
+            this.$store.dispatch("inspector/selectNode", this.$store.state.inventory.selectedNode.nodeId);
         }
     },
     methods: {
@@ -42,14 +46,10 @@ export default defineComponent({
          * Store node that was selected
          */
         clickedOnNode(node: ApiNode): void {
-            if (this.$store.state.inventory.selectedNode?.nodeId === node.nodeId) {
-                this.$store.commit("inventory/setSelectedNode", undefined);
+            this.$store.dispatch("inspector/selectNode", node.nodeId);
+            if (this.$store.state.inventory.selectedNode?.nodeId === node.nodeId || this.$store.state.inventory.loading)
                 return;
-            }
-            if (this.$store.state.inventory.loading) return;
-
-            this.$store.commit("inventory/setSelectedNode", node);
-            this.$store.dispatch("inventory/loadRelations", node);
+            this.$store.dispatch("inventory/loadNeighbors", node);
         },
         /**
          * Store dragged node
@@ -69,13 +69,6 @@ export default defineComponent({
     height: 100%;
     background: @light_grey;
     display: flex;
-
-    .loading {
-        position: absolute !important;
-        top: 0;
-        left: 0;
-        right: 0;
-    }
 }
 
 .overview {
@@ -100,5 +93,12 @@ export default defineComponent({
 
 .editor {
     flex: 1 1 auto;
+}
+
+.inspector {
+    width: @inspector_width;
+    height: 100vh;
+    flex: 0 0 auto;
+    background: white;
 }
 </style>

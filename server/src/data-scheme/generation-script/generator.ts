@@ -102,8 +102,7 @@ export class SchemeGenerator {
               MATCH(node)
                 WHERE $nodeName IN labels(node)
               UNWIND keys(node) AS keys
-              WITH keys
-                WHERE keys <> 'nodeId'
+              WITH keys WHERE keys <> "nodeId" AND keys <> "name"
               RETURN DISTINCT keys`;
 
             const labelAttributes = await this.fetchData(query, { nodeName: labelName }, "keys", session);
@@ -146,8 +145,7 @@ export class SchemeGenerator {
               MATCH(startNode)-[relation]-(endNode)
                 WHERE type(relation) = $relType
               UNWIND keys(relation) AS keys
-              WITH keys
-                WHERE keys <> 'relationId'
+              WITH keys WHERE keys <> "relationId"
               RETURN DISTINCT keys`;
 
             const relationAttributes = await this.fetchData(query, { relType: relationName }, "keys", session);

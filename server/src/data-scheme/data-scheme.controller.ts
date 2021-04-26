@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, Param, ParseBoolPipe, Post, Put, Query } from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    DefaultValuePipe,
+    Delete,
+    Get,
+    Param,
+    ParseBoolPipe,
+    Post,
+    Put,
+    Query,
+} from "@nestjs/common";
 import { DataSchemeService } from "./data-scheme.service";
 import {
     ApiBody,
@@ -105,7 +116,7 @@ export class DataSchemeController {
     updateLabelScheme(
         @Param("name") name,
         @Body(ValidationPipe) body: LabelScheme,
-        @Query("force", ParseBoolPipe) force,
+        @Query("force", new DefaultValuePipe(false), ParseBoolPipe) force,
     ) {
         return this.dataSchemeService.updateLabelScheme(name, body, force);
     }
@@ -202,7 +213,7 @@ export class DataSchemeController {
     updateRelationType(
         @Param("name") name,
         @Body(ValidationPipe) body: RelationType,
-        @Query("force", ParseBoolPipe) force,
+        @Query("force", new DefaultValuePipe(false), ParseBoolPipe) force,
     ) {
         return this.dataSchemeService.updateRelationType(name, body, force);
     }

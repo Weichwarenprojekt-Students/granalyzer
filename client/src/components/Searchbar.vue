@@ -1,8 +1,11 @@
 <template>
     <label class="searchbar">
         <input v-model="inputValue" type="text" :placeholder="$t('global.searchPlaceholder')" />
-        <svg v-if="inputValue.length > 0" @click="inputValue = ''">
+        <svg class="close" v-if="inputValue.length > 0" @click="inputValue = ''">
             <use xlink:href="@/assets/img/icons.svg#delete"></use>
+        </svg>
+        <svg class="filter-icon" @click="$emit('show-filter')">
+            <use :xlink:href="`${require('@/assets/img/icons.svg')}#filter`"></use>
         </svg>
     </label>
 </template>
@@ -49,18 +52,27 @@ export default defineComponent({
     margin: 8px 0;
     padding: 6px 16px;
     background: @light_grey;
+    gap: 12px;
 
     input[type="text"] {
         width: 100%;
         background: transparent;
         border: none;
     }
+}
 
-    svg {
-        cursor: pointer;
-        height: 14px;
-        width: 14px;
-        fill: @dark_grey;
-    }
+.close {
+    cursor: pointer;
+    height: 14px;
+    width: 14px;
+    fill: @dark_grey;
+}
+
+.filter-icon {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+    fill: @dark;
+    cursor: pointer;
 }
 </style>

@@ -10,6 +10,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "class-validator": "^0.13.1",
     "core-js": "^3.6.5",
     "jointjs": "^3.3.1",
     "prettier": "^2.2.1",

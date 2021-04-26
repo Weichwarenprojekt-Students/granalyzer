@@ -1,4 +1,5 @@
 import { EnumConfigElement } from "@/models/data-scheme/EnumConfigElement";
+import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 
 export class ApiAttribute {
     /**
@@ -12,10 +13,10 @@ export class ApiAttribute {
      */
     constructor(
         public name: string = "done",
-        public datatype: string = "string",
+        public datatype: string = ApiDatatype.STRING,
         public mandatory: boolean = false,
-        public defaultValue: string = "",
-        public config?: EnumConfigElement[] | unknown,
+        public defaultValue: string | number = "",
+        public config: EnumConfigElement[] | unknown = [],
     ) {}
 
     /**

@@ -217,7 +217,7 @@ export const graphEditor = {
             context.commit("setSelectedElement", undefined);
 
             // Reset inspector selection
-            context.commit("resetSelection");
+            context.commit("inspector/resetSelection", undefined, { root: true });
 
             context.commit("setRelationMode", value);
         },

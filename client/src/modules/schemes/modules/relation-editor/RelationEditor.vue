@@ -35,6 +35,7 @@
                 v-model:mandatory="attribute.mandatory"
                 v-model:defaultValue="attribute.defaultValue"
                 v-model:datatype="attribute.datatype"
+                v-model:config="attribute.config"
                 @delete="deleteAttribute(index)"
             />
 
@@ -226,7 +227,7 @@ export default defineComponent({
          */
         validateRelationAttributes(): boolean {
             // Check if the attributes are valid
-            const names = new Map<string, string>();
+            const names = new Set<string>();
             for (let attribute of this.modifiedRelation.attributes) {
                 // If the name is empty
                 if (attribute.name === "") {
@@ -244,7 +245,7 @@ export default defineComponent({
                     );
                     return false;
                 }
-                names.set(attribute.name, "");
+                names.add(attribute.name);
             }
             return true;
         },

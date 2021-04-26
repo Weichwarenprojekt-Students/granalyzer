@@ -1,0 +1,24 @@
+{
+  "title": "Inspector",
+  "nothingSelected": "Please select a node or relation to show the attributes",
+  "save": "Save",
+  "delete": "Delete",
+  "deleteDialog": {
+    "title": "Delete Item",
+    "description": "Are you sure? The data cannot be recovered!"
+  },
+  "create": "Create",
+  "name": "Name",
+  "label": "Label",
+  "relationType": "Type",
+  "attributes": "Attributes",
+  "noAttributes": "No attributes found.",
+  "nameRequired": {
+    "title": "Name required",
+    "description": "Your node needs a name!"
+  },
+  "labelInvalid": {
+    "title": "Label invalid",
+    "description": "The specified label is unknown!"
+  }
+}

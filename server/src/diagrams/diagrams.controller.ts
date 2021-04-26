@@ -66,19 +66,7 @@ export class DiagramsController {
         description: "Adds a new diagram",
     })
     @ApiBody({
-        schema: {
-            type: "object",
-            properties: {
-                name: {
-                    type: "string",
-                    description: "Name of the new diagram",
-                },
-                serialized: {
-                    type: "string",
-                    description: "Serialized JSON object of diagram",
-                },
-            },
-        },
+        type: Diagram,
     })
     @ApiCreatedResponse({
         type: Diagram,
@@ -104,19 +92,7 @@ export class DiagramsController {
         description: "Identifier of the diagram which should be updated",
     })
     @ApiBody({
-        schema: {
-            type: "object",
-            properties: {
-                name: {
-                    type: "string",
-                    description: "New name",
-                },
-                serialized: {
-                    type: "string",
-                    description: "New serialized diagram",
-                },
-            },
-        },
+        type: Diagram,
     })
     updateDiagram(@Param("id") id: string, @Body(ValidationPipe) body: Diagram) {
         return this.diagramsService.updateDiagram(id, body.name, body.serialized);

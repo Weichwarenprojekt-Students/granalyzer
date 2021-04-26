@@ -8,7 +8,6 @@ import Relation from "../relations/relation.model";
 import { DataSchemeUtil } from "../util/data-scheme.util";
 import { Attribute } from "./models/attributes.model";
 import Node from "../nodes/node.model";
-import { Neo4jError } from "neo4j-driver";
 
 @Injectable()
 export class DataSchemeService {
@@ -127,7 +126,7 @@ export class DataSchemeService {
         // Drop the current full-text index, don't throw error when it fails
         await this.neo4jService
             .write(cypherDropIndex, params, process.env.DB_CUSTOMER)
-            .catch((err) => Logger.log("No index existed at this point, creating one"));
+            .catch(() => Logger.log("No index existed at this point, creating one"));
 
         // Write updated index
         await this.neo4jService
@@ -322,7 +321,8 @@ export class DataSchemeService {
             if (element.mandatory)
                 missingConflicts += (await this.getEntityAttrDependant(element.name, label, false)).length;
             exists.forEach((node) => {
-                diffConflicts += this.dataSchemeUtil.hasConflict(element, node) ? 1 : 0;
+                const attribute = node.attributes[element.name];
+                diffConflicts += !!this.dataSchemeUtil.applyOnElement(element, attribute, false) ? 0 : 1;
             });
         }
 
@@ -421,10 +421,10 @@ export class DataSchemeService {
         const cypher = attributeExists
             ? `MATCH ()-[rel:${relationTypeName}]-()
                 WHERE exists(rel.${attributeName})
-                RETURN DISTINCT rel {.*, type: $relationTypeName} AS r`
+                RETURN DISTINCT rel {.*, type: $relationTypeName} AS relation`
             : `MATCH ()-[rel:${relationTypeName}]-()
                 WHERE NOT exists(rel.${attributeName})
-                RETURN DISTINCT rel {.*, type: $relationTypeName} AS r`;
+                RETURN DISTINCT rel {.*, type: $relationTypeName} AS relation`;
 
         const resolveRead = (result) => Promise.all(result.records.map((el) => this.dataSchemeUtil.parseRelation(el)));
         return await this.neo4jService

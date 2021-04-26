@@ -2,7 +2,7 @@ import ApiLabel from "@/models/data-scheme/ApiLabel";
 import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { deepCopy, DELETE, errorToast, GET, POST, PUT, successToast } from "@/utility";
+import { deepCopy, DELETE, errorToast, GET, isUnexpected, POST, PUT, successToast } from "@/utility";
 import { Conflict } from "@/modules/schemes/modules/conflict-view/models/Conflict";
 import i18n from "@/i18n";
 
@@ -177,7 +177,7 @@ export const schemes = {
          */
         async createLabel(context: ActionContext<SchemesState, RootState>, label: ApiLabel): Promise<void> {
             const res = await POST("/api/data-scheme/label", JSON.stringify(label));
-            if (res.status === 201) context.commit("addLabel", await res.json());
+            if (!isUnexpected(res)) context.commit("addLabel", await res.json());
         },
         /**
          * Create a relation type
@@ -187,7 +187,7 @@ export const schemes = {
             relation: ApiRelationType,
         ): Promise<void> {
             const res = await POST("/api/data-scheme/relation", JSON.stringify(relation));
-            if (res.status === 201) context.commit("addRelation", await res.json());
+            if (!isUnexpected(res)) context.commit("addRelation", await res.json());
         },
         /**
          * Update a label

@@ -18,31 +18,97 @@ export class RelationsService {
     ) {}
 
     /**
-     * Return all relations
+     * Creates a relation with a given type between two given nodes
+     *
+     * @param relation The relation to be created
      */
-    async getAllRelations(): Promise<Relation[]> {
-        // language=cypher
+    async createRelation(relation: Relation): Promise<Relation> {
+        // language=Cypher
         const query = `
-          MATCH(startNode)-[relation]->(endNode)
-          WITH startNode.nodeId AS from,
-               endNode.nodeId AS to, relation
-          RETURN relation {. *, type:type(relation), from:from, to:to} AS relation;`;
-        const params = {};
+          MATCH (from)
+          WITH from
+          MATCH (to)
+            WHERE from.nodeId = $from AND to.nodeId = $to
+            CALL apoc.create.relationship(from, $type, {}, to) YIELD rel AS relation
+          SET relation.relationId = apoc.create.uuid(), relation +=$attributes
+          RETURN relation {. *, type:type(relation), from:from.nodeId, to:to.nodeId} AS relation;`;
+
+        const params = {
+            type: relation.type,
+            from: relation.from,
+            to: relation.to,
+            attributes: relation.attributes,
+        };
+        delete params.attributes.relationId;
 
         // Callback which parses the received data
-        const resolveRead = async (res) =>
-            Promise.all(res.records.map((el) => this.dataSchemeUtil.parseRelation(el, "relation")));
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], false);
 
-        return this.neo4jService
-            .read(query, params, this.database)
+        return await this.neo4jService
+            .write(query, params, this.database)
             .then(resolveRead)
             .catch(this.databaseUtil.catchDbError);
     }
 
     /**
-     * Returns a specific relation by id
+     * Modifies the attributes of the specified relation
+     *
+     * @param relationId The UUID of the relation
+     * @param relation The node to be modified
      */
-    async getRelation(id: string): Promise<Relation> {
+    modifyRelation(relationId: string, relation: Relation): Promise<Relation> {
+        //language=Cypher
+        const query = `
+          MATCH(startNode)-[relation]->(endNode)
+            WHERE relation.relationId = $relationId
+          WITH startNode.nodeId AS from,
+               endNode.nodeId AS to, relation
+          SET relation = $attributes
+          RETURN relation {. *, type:type(relation), from:from, to:to} AS relation;`;
+        const params = {
+            relationId,
+            attributes: relation.attributes,
+        };
+
+        // Set the id
+        params.attributes["relationId"] = relationId;
+
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], false);
+        return this.neo4jService
+            .write(query, params, this.database)
+            .then(resolveRead)
+            .catch(this.databaseUtil.catchDbError);
+    }
+
+    /**
+     * Deletes the specified relation by id
+     *
+     * @param relationId
+     */
+    async deleteRelation(relationId: string): Promise<Relation> {
+        // Backup the relation to return
+        const relation = await this.getRelation(relationId, true);
+
+        // language=Cypher
+        const query = `
+          MATCH(startNode)-[relation]-(endNode)
+            WHERE relation.relationId = $relationId
+          DELETE relation;`;
+        const params = {
+            relationId,
+        };
+
+        await this.neo4jService.write(query, params, this.database).catch(this.databaseUtil.catchDbError);
+        return relation;
+    }
+
+    /**
+     * Returns a specific relation by id
+     *
+     * @param id The nodeId
+     * @param includeDefaults True if the transformation should automatically place the defaults
+     */
+    async getRelation(id: string, includeDefaults: boolean): Promise<Relation> {
         // language=cypher
         const query = `
           MATCH(startNode)-[relation]->(endNode)
@@ -53,7 +119,7 @@ export class RelationsService {
         const params = { id };
 
         // Callback which parses the received data
-        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], "relation");
+        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], includeDefaults);
 
         return this.neo4jService
             .read(query, params, this.database)
@@ -62,31 +128,25 @@ export class RelationsService {
     }
 
     /**
-     * Creates a relation with a given type between two given nodes
+     * Return all relations
      */
-    async addRelation(type: string, from: string, to: string): Promise<Relation> {
-        await this.dataSchemeUtil.getRelationType(type);
-
+    async getAllRelations(): Promise<Relation[]> {
         // language=cypher
         const query = `
-          MATCH (from)
-          WITH from
-          MATCH (to)
-            WHERE from.nodeId = $from AND to.nodeId = $to
-          CREATE(from)-[relation:${type} {relationId: apoc.create.uuid()}]->(to)
-          RETURN relation {. *, type:type(relation), from:from, to:to} AS relation;`;
+          MATCH(startNode)-[relation]->(endNode)
+          WITH startNode.nodeId AS from,
+               endNode.nodeId AS to, relation
+          RETURN relation {. *, type:type(relation), FROM:from, to:to} AS relation;`;
+        const params = {};
 
-        const params = {
-            from: from,
-            to: to,
-            type: type,
-        };
+        // Callback which is applied on the database response
+        const resolveRead = (result) =>
+            Promise.all(result.records.map((el) => this.dataSchemeUtil.parseRelation(el))).then((relations) =>
+                relations.filter((relation) => !!relation),
+            );
 
-        // Callback which parses the received data
-        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], "relation");
-
-        return await this.neo4jService
-            .write(query, params, this.database)
+        return this.neo4jService
+            .read(query, params, this.database)
             .then(resolveRead)
             .catch(this.databaseUtil.catchDbError);
     }

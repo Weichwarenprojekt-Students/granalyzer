@@ -27,8 +27,7 @@ export class NodesRelationsService {
         const cypher = `
           CALL db.index.fulltext.queryNodes("allNodesIndex", $nodeId) YIELD node AS n
           MATCH (n)-[r]-(m)
-          RETURN r {.*, type:type(r), from:startNode(r).nodeId, to:endNode(r).nodeId}
-        `;
+          RETURN r {. *, type:type(r), from:startNode(r).nodeId, to:endNode(r).nodeId} AS relation`;
         const params = {
             id,
             nodeId: `\'\"${id}\"\'`,
@@ -43,7 +42,7 @@ export class NodesRelationsService {
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then(resolveRead)
+            .then(await resolveRead)
             .catch(this.databaseUtil.catchDbError);
     }
 }

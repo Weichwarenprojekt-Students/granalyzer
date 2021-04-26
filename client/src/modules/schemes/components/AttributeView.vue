@@ -1,5 +1,11 @@
 <template>
     <div :class="['attribute-view', { 'attribute-view-expanded': !collapsed }]">
+        <EditEnumModal
+            @confirm="isEditEnumModalVisible = false"
+            @cancel="cancelEditConfig"
+            v-model:config="modifiedAttribute.config"
+            :show="isEditEnumModalVisible"
+        ></EditEnumModal>
         <!-- The header -->
         <div class="attribute-header">
             <svg class="attribute-collapse-icon" @click="collapsed = !collapsed">
@@ -24,13 +30,13 @@
                         <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
                     </svg>
                     <Dropdown
-                        :force-close="collapsed"
-                        :value="$t(`schemes.attribute.datatype.${modifiedAttribute.datatype}`)"
-                    >
-                        <div :key="type" v-for="type in types" @click="modifiedAttribute.datatype = type">
-                            {{ $t(`schemes.attribute.datatype.${type}`) }}
-                        </div>
-                    </Dropdown>
+                        :options="types"
+                        optionLabel="name"
+                        optionValue="value"
+                        v-model="modifiedAttribute.datatype"
+                        :placeholder="$t('global.dropdown.choose')"
+                        :emptyMessage="$t('global.dropdown.empty')"
+                    />
                 </div>
             </div>
             <div class="attribute-modification-row">
@@ -47,19 +53,12 @@
             </div>
         </div>
     </div>
-    <EditEnumModal
-        @confirm="isEditEnumModalVisible = false"
-        @cancel="cancelEditConfig"
-        v-model:config="modifiedAttribute.config"
-        :show="isEditEnumModalVisible"
-    ></EditEnumModal>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
-import Dropdown from "@/components/Dropdown.vue";
 import DynamicInput from "@/components/DynamicInput.vue";
 import EditEnumModal from "./EditEnumModal.vue";
 
@@ -67,7 +66,6 @@ export default defineComponent({
     name: "AttributeView",
     components: {
         DynamicInput,
-        Dropdown,
         EditEnumModal,
     },
     props: {
@@ -76,7 +74,7 @@ export default defineComponent({
         // The datatype of the attribute
         datatype: String,
         // The default value for the attribute
-        defaultValue: String,
+        defaultValue: [String, Number],
         // True if the attribute is mandatory
         mandatory: Boolean,
         // Contains additional information like enum structure
@@ -88,8 +86,13 @@ export default defineComponent({
             collapsed: true,
             // The modified attribute object
             modifiedAttribute: new ApiAttribute(),
-            // The different data types
-            types: ApiDatatype,
+            // The different data types (prepared for the dropdown)
+            types: Object.values(ApiDatatype).map((datatype) => {
+                return {
+                    name: this.$t(`schemes.attribute.datatype.${datatype}`),
+                    value: datatype,
+                };
+            }),
             // Defines whether the modal is shown or not
             isEditEnumModalVisible: false,
         };

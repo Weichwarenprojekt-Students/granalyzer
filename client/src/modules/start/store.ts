@@ -2,7 +2,7 @@ import { ActionContext } from "vuex";
 import { RootState } from "@/store";
 import { ApiFolder } from "@/models/ApiFolder";
 import { ApiDiagram } from "@/models/ApiDiagram";
-import { DELETE, GET, POST, PUT } from "@/utility";
+import { DELETE, GET, isUnexpected, POST, PUT } from "@/utility";
 
 export class StartState {
     /**
@@ -132,7 +132,7 @@ export const start = {
             if (res.status === 201) {
                 context.commit("addDiagram", await res.json());
                 context.commit("sortDiagrams");
-            }
+            } else isUnexpected(res);
             return ret;
         },
         /**
@@ -147,7 +147,7 @@ export const start = {
             if (res.status === 201) {
                 context.commit("addFolder", await res.json());
                 context.commit("sortFolders");
-            }
+            } else isUnexpected(res);
         },
         /**
          * Move a diagram into a folder
@@ -161,7 +161,7 @@ export const start = {
                     ? await DELETE(`/api/folders/${context.state.parent.folderId}/diagrams/${payload.diagramId}`)
                     : await PUT(`/api/folders/${payload.parentId}/diagrams/${payload.diagramId}`, "");
 
-            if (res.status === 200) context.commit("moveDiagram", payload.diagramId);
+            if (!isUnexpected(res)) context.commit("moveDiagram", payload.diagramId);
         },
         /**
          * Move a folder into a folder
@@ -175,14 +175,14 @@ export const start = {
                     ? await DELETE(`/api/folders/${context.state.parent.folderId}/folders/${payload.folderId}`)
                     : await PUT(`/api/folders/${payload.parentId}/folders/${payload.folderId}`, "");
 
-            if (res.status === 200) context.commit("moveFolder", payload.folderId);
+            if (!isUnexpected(res)) context.commit("moveFolder", payload.folderId);
         },
         /**
          * Delete a diagram
          */
         async deleteDiagram(context: ActionContext<StartState, RootState>, diagram: ApiDiagram): Promise<void> {
             const res = await DELETE(`/api/diagrams/${diagram.diagramId}`);
-            if (res.status === 200) {
+            if (!isUnexpected(res)) {
                 context.commit("deleteDiagram", diagram);
                 context.commit("sortDiagrams");
             }
@@ -192,7 +192,7 @@ export const start = {
          */
         async deleteFolder(context: ActionContext<StartState, RootState>, folder: ApiFolder): Promise<void> {
             const res = await DELETE(`/api/folders/${folder.folderId}`);
-            if (res.status === 200) {
+            if (!isUnexpected(res)) {
                 context.commit("deleteFolder", folder);
                 context.commit("sortFolders");
             }
@@ -202,7 +202,7 @@ export const start = {
          */
         async editDiagram(context: ActionContext<StartState, RootState>, diagram: ApiDiagram): Promise<void> {
             const res = await PUT(`/api/diagrams/${diagram.diagramId}`, JSON.stringify(diagram));
-            if (res.status === 200) {
+            if (!isUnexpected(res)) {
                 context.commit("editDiagram", await res.json());
                 context.commit("sortDiagrams");
             }
@@ -212,7 +212,7 @@ export const start = {
          */
         async editFolder(context: ActionContext<StartState, RootState>, folder: ApiFolder): Promise<void> {
             const res = await PUT(`/api/folders/${folder.folderId}`, JSON.stringify(folder));
-            if (res.status === 200) {
+            if (!isUnexpected(res)) {
                 context.commit("editFolder", await res.json());
                 context.commit("sortFolders");
             }
