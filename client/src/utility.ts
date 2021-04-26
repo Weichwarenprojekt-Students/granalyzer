@@ -235,3 +235,14 @@ export function warnToast(summary: string, detail: string, life = 3000): void {
         life,
     });
 }
+
+/**
+ * Provide wrapper for Promise.allSettled() that just returns the values of fulfilled promises
+ *
+ * @param promises All promises to await
+ */
+export async function allFulfilledPromises<T>(promises: Array<Promise<T>>): Promise<Array<T>> {
+    return (await Promise.allSettled(promises))
+        .filter((result): result is PromiseFulfilledResult<T> => result.status === "fulfilled")
+        .map((res: PromiseFulfilledResult<T>) => res.value);
+}

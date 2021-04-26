@@ -1,7 +1,7 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { errorToast, GET, POST, successToast, isUnexpected } from "@/utility";
+import { errorToast, GET, POST, successToast, isUnexpected, allFulfilledPromises } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import i18n from "@/i18n";
 import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
@@ -140,7 +140,7 @@ export const inventory = {
                 const neighborId = relation.from === payload.origin.nodeId ? relation.to : relation.from;
                 if (!neighborIds.includes(neighborId)) neighborIds.push(neighborId);
             });
-            const apiNodes: Array<ApiNode> = await Promise.all(
+            const apiNodes: Array<ApiNode> = await allFulfilledPromises(
                 [...neighborIds].map(async (id) => (await (await GET(`api/nodes/${id}`)).json()) as ApiNode),
             );
 
@@ -160,7 +160,7 @@ export const inventory = {
             payload: { neighborIds: Array<string>; apiRelationsOrigin: Array<ApiRelation> },
         ): Promise<void> {
             // Get relations of the neighbors
-            const apiRelationsNeighbors = await Promise.all(
+            const apiRelationsNeighbors = await allFulfilledPromises(
                 [...payload.neighborIds].map(
                     async (id) => (await (await GET(`api/nodes/${id}/relations`)).json()) as Array<ApiRelation>,
                 ),

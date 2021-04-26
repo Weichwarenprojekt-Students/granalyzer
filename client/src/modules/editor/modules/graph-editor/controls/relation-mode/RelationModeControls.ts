@@ -1,5 +1,5 @@
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
-import { GET } from "@/utility";
+import { allFulfilledPromises, GET } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { dia } from "jointjs";
 import { VisualRelationControls } from "@/modules/editor/modules/graph-editor/controls/relation-mode/VisualRelationControls";
@@ -43,7 +43,7 @@ export class RelationModeControls {
         );
 
         // Send api requests all at once to get all relations directly connected to all nodes
-        const apiRelations = await Promise.all(
+        const apiRelations: ApiRelation[] = await allFulfilledPromises(
             [...uniqueNodeIds].map(
                 async (id) => (await (await GET(`/api/nodes/${id}/relations`)).json()) as ApiRelation,
             ),
