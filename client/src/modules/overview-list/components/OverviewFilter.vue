@@ -70,15 +70,15 @@ export default defineComponent({
 
 .filter {
     max-height: 0;
-    transition: max-height 400ms;
-    padding-bottom: 8px;
+    transition: all 400ms;
     margin-bottom: 8px;
-    border-bottom: 1px solid @grey;
+    border-bottom: 2px solid @grey;
     height: auto !important;
 }
 
 .filter-expanded {
     max-height: 200px;
+    padding-bottom: 8px;
 }
 
 .row {
