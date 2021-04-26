@@ -4,7 +4,6 @@ import ApiNode from "@/models/data-scheme/ApiNode";
 import { Store } from "vuex";
 import { RootState } from "@/store";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeShapes";
 import { getBrightness } from "@/utility";
 import { JointGraph } from "@/shared/JointGraph";
 import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationInfo";
@@ -65,31 +64,23 @@ export class GraphUtils {
     public addNodeToDiagram(apiNode: ApiNode): dia.Element {
         this.calculateNewPosition();
 
-        const node: NodeInfo = {
-            x: this.currentX,
-            y: this.currentY,
-            shape: "rectangle",
-            label: apiNode.label,
-            name: apiNode.name,
-            ref: { uuid: apiNode.nodeId, index: 0 },
-            color: this.store.state.overview?.labelColor.get(apiNode.label)?.color ?? "#70FF87",
-        };
+        // Add the shape
+        const shape = new shapes.standard.Rectangle();
+        this.mappedNodes.set(apiNode.nodeId, shape.id);
 
-        const shape = NodeShapes.parseType(node.shape);
-        this.mappedNodes.set(node.ref.uuid, shape.id);
-
-        shape.position(node.x, node.y);
-        // Style node
+        // Position and style the shape
+        shape.position(this.currentX, this.currentY);
+        const color = this.store.state.overview?.labelColor.get(apiNode.label)?.color ?? "#70FF87";
         shape.attr({
             label: {
-                text: node.name,
+                text: apiNode.name,
                 textAnchor: "middle",
                 textVerticalAnchor: "middle",
-                fill: getBrightness(node.color) > 170 ? "#333" : "#FFF",
+                fill: getBrightness(color) > 170 ? "#333" : "#FFF",
             },
             body: {
                 ref: "label",
-                fill: node.color,
+                fill: color,
                 strokeWidth: 1,
                 rx: 4,
                 ry: 4,
@@ -103,7 +94,6 @@ export class GraphUtils {
         shape.addTo(this.graph.graph);
         shape.attr("body/strokeWidth", 0);
         this.rootNodeSet = true;
-
         return shape;
     }
 
@@ -113,23 +103,16 @@ export class GraphUtils {
      * @param apiRelation Relation to be placed in the diagram
      */
     public addRelationToDiagram(apiRelation: ApiRelation): shapes.standard.Link | undefined {
-        const relation = {
-            from: { uuid: apiRelation.from, index: 0 },
-            to: { uuid: apiRelation.to, index: 0 },
-            uuid: apiRelation.relationId,
-            type: apiRelation.type,
-        };
-
         // Prevent duplicate relations
-        if (this.mappedRelations.has(relation.uuid)) return;
+        if (this.mappedRelations.has(apiRelation.relationId)) return;
 
         // Get direction of the relation
-        const source = this.getShapeById(relation.from.uuid);
-        const target = this.getShapeById(relation.to.uuid);
+        const source = this.getShapeById(apiRelation.from);
+        const target = this.getShapeById(apiRelation.to);
         if (!(source && target)) return;
 
         const link = new shapes.standard.Link();
-        this.mappedRelations.set(relation.uuid, link.id);
+        this.mappedRelations.set(apiRelation.relationId, link.id);
 
         link.source(source);
         link.target(target);
@@ -137,10 +120,10 @@ export class GraphUtils {
             line: { strokeWidth: 4 },
         });
 
-        if (relation.type)
+        if (apiRelation.type)
             link.appendLabel({
                 attrs: {
-                    text: { text: relation.type, textAnchor: "middle", textVerticalAnchor: "middle", fill: "#fff" },
+                    text: { text: apiRelation.type, textAnchor: "middle", textVerticalAnchor: "middle", fill: "#fff" },
                     rect: {
                         ref: "text",
                         fill: "#333",
