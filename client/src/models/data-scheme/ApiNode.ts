@@ -13,7 +13,7 @@ export default class ApiNode {
         public label: string = "",
         public nodeId: string = "",
         public attributes: {
-            [key: string]: unknown;
+            [key: string]: string | number;
         } = {},
         public color: string = "#333",
     ) {}

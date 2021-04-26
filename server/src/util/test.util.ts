@@ -4,7 +4,7 @@ import { Neo4jModule, Neo4jService } from "nest-neo4j/dist";
 import { UtilModule } from "./util.module";
 import Node from "../nodes/node.model";
 import Relation from "../relations/relation.model";
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { LabelScheme } from "../data-scheme/models/label-scheme.model";
 import { RelationType } from "../data-scheme/models/relation-type.model";
 
@@ -13,6 +13,10 @@ import { RelationType } from "../data-scheme/models/relation-type.model";
  */
 @Injectable()
 export default class TestUtil {
+    // TODO: Remove most of the methods since they don't make sense for
+    //       blackbox testing of controllers.
+    //       Other possibility would be to create separate test suites
+    //       for testing how our backend reacts based on existing invalid data
     constructor(private readonly neo4jService: Neo4jService) {}
 
     /**
@@ -132,5 +136,75 @@ export default class TestUtil {
         return this.neo4jService
             .write(cypher, params, process.env.DB_TOOL)
             .then((res) => res.records[0].get("rt").name);
+    }
+
+    async createNodeKeyUNIQUEConstraint(name: string, label: string, key: string) {
+        // language=cypher
+        const cypher = `CREATE CONSTRAINT ${name} 
+        IF NOT EXISTS
+        ON (node:${label})ASSERT node.${key} IS UNIQUE`;
+        await this.neo4jService.write(cypher, {}, process.env.CUSTOMER);
+    }
+
+    async createNodeKeyEXISTSConstraint(name: string, label: string, key: string) {
+        // language=cypher
+        const cypher = `CREATE CONSTRAINT ${name} 
+        IF NOT EXISTS
+        ON (node:${label}) ASSERT EXISTS (node.${key})`;
+        await this.neo4jService.write(cypher, {}, process.env.CUSTOMER);
+    }
+
+    async createRelationKeyEXISTSConstraint(name: string, type: string, key: string) {
+        // language=cypher
+        const cypher = `CREATE CONSTRAINT ${name} 
+        IF NOT EXISTS
+        ON ()-[relation:${type}]-() ASSERT EXISTS (relation.${key})`;
+        await this.neo4jService.write(cypher, {}, process.env.CUSTOMER);
+    }
+
+    async readDBNode(nodeId: string): Promise<Node> {
+        // language=Cypher
+        const query = `
+          MATCH (n)
+            WHERE n.nodeId = $nodeId
+          WITH LABELS(n) AS lbls, n
+          UNWIND lbls AS label
+          RETURN n {. *, label:label} AS node`;
+        const params = {
+            nodeId,
+        };
+
+        const record = (await this.neo4jService.read(query, params, process.env.DB_CUSTOMER)).records[0];
+        if (!record) throw new NotFoundException("No results to return");
+
+        const attributes = record.get("node");
+        return {
+            nodeId: record.get("node").nodeId,
+            name: record.get("node").name,
+            label: record.get("node").label,
+            attributes: attributes,
+        } as Node;
+    }
+
+    async readDBRelation(relationId: string): Promise<Relation> {
+        // language=cypher
+        const query = `MATCH(startNode)-[relation]->(endNode) 
+                         WHERE relation.relationId = $relationId
+                       WITH startNode.nodeId AS from,
+                            endNode.nodeId AS to, relation
+                       RETURN relation { .*, type:TYPE(relation), from:from, to:to} as relation;`;
+        const params = { relationId };
+
+        const record = (await this.neo4jService.read(query, params, process.env.DB_CUSTOMER)).records[0];
+        if (!record) throw new NotFoundException("No results to return");
+
+        const attributes = record.get("relation");
+        return {
+            relationId: record.get("relation").relationId,
+            type: record.get("relation").type,
+            from: record.get("relation").from,
+            to: record.get("relation").to,
+            attributes: attributes,
+        } as Relation;
     }
 }

@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
+import { ConflictException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { Scheme } from "./data-scheme.model";
 import { RelationType } from "./models/relation-type.model";
@@ -79,9 +79,58 @@ export class DataSchemeService {
             return this.dataSchemeUtil.parseLabelScheme(res.records[0]);
         };
 
+        await this.updateFullTextScheme(label.name);
+
         return this.neo4jService
             .write(cypher, params, this.database)
             .then(resolveWrite)
+            .catch(this.databaseUtil.catchDbError);
+    }
+
+    /**
+     * Removes the old allNodesIndex and adds it with the labels stored in the data-scheme
+     */
+    private async updateFullTextScheme(labelName: string) {
+        // language=cypher
+        const cypherTool = `
+          MATCH (ls:LabelScheme)
+          WITH ls.name AS name
+          RETURN name AS name
+        `;
+
+        // language=cypher
+        const cypherDropIndex = `
+          CALL db.index.fulltext.drop('allNodesIndex')
+        `;
+
+        // language=cypher
+        const cypherWriteIndex = `
+          CALL db.index.fulltext.createNodeIndex('allNodesIndex', $labelNames, ['nodeId'])
+        `;
+
+        // Callback function which is applied on the neo4j response
+        const resolveRead = (res) => res.records.map((rec) => rec.get("name"));
+
+        // Get all label names in tool DB
+        const labelNames: string[] = await this.neo4jService
+            .write(cypherTool, {}, this.database)
+            .then(resolveRead)
+            .catch((err) => console.log(err.message));
+
+        labelNames.push(labelName);
+
+        const params = {
+            labelNames,
+        };
+
+        // Drop the current full-text index, don't throw error when it fails
+        await this.neo4jService
+            .write(cypherDropIndex, params, process.env.DB_CUSTOMER)
+            .catch(() => Logger.log("No index existed at this point, creating one"));
+
+        // Write updated index
+        await this.neo4jService
+            .write(cypherWriteIndex, params, process.env.DB_CUSTOMER)
             .catch(this.databaseUtil.catchDbError);
     }
 
@@ -272,7 +321,8 @@ export class DataSchemeService {
             if (element.mandatory)
                 missingConflicts += (await this.getEntityAttrDependant(element.name, label, false)).length;
             exists.forEach((node) => {
-                diffConflicts += this.dataSchemeUtil.hasConflict(element, node) ? 1 : 0;
+                const attribute = node.attributes[element.name];
+                diffConflicts += !!this.dataSchemeUtil.applyOnElement(element, attribute, false) ? 0 : 1;
             });
         }
 
@@ -371,10 +421,10 @@ export class DataSchemeService {
         const cypher = attributeExists
             ? `MATCH ()-[rel:${relationTypeName}]-()
                 WHERE exists(rel.${attributeName})
-                RETURN DISTINCT rel {.*, type: $relationTypeName} AS r`
+                RETURN DISTINCT rel {.*, type: $relationTypeName} AS relation`
             : `MATCH ()-[rel:${relationTypeName}]-()
                 WHERE NOT exists(rel.${attributeName})
-                RETURN DISTINCT rel {.*, type: $relationTypeName} AS r`;
+                RETURN DISTINCT rel {.*, type: $relationTypeName} AS relation`;
 
         const resolveRead = (result) => Promise.all(result.records.map((el) => this.dataSchemeUtil.parseRelation(el)));
         return await this.neo4jService

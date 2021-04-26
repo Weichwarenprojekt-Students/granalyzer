@@ -1,6 +1,6 @@
 <template>
     <div class="heat-map">
-        <div class="underlined-title">{{ $t("editor.heatmap.title") }}</div>
+        <div class="underlined-title">{{ $t("editor.heatMap.title") }}</div>
         <HeatView
             v-for="label in $store.state.overview.labels"
             :key="label.name"

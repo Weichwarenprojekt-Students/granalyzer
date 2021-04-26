@@ -6,11 +6,10 @@
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#arrow`"></use>
             </svg>
             <label>{{ name }}</label>
-            <Dropdown :force-close="collapsed" :value="value">
-                <div @click="value='-'">-</div>
-                <div @click="value='Enum'">Enum</div>
-                <div @click="value='Number'">Number</div>
-            </Dropdown>
+            <Dropdown
+                :placeholder="$t('global.dropdown.choose')"
+                :emptyMessage="$t('global.dropdown.empty')"
+            />
             <div class="heat-spacer" />
         </div>
 
@@ -31,14 +30,12 @@
 
 <script>
 import { defineComponent } from "vue";
-import Dropdown from "@/components/Dropdown";
 import DynamicInput from "@/components/DynamicInput";
 
 
 export default defineComponent({
     name: "HeatView",
     components: {
-        Dropdown,
         DynamicInput,
     },
     data() {

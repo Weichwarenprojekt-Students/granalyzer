@@ -1,22 +1,28 @@
 <template>
     <div class="color-input">
-        <ColorPicker v-model="color" defaultColor="#FFFFFF" format="hex" />
+        <ColorPicker v-model="color" defaultColor="#FFFFFF" format="hex" :disabled="disabled" />
         <label class="color-label">
-            <input :class="{ 'color-error': error }" v-model="color" maxlength="7" type="text" />
+            <input :class="{ 'color-error': error }" v-model="color" maxlength="7" type="text" :disabled="disabled" />
         </label>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { isColor } from "@/utility";
+import { isHexColor } from "class-validator";
 
 export default defineComponent({
     name: "ColorMultiInput",
     props: {
+        // The v-model
         modelValue: {
             type: String,
             default: "#FFFFFF",
+        },
+        // True if the input is disabled
+        disabled: {
+            type: Boolean,
+            default: false,
         },
     },
     data() {
@@ -38,7 +44,7 @@ export default defineComponent({
             this.color = this.color.toUpperCase();
 
             // Emit the new value (for v-model)
-            this.error = !isColor(this.color);
+            this.error = !isHexColor(this.color);
             if (!this.error) this.$emit("update:modelValue", this.color);
         },
     },

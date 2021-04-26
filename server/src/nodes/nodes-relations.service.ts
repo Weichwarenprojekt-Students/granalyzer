@@ -25,11 +25,12 @@ export class NodesRelationsService {
     async getRelationsOfNode(id: string): Promise<Relation[]> {
         // language=Cypher
         const cypher = `
-          MATCH (n)-[r]->(e)
-            WHERE n.nodeId = $id OR e.nodeId = $id
-          RETURN DISTINCT r {. *, type:type(r), from:n.nodeId, to:e.nodeId} AS r`;
+          CALL db.index.fulltext.queryNodes("allNodesIndex", $nodeId) YIELD node AS n
+          MATCH (n)-[r]-(m)
+          RETURN r {. *, type:type(r), from:startNode(r).nodeId, to:endNode(r).nodeId} AS relation`;
         const params = {
             id,
+            nodeId: `\'\"${id}\"\'`,
         };
 
         // Callback parsing the received data from the db write call
@@ -41,7 +42,7 @@ export class NodesRelationsService {
 
         return this.neo4jService
             .read(cypher, params, this.database)
-            .then(resolveRead)
+            .then(await resolveRead)
             .catch(this.databaseUtil.catchDbError);
     }
 }

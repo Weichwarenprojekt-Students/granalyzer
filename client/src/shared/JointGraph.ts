@@ -1,8 +1,13 @@
 import { dia, g } from "jointjs";
 
-class GraphOptions implements dia.Paper.Options {
+class PaperOptions implements dia.Paper.Options {
     [key: string]: unknown;
 }
+
+/**
+ * Type alias for better expressing joint js UUIDs
+ */
+export type JointID = string | number;
 
 /**
  * This class wraps some key functionality for the
@@ -34,7 +39,7 @@ export class JointGraph {
      */
     constructor(canvas: string) {
         this.graph = new dia.Graph();
-        const config: GraphOptions = {
+        const config: PaperOptions = {
             el: document.getElementById(canvas),
             model: this.graph,
             width: "100%",
@@ -45,6 +50,7 @@ export class JointGraph {
                 if (cellView.model.get("disableInteraction")) return false;
                 return { labelMove: false, linkMove: false };
             },
+            defaultConnector: { name: "rounded", args: { radius: 10 } },
         };
         this.paper = new dia.Paper(config);
         this.paper.translate(500, 200);
@@ -58,9 +64,12 @@ export class JointGraph {
     // eslint-disable-next-line
     public mousemove(event: any): void {
         if (!this.eventData) return;
-        const tx = event.pageX - this.eventData.x;
-        const ty = event.pageY - this.eventData.y;
-        if (this.panning) this.paper.translate(tx + this.eventData.px, ty + this.eventData.py);
+        requestAnimationFrame(() => {
+            if (!this.eventData) return;
+            const tx = event.pageX - this.eventData.x;
+            const ty = event.pageY - this.eventData.y;
+            if (this.panning) this.paper.translate(tx + this.eventData.px, ty + this.eventData.py);
+        });
     }
 
     /**

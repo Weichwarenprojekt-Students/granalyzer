@@ -1,33 +1,59 @@
 <template>
-    <div class="content">
+    <div class="content main-content">
         <OverviewList
             :selectedItemId="$store.state.editor.selectedNode?.nodeId"
             class="overview"
             @clicked-on-node="clickedOnNode"
+            @dragging-node="draggingNode"
         ></OverviewList>
         <div class="center">
             <EditorHeader class="header"></EditorHeader>
             <GraphEditor class="editor"></GraphEditor>
         </div>
-        <Inspector class="inspector"></Inspector>
+        <div class="editor-tools">
+            <!-- The tabs -->
+            <div class="tabs">
+                <div
+                    @click="$store.commit('editor/openTools', true)"
+                    :class="{ 'selected-tab': $store.state.editor.toolsOpen }"
+                >
+                    {{ $t("editor.toolbox") }}
+                </div>
+                <div
+                    @click="$store.commit('editor/openTools', false)"
+                    :class="{ 'selected-tab': !$store.state.editor.toolsOpen }"
+                >
+                    {{ $t("editor.inspector") }}
+                </div>
+            </div>
+
+            <!-- The content -->
+            <div v-if="$store.state.editor.toolsOpen"><HeatMap/></div>
+            <ReadInspector v-else></ReadInspector>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import EditorHeader from "@/modules/editor/modules/editor-header/EditorHeader.vue";
+import EditorHeader from "@/modules/editor/components/EditorHeader.vue";
 import OverviewList from "@/modules/overview-list/OverviewList.vue";
 import GraphEditor from "@/modules/editor/modules/graph-editor/GraphEditor.vue";
-import Inspector from "@/modules/editor/modules/inspector/Inspector.vue";
+import ReadInspector from "@/modules/inspector/ReadInspector.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
+import HeatMap from "@/modules/editor/modules/heatmap/HeatMap.vue";
 
 export default defineComponent({
     name: "Editor",
     components: {
+        HeatMap,
         GraphEditor,
         EditorHeader,
         OverviewList,
-        Inspector,
+        ReadInspector,
+    },
+    beforeCreate() {
+        this.$store.commit("inspector/resetSelection");
     },
     methods: {
         /**
@@ -35,7 +61,13 @@ export default defineComponent({
          */
         clickedOnNode(node: ApiNode): void {
             this.$store.commit("editor/setSelectedNode", node);
-            this.$store.dispatch("editor/viewNodeInInspector", node.nodeId);
+            this.$store.dispatch("inspector/selectNode", node.nodeId);
+        },
+        /**
+         * Store dragged node
+         */
+        draggingNode(node: ApiNode): void {
+            this.$store.commit("editor/setDraggedNode", node);
         },
     },
 });
@@ -44,7 +76,7 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
-.content {
+.main-content {
     width: 100%;
     height: 100%;
     background: @light_grey;
@@ -58,11 +90,13 @@ export default defineComponent({
     background: white;
 }
 
-.inspector {
+.editor-tools {
     width: @inspector_width;
     height: 100vh;
     flex: 0 0 auto;
     background: white;
+    border-left: 1px solid @grey;
+    padding: 0 16px;
 }
 
 .center {

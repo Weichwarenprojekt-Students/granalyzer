@@ -12,14 +12,14 @@
             <CreationCard
                 :title="$t('start.newDiagram.blank.title')"
                 :description="$t('start.newDiagram.blank.description')"
-                :icon-id="'plus-orange'"
+                icon-id="plus"
                 @card-click="dialogAddEmpty = true"
             ></CreationCard>
             <CreationCard
                 :title="$t('start.newDiagram.node.title')"
                 :description="$t('start.newDiagram.node.description')"
-                :icon-id="'from-diagram'"
-                @card-click="dialogAddEmpty = true"
+                icon-id="from-diagram"
+                @card-click="showInventory"
             ></CreationCard>
         </div>
     </div>
@@ -62,6 +62,13 @@ export default defineComponent({
                 this.$store.commit("editor/setActiveDiagram", await response.json());
                 await this.$router.push(routeNames.editor);
             }
+        },
+
+        /**
+         * Redirect to the inventory
+         */
+        async showInventory() {
+            await this.$router.push(routeNames.inventory);
         },
     },
 });

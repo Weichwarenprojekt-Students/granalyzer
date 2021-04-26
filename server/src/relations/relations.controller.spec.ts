@@ -14,6 +14,7 @@ import { LabelScheme } from "../data-scheme/models/label-scheme.model";
 import { RelationType } from "../data-scheme/models/relation-type.model";
 import { NumberAttribute, StringAttribute } from "../data-scheme/models/attributes.model";
 import { Connection } from "../data-scheme/models/connection.model";
+import { NotFoundException } from "@nestjs/common";
 
 describe("RelationsController", () => {
     let module: TestingModule;
@@ -22,8 +23,8 @@ describe("RelationsController", () => {
     let databaseUtil: DatabaseUtil;
     let testUtil: TestUtil;
 
-    let controller: RelationsController;
-    let service: RelationsService;
+    let relationsController: RelationsController;
+    let relationsService: RelationsService;
 
     let movieNodeId: string;
     let validNodeId: string;
@@ -35,8 +36,8 @@ describe("RelationsController", () => {
         // Create main module for testing
         module = await TestUtil.createTestingModule([RelationsService], [RelationsController]);
 
-        controller = module.get<RelationsController>(RelationsController);
-        service = module.get<RelationsService>(RelationsService);
+        relationsController = module.get<RelationsController>(RelationsController);
+        relationsService = module.get<RelationsService>(RelationsService);
 
         neo4jService = module.get<Neo4jService>(Neo4jService);
         databaseUtil = module.get<DatabaseUtil>(DatabaseUtil);
@@ -45,6 +46,8 @@ describe("RelationsController", () => {
         await databaseUtil.initDatabase();
         await databaseUtil.clearDatabase();
     });
+
+    // TODO: Check constraints
 
     // Create the test data
     beforeEach(async () => {
@@ -97,37 +100,104 @@ describe("RelationsController", () => {
 
     // Check if the creation of controller and services has been performed successfully
     it("should be defined", () => {
-        expect(controller).toBeDefined();
-        expect(service).toBeDefined();
+        expect(relationsController).toBeDefined();
+        expect(relationsService).toBeDefined();
         expect(neo4jService).toBeDefined();
     });
 
-    describe("getRelation", () => {
-        it("should return the correct relation", async () => {
-            expect(await controller.getRelation(validRelation.relationId)).toEqual(validRelation);
-        });
-    });
-
-    describe("getAllRelations", () => {
-        it("should return 0 relations when there are no relations", async () => {
-            // Clear the database which should make it impossible to find relations
-            await databaseUtil.clearDatabase();
-            expect((await controller.getAllRelations()).length).toBe(0);
-        });
-
-        it("should return 1 relation because there is only one relation in DB", async () => {
-            // Clear the database which should make it impossible to find relations
-            expect((await controller.getAllRelations()).length).toBe(1);
-        });
-
-        it("should contain 2 specific correct relations", async () => {
-            // Write the relation
-            const validRelation2 = new Relation("directed", validNodeId, movieNodeId, { attrOne: "Peter" });
-            validRelation2.relationId = await testUtil.writeRelation(validRelation2);
-
-            expect((await controller.getAllRelations()).sort(TestUtil.getSortOrder("relationId"))).toEqual(
-                [{ ...validRelation }, { ...validRelation2 }].sort(TestUtil.getSortOrder("relationId")),
-            );
-        });
-    });
+    // describe("modifyRelation", () => {
+    //     const newRelation = {
+    //         relationId: "IllegalCustom-UUID", // Should be ignored
+    //         type: "ACTED_IN", // Should be ignored
+    //         attributes: {
+    //             attrTwo: "updated",
+    //             attrThree: "Josh Groban",
+    //             relationId: "Another Illegal Custom-UUID", // Should be ignored
+    //         },
+    //         from: "invalid", // Should be ignored
+    //         to: "invalid", // Should be ignored
+    //     } as Relation;
+    //
+    //     it("should throw an exception because the uuid is not existent", async () => {
+    //         await expect(
+    //             relationsController.modifyRelation("251608de-a05e-4690-a088-8f603c07768", newRelation),
+    //         ).rejects.toThrowError(NotFoundException);
+    //     });
+    //     it("should modify the attributes correctly", async () => {
+    //         const modifiedRelationUUID = (
+    //             await relationsController.modifyRelation(validRelation.relationId, newRelation)
+    //         ).relationId;
+    //         const actualRelation = await testUtil.readDBRelation(modifiedRelationUUID);
+    //
+    //         expect(actualRelation.relationId).not.toEqual("IllegalCustom-UUID");
+    //         expect(actualRelation.relationId).not.toEqual("Another Illegal Custom-UUID");
+    //         expect(actualRelation.type).toEqual("isHobbitOf");
+    //         expect(actualRelation.attributes).toEqual({
+    //             type: "isHobbitOf",
+    //             relationId: modifiedRelationUUID,
+    //             attrTwo: "updated",
+    //             attrThree: "Josh Groban",
+    //             from: movieNodeId,
+    //             to: validNodeId,
+    //         });
+    //     });
+    // });
+    //
+    // describe("deleteRelation", () => {
+    //     it("should throw an exception because the uuid is not existent", async () => {
+    //         await expect(
+    //             relationsController.deleteRelation("251608de-a05e-4690-a088-8f603c07768"),
+    //         ).rejects.toThrowError(NotFoundException);
+    //     });
+    //     it("should delete the relation correctly", async () => {
+    //         await relationsController.deleteRelation(validRelation.relationId);
+    //         await expect(relationsController.getRelation(validRelation.relationId)).rejects.toThrowError(
+    //             NotFoundException,
+    //         );
+    //     });
+    //     it("should return the relation correctly", async () => {
+    //         const expected = await relationsController.getRelation(validRelation.relationId);
+    //         const actual = await relationsController.deleteRelation(validRelation.relationId);
+    //         await expect(actual).toEqual(expected);
+    //     });
+    // });
+    //
+    // describe("getRelation", () => {
+    //     it("should return the correct relation", async () => {
+    //         expect(await relationsController.getRelation(validRelation.relationId)).toEqual(validRelation);
+    //     });
+    //
+    //     it("should throw an exception because the uuid is not existent", async () => {
+    //         await expect(relationsController.getRelation("251608de-a05e-4690-a088-8f603c07768")).rejects.toThrowError(
+    //             NotFoundException,
+    //         );
+    //     });
+    //
+    //     it("returns nothing because the relation type is not in data scheme", async () => {
+    //         // TODO
+    //     });
+    // });
+    //
+    // describe("getAllRelations", () => {
+    //     it("should return 0 relations when there are no relations", async () => {
+    //         // Clear the database which should make it impossible to find relations
+    //         await databaseUtil.clearDatabase();
+    //         expect((await relationsController.getAllRelations()).length).toBe(0);
+    //     });
+    //
+    //     it("should return 1 relation because there is only one relation in DB", async () => {
+    //         // Clear the database which should make it impossible to find relations
+    //         expect((await relationsController.getAllRelations()).length).toBe(1);
+    //     });
+    //
+    //     it("should contain 2 specific correct relations", async () => {
+    //         // Write the relation
+    //         const validRelation2 = new Relation("directed", validNodeId, movieNodeId, { attrOne: "Peter" });
+    //         validRelation2.relationId = await testUtil.writeRelation(validRelation2);
+    //
+    //         expect((await relationsController.getAllRelations()).sort(TestUtil.getSortOrder("relationId"))).toEqual(
+    //             [{ ...validRelation }, { ...validRelation2 }].sort(TestUtil.getSortOrder("relationId")),
+    //         );
+    //     });
+    // });
 });
