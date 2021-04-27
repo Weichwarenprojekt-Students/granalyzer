@@ -49,7 +49,7 @@ export class GraphControls {
     public async selectRelation(linkView: dia.LinkView): Promise<void> {
         // Only select relations outside of relation mode
         if (!this.graphHandler.relationMode.active) {
-            this.graphHandler.graph.selectElement(linkView, true);
+            this.graphHandler.graph.selectElement(linkView);
             this.graphHandler.store.commit("editor/setSelectedElement", undefined);
 
             // Set the currently selected relation for inspector

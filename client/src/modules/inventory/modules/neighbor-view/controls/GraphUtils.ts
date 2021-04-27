@@ -240,7 +240,7 @@ export class GraphUtils {
             const relationId = [...this.mappedRelations].find(([, value]) => value === cell.model.id);
             if (relationId) {
                 await this.store.dispatch("inspector/selectRelation", relationId[0]);
-                this.graph.selectElement(cell, true);
+                this.graph.selectElement(cell);
             }
         });
 

@@ -1,4 +1,4 @@
-import { dia, g } from "jointjs";
+import { dia, g, highlighters } from "jointjs";
 import { NodeDrag } from "@/shared/NodeDrag";
 import { getFontColor } from "@/utility";
 
@@ -35,6 +35,11 @@ export class JointGraph {
      * The event data from joint
      */
     private eventData?: { x: number; y: number; px: number; py: number };
+
+    /**
+     * Constant for naming the highlighter of selected elements and links
+     */
+    private readonly SELECTION_HIGHLIGHTER = "selection-highlighter";
 
     /**
      * Constructor
@@ -77,24 +82,18 @@ export class JointGraph {
     /**
      * Select one cell in the graph
      * @param cellView The cell to select
-     * @param isLink True if the element is a link
      */
-    public selectElement(cellView: dia.CellView | dia.LinkView, isLink = false): void {
+    public selectElement(cellView: dia.CellView | dia.LinkView): void {
         this.deselectElements();
-        if (!isLink)
-            cellView.model.attr({
-                body: {
-                    strokeWidth: 4,
-                },
-            });
-        else if (cellView instanceof dia.LinkView)
-            cellView.model.label(0, {
-                attrs: {
-                    rect: {
-                        strokeWidth: 4,
-                    },
-                },
-            });
+        highlighters.mask.add(cellView, "root", this.SELECTION_HIGHLIGHTER, {
+            deep: true,
+            attrs: {
+                stroke: "#FFB547",
+                "stroke-width": 4,
+                "stroke-linecap": "round",
+            },
+            padding: 4,
+        });
     }
 
     /**
@@ -107,24 +106,12 @@ export class JointGraph {
 
     /**
      * Reset the focus style of all cells
-     * @private
      */
     public deselectElements(): void {
-        for (const element of this.graph.getElements())
-            element.attr({
-                body: {
-                    strokeWidth: 0,
-                },
-            });
-
-        for (const link of this.graph.getLinks())
-            link.label(0, {
-                attrs: {
-                    rect: {
-                        strokeWidth: 0,
-                    },
-                },
-            });
+        for (const cell of this.graph.getCells()) {
+            const cellView = this.paper.findViewByModel(cell);
+            if (cellView) highlighters.mask.remove(cellView, this.SELECTION_HIGHLIGHTER);
+        }
     }
 
     /**
