@@ -23,6 +23,20 @@
   "graphEditor": {
     "setRelationName": "Neue visuelle Beziehung"
   },
+  "nodeEdit": {
+    "title": "Node Editierung",
+    "text": "Text",
+    "shape": "Form",
+    "color": "Farbe",
+    "borderColor": "Rand",
+    "shapes": {
+      "text": "Text",
+      "rectangle": "Rechteck",
+      "circle": "Kreis",
+      "diamond": "Diamand",
+      "cylinder": "Zylinder"
+    }
+  },
   "visualElements": {
     "title": "Visuelle Elemente"
   }

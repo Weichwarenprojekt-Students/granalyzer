@@ -83,6 +83,7 @@ export function createDragNode(drag: NodeDrag, scale: number): void {
  * The generally used stroke width
  */
 const strokeWidth = "2px";
+const borderWidth = 2;
 
 /**
  * The label style
@@ -132,6 +133,7 @@ function styleRectangle(ghostElement: HTMLElement, drag: NodeDrag, scale: number
     ghostElement.style.width = "fit-content";
     ghostElement.style.height = "fit-content";
     ghostElement.style.padding = `${7 * scale}px ${16 * scale}px`;
+    ghostElement.style.border = `${borderWidth * scale}px solid ${drag.borderColor}`;
 }
 
 /**
@@ -180,6 +182,7 @@ function styleCircle(ghostElement: HTMLElement, drag: NodeDrag, scale: number): 
     ghostElement.style.display = `flex`;
     ghostElement.style.justifyContent = `center`;
     ghostElement.style.alignItems = `center`;
+    ghostElement.style.border = `${borderWidth * scale}px solid ${drag.borderColor}`;
 }
 
 /**

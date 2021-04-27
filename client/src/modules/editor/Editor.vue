@@ -29,12 +29,15 @@
 
             <!-- The content -->
             <div v-if="$store.state.editor.toolsOpen" class="toolbox">
-                <VisualElements />
-                <div>
-                    <div style="border-color: #333; padding: 8px 0; height: auto" class="underlined-title">
-                        Heat Map
+                <ScrollPanel class="toolbox-scroll">
+                    <NodeEdit class="toolbox-item" />
+                    <VisualElements class="toolbox-item" />
+                    <div class="toolbox-item">
+                        <div style="border-color: #333; padding: 8px 0; height: auto" class="underlined-title">
+                            Heat Map
+                        </div>
                     </div>
-                </div>
+                </ScrollPanel>
             </div>
             <ReadInspector v-else></ReadInspector>
         </div>
@@ -50,10 +53,12 @@ import ReadInspector from "@/modules/inspector/ReadInspector.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import VisualElements from "@/modules/editor/modules/graph-editor/components/VisualElements.vue";
 import { NodeDrag } from "@/shared/NodeDrag";
+import NodeEdit from "@/modules/editor/modules/graph-editor/components/NodeEdit.vue";
 
 export default defineComponent({
     name: "Editor",
     components: {
+        NodeEdit,
         VisualElements,
         GraphEditor,
         EditorHeader,
@@ -128,7 +133,17 @@ export default defineComponent({
 
 .toolbox {
     flex: 1 1 auto;
-    display: flex;
-    flex-direction: column;
+    position: relative;
+}
+
+.toolbox-scroll {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    overflow: hidden;
+}
+
+.toolbox-item {
+    margin-right: 18px;
 }
 </style>
