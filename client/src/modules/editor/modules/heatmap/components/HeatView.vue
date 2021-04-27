@@ -7,46 +7,69 @@
             </svg>
             <label>{{ label.name }}</label>
             <div class="heat-spacer" />
-          <Dropdown
-              :options="label.attributes"
-              optionsLabel="name"
-              :placeholder="$t('global.dropdown.choose')"
-              :emptyMessage="$t('global.dropdown.empty')"
-          />
+            <Dropdown
+                :options="label.attributes"
+                optionLabel="name"
+                oprionValue="name"
+                v-model="selectedAttribute"
+                showClear
+                @change="onChange"
+                :placeholder="$t('global.dropdown.choose')"
+                :emptyMessage="$t('global.dropdown.empty')"
+            />
         </div>
 
         <!-- The expandable content -->
         <div class="heat-expanded">
             <div class="heat-row">
                 <label>From</label>
-                <InputNumber showButtons />
+                <InputNumber showButtons v-model="heatAttribute.from" />
             </div>
             <div class="heat-row">
                 <label>To</label>
-                <InputNumber showButtons />
+                <InputNumber showButtons v-model="heatAttribute.to" />
             </div>
         </div>
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from "vue";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
+import { HeatAttribute } from "@/modules/editor/modules/heatmap/models/HeatAttribute";
+import {ApiAttribute} from "@/models/data-scheme/ApiAttribute";
 
 export default defineComponent({
     name: "HeatView",
-    components: {
-    },
     data() {
         return {
+            heatAttribute: {} as HeatAttribute,
+            selectedAttribute: {} as ApiAttribute,
             collapsed: false,
-            value: "-",
         };
     },
     props: {
         label: {
-          type: Object,
-          default: new ApiLabel(),
+            type: Object,
+            default: new ApiLabel(),
+        },
+    },
+    mounted() {
+        this.heatAttribute.labelName = this.label.name;
+        this.$watch(
+            () => [this.heatAttribute.from, this.heatAttribute.to],
+            () => {
+                this.onChange();
+            },
+            { deep: true },
+        );
+    },
+    methods: {
+        onChange() {
+            if (this.heatAttribute.from != null && this.heatAttribute.to != null) {
+                this.heatAttribute.selectedAttributeName = this.selectedAttribute?.name;
+                this.$emit("change", this.heatAttribute);
+            }
         },
     },
 });

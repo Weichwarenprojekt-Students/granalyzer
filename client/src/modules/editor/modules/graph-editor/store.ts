@@ -294,6 +294,7 @@ export const graphEditor = {
          */
         labels(state: GraphEditorState): Set<string> {
             const labels = new Set<string>();
+            if (!state.graphHandler) return labels;
             if (state.graphHandler) for (const node of state.graphHandler?.nodes) labels.add(node.nodeInfo.label);
             return labels;
         },

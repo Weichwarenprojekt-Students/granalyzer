@@ -21,8 +21,9 @@ export const heatMap = {
     actions: {
         async getHeatLabels(context: ActionContext<HeatMapState, RootState>): Promise<void> {
             const labels: ApiLabel[] = [];
-            for (const label of context.getters["editor/labels"]) {
-                const res = await GET("/api/data-scheme/" + label);
+            const getter = context.rootGetters["editor/labels"];
+            for (const label of getter) {
+                const res = await GET("/api/data-scheme/label/" + label);
                 const newVar: ApiLabel = await res.json();
                 labels.push(newVar);
             }
