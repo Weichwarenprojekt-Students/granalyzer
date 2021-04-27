@@ -4,7 +4,13 @@
             {{ $t("editor.visualElements.title") }}
         </div>
         <div class="visual-items">
-            <div v-for="shape in shapes" :key="shape" class="visual-item">
+            <div
+                v-for="shape in shapes"
+                :key="shape"
+                class="visual-item"
+                draggable="true"
+                @dragstart="onNodeDrag(shape, $event)"
+            >
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#${shape}`"></use>
                 </svg>
@@ -16,6 +22,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { NodeShapes } from "@/shared/NodeShapes";
+import { NodeDrag } from "@/shared/NodeDrag";
 
 export default defineComponent({
     name: "VisualElements",
@@ -23,6 +30,14 @@ export default defineComponent({
         return {
             shapes: NodeShapes,
         };
+    },
+    methods: {
+        /**
+         * Start dragging in a new node
+         */
+        onNodeDrag(shape: string, evt: DragEvent): void {
+            this.$store.commit("editor/setDraggedNode", new NodeDrag(evt, "text", "#FFF", "#333", shape));
+        },
     },
 });
 </script>
@@ -46,7 +61,7 @@ export default defineComponent({
 }
 
 .visual-item {
-    cursor: pointer;
+    cursor: grab;
     padding: 16px;
     border-radius: @border_radius;
     border: 2px solid @grey;

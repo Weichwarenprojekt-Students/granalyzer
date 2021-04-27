@@ -1,6 +1,6 @@
 import { dia, g, highlighters } from "jointjs";
 import { NodeDrag } from "@/shared/NodeDrag";
-import { getFontColor } from "@/utility";
+import { createDragNode } from "@/shared/NodeShapes";
 
 class PaperOptions implements dia.Paper.Options {
     [key: string]: unknown;
@@ -333,30 +333,6 @@ export class JointGraph {
      * @param drag The node drag event
      */
     public createDragNode(drag: NodeDrag): void {
-        // Create the ghost-element
-        const ghostElement = document.createElement("div");
-        ghostElement.innerHTML = drag.name;
-        document.body.appendChild(ghostElement);
-
-        // Style the ghost element
-        const scale = this.paper.scale().sx;
-        ghostElement.style.background = drag.color;
-        ghostElement.style.color = getFontColor(drag.color);
-        ghostElement.style.borderRadius = `${4 * scale}px`;
-        ghostElement.style.width = "fit-content";
-        ghostElement.style.height = "fit-content";
-        ghostElement.style.fontWeight = "bold";
-        ghostElement.style.padding = `${7 * scale}px ${16 * scale}px`;
-        ghostElement.style.position = "absolute";
-        ghostElement.style.top = "20px";
-        ghostElement.style.left = "20px";
-        ghostElement.style.fontSize = `${20 * scale}px`;
-
-        // Set ghost image for dragging
-        document.body.appendChild(ghostElement);
-        drag.evt.dataTransfer?.setDragImage(ghostElement, 0, 0);
-
-        // Remove ghost-element from the body
-        setTimeout(() => document.body.removeChild(ghostElement), 0);
+        createDragNode(drag, this.paper.scale().sx);
     }
 }

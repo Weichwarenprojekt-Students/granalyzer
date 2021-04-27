@@ -1,6 +1,6 @@
 <template>
     <!-- The extra divs are necessary for the tooltips to work -->
-    <div class="container">
+    <div class="toolbar-container">
         <div
             :class="['item', $store.state.editor.graphEditor.relationModeActive ? 'selected' : '']"
             v-tooltip.bottom="$t('editor.toolbar.relation')"
@@ -95,7 +95,7 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
-.container {
+.toolbar-container {
     display: flex;
     background: white;
     border-radius: @border_radius;

@@ -96,12 +96,9 @@ export default defineComponent({
             // Set the position and add the node accordingly
             const point = this.graph.paper.clientToLocalPoint({ x: evt.clientX, y: evt.clientY });
             const node: NodeInfo = {
+                ...nodeDrag,
                 x: point.x,
                 y: point.y,
-                name: nodeDrag.name,
-                label: nodeDrag.label,
-                shape: nodeDrag.shape,
-                color: nodeDrag.color,
                 ref: {
                     uuid: nodeDrag.nodeId,
                     index: 0,
@@ -129,7 +126,7 @@ export default defineComponent({
 });
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import "~@/styles/global";
 
 .container {
@@ -147,34 +144,9 @@ export default defineComponent({
     pointer-events: none;
 }
 
-.node {
-    cursor: pointer;
-}
-
-.node + text {
-    color: grey;
-    cursor: pointer;
-
-    tspan {
-        font-size: 20px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-}
-
-.label {
-    cursor: pointer;
-
-    text {
-        tspan {
-            font-size: 16px;
-        }
-    }
-}
-
 #joint {
     > svg {
-        background: #f2f2f2;
+        background: @light_grey;
     }
 }
 </style>

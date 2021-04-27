@@ -1,5 +1,7 @@
 import { ToastServiceMethods } from "primevue/toastservice";
 import i18n from "@/i18n";
+import { isHexColor } from "class-validator";
+import hexRgb from "hex-rgb";
 
 /**
  * The route names of the three main modules
@@ -17,18 +19,11 @@ export const routeNames = {
  * @param color The color as a string in hex format
  */
 export function getFontColor(color: string): string {
-    // Calculate brightness
-    let brightness = 0;
-    const parsedHex = parseInt(color.substr(1), 16);
-    if (parsedHex) {
-        // Get R, G, B values from hex-code
-        const R = (parsedHex >> 16) & 255;
-        const G = (parsedHex >> 8) & 255;
-        const B = parsedHex & 255;
+    if (!isHexColor(color)) return "#333";
 
-        // Calculate color brightness from RGB-values
-        brightness = R * 0.299 + G * 0.587 + B * 0.114;
-    }
+    // Calculate brightness
+    const { red, green, blue, alpha } = hexRgb(color);
+    const brightness = alpha * (red * 0.299 + green * 0.587 + blue * 0.114);
 
     // Determine whether font should be white
     return brightness > 170 ? "#333" : "#FFF";

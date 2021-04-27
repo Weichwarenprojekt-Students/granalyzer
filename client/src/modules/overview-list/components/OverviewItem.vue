@@ -38,7 +38,15 @@ export default defineComponent({
         onNodeDrag(evt: DragEvent): void {
             this.$emit(
                 "on-node-drag",
-                new NodeDrag(evt, this.node.name, this.color, NodeShapes.RECTANGLE, this.node.nodeId, this.node.label),
+                new NodeDrag(
+                    evt,
+                    this.node.name,
+                    this.color,
+                    this.color,
+                    NodeShapes.RECTANGLE,
+                    this.node.nodeId,
+                    this.node.label,
+                ),
             );
         },
     },

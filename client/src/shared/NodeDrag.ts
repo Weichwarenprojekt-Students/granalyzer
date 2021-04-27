@@ -7,6 +7,7 @@ export class NodeDrag {
      * @param evt The actual drag event
      * @param name Name of the node
      * @param color Color of the node
+     * @param borderColor Border color of the node
      * @param shape Shape of the node
      * @param nodeId The uuid
      * @param label The corresponding label
@@ -14,8 +15,9 @@ export class NodeDrag {
     constructor(
         public evt: DragEvent,
         public name = "",
-        public color = "#333",
-        public shape = NodeShapes.RECTANGLE,
+        public color = "#FFF",
+        public borderColor = "#333",
+        public shape: string = NodeShapes.RECTANGLE,
         public nodeId: string = "",
         public label: string = "",
     ) {}

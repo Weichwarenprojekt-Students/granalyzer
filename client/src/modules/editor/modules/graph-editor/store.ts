@@ -171,8 +171,7 @@ export const graphEditor = {
 
             // Perform api request
             const res = await GET("/api/nodes/" + node.ref.uuid + "/relations");
-            // TODO: catch errors
-            const newVar: ApiRelation[] = await res.json();
+            const newVar: ApiRelation[] = res.status === 200 ? await res.json() : [];
 
             // Transform relations from api into Relation objects
             const relations: RelationInfo[] = newVar.map((rel) => {

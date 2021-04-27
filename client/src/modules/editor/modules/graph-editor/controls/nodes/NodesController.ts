@@ -30,16 +30,10 @@ export default class NodesController extends NodesMap {
         // Set the next index to the max existing index + 1
         nodeInfo.ref.index = Math.max(-1, ...existingNodesWithUuid.keys()) + 1;
 
-        // Create the shape
-        const shape = parseNodeShape(nodeInfo.shape);
+        // Create the node
+        nodeInfo.color = labelColor ?? nodeInfo.color ?? "#70FF87";
+        const shape = parseNodeShape(nodeInfo);
         shape.position(nodeInfo.x, nodeInfo.y);
-
-        // Use label color, node color or default color for coloring the node
-        const nodeColor = labelColor ?? nodeInfo.color ?? "#70FF87";
-        nodeInfo.color = nodeColor;
-
-        // Style node
-        shape.attr(Node.nodeStyle(nodeInfo.name, nodeColor));
 
         // Create new node object and add it to the graph
         const node = new Node(nodeInfo, shape);
@@ -60,9 +54,9 @@ export default class NodesController extends NodesMap {
         jointElement.addTo(this.graphHandler.graph.graph);
 
         // Update some svg attribute, so that style gets shown correctly from the beginning
-        // Needs to be done, don't ask why...
-        jointElement.attr("body/strokeWidth", 3);
-        jointElement.attr("body/strokeWidth", 0);
+        // Needs to be done, don't ask why... TODO: Search for some kind of update method
+        jointElement.attr("label/textAnchor", "center");
+        jointElement.attr("label/textAnchor", "middle");
     }
 
     /**

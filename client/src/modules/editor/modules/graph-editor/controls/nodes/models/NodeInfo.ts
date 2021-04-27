@@ -32,4 +32,8 @@ export interface NodeInfo {
      * The color value
      */
     color: string;
+    /**
+     * The color value for the border
+     */
+    borderColor: string;
 }

@@ -77,6 +77,7 @@ export class GraphUtils {
                 textAnchor: "middle",
                 textVerticalAnchor: "middle",
                 fill: getFontColor(color),
+                class: "node-text",
             },
             body: {
                 ref: "label",
@@ -88,7 +89,7 @@ export class GraphUtils {
                 refHeight: 16,
                 refX: -16,
                 refY: -8,
-                class: "node",
+                class: "node-body",
             },
         });
         shape.addTo(this.graph.graph);
@@ -273,6 +274,7 @@ export class GraphUtils {
                     },
                     name: node.name,
                     color: node.color,
+                    borderColor: node.color,
                     shape: "rectangle",
                     x: diagEl?.attributes.position.x,
                     y: diagEl?.attributes.position.y,
