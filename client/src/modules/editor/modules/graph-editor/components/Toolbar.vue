@@ -85,6 +85,9 @@ export default defineComponent({
         remove(): void {
             this.$store.dispatch("editor/removeNode");
         },
+        /**
+         * Capture the content of the diagram
+         */
         centerContent(): void {
             this.$store.commit("editor/centerContent");
         },
