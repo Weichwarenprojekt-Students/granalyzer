@@ -429,6 +429,7 @@ describe("NodesController", () => {
             const movieLabel = new LabelScheme("Movie", "#EEE", [
                 new NumberAttribute("released", true, 21091986),
                 new NumberAttribute("rating", false, 0),
+                new ColorAttribute("color", true, "#00ff00"),
                 new StringAttribute("test", false, ""),
             ]);
             movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
@@ -437,8 +438,9 @@ describe("NodesController", () => {
                 name: "The Polar Express",
                 label: "Movie",
                 attributes: {
-                    rating: 3.14,
+                    rating: "3.14",
                     test: "TestString",
+                    color: "invalidColor",
                     additionalColor: "additionalColor",
                 },
             } as Node;
@@ -453,6 +455,7 @@ describe("NodesController", () => {
                 attributes: {
                     released: 21091986,
                     rating: 3.14,
+                    color: "#00ff00",
                     test: "TestString",
                 },
             });
@@ -806,7 +809,14 @@ describe("NodesController", () => {
             const invalidNode = new Node("invalid", "invalidLabel", {});
             await nodesController.createNode(invalidNode);
 
-            expect((await nodesController.getAllNodes(100, 0, "", [])).length).toBe(2);
+            const actual = await nodesController.getAllNodes(100, 0, "", []);
+            expect(actual.length).toBe(2);
+
+            delete movieNode.attributes["name"];
+            delete validNode.attributes["name"];
+            expect(actual.sort(TestUtil.getSortOrder("nodeId"))).toEqual(
+                [movieNode, validNode].sort(TestUtil.getSortOrder("nodeId")),
+            );
         });
 
         it("returns one node because node limit is set to 1", async () => {
@@ -827,7 +837,7 @@ describe("NodesController", () => {
             expect((await nodesController.getAllNodes(1, 1, "", [])).length).toBe(1);
         });
 
-        it("should return the node with given search term", async () => {
+        it("returns the node with given search term", async () => {
             // Write the label schemes into tool-db
             const movieLabel = new LabelScheme("Valid1", "#EEE", []);
             movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
@@ -954,7 +964,6 @@ describe("NodesController", () => {
         //     });
         //     await relationsController.createRelation(invalidRelation);
         //
-        //     await dropFullTextScheme();
         //     await writeFullTextScheme();
         //
         //     const relations: Relation[] = await nodesController.getRelationsOfNode(movieNode.nodeId);
