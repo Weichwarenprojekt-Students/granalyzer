@@ -31,6 +31,8 @@ import { JointGraph } from "@/shared/JointGraph";
 import { errorToast, infoToast } from "@/utility";
 import InputDialog from "@/components/dialog/InputDialog.vue";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
+import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
+import { NodeDrag } from "@/shared/NodeDrag";
 
 export default defineComponent({
     name: "GraphEditor",
@@ -88,22 +90,24 @@ export default defineComponent({
             }
 
             // Get the selected node
-            const node = this.$store.state.editor.draggedNode;
-            if (!node) return;
+            const nodeDrag: NodeDrag = this.$store.state.editor.draggedNode;
+            if (!nodeDrag) return;
 
-            // Get the mouse position in the graph and add the node accordingly
+            // Set the position and add the node accordingly
             const point = this.graph.paper.clientToLocalPoint({ x: evt.clientX, y: evt.clientY });
-            this.$store.dispatch("editor/addNode", {
+            const node: NodeInfo = {
                 x: point.x,
                 y: point.y,
-                shape: "rectangle",
-                label: node.label,
-                name: node.name,
+                name: nodeDrag.name,
+                label: nodeDrag.label,
+                shape: nodeDrag.shape,
+                color: nodeDrag.color,
                 ref: {
-                    uuid: node.nodeId,
+                    uuid: nodeDrag.nodeId,
                     index: 0,
                 },
-            });
+            };
+            this.$store.dispatch("editor/addNode", node);
         },
         /**
          * Call mousemove methods of JointGraph and RelationModeControls

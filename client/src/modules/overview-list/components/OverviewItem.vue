@@ -1,11 +1,6 @@
 <template>
     <!-- Nodes related to the label -->
-    <div
-        :class="['node', { selected: isSelected }]"
-        @mouseup="onClick($event)"
-        draggable="true"
-        @dragstart="startDrag($event)"
-    >
+    <div :class="['node', { selected: isSelected }]" @mouseup="onNodeClicked" draggable="true" @dragstart="onNodeDrag">
         <p>{{ node.name }}</p>
         <div class="label" :style="{ background: color, color: fontColor }">
             {{ node.label }}
@@ -16,10 +11,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
+import { NodeDrag } from "@/shared/NodeDrag";
+import { NodeShapes } from "@/shared/NodeShapes";
 
 export default defineComponent({
     name: "OverviewItem",
-    emits: ["clicked-on-node", "dragging-node"],
     props: {
         node: {
             type: Object,
@@ -33,27 +29,17 @@ export default defineComponent({
         /**
          * Handles click event on an item in the node overview
          */
-        async onClick() {
-            this.$emit("clicked-on-node", { ...this.node, color: this.color });
+        async onNodeClicked() {
+            this.$emit("on-node-clicked", { ...this.node, color: this.color });
         },
         /**
          * Event function to start dragging elements
          */
-        // eslint-disable-next-line
-        startDrag(evt: any): void {
-            this.$emit("dragging-node", { ...this.node, color: this.color });
-
-            // Create the ghost-element
-            const ghostElement = evt.currentTarget.cloneNode(true);
-            if (ghostElement) {
-                ghostElement.style.background = this.color;
-                ghostElement.classList.add("dragged");
-            }
-            // Set ghost image for dragging
-            document.body.appendChild(ghostElement);
-            evt.dataTransfer.setDragImage(ghostElement, 0, 0);
-            // Remove ghost-element from the html
-            setTimeout(() => ghostElement.parentNode.removeChild(ghostElement), 0);
+        onNodeDrag(evt: DragEvent): void {
+            this.$emit(
+                "on-node-drag",
+                new NodeDrag(evt, this.node.name, this.color, NodeShapes.RECTANGLE, this.node.nodeId, this.node.label),
+            );
         },
     },
 });
@@ -86,20 +72,6 @@ export default defineComponent({
 
     &:hover {
         background: @secondary_color;
-    }
-}
-
-.dragged {
-    border-radius: @border_radius;
-    width: fit-content;
-    height: fit-content;
-    padding: 8px 16px;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-
-    .label {
-        display: none;
     }
 }
 </style>

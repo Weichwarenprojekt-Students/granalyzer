@@ -1,7 +1,7 @@
 import { ActionContext } from "vuex";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
-import { GET, getBrightness, isUnexpected } from "@/utility";
+import { GET, getFontColor, isUnexpected } from "@/utility";
 import { RootState } from "@/store";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
 
@@ -70,14 +70,10 @@ export const overview = {
         storeLabels(state: OverviewState, labels: ApiLabel[]): void {
             state.labels = labels;
             labels.forEach((label) => {
-                // Set the right font color depending on the brightness
-                const brightness = getBrightness(label.color);
-                const font = brightness > 170 ? "#333333" : "#FFFFFF";
-
                 // Add label color and the font color to the color map
                 state.labelColor.set(label.name, {
                     color: label.color,
-                    fontColor: font,
+                    fontColor: getFontColor(label.color),
                 });
             });
         },

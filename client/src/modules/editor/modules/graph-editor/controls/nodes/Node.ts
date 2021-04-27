@@ -1,6 +1,6 @@
 import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeReference";
 import { JointID } from "@/shared/JointGraph";
-import { deepCopy, getBrightness } from "@/utility";
+import { deepCopy, getFontColor } from "@/utility";
 import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 import { dia } from "jointjs";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
@@ -68,7 +68,7 @@ export class Node {
                 textAnchor: "middle",
                 textVerticalAnchor: "middle",
                 // Set text color to dark or white, according to the color brightness
-                fill: getBrightness(nodeColor) > 170 ? "#333" : "#FFF",
+                fill: getFontColor(nodeColor),
             },
             body: {
                 ref: "label",

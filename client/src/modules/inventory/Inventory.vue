@@ -4,8 +4,8 @@
             :selectedItemId="$store.state.inventory.selectedNode?.nodeId"
             :create="true"
             class="overview"
-            @clicked-on-node="clickedOnNode"
-            @dragging-node="draggingNode"
+            @on-node-clicked="onNodeClicked"
+            @on-node-drag="onNodeDrag"
         ></OverviewList>
         <div class="center">
             <InventoryHeader class="header"></InventoryHeader>
@@ -22,6 +22,7 @@ import InventoryHeader from "@/modules/inventory/components/InventoryHeader.vue"
 import NeighborView from "@/modules/inventory/modules/neighbor-view/NeighborView.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import WriteInspector from "@/modules/inspector/WriteInspector.vue";
+import { NodeDrag } from "@/shared/NodeDrag";
 
 export default defineComponent({
     name: "Inventory",
@@ -45,7 +46,7 @@ export default defineComponent({
         /**
          * Store node that was selected
          */
-        clickedOnNode(node: ApiNode): void {
+        onNodeClicked(node: ApiNode): void {
             this.$store.dispatch("inspector/selectNode", node.nodeId);
             if (this.$store.state.inventory.selectedNode?.nodeId === node.nodeId || this.$store.state.inventory.loading)
                 return;
@@ -54,7 +55,7 @@ export default defineComponent({
         /**
          * Store dragged node
          */
-        draggingNode(node: ApiNode): void {
+        onNodeDrag(node: NodeDrag): void {
             this.$store.commit("inventory/setDraggedNode", node);
         },
     },

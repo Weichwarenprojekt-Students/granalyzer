@@ -4,6 +4,7 @@ import { RootState } from "@/store";
 import { GET } from "@/utility";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
+import { NodeDrag } from "@/shared/NodeDrag";
 
 /**
  * The local storage key for the opened diagram in the editor
@@ -27,9 +28,9 @@ export class EditorState {
     public selectedNode?: ApiNode;
 
     /**
-     * Replication of the overview item that is dragged into the diagram
+     * The dragged node (important for adding new nodes/shapes)
      */
-    public draggedNode?: ApiNode;
+    public draggedNode?: NodeDrag;
 
     /**
      * Graph editor state
@@ -57,8 +58,9 @@ export const editor = {
         /**
          * Set dragged item
          */
-        setDraggedNode(state: EditorState, node?: ApiNode): void {
+        setDraggedNode(state: EditorState, node?: NodeDrag): void {
             state.draggedNode = node;
+            if (node) state.graphEditor?.graphHandler?.graph.createDragNode(node);
         },
         /**
          * Open either the toolbox or the inspector

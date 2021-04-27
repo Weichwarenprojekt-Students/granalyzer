@@ -15,7 +15,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeShapes";
+import { NodeShapes } from "@/shared/NodeShapes";
 
 export default defineComponent({
     name: "VisualElements",

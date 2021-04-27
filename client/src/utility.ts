@@ -12,11 +12,12 @@ export const routeNames = {
 };
 
 /**
- * Calculate the brightness for a given color
+ * Get the matching font color for a certain background color
  *
  * @param color The color as a string in hex format
  */
-export function getBrightness(color: string): number {
+export function getFontColor(color: string): string {
+    // Calculate brightness
     let brightness = 0;
     const parsedHex = parseInt(color.substr(1), 16);
     if (parsedHex) {
@@ -28,7 +29,9 @@ export function getBrightness(color: string): number {
         // Calculate color brightness from RGB-values
         brightness = R * 0.299 + G * 0.587 + B * 0.114;
     }
-    return brightness;
+
+    // Determine whether font should be white
+    return brightness > 170 ? "#333" : "#FFF";
 }
 
 /**

@@ -6,6 +6,7 @@ import ApiRelation from "@/models/data-scheme/ApiRelation";
 import i18n from "@/i18n";
 import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
 import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
+import { NodeDrag } from "@/shared/NodeDrag";
 
 export class InventoryState {
     /**
@@ -16,7 +17,7 @@ export class InventoryState {
     /**
      * Replication of the overview item that is dragged into the diagram
      */
-    public draggedNode?: ApiNode;
+    public draggedNode?: NodeDrag;
 
     /**
      * First degree neighbors of the currently selected node
@@ -53,8 +54,9 @@ export const inventory = {
         /**
          * Set dragged item
          */
-        setDraggedNode(state: InventoryState, node?: ApiNode): void {
+        setDraggedNode(state: InventoryState, node?: NodeDrag): void {
             state.draggedNode = node;
+            if (node) state.graphUtils?.graph.createDragNode(node);
         },
 
         /**

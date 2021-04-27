@@ -133,7 +133,8 @@ export default defineComponent({
             const toNodes = new Array<ApiNode>();
             toNodes.push(...this.$store.state.inventory.neighbors, this.selectedNode as ApiNode);
 
-            this.fromNode = this.$store.state.inventory.draggedNode as ApiNode;
+            const drag = this.$store.state.inventory.draggedNode;
+            this.fromNode = new ApiNode(drag.name, drag.label, drag.nodeId);
             this.toNodes = toNodes;
             this.showDialog = true;
         },

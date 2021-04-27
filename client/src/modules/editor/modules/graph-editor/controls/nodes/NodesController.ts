@@ -2,7 +2,7 @@ import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/m
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 import { NodesMap } from "@/modules/editor/modules/graph-editor/controls/nodes/NodesMap";
-import { parseNodeShape } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeShapes";
+import { parseNodeShape } from "@/shared/NodeShapes";
 
 /**
  * Controller for all nodes in the joint js graph

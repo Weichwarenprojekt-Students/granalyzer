@@ -1,4 +1,6 @@
 import { dia, g } from "jointjs";
+import { NodeDrag } from "@/shared/NodeDrag";
+import { getFontColor } from "@/utility";
 
 class PaperOptions implements dia.Paper.Options {
     [key: string]: unknown;
@@ -335,5 +337,37 @@ export class JointGraph {
 
         this.paper.translate(nextTx, nextTy);
         this.paper.scale(nextScale);
+    }
+
+    /**
+     * Prepare a drag image that is matching the current paper zoom
+     * and the node's shape
+     *
+     * @param drag The node drag event
+     */
+    public createDragNode(drag: NodeDrag): void {
+        // Create the ghost-element
+        const ghostElement = document.createElement("div");
+        ghostElement.innerHTML = drag.name;
+        document.body.appendChild(ghostElement);
+        ghostElement.style.background = drag.color;
+        ghostElement.style.color = getFontColor(drag.color);
+        ghostElement.style.borderRadius = "4px";
+        ghostElement.style.width = "fit-content";
+        ghostElement.style.height = "fit-content";
+        ghostElement.style.padding = "7px 16px";
+        ghostElement.style.position = "absolute";
+        ghostElement.style.fontWeight = "bold";
+        ghostElement.style.top = "-200px";
+        ghostElement.style.left = "0";
+        ghostElement.style.fontSize = "20px";
+        ghostElement.style.transform = `scale(${this.paper.scale().sx})`;
+
+        // Set ghost image for dragging
+        document.body.appendChild(ghostElement);
+        drag.evt.dataTransfer?.setDragImage(ghostElement, 0, 0);
+
+        // Remove ghost-element from the body
+        setTimeout(() => document.body.removeChild(ghostElement), 0);
     }
 }

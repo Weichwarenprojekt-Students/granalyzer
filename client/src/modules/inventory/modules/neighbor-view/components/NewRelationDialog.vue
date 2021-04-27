@@ -68,7 +68,10 @@ export default defineComponent({
         // True if the dialog should be shown
         show: Boolean,
         // Node that the relation comes from
-        fromNode: Object,
+        fromNode: {
+            type: Object,
+            default: new ApiNode(),
+        },
         // Node that the relation goes to
         toNodes: Array,
     },
@@ -144,8 +147,8 @@ export default defineComponent({
                 this.$emit(
                     "input-confirm",
                     new ApiRelation(
-                        this.switched ? selection.nodeId : (this.fromNode as ApiNode).nodeId,
-                        this.switched ? (this.fromNode as ApiNode).nodeId : selection.nodeId,
+                        this.switched ? selection.nodeId : this.fromNode.nodeId,
+                        this.switched ? this.fromNode.nodeId : selection.nodeId,
                         this.selectedRelationType ?? "",
                     ),
                 );

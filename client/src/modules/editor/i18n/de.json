@@ -3,7 +3,7 @@
   "toolbar": {
     "undo": "Rückgängig (Strg + Z)",
     "redo": "Wiederholen (Strg + Y)",
-    "delete": "Löschen",
+    "delete": "Löschen (Entf)",
     "relation": "Beziehungen editieren (R)",
     "active": "Aktiv"
   },

@@ -4,7 +4,7 @@ import ApiNode from "@/models/data-scheme/ApiNode";
 import { Store } from "vuex";
 import { RootState } from "@/store";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import { getBrightness } from "@/utility";
+import { getFontColor } from "@/utility";
 import { JointGraph } from "@/shared/JointGraph";
 import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationInfo";
 
@@ -51,7 +51,7 @@ export class GraphUtils {
      * @param graph Graph to place nodes/relations into
      * @param store Root Store
      */
-    constructor(private graph: JointGraph, private store: Store<RootState>) {
+    constructor(public readonly graph: JointGraph, private store: Store<RootState>) {
         this.registerNodeInteraction();
     }
 
@@ -76,7 +76,7 @@ export class GraphUtils {
                 text: apiNode.name,
                 textAnchor: "middle",
                 textVerticalAnchor: "middle",
-                fill: getBrightness(color) > 170 ? "#333" : "#FFF",
+                fill: getFontColor(color),
             },
             body: {
                 ref: "label",

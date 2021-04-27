@@ -3,8 +3,8 @@
         <OverviewList
             :selectedItemId="$store.state.editor.selectedNode?.nodeId"
             class="overview"
-            @clicked-on-node="clickedOnNode"
-            @dragging-node="draggingNode"
+            @on-node-clicked="onNodeClicked"
+            @on-node-drag="onNodeDrag"
         ></OverviewList>
         <div class="center">
             <EditorHeader class="header"></EditorHeader>
@@ -49,6 +49,7 @@ import GraphEditor from "@/modules/editor/modules/graph-editor/GraphEditor.vue";
 import ReadInspector from "@/modules/inspector/ReadInspector.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import VisualElements from "@/modules/editor/modules/visual-elements/VisualElements.vue";
+import { NodeDrag } from "@/shared/NodeDrag";
 
 export default defineComponent({
     name: "Editor",
@@ -66,15 +67,15 @@ export default defineComponent({
         /**
          * Store node that was selected
          */
-        clickedOnNode(node: ApiNode): void {
+        onNodeClicked(node: ApiNode): void {
             this.$store.commit("editor/setSelectedNode", node);
             this.$store.dispatch("inspector/selectNode", node.nodeId);
         },
         /**
          * Store dragged node
          */
-        draggingNode(node: ApiNode): void {
-            this.$store.commit("editor/setDraggedNode", node);
+        onNodeDrag(drag: NodeDrag): void {
+            this.$store.commit("editor/setDraggedNode", drag);
         },
     },
 });
