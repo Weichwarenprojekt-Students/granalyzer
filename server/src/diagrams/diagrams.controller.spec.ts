@@ -8,7 +8,6 @@ import { NotFoundException } from "@nestjs/common";
 import { DiagramsService } from "./diagrams.service";
 import { DiagramsController } from "./diagrams.controller";
 import { Diagram } from "./diagram.model";
-import { Folder } from "../folders/folder.model";
 import { DatabaseUtil } from "../util/database.util";
 import TestUtil from "../util/test.util";
 import { FoldersService } from "../folders/folders.service";
@@ -21,12 +20,6 @@ describe("DiagramsController", () => {
     let diagramsController: DiagramsController;
     let databaseUtil: DatabaseUtil;
     let foldersService: FoldersService;
-
-    let diagram1: Diagram;
-    let diagram2: Diagram;
-    let diagram3: Diagram;
-
-    let folder1: Folder;
 
     beforeAll(async () => {
         module = await TestUtil.createTestingModule([DiagramsService, FoldersService], [DiagramsController]);
@@ -44,36 +37,34 @@ describe("DiagramsController", () => {
         await databaseUtil.clearDatabase();
     });
 
-    it("should be defined", () => {
+    it("is defined", () => {
         expect(diagramsService).toBeDefined();
         expect(neo4jService).toBeDefined();
         expect(diagramsController).toBeDefined();
         expect(databaseUtil).toBeDefined();
+        expect(foldersService).toBeDefined();
     });
 
     describe("addDiagram", () => {
-        const bodyObject = new Diagram("Diagram Name", "Serialized");
-        it("should return one diagram", async () => {
+        it("returns one diagram", async () => {
+            const bodyObject = new Diagram("Diagram Name", "Serialized");
             expect((await diagramsController.addDiagram(bodyObject))["name"]).toEqual(bodyObject["name"]);
         });
 
-        it("non-existing id should return not found exception", async () => {
+        it("throws not found exception due to non-existing id ", async () => {
             await expect(diagramsController.getDiagram("xxx")).rejects.toThrowError(NotFoundException);
         });
     });
 
     describe("Further tests", () => {
-        beforeEach(async () => {
-            folder1 = await foldersService.addFolder("Folder 1");
-            diagram1 = await diagramsService.addDiagram("Diagram 1");
-            diagram2 = await diagramsService.addDiagram("Diagram 2");
-            diagram3 = await diagramsService.addDiagram("Diagram 3");
-
-            diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
-        });
-
         describe("getDiagrams", () => {
-            it("should return all diagrams", async () => {
+            it("returns all diagrams", async () => {
+                const folder1 = await foldersService.addFolder("Folder 1");
+                let diagram1 = await diagramsService.addDiagram("Diagram 1");
+                diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
+                const diagram2 = await diagramsService.addDiagram("Diagram 2");
+                const diagram3 = await diagramsService.addDiagram("Diagram 3");
+
                 expect((await diagramsController.getAllDiagrams()).sort(TestUtil.getSortOrder("diagramId"))).toEqual(
                     [diagram1, { ...diagram2, parentId: null }, { ...diagram3, parentId: null }].sort(
                         TestUtil.getSortOrder("diagramId"),
@@ -83,7 +74,13 @@ describe("DiagramsController", () => {
         });
 
         describe("getAllRootDiagrams", () => {
-            it("should return all diagrams in root", async () => {
+            it("returns all diagrams in root", async () => {
+                const folder1 = await foldersService.addFolder("Folder 1");
+                let diagram1 = await diagramsService.addDiagram("Diagram 1");
+                diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
+                const diagram2 = await diagramsService.addDiagram("Diagram 2");
+                const diagram3 = await diagramsService.addDiagram("Diagram 3");
+
                 expect(
                     (await diagramsController.getAllRootDiagrams()).sort(TestUtil.getSortOrder("diagramId")),
                 ).toEqual([diagram2, diagram3].sort(TestUtil.getSortOrder("diagramId")));
@@ -91,28 +88,32 @@ describe("DiagramsController", () => {
         });
 
         describe("getDiagram", () => {
-            it("should return one diagram", async () => {
+            it("returns one diagram", async () => {
+                const diagram2 = await diagramsService.addDiagram("Diagram 2");
                 expect(await diagramsController.getDiagram(diagram2["diagramId"])).toEqual({
                     ...diagram2,
                     parentId: null,
                 });
             });
 
-            it("non-existing id should return not found exception", async () => {
+            it("throws not found exception due to non-existing id ", async () => {
                 await expect(diagramsController.getDiagram("xxx")).rejects.toThrowError(NotFoundException);
             });
         });
 
         describe("updateDiagram", () => {
-            const bodyObject = new Diagram("changed name", ",changed string");
-            it("should return the updated diagram", async () => {
+            it("returns the updated diagram", async () => {
+                const bodyObject = new Diagram("changed name", ",changed string");
+                const diagram2 = await diagramsService.addDiagram("Diagram 2");
+
                 expect(await diagramsController.updateDiagram(diagram2["diagramId"], bodyObject)).toEqual({
                     diagramId: diagram2["diagramId"],
                     ...bodyObject,
                     parentId: null,
                 });
             });
-            it("non-existing id should return not found exception", async () => {
+            it("throws not found exception due to non-existing id ", async () => {
+                const bodyObject = new Diagram("changed name", ",changed string");
                 await expect(diagramsController.updateDiagram("xxx", bodyObject)).rejects.toThrowError(
                     NotFoundException,
                 );
@@ -120,7 +121,8 @@ describe("DiagramsController", () => {
         });
 
         describe("deleteDiagram", () => {
-            it("should delete one diagram", async () => {
+            it("deletes one diagram", async () => {
+                const diagram2 = await diagramsService.addDiagram("Diagram 2");
                 expect(await diagramsController.deleteDiagram(diagram2["diagramId"])).toEqual({
                     ...diagram2,
                     parentId: null,
@@ -130,7 +132,7 @@ describe("DiagramsController", () => {
                 );
             });
 
-            it("non-existing id should return not found exception", async () => {
+            it("throws not found exception due to non-existing id", async () => {
                 await expect(diagramsController.deleteDiagram("xxx")).rejects.toThrowError(NotFoundException);
             });
         });
