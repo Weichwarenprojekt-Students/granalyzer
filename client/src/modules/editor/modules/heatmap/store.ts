@@ -5,12 +5,19 @@ import { GET } from "@/utility";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 
 export class HeatMapState {
+
+    /**
+     * The labels of the diagram
+     */
     public labels: ApiLabel[] = [];
 }
 
 export const heatMap = {
     state: new HeatMapState(),
     mutations: {
+        /**
+         * set the active labels of the diagram with number attributes
+         */
         setHeatLabels(state: HeatMapState, labels: ApiLabel[]) {
             labels.forEach((label) => {
                 label.attributes = label.attributes.filter((attr) => attr.datatype == ApiDatatype.NUMBER);
@@ -19,6 +26,10 @@ export const heatMap = {
         },
     },
     actions: {
+        /**
+         * get all labels which are in the diagram
+         * @param context
+         */
         async getHeatLabels(context: ActionContext<HeatMapState, RootState>): Promise<void> {
             const labels: ApiLabel[] = [];
             const getter = context.rootGetters["editor/labels"];

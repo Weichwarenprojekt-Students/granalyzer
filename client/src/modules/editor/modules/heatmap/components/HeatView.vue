@@ -56,6 +56,8 @@ export default defineComponent({
     },
     mounted() {
         this.heatAttribute.labelName = this.label.name;
+
+        // Check if the input fields are field with numbers
         this.$watch(
             () => [this.heatAttribute.from, this.heatAttribute.to],
             () => {
@@ -65,6 +67,9 @@ export default defineComponent({
         );
     },
     methods: {
+        /**
+         * Check if the input fields are field with numbers
+         */
         onChange() {
             if (this.heatAttribute.from != null && this.heatAttribute.to != null) {
                 this.heatAttribute.selectedAttributeName = this.selectedAttribute?.name;

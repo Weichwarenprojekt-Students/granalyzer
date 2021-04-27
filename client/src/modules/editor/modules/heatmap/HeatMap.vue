@@ -14,16 +14,22 @@
 
 import HeatView from "@/modules/editor/modules/heatmap/components/HeatView.vue";
 import {HeatAttribute} from "@/modules/editor/modules/heatmap/models/HeatAttribute";
+import {defineComponent} from "vue";
 
-export default {
+export default defineComponent( {
     name: "HeatMap",
     components: { HeatView },
     methods: {
-        onChange(attr:HeatAttribute) {
-            console.log(attr);
+        onChange(heatAttr:HeatAttribute) {
+            console.log("The heatattribute from the heatview: ", heatAttr);
+            //TODO Change the color of all nodes in the diagram her
+
+            for (const node of this.$store.state.editor.graphHandler.nodes) {
+                node.nodeInfo.color = '#FFFFFF'
+            }
         }
     }
-};
+});
 
 </script>
 

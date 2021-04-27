@@ -62,6 +62,15 @@ export default defineComponent({
         } else {
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
+
+        // Initial dispatch at the start of the editor
+        await this.$store.dispatch("editor/getHeatLabels");
+
+        // Register event for added and removed nodes in the editor
+        this.graph.graph.on("add remove", async () => {
+          await this.$store.dispatch("editor/getHeatLabels");
+        })
+
     },
     watch: {
         async "$store.state.editor.graphEditor.relationModeActive"() {
