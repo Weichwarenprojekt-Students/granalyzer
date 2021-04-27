@@ -60,8 +60,11 @@ describe("RelationsController", () => {
         await databaseUtil.initDatabase();
     });
 
-    // Clean up the database after each test
     beforeEach(async () => {
+        await databaseUtil.clearDatabase();
+    });
+
+    afterEach(async () => {
         await databaseUtil.clearDatabase();
     });
 

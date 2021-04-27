@@ -56,6 +56,8 @@ describe("DataSchemeController", () => {
     });
 
     beforeEach(async () => {
+        await databaseUtil.clearDatabase();
+
         movieLabel = new LabelScheme("Movie", "#666", [
             new StringAttribute("attrOne", true, "unknown"),
             new NumberAttribute("attrTwo"),

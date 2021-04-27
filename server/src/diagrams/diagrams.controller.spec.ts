@@ -33,6 +33,10 @@ describe("DiagramsController", () => {
         await databaseUtil.initDatabase();
     });
 
+    beforeEach(async () => {
+        await databaseUtil.clearDatabase();
+    });
+
     afterEach(async () => {
         await databaseUtil.clearDatabase();
     });

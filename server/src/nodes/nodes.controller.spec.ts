@@ -63,6 +63,10 @@ describe("NodesController", () => {
         await databaseUtil.clearDatabase();
     });
 
+    afterEach(async () => {
+        await databaseUtil.clearDatabase();
+    });
+
     it("is defined", () => {
         expect(neo4jService).toBeDefined();
         expect(nodesService).toBeDefined();
