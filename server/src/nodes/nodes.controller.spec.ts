@@ -142,6 +142,294 @@ describe("NodesController", () => {
         });
     });
 
+    describe("Attribute Parsing", () => {
+        it("returns correct datatype of default values", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [
+                new StringAttribute("stringAttr", true, "TestString"),
+                new NumberAttribute("intAttr", true, 21091986),
+                new NumberAttribute("doubleAttr", true, 3.14),
+                new ColorAttribute("colorAttr", true, "#00ff00"),
+            ]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {},
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
+            expect(actualNode.attributes).toEqual({
+                stringAttr: "TestString",
+                intAttr: 21091986,
+                doubleAttr: 3.14,
+                colorAttr: "#00ff00",
+            });
+        });
+
+        it("returns undefined value because value is not set and the attribute is non-mandatory", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [
+                new StringAttribute("stringAttr", false, "TestString"),
+            ]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {},
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
+            expect(actualNode.attributes.stringAttr).toBeUndefined();
+        });
+
+        it("returns default value because value is not set, the attribute is mandatory and includefault is true", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [
+                new StringAttribute("stringAttr", true, "TestString"),
+            ]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {},
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
+            expect(actualNode.attributes.stringAttr).toBe("TestString");
+        });
+
+        it("returns undefined value because value is not set, the attribute is mandatory and includefault is false", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [
+                new StringAttribute("stringAttr", true, "TestString"),
+            ]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {},
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
+            expect(actualNode.attributes.stringAttr).toBeUndefined();
+        });
+
+        it("returns undefined value if the value cannot be parsed and attribute is non-mandatory", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [
+                new StringAttribute("stringAttr", false, "TestString"),
+                new StringAttribute("objString", false, "TestString2"),
+                new NumberAttribute("numberAttr", false, 3.14),
+                new ColorAttribute("colorAttr", false, "#00ff00"),
+            ]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {
+                    stringAttr: "^invalid<|/*/-+String?$%&",
+                    objString: '?#§["Value1", "Value2"]',
+                    numberAttr: "ff##00ff",
+                    doubleAttr: "440?21",
+                },
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
+            expect(actualNode.attributes.stringAttr).toBe("^invalid<|/*/-+String?$%&");
+            expect(actualNode.attributes.objString).toBe('?#§["Value1", "Value2"]');
+            expect(actualNode.attributes.numberAttr).toBeUndefined();
+            expect(actualNode.attributes.colorAttr).toBeUndefined();
+        });
+
+        it("returns default value if the value cannot be parsed, includefault is true and attribute is mandatory", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [
+                new StringAttribute("stringAttr", true, "TestString"),
+                new StringAttribute("objString", true, "TestString2"),
+                new NumberAttribute("numberAttr", true, 3.14),
+                new ColorAttribute("colorAttr", true, "#00ff00"),
+            ]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {
+                    stringAttr: "^invalid<|/*/-+String?$%&",
+                    objString: '?#§["Value1", "Value2"]',
+                    numberAttr: "ff##00ff",
+                    colorAttr: "440?21",
+                },
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
+            expect(actualNode.attributes.stringAttr).toBe("^invalid<|/*/-+String?$%&");
+            expect(actualNode.attributes.objString).toBe('?#§["Value1", "Value2"]');
+            expect(actualNode.attributes.numberAttr).toBe(3.14);
+            expect(actualNode.attributes.colorAttr).toBe("#00ff00");
+        });
+
+        it("returns undefined value if the value cannot be parsed, includefault is false and attribute is mandatory", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [
+                new StringAttribute("stringAttr", true, "TestString"),
+                new StringAttribute("objString", true, "TestString2"),
+                new NumberAttribute("numberAttr", true, 3.14),
+                new ColorAttribute("colorAttr", true, "#00ff00"),
+            ]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {
+                    stringAttr: "^invalid<|/*/-+String?$%&",
+                    objString: '?#§["Value1", "Value2"]',
+                    numberAttr: "ff##00ff",
+                    colorAttr: "440?21",
+                },
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
+            expect(actualNode.attributes.stringAttr).toBe("^invalid<|/*/-+String?$%&");
+            expect(actualNode.attributes.objString).toBe('?#§["Value1", "Value2"]');
+            expect(actualNode.attributes.numberAttr).toBeUndefined();
+            expect(actualNode.attributes.colorAttr).toBeUndefined();
+        });
+
+        it("if attribute is declared as number and is integer/long, returns integer", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [new NumberAttribute("numberAttr", false, 0)]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {
+                    numberAttr: 21091986,
+                },
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
+            expect(actualNode.attributes.numberAttr).toBe(21091986);
+        });
+
+        it("if attribute is declared as number and is float/double, returns float/double", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [new NumberAttribute("numberAttr", false, 0)]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {
+                    numberAttr: 3.14,
+                },
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
+            expect(actualNode.attributes.numberAttr).toBe(3.14);
+        });
+
+        it("if attribute is declared as number and is string, returns float", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [
+                new NumberAttribute("numberAttr", false, 0),
+                new NumberAttribute("numberAttr2", false, 0),
+            ]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {
+                    numberAttr: "3.14",
+                    numberAttr2: "21091986",
+                },
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
+            expect(actualNode.attributes.numberAttr).toBe(3.14);
+            expect(actualNode.attributes.numberAttr2).toBe(21091986.0);
+        });
+
+        it("if attribute is declared as color, returns color if valid", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [new ColorAttribute("colorAttr", false, "#000000")]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {
+                    colorAttr: "#ff00ff",
+                },
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
+            expect(actualNode.attributes.colorAttr).toBe("#ff00ff");
+        });
+
+        it("if attribute is declared as string, converts value from DB to JSON string if it is not a string", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [
+                new StringAttribute("string", false, "emptyDefault"),
+                new StringAttribute("string2", false, "emptyDefault"),
+                new StringAttribute("string3", false, "emptyDefault"),
+            ]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {
+                    string: false,
+                    string2: true,
+                    string3: ["Value1", "Value2"],
+                },
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
+            expect(actualNode.attributes.string).toBe(JSON.stringify(false));
+            expect(actualNode.attributes.string2).toBe(JSON.stringify(true));
+            expect(actualNode.attributes.string3).toBe(JSON.stringify(["Value1", "Value2"]));
+        });
+
+        it("if attribute is declared as string, returns string if it is not an object", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [new StringAttribute("string", false, "emptyDefault")]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {
+                    string: "AttributeString",
+                },
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
+            expect(actualNode.attributes.string).toBe("AttributeString");
+        });
+    });
+
     describe("createNode", () => {
         it("correctly writes the data to DB", async () => {
             // Write the label scheme
@@ -487,292 +775,6 @@ describe("NodesController", () => {
             // Delete the scheme
             await schemeController.deleteLabelScheme(movieLabel.name);
             await expect(nodesController.getNode(movieNode.nodeId, true)).rejects.toThrowError(NotFoundException);
-        });
-
-        it("returns correct datatype of default values", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [
-                new StringAttribute("stringAttr", true, "TestString"),
-                new NumberAttribute("intAttr", true, 21091986),
-                new NumberAttribute("doubleAttr", true, 3.14),
-                new ColorAttribute("colorAttr", true, "#00ff00"),
-            ]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {},
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
-            expect(actualNode.attributes).toEqual({
-                stringAttr: "TestString",
-                intAttr: 21091986,
-                doubleAttr: 3.14,
-                colorAttr: "#00ff00",
-            });
-        });
-
-        it("returns undefined value because value is not set and the attribute is non-mandatory", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [
-                new StringAttribute("stringAttr", false, "TestString"),
-            ]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {},
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
-            expect(actualNode.attributes.stringAttr).toBeUndefined();
-        });
-
-        it("returns default value because value is not set, the attribute is mandatory and includefault is true", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [
-                new StringAttribute("stringAttr", true, "TestString"),
-            ]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {},
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
-            expect(actualNode.attributes.stringAttr).toBe("TestString");
-        });
-
-        it("returns undefined value because value is not set, the attribute is mandatory and includefault is false", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [
-                new StringAttribute("stringAttr", true, "TestString"),
-            ]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {},
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
-            expect(actualNode.attributes.stringAttr).toBeUndefined();
-        });
-
-        it("returns undefined value if the value cannot be parsed and attribute is non-mandatory", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [
-                new StringAttribute("stringAttr", false, "TestString"),
-                new StringAttribute("objString", false, "TestString2"),
-                new NumberAttribute("numberAttr", false, 3.14),
-                new ColorAttribute("colorAttr", false, "#00ff00"),
-            ]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {
-                    stringAttr: "^invalid<|/*/-+String?$%&",
-                    objString: '?#§["Value1", "Value2"]',
-                    numberAttr: "ff##00ff",
-                    doubleAttr: "440?21",
-                },
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
-            expect(actualNode.attributes.stringAttr).toBe("^invalid<|/*/-+String?$%&");
-            expect(actualNode.attributes.objString).toBe('?#§["Value1", "Value2"]');
-            expect(actualNode.attributes.numberAttr).toBeUndefined();
-            expect(actualNode.attributes.colorAttr).toBeUndefined();
-        });
-
-        it("returns default value if the value cannot be parsed, includefault is true and attribute is mandatory", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [
-                new StringAttribute("stringAttr", true, "TestString"),
-                new StringAttribute("objString", true, "TestString2"),
-                new NumberAttribute("numberAttr", true, 3.14),
-                new ColorAttribute("colorAttr", true, "#00ff00"),
-            ]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {
-                    stringAttr: "^invalid<|/*/-+String?$%&",
-                    objString: '?#§["Value1", "Value2"]',
-                    numberAttr: "ff##00ff",
-                    colorAttr: "440?21",
-                },
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
-            expect(actualNode.attributes.stringAttr).toBe("^invalid<|/*/-+String?$%&");
-            expect(actualNode.attributes.objString).toBe('?#§["Value1", "Value2"]');
-            expect(actualNode.attributes.numberAttr).toBe(3.14);
-            expect(actualNode.attributes.colorAttr).toBe("#00ff00");
-        });
-
-        it("returns undefined value if the value cannot be parsed, includefault is false and attribute is mandatory", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [
-                new StringAttribute("stringAttr", true, "TestString"),
-                new StringAttribute("objString", true, "TestString2"),
-                new NumberAttribute("numberAttr", true, 3.14),
-                new ColorAttribute("colorAttr", true, "#00ff00"),
-            ]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {
-                    stringAttr: "^invalid<|/*/-+String?$%&",
-                    objString: '?#§["Value1", "Value2"]',
-                    numberAttr: "ff##00ff",
-                    colorAttr: "440?21",
-                },
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
-            expect(actualNode.attributes.stringAttr).toBe("^invalid<|/*/-+String?$%&");
-            expect(actualNode.attributes.objString).toBe('?#§["Value1", "Value2"]');
-            expect(actualNode.attributes.numberAttr).toBeUndefined();
-            expect(actualNode.attributes.colorAttr).toBeUndefined();
-        });
-
-        it("if attribute is declared as number and is integer/long, returns integer", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [new NumberAttribute("numberAttr", false, 0)]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {
-                    numberAttr: 21091986,
-                },
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
-            expect(actualNode.attributes.numberAttr).toBe(21091986);
-        });
-
-        it("if attribute is declared as number and is float/double, returns float/double", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [new NumberAttribute("numberAttr", false, 0)]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {
-                    numberAttr: 3.14,
-                },
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
-            expect(actualNode.attributes.numberAttr).toBe(3.14);
-        });
-
-        it("if attribute is declared as number and is string, returns float", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [
-                new NumberAttribute("numberAttr", false, 0),
-                new NumberAttribute("numberAttr2", false, 0),
-            ]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {
-                    numberAttr: "3.14",
-                    numberAttr2: "21091986",
-                },
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
-            expect(actualNode.attributes.numberAttr).toBe(3.14);
-            expect(actualNode.attributes.numberAttr2).toBe(21091986.0);
-        });
-
-        it("if attribute is declared as color, returns color if valid", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [new ColorAttribute("colorAttr", false, "#000000")]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {
-                    colorAttr: "#ff00ff",
-                },
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
-            expect(actualNode.attributes.colorAttr).toBe("#ff00ff");
-        });
-
-        it("if attribute is declared as string, converts value from DB to JSON string if it is not a string", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [
-                new StringAttribute("string", false, "emptyDefault"),
-                new StringAttribute("string2", false, "emptyDefault"),
-                new StringAttribute("string3", false, "emptyDefault"),
-            ]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {
-                    string: false,
-                    string2: true,
-                    string3: ["Value1", "Value2"],
-                },
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
-            expect(actualNode.attributes.string).toBe(JSON.stringify(false));
-            expect(actualNode.attributes.string2).toBe(JSON.stringify(true));
-            expect(actualNode.attributes.string3).toBe(JSON.stringify(["Value1", "Value2"]));
-        });
-
-        it("if attribute is declared as string, returns string if it is not an object", async () => {
-            // Write the label scheme
-            const movieLabel = new LabelScheme("Movie", "#EEE", [new StringAttribute("string", false, "emptyDefault")]);
-            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-            const movieNode = {
-                name: "The Polar Express",
-                label: "Movie",
-                attributes: {
-                    string: "AttributeString",
-                },
-            } as Node;
-            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-
-            const actualNode = await nodesController.getNode(movieNode.nodeId, true);
-            expect(actualNode.attributes.string).toBe("AttributeString");
         });
     });
 
