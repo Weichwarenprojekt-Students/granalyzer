@@ -61,7 +61,7 @@ export class JointGraph {
     /**
      * Centers the graph
      */
-    public centerGraph(): void {
+    public centerGraph(newMiddlePoint?: { x?: number; y?: number }): void {
         const area = this.paper.getArea();
         const xMiddle = area.x + area.width / 2;
         const yMiddle = area.y + area.height / 2;
@@ -69,7 +69,47 @@ export class JointGraph {
         const translate = this.paper.translate();
         const scale = this.paper.scale();
 
-        this.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
+        if (!newMiddlePoint) this.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
+        else
+            this.paper.translate(
+                translate.tx + (newMiddlePoint.x ? (xMiddle - newMiddlePoint.x) * scale.sx : 0),
+                translate.ty + (newMiddlePoint.y ? (yMiddle - newMiddlePoint.y) * scale.sy : 0),
+            );
+    }
+
+    /**
+     * Centers the content of the graph
+     */
+    public centerContent(): void {
+        const elements = this.graph.getElements();
+        if (elements.length === 0) return;
+
+        this.paper.scaleContentToFit();
+
+        // Get range of y values
+        const yRange: { min: number; max: number } = { min: Number.MAX_VALUE, max: Number.MIN_VALUE };
+
+        elements
+            .map((el) => document.querySelector(`[model-id="${el.id}"]`)?.getBoundingClientRect())
+            .forEach((element: DOMRect | undefined) => {
+                if (!element) return;
+                const y = element.y;
+                if (y > yRange.max) yRange.max = y;
+                if (y < yRange.min) yRange.min = y;
+            });
+
+        // Translate graph to fit the bounding box
+        const bBoxMiddle = this.paper.clientToLocalPoint({
+            x: 0,
+            y: (yRange.min + yRange.max) / 2,
+        });
+        this.centerGraph({ x: 0, y: bBoxMiddle.y });
+
+        // Extra margin
+        const area = this.paper.getArea();
+        const xMiddle = area.x + area.width / 2;
+        const yMiddle = area.y + area.height / 2;
+        this.zoom(-1, xMiddle, yMiddle);
     }
 
     /**
@@ -334,7 +374,7 @@ export class JointGraph {
         // Calculate the new scale and check if it is in bounds
         const oldScale = this.paper.scale().sx;
         const nextScale = 1.1 ** delta * oldScale;
-        if (nextScale < 0.1 || nextScale > 10) return;
+        if ((nextScale < 0.1 && nextScale < oldScale) || nextScale > 10) return;
 
         // Adjust the translation of the paper so that the zoom actually
         // centers with the mouse

@@ -1,9 +1,10 @@
 {
   "title": "Here you are in the editor!",
   "toolbar": {
+    "center": "Center (C)",
     "undo": "Undo (Ctrl + Z)",
     "redo": "Redo (Ctrl + Y)",
-    "delete": "Delete",
+    "delete": "Delete (DEL)",
     "relation": "Edit relations (R)",
     "active": "Active"
   },
