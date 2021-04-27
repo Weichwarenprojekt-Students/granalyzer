@@ -64,10 +64,13 @@ export class Node {
     public static nodeStyle(nodeName: string, nodeColor: string): dia.Cell.Selectors {
         return {
             label: {
+                ref: "body",
                 text: nodeName,
                 textAnchor: "middle",
                 textVerticalAnchor: "middle",
                 // Set text color to dark or white, according to the color brightness
+                refX: "50%",
+                refY: "50%",
                 fill: getFontColor(nodeColor),
             },
             body: {
@@ -79,8 +82,6 @@ export class Node {
                 refWidth: 32,
                 refHeight: 16,
                 // Half of refWidth and refHeight
-                refX: -16,
-                refY: -8,
                 class: "node",
             },
         };
