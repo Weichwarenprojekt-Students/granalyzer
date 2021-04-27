@@ -13,6 +13,7 @@ import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/
 import { NewRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/NewRelationCommand";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { RelatedNodesUtils } from "./controls/RelatedNodesUtils";
+import { CreateNodesCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/CreateNodesCommand";
 
 export class GraphEditorState {
     /**
@@ -88,6 +89,15 @@ export const graphEditor = {
             { node, relations, labelColor }: { node: NodeInfo; relations: RelationInfo[]; labelColor?: string },
         ): void {
             state.graphHandler?.addCommand(new CreateNodeCommand(state.graphHandler, node, relations, labelColor));
+        },
+        /**
+         * Adds multiple nodes
+         */
+        addNodes(
+            state: GraphEditorState,
+            { nodes, relations, labelColors }: { nodes: NodeInfo[]; relations: RelationInfo[][]; labelColors: string[] },
+        ): void {
+            state.graphHandler?.addCommand(new CreateNodesCommand(state.graphHandler, nodes, relations, labelColors));
         },
         /**
          * Remove a node
@@ -203,7 +213,9 @@ export const graphEditor = {
         /**
          * Add related nodes
          */
-        async addRelatedNodes(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
+        async addRelatedNodes(context: ActionContext<GraphEditorState, RootState>): Promise<void> { //TODO: refactor this method...too long
+            context.commit("setEditorLoading", true);
+
             const relatedNodeUtils = new RelatedNodesUtils();
 
             const graphHandler = context.state.graphHandler;
@@ -215,6 +227,9 @@ export const graphEditor = {
             if (nodeUuid == null) return;
             const res = await GET("/api/nodes/" + nodeUuid + "/related");
             const apiNodes: ApiNode[] = await res.json();
+
+            // Array for nodes to be added to diagram
+            const nodes: NodeInfo[] = [];
 
             for (const apiNode of apiNodes) {
                 const node: NodeInfo = {
@@ -237,8 +252,46 @@ export const graphEditor = {
                     alreadyInDiagram = true;
                 }
 
-                if (!alreadyInDiagram) await context.dispatch("addNode", node);
+                //if (!alreadyInDiagram) await context.dispatch("addNode", node);
+                if (!alreadyInDiagram) nodes.push(node);
             }
+
+            // Load relations for nodes
+            const relations: RelationInfo[][] = [];
+
+            for (let i = 0; i < nodes.length; i++) {
+                // Perform api request
+                const res = await GET("/api/nodes/" + nodes[i].ref.uuid + "/relations");
+                const newVar: ApiRelation[] = await res.json();
+
+                // Transform relations from api into Relation objects
+                const nodeRelations: RelationInfo[] = newVar.map((rel) => {
+                    return {
+                        from: { uuid: rel.from, index: 0 },
+                        to: { uuid: rel.to, index: 0 },
+                        uuid: rel.relationId,
+                        label: rel.type,
+                    } as RelationInfo;
+                });
+
+                relations[i] = [];
+
+                for (const nodeRelation of nodeRelations) {
+                    relations[i].push(nodeRelation);
+                }
+            }
+
+            // Get the label colors
+            const labelColors = [];
+            for (const node of nodes) {
+                labelColors.push(context.rootState.overview?.labelColor.get(node.label)?.color);
+            }
+
+            context.commit("addNodes", { nodes, relations, labelColors });
+            context.commit("setEditorLoading", false);
+
+            await context.dispatch("saveChange");
+
         },
 
         /**
