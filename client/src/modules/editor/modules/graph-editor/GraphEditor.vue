@@ -63,6 +63,8 @@ export default defineComponent({
         } else {
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
+
+        this.graph.centerContent();
     },
     watch: {
         async "$store.state.editor.graphEditor.relationModeActive"() {
