@@ -13,8 +13,17 @@
         @input-confirm="renameItem"
         @cancel="renameItemDialog = false"
         :show="renameItemDialog"
-        :image-src="require('@/assets/img/icons.svg') + '#editor-thin'"
+        :image-src="`${require(`@/assets/img/icons.svg`)}#editor-thin`"
         :title="$t('start.diagrams.renameItem', { item: selectedItemName })"
+    ></InputDialog>
+
+    <!-- The dialog for copying a diagram -->
+    <InputDialog
+        @input-confirm="copyDiagram"
+        @cancel="diagramCopyDialog = false"
+        :show="diagramCopyDialog"
+        :image-src="`${require(`@/assets/img/icons.svg`)}#circle-plus`"
+        :title="$t('start.diagrams.copyItem', { item: selectedItemName })"
     ></InputDialog>
 
     <!-- The dialog for removing a folder -->
@@ -31,14 +40,25 @@
         <h2 class="title">{{ $t("start.diagrams.title") }}</h2>
         <h2 v-show="$store.state.start.parent.name" class="title-minus">&#8212;</h2>
         <h2 v-show="$store.state.start.parent.name" class="title-folder">{{ $store.state.start.parent.name }}</h2>
+
+        <!-- Add Folder -->
         <svg class="add-folder explorer-button" @click="addFolderDialog = true">
             <use xlink:href="~@/assets/img/icons.svg#add-folder"></use>
         </svg>
+
+        <!-- Edit Item -->
         <svg v-show="isItemSelected" class="explorer-button" @click="renameItemDialog = true">
             <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
         </svg>
+
+        <!-- Delete Item -->
         <svg v-show="isItemSelected" class="explorer-button" @click="deleteItemDialog = true">
             <use :xlink:href="`${require('@/assets/img/icons.svg')}#trash`"></use>
+        </svg>
+
+        <!-- Copy Diagram -->
+        <svg v-show="Object.keys(selectedDiagram).length > 0" class="explorer-button" @click="diagramCopyDialog = true">
+            <use :xlink:href="`${require('@/assets/img/icons.svg')}#copy`"></use>
         </svg>
     </div>
 
@@ -113,10 +133,12 @@ export default defineComponent({
         return {
             // True if the add folder dialog should be shown
             addFolderDialog: false,
-            // True if the rename dialog should be shown
+            // True if the rename dialog should be visible
             renameItemDialog: false,
-            // True if the delete dialog should be shown
+            // True if the delete dialog should be visible
             deleteItemDialog: false,
+            // True, if the copying dialog should be visible
+            diagramCopyDialog: false,
             // The selected folder (empty if no folder is selected)
             selectedFolder: {} as ApiFolder,
             // The selected diagram (empty if no diagram is selected)
@@ -227,6 +249,15 @@ export default defineComponent({
 
             this.deleteItemDialog = false;
             this.clearSelection();
+        },
+        /**
+         * Makes a copy of a diagram
+         */
+        copyDiagram(newName: string) {
+            this.diagramCopyDialog = false;
+            const newDiagram = new ApiDiagram(newName);
+            newDiagram.serialized = this.selectedDiagram.serialized;
+            this.$store.dispatch("start/addDiagram", newDiagram);
         },
         /**
          * Show a selection error

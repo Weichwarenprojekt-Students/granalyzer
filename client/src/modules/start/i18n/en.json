@@ -20,6 +20,7 @@
     "addFolder": "Add folder",
     "addDiagram": "Add diagram",
     "renameItem": "Rename {item}",
+    "copyItem": "Copy of {item}",
     "deleteItem": {
       "title": "Delete {item}",
       "description": "Are you sure you want to delete the selected item?"

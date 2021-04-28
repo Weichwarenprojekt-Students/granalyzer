@@ -20,6 +20,7 @@
     "addFolder": "Ordner hinzufügen",
     "addDiagram": "Diagramm hinzufügen",
     "renameItem": "{item} umbenennen",
+    "copyItem": "Kopie von \"{item}\"",
     "deleteItem": {
       "title": "{item} löschen",
       "description": "Wollen Sie das ausgewählte Element löschen?"
