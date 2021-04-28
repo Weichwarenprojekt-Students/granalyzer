@@ -48,7 +48,7 @@ export default defineComponent({
             // The enum config
             modifiedConfig: [] as Array<EnumConfigElement>,
             // The input value
-            addEnumValue: "",
+            addEnumValue: "" as string,
         };
     },
     created() {
@@ -75,6 +75,7 @@ export default defineComponent({
          */
         addEnumProp() {
             if (!this.addEnumValue) return;
+            this.addEnumValue = this.addEnumValue.trim();
             if (!this.modifiedConfig.includes(this.addEnumValue)) {
                 this.modifiedConfig.push(this.addEnumValue);
                 this.addEnumValue = "";
