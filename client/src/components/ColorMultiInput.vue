@@ -2,7 +2,7 @@
     <div class="color-input">
         <ColorPicker v-model="color" defaultColor="#FFFFFF" format="hex" :disabled="disabled" />
         <label class="color-label">
-            <input :class="{ 'color-error': error }" v-model="color" maxlength="7" type="text" :disabled="disabled" />
+            <input :class="{ 'color-error': error }" v-model="color" maxlength="9" type="text" :disabled="disabled" />
         </label>
     </div>
 </template>

@@ -23,7 +23,7 @@ export function getFontColor(color: string): string {
 
     // Calculate brightness
     const { red, green, blue, alpha } = hexRgb(color);
-    const brightness = alpha * (red * 0.299 + green * 0.587 + blue * 0.114);
+    const brightness = (1 - alpha) * 255 + (red * 0.299 + green * 0.587 + blue * 0.114);
 
     // Determine whether font should be white
     return brightness > 170 ? "#333" : "#FFF";
