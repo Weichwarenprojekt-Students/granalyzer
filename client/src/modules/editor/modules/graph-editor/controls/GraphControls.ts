@@ -73,6 +73,9 @@ export class GraphControls {
 
         // Reset inspector selection
         this.store.commit("inspector/resetSelection");
+
+        // Hide related nodes amount
+        this.store.dispatch("editor/updateRelatedNodesCount");
     }
 
     /**
