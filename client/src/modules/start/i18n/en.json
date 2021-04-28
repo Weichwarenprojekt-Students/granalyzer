@@ -35,5 +35,11 @@
       "title": "Name is empty",
       "description": "Please specify a name!"
     }
+  },
+  "tooltip": {
+    "newFolder": "New Folder",
+    "rename": "Rename",
+    "delete": "Delete (Del)",
+    "copy": "Copy"
   }
 }

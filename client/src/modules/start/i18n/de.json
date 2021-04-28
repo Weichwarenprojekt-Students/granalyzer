@@ -35,5 +35,11 @@
       "title": "Name ist leer",
       "description": "Bitte geben Sie einen Namen ein!"
     }
+  },
+  "tooltip": {
+    "newFolder": "Neuer Ordner",
+    "rename": "Umbenennen",
+    "delete": "Löschen (Entf)",
+    "copy": "Kopieren"
   }
 }

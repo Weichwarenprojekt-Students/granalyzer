@@ -42,24 +42,47 @@
         <h2 v-show="$store.state.start.parent.name" class="title-folder">{{ $store.state.start.parent.name }}</h2>
 
         <!-- Add Folder -->
-        <svg class="add-folder explorer-button" @click="addFolderDialog = true">
-            <use xlink:href="~@/assets/img/icons.svg#add-folder"></use>
-        </svg>
+        <div class="tooltip" v-tooltip.bottom="$t('start.tooltip.newFolder')" @click="addFolderDialog = true">
+            <svg class="explorer-button">
+                <use xlink:href="~@/assets/img/icons.svg#add-folder"></use>
+            </svg>
+        </div>
 
         <!-- Edit Item -->
-        <svg v-show="isItemSelected" class="explorer-button" @click="renameItemDialog = true">
-            <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
-        </svg>
+        <div
+            v-show="isItemSelected"
+            class="tooltip"
+            v-tooltip.bottom="$t('start.tooltip.rename')"
+            @click="renameItemDialog = true"
+        >
+            <svg class="explorer-button">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
+            </svg>
+        </div>
 
         <!-- Delete Item -->
-        <svg v-show="isItemSelected" class="explorer-button" @click="deleteItemDialog = true">
-            <use :xlink:href="`${require('@/assets/img/icons.svg')}#trash`"></use>
-        </svg>
+        <div
+            v-show="isItemSelected"
+            class="tooltip"
+            v-tooltip.bottom="$t('start.tooltip.delete')"
+            @click="deleteItemDialog = true"
+        >
+            <svg class="explorer-button">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#trash`"></use>
+            </svg>
+        </div>
 
         <!-- Copy Diagram -->
-        <svg v-show="Object.keys(selectedDiagram).length > 0" class="explorer-button" @click="diagramCopyDialog = true">
-            <use :xlink:href="`${require('@/assets/img/icons.svg')}#copy`"></use>
-        </svg>
+        <div
+            v-show="Object.keys(selectedDiagram).length > 0"
+            class="tooltip"
+            v-tooltip.bottom="$t('start.tooltip.copy')"
+            @click="diagramCopyDialog = true"
+        >
+            <svg class="explorer-button">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#copy`"></use>
+            </svg>
+        </div>
     </div>
 
     <!-- The explorer content -->
@@ -338,10 +361,6 @@ export default defineComponent({
     overflow: hidden;
 }
 
-.add-folder {
-    margin-left: 32px;
-}
-
 .title-minus {
     margin: 0 12px;
 }
@@ -350,13 +369,18 @@ export default defineComponent({
     font-style: italic;
 }
 
-.explorer-button {
-    cursor: pointer;
+.tooltip {
     margin-left: 16px;
-    border-bottom: 2px solid transparent;
-    padding: 0 2px 2px 2px;
     height: 28px;
     width: 28px;
+}
+
+.explorer-button {
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    padding: 0 2px 2px 2px;
+    height: inherit;
+    width: inherit;
     fill: @dark;
 
     &:hover {
