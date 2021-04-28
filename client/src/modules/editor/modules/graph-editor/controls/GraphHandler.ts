@@ -67,19 +67,14 @@ export class GraphHandler {
     public fromJSON(jsonString: string): void {
         if (!jsonString || jsonString === "{}") return;
 
-        const data: SerializableGraph = JSON.parse(jsonString);
-        const nodes: Array<NodeInfo> = data.nodes;
-        const relations: Array<RelationInfo> = data.relations;
+        const { nodes, relations }: SerializableGraph = JSON.parse(jsonString);
 
         nodes.forEach((node) => {
             // Get color for the label of the node for updating the diagram if the color changed
             const labelColor = this.store.state.overview?.labelColor.get(node.label)?.color;
 
             // Create new node
-            const newNode = this.nodes.new(node, labelColor);
-
-            // Set correct size, if element has been resized
-            if (node.size != null) newNode.size = node.size;
+            this.nodes.new(node, labelColor);
         });
 
         // Create the relations
@@ -96,6 +91,7 @@ export class GraphHandler {
                     RelationModeType.NORMAL,
                     relation.label,
                     relation.uuid,
+                    relation.z,
                 );
 
                 // And set vertices of the new relation, if they were saved
@@ -118,6 +114,7 @@ export class GraphHandler {
                 ...node.nodeInfo,
                 x,
                 y,
+                z: node.jointElement.get("z"),
             } as NodeInfo;
         });
 
@@ -127,6 +124,7 @@ export class GraphHandler {
                 ...relation.relationInfo,
                 vertices: relation.vertices,
                 anchors: relation.anchors,
+                z: relation.jointLink.get("z"),
             } as RelationInfo;
         });
 

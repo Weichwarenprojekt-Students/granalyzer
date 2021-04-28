@@ -14,6 +14,24 @@
             </span>
         </div>
         <div
+            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            @click="toFront"
+            v-tooltip.bottom="$t('editor.toolbar.front')"
+        >
+            <svg class="icon">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#to-front`"></use>
+            </svg>
+        </div>
+        <div
+            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            @click="toBack"
+            v-tooltip.bottom="$t('editor.toolbar.back')"
+        >
+            <svg class="icon">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#to-back`"></use>
+            </svg>
+        </div>
+        <div
             :class="['item', $store.getters['editor/undoAvailable'] ? '' : 'item-disabled']"
             @click="undo"
             v-tooltip.bottom="$t('editor.toolbar.undo')"
@@ -87,6 +105,18 @@ export default defineComponent({
          */
         toggleRelationMode(): void {
             this.$store.dispatch("editor/toggleRelationMode");
+        },
+        /**
+         * Bring selected element to the front
+         */
+        toFront(): void {
+            this.$store.dispatch("editor/addZIndexCommand", true);
+        },
+        /**
+         * Bring selected element to the back
+         */
+        toBack(): void {
+            this.$store.dispatch("editor/addZIndexCommand", false);
         },
     },
 });

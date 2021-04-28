@@ -67,7 +67,7 @@ export class GraphControls {
         // Only select relations outside of relation mode
         if (!this.graphHandler.relationMode.active) {
             this.graphHandler.graph.selectElement(linkView);
-            this.graphHandler.store.commit("editor/setSelectedElement", undefined);
+            this.graphHandler.store.commit("editor/setSelectedElement", linkView.model);
 
             // Set the currently selected relation for inspector
             const relation = this.graphHandler.relations.getByJointId(linkView.model.id);

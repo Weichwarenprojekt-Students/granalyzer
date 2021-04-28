@@ -1,4 +1,5 @@
 import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeReference";
+import { NodeSize } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 
 /**
  * The data for a single node
@@ -13,12 +14,13 @@ export interface NodeInfo {
      */
     y: number;
     /**
+     * The z index
+     */
+    z?: number;
+    /**
      * The size of the node
      */
-    size?: {
-        width: number;
-        height: number;
-    };
+    size?: NodeSize;
     /**
      * The node reference
      */

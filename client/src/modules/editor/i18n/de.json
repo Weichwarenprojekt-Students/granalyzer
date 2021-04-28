@@ -5,7 +5,9 @@
     "redo": "Wiederholen (Strg + Y)",
     "delete": "Löschen (Entf)",
     "relation": "Beziehungen editieren (R)",
-    "active": "Aktiv"
+    "active": "Aktiv",
+    "front": "Nach vorne bringen",
+    "back": "Nach hinten bringen"
   },
   "noDiagram": {
     "title": "Kein Diagram",

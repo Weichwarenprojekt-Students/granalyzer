@@ -5,7 +5,9 @@
     "redo": "Redo (Ctrl + Y)",
     "delete": "Delete (Del)",
     "relation": "Edit relations (R)",
-    "active": "Active"
+    "active": "Active",
+    "front": "Bring to front",
+    "back": "Bring to back"
   },
   "noDiagram": {
     "title": "No Diagram",

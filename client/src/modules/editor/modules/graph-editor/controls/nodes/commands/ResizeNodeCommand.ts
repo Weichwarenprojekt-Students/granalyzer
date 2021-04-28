@@ -1,18 +1,18 @@
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
 import { GraphHandler } from "../../GraphHandler";
-import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
+import { Node, NodeSize } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 import { dia } from "jointjs";
 
 export class ResizeNodeCommand implements ICommand {
     /**
      * The original size of the element
      */
-    private readonly origSize: { width: number; height: number } | undefined;
+    private readonly origSize?: NodeSize;
 
     /**
      * The new size of the element
      */
-    private newSize: { width: number; height: number } | undefined;
+    private newSize?: NodeSize;
 
     /**
      * Constructor

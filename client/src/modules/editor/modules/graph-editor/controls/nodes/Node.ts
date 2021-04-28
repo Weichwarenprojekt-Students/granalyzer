@@ -5,6 +5,8 @@ import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/m
 import { dia } from "jointjs";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 
+export type NodeSize = { width: number; height: number };
+
 /**
  * The data for a single node
  */

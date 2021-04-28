@@ -11,6 +11,8 @@ import { RelationInfo } from "./controls/relations/models/RelationInfo";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
 import { NewRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/NewRelationCommand";
+import { RemoveRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/RemoveRelationCommand";
+import { ZIndexCommand } from "@/modules/editor/modules/graph-editor/controls/commands/ZIndexCommand";
 
 export class GraphEditorState {
     /**
@@ -21,7 +23,7 @@ export class GraphEditorState {
     /**
      * The diagram element which has been clicked most recently
      */
-    public selectedElement?: dia.Element;
+    public selectedElement?: dia.Element | dia.Link;
 
     /**
      * True if the graph editor is currently loading
@@ -63,7 +65,7 @@ export const graphEditor = {
         /**
          * Set the clicked diagram element
          */
-        setSelectedElement(state: GraphEditorState, diagElement?: dia.Element): void {
+        setSelectedElement(state: GraphEditorState, diagElement?: dia.Element | dia.Link): void {
             state.selectedElement = diagElement;
         },
 
@@ -89,15 +91,21 @@ export const graphEditor = {
             state.graphHandler?.addCommand(new CreateNodeCommand(state.graphHandler, node, relations, labelColor));
         },
         /**
-         * Remove a node
+         * Remove a node or relation
          */
         removeNode(state: GraphEditorState): void {
             if (!state.graphHandler) return;
 
             if (state.selectedElement) {
-                const node = state.graphHandler.nodes.getByJointId(state.selectedElement.id);
+                if (state.selectedElement instanceof dia.Element) {
+                    const node = state.graphHandler.nodes.getByJointId(state.selectedElement.id);
 
-                if (node != null) state.graphHandler.addCommand(new RemoveNodeCommand(state.graphHandler, node));
+                    if (node != null) state.graphHandler.addCommand(new RemoveNodeCommand(state.graphHandler, node));
+                } else {
+                    const relation = state.graphHandler.relations.getByJointId(state.selectedElement.id);
+                    if (relation != null)
+                        state.graphHandler.addCommand(new RemoveRelationCommand(state.graphHandler, relation));
+                }
             }
 
             state.graphHandler.controls.resetSelection();
@@ -244,6 +252,20 @@ export const graphEditor = {
         async addCommand(context: ActionContext<GraphEditorState, RootState>, command: ICommand): Promise<void> {
             context.commit("addCommand", command);
             await context.dispatch("saveChange");
+        },
+        /**
+         * Add command to change the z index of an element
+         */
+        async addZIndexCommand(
+            context: ActionContext<GraphEditorState, RootState>,
+            bringToFront: boolean,
+        ): Promise<void> {
+            if (!context.state.graphHandler || !context.state.selectedElement) return;
+
+            await context.dispatch(
+                "addCommand",
+                new ZIndexCommand(context.state.graphHandler, context.state.selectedElement, bringToFront),
+            );
         },
         /**
          * Open the new relation dialog and temporarily save the command for adding the new relation

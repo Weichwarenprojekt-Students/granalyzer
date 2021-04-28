@@ -217,5 +217,17 @@
             <title id="cylinder">icon cylinder</title>
             <path d="M12.004 6c-4.226 0-10.004.953-10.004 4.15v4.701c0 3.197 6.204 4.149 10.004 4.149 3.785 0 9.996-.952 9.996-4.149v-4.701c0-3.198-5.967-4.15-9.996-4.15zm0 1.903c3.64 0 7.995.865 7.995 2.247 0 1.505-5.106 2.247-7.995 2.247-3.414 0-8.011-.861-8.011-2.247 0-1.507 4.814-2.247 8.011-2.247zm7.995 6.707c0 1.666-5.106 2.487-7.995 2.487-3.414 0-8.011-.954-8.011-2.487v-1.94c2.118 1.276 5.172 1.694 8.011 1.694 2.83 0 5.878-.418 7.995-1.694v1.94z"/>
         </symbol>
+
+        <!-- #to-front: To Front Icon -->
+        <symbol viewBox="0 0 24 24" id="to-front" aria-labelledby="to-front">
+            <title id="to-front">to front</title>
+            <path d="M18 8v-2h-2v2h-10v16h18v-16h-6zm4 14h-14v-12h14v12zm-6-20h-3v-2h5v4h-2v-2zm-14 8h-2v-4h2v4zm9-8h-4v-2h4v2zm-11-2h5v2h-3v2h-2v-4zm2 14h3v2h-5v-4h2v2z"/>
+        </symbol>
+
+        <!-- #to-back: To Back Icon -->
+        <symbol viewBox="0 0 24 24" id="to-back" aria-labelledby="to-back">
+            <title id="to-back">to back</title>
+            <path d="M8 12h-2v-4h5v2h-3v2zm11-4v2h3v2h2v-4h-5zm-11 12h-2v4h5v-2h-3v-2zm5 4h4v-2h-4v2zm9-6h2v-4h-2v4zm0 4h-3v2h5v-4h-2v2zm-14-4v-4h-6v-12h14v6h-3v2h5v-10h-18v16h6v2h2z"/>
+        </symbol>
     </defs>
 </svg>

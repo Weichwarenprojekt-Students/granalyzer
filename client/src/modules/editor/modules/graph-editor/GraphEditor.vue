@@ -58,6 +58,7 @@ export default defineComponent({
 
         // Set up the graph and the controls and enable async loading (only for first load)
         this.graph = new JointGraph("joint", true);
+        this.graph.paper.freeze();
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
 
         // Generate the active diagram if available
@@ -67,8 +68,17 @@ export default defineComponent({
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
 
+        this.graph.paper.updateViews();
+        this.graph.paper.unfreeze();
         // Disable async loading and remove loading bar
         this.graph.paper.options.async = false;
+
+        requestAnimationFrame(() => {
+            for (const link of this.graph.graph.getLinks()) {
+                this.graph.paper.findViewByModel(link)?.hideTools();
+            }
+        });
+
         this.$store.commit("editor/setEditorLoading", false);
     },
     watch: {

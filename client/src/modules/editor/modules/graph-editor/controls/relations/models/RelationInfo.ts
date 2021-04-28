@@ -30,4 +30,8 @@ export interface RelationInfo {
      * Anchors of the relation
      */
     anchors?: Anchors;
+    /**
+     * The z index
+     */
+    z?: number;
 }

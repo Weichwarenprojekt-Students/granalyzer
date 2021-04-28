@@ -35,9 +35,18 @@ export default class NodesController extends NodesMap {
         const shape = parseNodeShape(nodeInfo);
         shape.position(nodeInfo.x, nodeInfo.y);
 
-        // Create new node object and add it to the graph
+        // Create new node object
         const node = new Node(nodeInfo, shape);
+
+        // Add it to the graph
         this.addExisting(node);
+
+        // Set z index
+        if (nodeInfo.z != null) node.jointElement.set("z", nodeInfo.z);
+
+        // Set the size to an absolute value
+        const newSize = nodeInfo.size ?? this.graphHandler.graph.sizeOf(node.jointElement);
+        if (newSize) node.size = newSize;
 
         return node;
     }

@@ -56,6 +56,7 @@ export default class RelationsController extends RelationsMap {
      * @param relationModeType The type of relation in relation mode, defaults to NORMAL
      * @param labelText An optional text for the relation
      * @param uuid An optional uuid for the relation
+     * @param z The z index of the relation
      */
     public new(
         source: Node,
@@ -63,12 +64,14 @@ export default class RelationsController extends RelationsMap {
         relationModeType = RelationModeType.NORMAL,
         labelText?: string,
         uuid?: string,
+        z?: number,
     ): Relation {
         // Create new relation info
         const relationInfo: RelationInfo = {
             uuid: uuid ?? "",
             from: source.reference,
             to: target.reference,
+            z,
         };
 
         // Create the link and connect it to source and target
@@ -90,6 +93,9 @@ export default class RelationsController extends RelationsMap {
         // Create the relation and add it to the graph
         const relation = new Relation(relationInfo, link, source, target, relationModeType);
         this.addExisting(relation);
+
+        // Set z index
+        if (relationInfo.z != null) relation.jointLink.set("z", relationInfo.z);
 
         return relation;
     }
