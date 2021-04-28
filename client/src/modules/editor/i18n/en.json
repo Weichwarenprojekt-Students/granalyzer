@@ -4,7 +4,7 @@
     "center": "Center (C)",
     "undo": "Undo (Ctrl + Z)",
     "redo": "Redo (Ctrl + Y)",
-    "delete": "Delete (DEL)",
+    "delete": "Delete (Del)",
     "relation": "Edit relations (R)",
     "active": "Active"
   },
