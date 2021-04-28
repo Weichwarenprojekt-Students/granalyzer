@@ -63,26 +63,11 @@ export class Node {
      */
     public set size({ width, height, direction }: { width: number; height: number; direction?: dia.Direction }) {
         if (this.jointElement.attr("body/ref")) {
-            // If the element is still sized in relation to the text, the position needs to be changed to the opposite
-            // corner of where the resizing handle is grabbed
-            const pos = this.jointElement.position();
-            switch (direction) {
-                case "top-left":
-                    this.jointElement.position(pos.x + width, pos.y + height);
-                    break;
-                case "bottom-left":
-                    this.jointElement.position(pos.x + width, pos.y);
-                    break;
-                case "top-right":
-                    this.jointElement.position(pos.x, pos.y + height);
-                    break;
-            }
+            // Remove all attributes for relative sizing if they are still set
+            this.jointElement.removeAttr("body/ref");
+            this.jointElement.removeAttr("body/refWidth2");
+            this.jointElement.removeAttr("body/refHeight2");
         }
-
-        // Remove all attributes for relative sizing
-        this.jointElement.removeAttr("body/ref");
-        this.jointElement.removeAttr("body/refWidth2");
-        this.jointElement.removeAttr("body/refHeight2");
 
         // Resize element and persist new size
         this.jointElement.resize(width, height, { direction });

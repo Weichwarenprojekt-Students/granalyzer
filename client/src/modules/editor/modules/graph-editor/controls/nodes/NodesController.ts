@@ -53,10 +53,9 @@ export default class NodesController extends NodesMap {
         const jointElement = node.jointElement;
         jointElement.addTo(this.graphHandler.graph.graph);
 
-        // Update some svg attribute, so that style gets shown correctly from the beginning
-        // Needs to be done, don't ask why... TODO: Search for some kind of update method
-        jointElement.attr("label/textAnchor", "center");
-        jointElement.attr("label/textAnchor", "middle");
+        // Directly set the size to an absolute value
+        const size = this.sizeOf(node);
+        if (size) node.size = size;
     }
 
     /**
