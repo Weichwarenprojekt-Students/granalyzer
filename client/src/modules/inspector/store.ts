@@ -61,6 +61,7 @@ export const inspector = {
                             payload.item.attributes[attribute.name],
                             attribute.datatype,
                             !!payload.item.attributes[attribute.name],
+                            attribute.config,
                         ),
                 ) ?? [];
         },

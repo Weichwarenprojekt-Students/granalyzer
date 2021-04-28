@@ -8,7 +8,7 @@ import { DataSchemeService } from "./data-scheme.service";
 import { Neo4jService } from "nest-neo4j/dist";
 import { BadRequestException, ConflictException, NotFoundException } from "@nestjs/common";
 import { LabelScheme } from "./models/label-scheme.model";
-import { ColorAttribute, NumberAttribute, StringAttribute } from "./models/attributes.model";
+import { ColorAttribute, EnumAttribute, NumberAttribute, StringAttribute } from "./models/attributes.model";
 import { RelationType } from "./models/relation-type.model";
 import { Connection } from "./models/connection.model";
 import { Scheme } from "./data-scheme.model";
@@ -84,12 +84,14 @@ describe("DataSchemeController", () => {
             const movieLabel = new LabelScheme("Movie", "#666", [
                 new StringAttribute("attrOne", true, "unknown"),
                 new NumberAttribute("attrTwo"),
+                new EnumAttribute("rating", false, "", ["good", "bad"]),
             ]);
             await schemeController.addLabelScheme(movieLabel);
 
             const personLabel = new LabelScheme("Person", "#420", [
                 new StringAttribute("attrOne", true, "Done Default"),
                 new ColorAttribute("attrTwo"),
+                new EnumAttribute("mainHand", false, "right", ["left", "right"]),
             ]);
             await schemeController.addLabelScheme(personLabel);
 
@@ -136,6 +138,7 @@ describe("DataSchemeController", () => {
             const body = new LabelScheme("Test", "#666", [
                 new StringAttribute("attrOne", false, ""),
                 new StringAttribute("attrTwo", false, ""),
+                new EnumAttribute("lowHigh", false, "", ["low", "high"]),
             ]);
             expect(await schemeController.addLabelScheme(body)).toEqual(body);
         });
@@ -266,8 +269,9 @@ describe("DataSchemeController", () => {
             await schemeController.addLabelScheme(movieLabel);
 
             const body = new LabelScheme("Movie", "#666", [
-                new StringAttribute("attrOne", false, ""),
+                new StringAttribute("attrOne", true, ""),
                 new StringAttribute("attrTwo", false, ""),
+                new EnumAttribute("length", false, "", ["long", "middle", "short"]),
             ]);
             expect(await schemeController.updateLabelScheme(movieLabel.name, body, false)).toEqual(body);
         });
@@ -280,7 +284,11 @@ describe("DataSchemeController", () => {
             ]);
             await schemeController.addLabelScheme(movieLabel);
 
-            const movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000 });
+            const movieNode1 = new Node("The Matrix", "Movie", {
+                attrOne: "The Matrix",
+                attrTwo: 2000,
+                rating: "good",
+            });
             movieNode1.nodeId = (await nodesController.createNode(movieNode1)).nodeId;
 
             const movieNode2 = new Node("Forrest Gump", "Movie", { attrOne: "Forrest Gump", attrTwo: 2000 });
@@ -315,7 +323,11 @@ describe("DataSchemeController", () => {
             await schemeController.addLabelScheme(movieLabel);
 
             // Write the nodes which cause the mandatory attribute conflict
-            const movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000 });
+            const movieNode1 = new Node("The Matrix", "Movie", {
+                attrOne: "The Matrix",
+                attrTwo: 2000,
+                rating: "good",
+            });
             movieNode1.nodeId = (await nodesController.createNode(movieNode1)).nodeId;
 
             const movieNode2 = new Node("Forrest Gump", "Movie", { attrOne: "Forrest Gump", attrTwo: 2000 });
@@ -559,13 +571,21 @@ describe("DataSchemeController", () => {
             await schemeController.addRelationType(actedInRelation);
 
             // Write the nodes which cause the conflict
-            const movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000 });
+            const movieNode1 = new Node("The Matrix", "Movie", {
+                attrOne: "The Matrix",
+                attrTwo: 2000,
+                rating: "good",
+            });
             movieNode1.nodeId = (await nodesController.createNode(movieNode1)).nodeId;
 
             const movieNode2 = new Node("Forrest Gump", "Movie", { attrOne: "Forrest Gump", attrTwo: 2000 });
             movieNode2.nodeId = (await nodesController.createNode(movieNode2)).nodeId;
 
-            const personNode1 = new Node("Keanu Reeves", "Person", { attrOne: "Keanu Reeves", attrTwo: "#420" });
+            const personNode1 = new Node("Keanu Reeves", "Person", {
+                attrOne: "Keanu Reeves",
+                attrTwo: "#420",
+                mainHand: "left",
+            });
             personNode1.nodeId = (await nodesController.createNode(personNode1)).nodeId;
 
             const personNode2 = new Node("Tom Hanks", "Person", { attrOne: "Tom Hanks", attrTwo: "#420" });
@@ -618,13 +638,21 @@ describe("DataSchemeController", () => {
             await schemeController.addRelationType(actedInRelation);
 
             // Write the nodes which cause the conflict
-            const movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000 });
+            const movieNode1 = new Node("The Matrix", "Movie", {
+                attrOne: "The Matrix",
+                attrTwo: 2000,
+                rating: "good",
+            });
             movieNode1.nodeId = (await nodesController.createNode(movieNode1)).nodeId;
 
             const movieNode2 = new Node("Forrest Gump", "Movie", { attrOne: "Forrest Gump", attrTwo: 2000 });
             movieNode2.nodeId = (await nodesController.createNode(movieNode2)).nodeId;
 
-            const personNode1 = new Node("Keanu Reeves", "Person", { attrOne: "Keanu Reeves", attrTwo: "#420" });
+            const personNode1 = new Node("Keanu Reeves", "Person", {
+                attrOne: "Keanu Reeves",
+                attrTwo: "#420",
+                mainHand: "left",
+            });
             personNode1.nodeId = (await nodesController.createNode(personNode1)).nodeId;
 
             const personNode2 = new Node("Tom Hanks", "Person", { attrOne: "Tom Hanks", attrTwo: "#420" });

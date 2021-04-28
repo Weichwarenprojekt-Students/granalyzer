@@ -87,7 +87,8 @@
     "datatype": {
       "string": "Text",
       "number": "Zahl",
-      "color": "Farbe"
+      "color": "Farbe",
+      "enum": "Enum"
     },
     "nameRequired": {
       "title": "Name nötig",
@@ -96,6 +97,19 @@
     "nameDuplicate": {
       "title": "Name doppelt",
       "description": "Das Attribut {name} ist bereits vorhanden!"
+    },
+    "invalidEnumDefault": {
+      "title": "Standardwert invalide",
+      "description": "Der Standardwert von {name} ist kein Teil des Enums!"
+    },
+    "editEnumConfig": {
+      "title": "Enum editieren",
+      "add": "Hinzufügen",
+      "newElementPlaceholder": "Neues Element",
+      "duplicateElement": {
+        "title": "Besetzter Wert",
+        "description": "Dieser Wert befindet sich bereits im Enum"
+      }
     }
   },
   "conflictView": {

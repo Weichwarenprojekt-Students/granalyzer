@@ -54,6 +54,7 @@ export default defineComponent({
 
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
+        this.graph.centerGraph();
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
 
         // Generate the active diagram if available
@@ -62,6 +63,8 @@ export default defineComponent({
         } else {
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
+
+        this.graph.centerContent();
     },
     watch: {
         async "$store.state.editor.graphEditor.relationModeActive"() {

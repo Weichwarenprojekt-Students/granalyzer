@@ -7,7 +7,8 @@
         :placeholder="$t('global.input.placeholder')"
         :disabled="disabled"
     />
-    <ColorMultiInput v-else-if="type === datatype.COLOR" v-model="value" class="input" :disabled="disabled" />
+    <Dropdown v-else-if="type === datatype.ENUM" :options="config" v-model="value" :disabled="disabled" />
+    <ColorMultiInput v-else-if="type === datatype.COLOR" v-model="value" :disabled="disabled" />
     <label v-else>
         <input
             v-model="value"
@@ -38,6 +39,8 @@ export default defineComponent({
             type: String,
             default: ApiDatatype.STRING,
         },
+        // The config for enums
+        config: Array,
         // True if the input is disabled
         disabled: {
             type: Boolean,
@@ -62,6 +65,12 @@ export default defineComponent({
          */
         type() {
             this.parseValue();
+        },
+        /**
+         * Check if the value was modified from the outside
+         */
+        modelValue() {
+            this.value = this.modelValue;
         },
         /**
          * Check for changes of the v model
@@ -93,9 +102,8 @@ export default defineComponent({
 <style lang="less">
 @import "~@/styles/global.less";
 
-.input {
-    width: @input_width;
-    border: 0;
+.attribute-value {
+    text-align: start;
 }
 
 .text-input {
