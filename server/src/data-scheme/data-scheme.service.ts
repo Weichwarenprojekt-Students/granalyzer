@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { Scheme } from "./data-scheme.model";
 import { RelationType } from "./models/relation-type.model";
@@ -218,6 +218,17 @@ export class DataSchemeService {
      * Adds a new relation type
      */
     async addRelationType(relationType: RelationType): Promise<RelationType> {
+        // Check if there is any connection which has an invalid node label
+        try {
+            await Promise.all(
+                relationType.connections.map((connection) =>
+                    Promise.all([this.getLabelScheme(connection.from), this.getLabelScheme(connection.to)]),
+                ),
+            );
+        } catch (ex) {
+            throw new BadRequestException("One of the connections has an invalid node label!");
+        }
+
         // language=Cypher
         const cypher = `
           CREATE (rt:RelationType {name: $name, attributes: $attributes, connections: $connections})

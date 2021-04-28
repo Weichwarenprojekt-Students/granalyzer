@@ -6,7 +6,7 @@ import { TestingModule } from "@nestjs/testing";
 import { DataSchemeController } from "./data-scheme.controller";
 import { DataSchemeService } from "./data-scheme.service";
 import { Neo4jService } from "nest-neo4j/dist";
-import { ConflictException, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, NotFoundException } from "@nestjs/common";
 import { LabelScheme } from "./models/label-scheme.model";
 import { ColorAttribute, NumberAttribute, StringAttribute } from "./models/attributes.model";
 import { RelationType } from "./models/relation-type.model";
@@ -158,20 +158,7 @@ describe("DataSchemeController", () => {
             ]);
             await schemeController.addLabelScheme(movieLabel);
 
-            const body = new LabelScheme("Movie", "#666", [
-                {
-                    datatype: "string",
-                    name: "attrOne",
-                    mandatory: false,
-                    defaultValue: "",
-                },
-                {
-                    datatype: "string",
-                    name: "attrTwo",
-                    mandatory: false,
-                    defaultValue: "",
-                },
-            ]);
+            const body = new LabelScheme("Movie", "#666", []);
             await expect(schemeController.addLabelScheme(body)).rejects.toThrowError(ConflictException);
         });
     });
@@ -187,6 +174,10 @@ describe("DataSchemeController", () => {
 
             expect(await schemeController.deleteLabelScheme("Movie")).toEqual(movieLabel);
             await expect(schemeController.getLabelScheme("Movie")).rejects.toThrowError(NotFoundException);
+        });
+
+        it("deletes invalid connections from all relation types when the label is no longer existent", async () => {
+            // TODO
         });
 
         it("throws not found exception due to invalid label name", async () => {
@@ -363,6 +354,19 @@ describe("DataSchemeController", () => {
 
     describe("addRelationType", () => {
         it("adds one relation type", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
             const body = new RelationType(
                 "TEST_RELATION",
                 [
@@ -389,6 +393,30 @@ describe("DataSchemeController", () => {
             expect(await schemeController.addRelationType(body)).toEqual(body);
         });
 
+        it("throws exception due to non-existing node labels in connections", async () => {
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
+            const body = new RelationType(
+                "invalidRelationType",
+                [],
+                [
+                    {
+                        from: "Person",
+                        to: "Person",
+                    },
+                    {
+                        from: "Person",
+                        to: "Movie",
+                    },
+                ],
+            );
+            await expect(schemeController.addRelationType(body)).rejects.toThrowError(BadRequestException);
+        });
+
         it("throws ConflictException due to already existing relation type 'ACTED_IN'", async () => {
             // Write the labels
             const movieLabel = new LabelScheme("Movie", "#666", [
@@ -413,20 +441,7 @@ describe("DataSchemeController", () => {
 
             const body = new RelationType(
                 "ACTED_IN",
-                [
-                    {
-                        datatype: "string",
-                        name: "attrOne",
-                        mandatory: true,
-                        defaultValue: "",
-                    },
-                    {
-                        datatype: "string",
-                        name: "attrTwo",
-                        mandatory: true,
-                        defaultValue: "",
-                    },
-                ],
+                [],
                 [
                     {
                         from: "Person",
