@@ -58,6 +58,12 @@ export class JointGraph {
                 return { labelMove: false, linkMove: false };
             },
             defaultConnector: { name: "rounded", args: { radius: 10 } },
+            defaultConnectionPoint: {
+                name: "boundary",
+                args: {
+                    sticky: true,
+                },
+            },
         };
         this.paper = new dia.Paper(config);
         this.paper.translate(500, 200);
