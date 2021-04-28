@@ -36,7 +36,7 @@ export abstract class Attribute {
     abstract defaultValue;
 
     /**
-     * The config of the value
+     * The configuration of the value (required for enums)
      */
     @IsOptional()
     config?;
