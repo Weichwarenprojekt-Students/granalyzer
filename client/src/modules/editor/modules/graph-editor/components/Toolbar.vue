@@ -23,7 +23,7 @@
             @click="addRelatedNodes"
         >
             <svg class="icon">
-                <use :xlink:href="`${require('@/assets/img/icons.svg')}#diagram`"></use>
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#bold-diagram`"></use>
             </svg>
             <p class="related-nodes-number">
                 {{

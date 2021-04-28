@@ -109,6 +109,7 @@ export const graphEditor = {
                 if (node != null) state.graphHandler.addCommand(new RemoveNodeCommand(state.graphHandler, node));
             }
             state.selectedElement = undefined;
+
         },
         /**
          * Active/Deactivate the loading state
@@ -303,6 +304,7 @@ export const graphEditor = {
             context.commit("setEditorLoading", false);
 
             await context.dispatch("saveChange");
+            await context.dispatch("updateRelatedNodesCount")
         },
 
         /**
