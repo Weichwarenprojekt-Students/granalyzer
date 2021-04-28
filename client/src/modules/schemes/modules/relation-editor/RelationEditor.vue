@@ -80,6 +80,7 @@ import { ApiConnection } from "@/models/data-scheme/ApiConnection";
 import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
 import ConfirmDialog from "@/components/dialog/ConfirmDialog.vue";
 import ConnectionView from "@/modules/schemes/modules/relation-editor/components/ConnectionView.vue";
+import { validateAttributes } from "@/modules/schemes/utility";
 
 export default defineComponent({
     name: "RelationEditor",
@@ -194,7 +195,7 @@ export default defineComponent({
          */
         validateRelation(): boolean {
             if (!this.validateRelationName()) return false;
-            if (!this.validateRelationAttributes()) return false;
+            if (!validateAttributes(this.modifiedRelation.attributes)) return false;
             return this.validateRelationConnections();
         },
         /**
@@ -219,33 +220,6 @@ export default defineComponent({
                     );
                     return false;
                 }
-            }
-            return true;
-        },
-        /**
-         * @return True if the attributes are valid
-         */
-        validateRelationAttributes(): boolean {
-            // Check if the attributes are valid
-            const names = new Set<string>();
-            for (let attribute of this.modifiedRelation.attributes) {
-                // If the name is empty
-                if (attribute.name === "") {
-                    errorToast(
-                        this.$t("schemes.attribute.nameRequired.title"),
-                        this.$t("schemes.attribute.nameRequired.description"),
-                    );
-                    return false;
-                }
-                // If the name is a duplicate
-                if (names.has(attribute.name)) {
-                    errorToast(
-                        this.$t("schemes.attribute.nameDuplicate.title"),
-                        this.$t("schemes.attribute.nameDuplicate.description", { name: attribute.name }),
-                    );
-                    return false;
-                }
-                names.add(attribute.name);
             }
             return true;
         },

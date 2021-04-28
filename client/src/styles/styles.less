@@ -31,15 +31,22 @@
   outline: 0;
   background-color: transparent;
 
-  &:disabled {
-    cursor: default;
-    background: transparent;
-  }
-
   & > svg {
     height: 10px;
     width: 10px;
     margin-right: 4px;
+  }
+
+  &:disabled {
+    color: #999;
+    background: @light_grey;
+    border-color: @light_grey;
+    cursor: default;
+
+    &:hover {
+      background: @light_grey;
+      border-color: @light_grey;
+    }
   }
 }
 
@@ -57,15 +64,6 @@
 
     &:disabled {
       color: @dark;
-    }
-  }
-
-  &:disabled {
-    color: @dark;
-
-    &:hover {
-      border-color: @dark;
-      background: transparent;
     }
   }
 }
@@ -94,18 +92,6 @@
     border-color: @accent_color;
     background: @accent_color;
   }
-
-  &:disabled {
-    color: #999;
-    background: @light_grey;
-    border-color: @light_grey;
-    cursor: default;
-
-    &:hover {
-      background: @light_grey;
-      border-color: @light_grey;
-    }
-  }
 }
 
 .btn-primary {
@@ -116,15 +102,6 @@
   &:hover {
     border-color: @secondary_color;
     background: @secondary_color;
-  }
-
-  &:disabled {
-    color: @primary_color;
-
-    &:hover {
-      border-color: @primary_color;
-      background: transparent;
-    }
   }
 }
 

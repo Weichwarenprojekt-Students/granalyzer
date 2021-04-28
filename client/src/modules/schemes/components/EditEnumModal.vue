@@ -6,13 +6,13 @@
         </div>
         <div class="modal-body">
             <div class="add-enum">
-                <button class="btn btn-normal" @click="addEnumProp()">
+                <button :disabled="!addEnumValue" class="btn btn-normal" @click="addEnumProp()">
                     {{ $t("schemes.attribute.editEnumConfig.add") }}
                 </button>
                 <input
-                    id="add-enum-txt"
                     :placeholder="$t('schemes.attribute.editEnumConfig.newElementPlaceholder')"
                     class="input text-input"
+                    v-model="addEnumValue"
                     v-on:keyup.enter="addEnumProp()"
                 />
             </div>
@@ -45,7 +45,9 @@ export default defineComponent({
     },
     data() {
         return {
+            // The enum config
             modifiedConfig: [] as Array<EnumConfigElement>,
+            // The input value
             addEnumValue: "",
         };
     },
@@ -72,11 +74,10 @@ export default defineComponent({
          * Add a element to the list
          */
         addEnumProp() {
-            const inputElement = document.querySelector("#add-enum-txt") as HTMLInputElement;
-            const value = inputElement.value.trim();
-            if (value && this.modifiedConfig.filter((el) => el === value).length === 0) {
-                this.modifiedConfig.push(value);
-                inputElement.value = "";
+            if (!this.addEnumValue) return;
+            if (!this.modifiedConfig.includes(this.addEnumValue)) {
+                this.modifiedConfig.push(this.addEnumValue);
+                this.addEnumValue = "";
             } else {
                 errorToast(
                     this.$t("schemes.attribute.editEnumConfig.duplicateElement.title"),

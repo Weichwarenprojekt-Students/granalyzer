@@ -1,7 +1,7 @@
 <template>
     <div :class="['attribute-view', { 'attribute-view-expanded': !collapsed }]">
         <EditEnumModal
-            @confirm="isEditEnumModalVisible = false"
+            @confirm="confirmEnumEdit"
             @cancel="isEditEnumModalVisible = false"
             v-model:config="modifiedAttribute.config"
             :show="isEditEnumModalVisible"
@@ -129,6 +129,17 @@ export default defineComponent({
          */
         isEnum(): boolean {
             return this.datatype === ApiDatatype.ENUM;
+        },
+    },
+    methods: {
+        /**
+         * Ensure that the default value contains a correct enum value or nothing
+         */
+        confirmEnumEdit(): void {
+            this.isEditEnumModalVisible = false;
+            if (this.modifiedAttribute.config.length === 0) this.modifiedAttribute.defaultValue = "";
+            else if (!this.modifiedAttribute.config.includes(this.modifiedAttribute.defaultValue as string))
+                this.modifiedAttribute.defaultValue = this.modifiedAttribute.config[0];
         },
     },
 });

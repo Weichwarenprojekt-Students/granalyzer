@@ -98,6 +98,10 @@
       "title": "Name doppelt",
       "description": "Das Attribut {name} ist bereits vorhanden!"
     },
+    "invalidEnumDefault": {
+      "title": "Standardwert invalide",
+      "description": "Der Standardwert von {name} ist kein Teil des Enums!"
+    },
     "editEnumConfig": {
       "title": "Enum editieren",
       "add": "Hinzufügen",
