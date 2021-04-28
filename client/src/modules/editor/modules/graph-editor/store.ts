@@ -92,12 +92,15 @@ export const graphEditor = {
          * Remove a node
          */
         removeNode(state: GraphEditorState): void {
-            if (state.graphHandler && state.selectedElement) {
+            if (!state.graphHandler) return;
+
+            if (state.selectedElement) {
                 const node = state.graphHandler.nodes.getByJointId(state.selectedElement.id);
 
                 if (node != null) state.graphHandler.addCommand(new RemoveNodeCommand(state.graphHandler, node));
             }
-            state.selectedElement = undefined;
+
+            state.graphHandler.controls.resetSelection();
         },
         /**
          * Active/Deactivate the loading state
