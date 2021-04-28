@@ -67,7 +67,12 @@
                     {{ attribute.name }}
                 </div>
                 <div class="attribute-value">
-                    <DynamicInput v-model="attribute.value" :type="attribute.datatype" :disabled="!attribute.active" />
+                    <DynamicInput
+                        v-model="attribute.value"
+                        :type="attribute.datatype"
+                        :config="attribute.config"
+                        :disabled="!attribute.active"
+                    />
                 </div>
             </div>
             <div v-if="$store.getters['inspector/createMode']" class="bottom-bar">
@@ -151,6 +156,7 @@ export default defineComponent({
                         attribute.defaultValue,
                         attribute.datatype,
                         attribute.mandatory,
+                        attribute.config,
                     ),
             );
         },

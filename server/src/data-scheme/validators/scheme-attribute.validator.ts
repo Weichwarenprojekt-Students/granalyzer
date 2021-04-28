@@ -6,6 +6,7 @@ import {
     isNumber,
     isObject,
     isString,
+    minLength,
     registerDecorator,
     ValidationOptions,
 } from "class-validator";
@@ -45,6 +46,15 @@ export function IsAttributeDefinition(validationOptions?: ValidationOptions) {
                                 break;
                             case Datatype.STRING:
                                 if (!isString(attribute.defaultValue)) return false;
+                                break;
+                            case Datatype.ENUM:
+                                // Check if config is string array
+                                if (!isArray(attribute.config) || attribute.config.length <= 0) return false;
+                                for (const value of attribute.config) if (!minLength(value, 1)) return false;
+                                // Check if default value is included in enum config
+                                if (!attribute.config.includes(attribute.defaultValue)) return false;
+                                // Check whether the values are unique
+                                if (new Set(attribute.config).size !== attribute.config.length) return false;
                                 break;
                             default:
                                 return false;
