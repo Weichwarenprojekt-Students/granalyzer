@@ -177,7 +177,54 @@ describe("DataSchemeController", () => {
         });
 
         it("deletes invalid connections from all relation types when the label is no longer existent", async () => {
-            // TODO
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", []);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const directorLabel = new LabelScheme("Director", "#fff", []);
+            await schemeController.addLabelScheme(directorLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", []);
+            await schemeController.addLabelScheme(personLabel);
+
+            // Write the relation types which trigger the connections deletion
+            const actedInRelationType = new RelationType(
+                "ACTED_IN",
+                [],
+                [new Connection("Person", "Movie"), new Connection("Person", "Person")],
+            );
+            await schemeController.addRelationType(actedInRelationType);
+
+            const directedRelationType = new RelationType(
+                "DIRECTED",
+                [],
+                [new Connection("Director", "Movie"), new Connection("Person", "Movie")],
+            );
+            await schemeController.addRelationType(directedRelationType);
+
+            const followRelationType = new RelationType(
+                "FOLLOWS",
+                [],
+                [new Connection("Person", "Person"), new Connection("Director", "Director")],
+            );
+            await schemeController.addRelationType(followRelationType);
+
+            // Delete the label to trigger connections deletion
+            await schemeController.deleteLabelScheme("Movie");
+
+            const actualActedRelationType = await schemeController.getRelationType("ACTED_IN");
+            const actualDirectedRelationType = await schemeController.getRelationType("DIRECTED");
+            const actualFollowsRelationType = await schemeController.getRelationType("FOLLOWS");
+
+            expect(actualActedRelationType.connections.sort(TestUtil.getSortOrder("from"))).toEqual(
+                [new Connection("Person", "Person")].sort(TestUtil.getSortOrder("from")),
+            );
+            expect(actualDirectedRelationType.connections.length).toEqual(0);
+            expect(actualFollowsRelationType.connections.sort(TestUtil.getSortOrder("from"))).toEqual(
+                [new Connection("Person", "Person"), new Connection("Director", "Director")].sort(
+                    TestUtil.getSortOrder("from"),
+                ),
+            );
         });
 
         it("throws not found exception due to invalid label name", async () => {
@@ -243,6 +290,10 @@ describe("DataSchemeController", () => {
                 },
             ]);
             expect(await schemeController.updateLabelScheme(movieLabel.name, body, false)).toEqual(body);
+        });
+
+        it("deletes invalid connections from all relation types when the label is no longer existent", async () => {
+            // TODO
         });
 
         it("throws ConflictException due to datatype conflict", async () => {
