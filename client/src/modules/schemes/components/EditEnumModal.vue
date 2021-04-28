@@ -32,14 +32,17 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { EnumConfigElement } from "@/models/data-scheme/EnumConfigElement";
 import BaseDialog from "@/components/dialog/BaseDialog.vue";
-import { deepCopy } from "@/utility";
+import { deepCopy, errorToast } from "@/utility";
+import { EnumConfigElement } from "@/modules/schemes/models/EnumConfigElement";
 
 export default defineComponent({
     name: "EditEnumModal",
     components: { BaseDialog },
-    props: ["config", "show"],
+    props: {
+        config: Array,
+        show: Boolean,
+    },
     data() {
         return {
             modifiedConfig: [] as Array<EnumConfigElement>,
@@ -47,18 +50,17 @@ export default defineComponent({
         };
     },
     created() {
-        this.modifiedConfig = deepCopy(this.config) ?? [];
+        this.modifiedConfig = deepCopy(this.config as Array<EnumConfigElement>) ?? [];
     },
     methods: {
         /**
          * Abort and return the old list
          */
         cancel(): void {
-            this.modifiedConfig = deepCopy(this.config);
+            this.modifiedConfig = deepCopy(this.config as Array<EnumConfigElement>);
             this.$emit("update:config", this.config);
             this.$emit("cancel");
         },
-
         /**
          * Confirms and return the edited list
          */
@@ -66,7 +68,6 @@ export default defineComponent({
             this.$emit("update:config", this.modifiedConfig);
             this.$emit("confirm");
         },
-
         /**
          * Add a element to the list
          */
@@ -76,9 +77,13 @@ export default defineComponent({
             if (value && this.modifiedConfig.filter((el) => el === value).length === 0) {
                 this.modifiedConfig.push(value);
                 inputElement.value = "";
+            } else {
+                errorToast(
+                    this.$t("schemes.attribute.editEnumConfig.duplicateElement.title"),
+                    this.$t("schemes.attribute.editEnumConfig.duplicateElement.description"),
+                );
             }
         },
-
         /**
          * Delete a element from the list
          */
@@ -94,23 +99,15 @@ export default defineComponent({
 
 .modal-header,
 .modal-body {
-    padding: 16px;
-    width: 500px;
+    padding: 16px 32px;
+    width: 450px;
 }
 
 .modal-header {
     position: relative;
     padding-bottom: 0;
     padding-top: 20px;
-    margin-bottom: 8px;
     border-top: 8px solid @primary_color;
-}
-
-.modal-body {
-    height: auto;
-    max-height: 350px;
-    min-height: 100px;
-    margin-bottom: 16px;
 }
 
 .add-enum {
@@ -118,7 +115,7 @@ export default defineComponent({
     flex-direction: row-reverse;
     gap: 8px;
     width: 100%;
-    padding-bottom: 8px;
+    margin-bottom: 16px;
 }
 
 .add-enum input {
@@ -133,7 +130,7 @@ export default defineComponent({
 }
 
 .list-wrapper {
-    height: 300px;
+    height: 200px;
     overflow: hidden;
 }
 
@@ -146,12 +143,18 @@ export default defineComponent({
 }
 
 .enum-prop-list-element {
-    font-size: 18px;
     line-height: 24px;
-    padding: 4px 8px;
+    padding: 4px 16px 4px 16px;
+    border-bottom: 1px solid @grey;
+    margin-bottom: 4px;
+    margin-right: 18px;
     text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
     svg {
+        fill: @dark;
         margin-left: 8px;
     }
 }

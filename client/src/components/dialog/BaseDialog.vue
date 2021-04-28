@@ -23,7 +23,7 @@ export default defineComponent({
     props: {
         // True if the dialog should be shown
         show: Boolean,
-
+        // True if the dialog should enable default keybindings
         bindKeyEvents: {
             type: Boolean,
             default: true,

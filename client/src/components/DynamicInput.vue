@@ -7,11 +7,7 @@
         :placeholder="$t('global.input.placeholder')"
         :disabled="disabled"
     />
-    <Dropdown
-        v-else-if="type === datatype.ENUM"
-        :options="config"
-        v-model="value"
-    />
+    <Dropdown v-else-if="type === datatype.ENUM" :options="config" v-model="value" />
     <ColorMultiInput v-else-if="type === datatype.COLOR" v-model="value" class="input" :disabled="disabled" />
     <label v-else>
         <input
@@ -43,6 +39,7 @@ export default defineComponent({
             type: String,
             default: ApiDatatype.STRING,
         },
+        // The config for enums
         config: Array,
         // True if the input is disabled
         disabled: {

@@ -1,4 +1,4 @@
-import { EnumConfigElement } from "@/models/data-scheme/EnumConfigElement";
+import { EnumConfigElement } from "@/modules/schemes/models/EnumConfigElement";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 
 export class ApiAttribute {
@@ -16,7 +16,7 @@ export class ApiAttribute {
         public datatype: string = ApiDatatype.STRING,
         public mandatory: boolean = false,
         public defaultValue: string | number = "",
-        public config: EnumConfigElement[] | unknown = [],
+        public config: EnumConfigElement[] = [],
     ) {}
 
     /**

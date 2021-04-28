@@ -1,5 +1,5 @@
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
-import { EnumConfigElement } from "@/models/data-scheme/EnumConfigElement";
+import { EnumConfigElement } from "@/modules/schemes/models/EnumConfigElement";
 
 export class InspectorAttribute {
     /**
@@ -16,7 +16,7 @@ export class InspectorAttribute {
         public value: string | number = "",
         public datatype: string = ApiDatatype.STRING,
         public active = false,
-        public config: EnumConfigElement[] | unknown = [],
+        public config: EnumConfigElement[] = [],
     ) {}
 
     /**

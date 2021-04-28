@@ -99,9 +99,13 @@
       "description": "The attribute {name} is defined multiple times!"
     },
     "editEnumConfig": {
-      "title": "Edit Enum values",
+      "title": "Edit Enum",
       "add": "Add",
-      "newElementPlaceholder": "New Enum Element"
+      "newElementPlaceholder": "New Element",
+      "duplicateElement": {
+        "title": "Duplicate value",
+        "description": "The enum already contains this value"
+      }
     }
   },
   "conflictView": {

@@ -2,10 +2,11 @@
     <div :class="['attribute-view', { 'attribute-view-expanded': !collapsed }]">
         <EditEnumModal
             @confirm="isEditEnumModalVisible = false"
-            @cancel="cancelEditConfig"
+            @cancel="isEditEnumModalVisible = false"
             v-model:config="modifiedAttribute.config"
             :show="isEditEnumModalVisible"
         ></EditEnumModal>
+
         <!-- The header -->
         <div class="attribute-header">
             <svg class="attribute-collapse-icon" @click="collapsed = !collapsed">
@@ -25,7 +26,7 @@
         <div class="attribute-expanded">
             <div class="attribute-modification-row">
                 <span>{{ $t("schemes.attribute.type") }}</span>
-                <div>
+                <div class="attribute-type-select">
                     <svg v-show="isEnum" class="enum-edit-icon" @click="isEditEnumModalVisible = true">
                         <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
                     </svg>
@@ -61,6 +62,7 @@ import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import DynamicInput from "@/components/DynamicInput.vue";
 import EditEnumModal from "./EditEnumModal.vue";
+import { EnumConfigElement } from "@/modules/schemes/models/EnumConfigElement";
 
 export default defineComponent({
     name: "AttributeView",
@@ -103,24 +105,8 @@ export default defineComponent({
             this.datatype,
             this.mandatory,
             this.defaultValue,
-            this.config,
+            this.config as Array<EnumConfigElement>,
         );
-    },
-    methods: {
-        cancelEditConfig() {
-            this.isEditEnumModalVisible = false;
-        },
-
-        checkDefaultValue() {
-            if (
-                this.modifiedAttribute.datatype === ApiDatatype.ENUM &&
-                !(this.modifiedAttribute.config as Array<string>).includes(
-                    this.modifiedAttribute.defaultValue.toString(),
-                )
-            ) {
-                this.modifiedAttribute.defaultValue = (this.modifiedAttribute.config as Array<string>)[0] ?? "";
-            }
-        },
     },
     watch: {
         /**
@@ -128,9 +114,6 @@ export default defineComponent({
          */
         modifiedAttribute: {
             handler() {
-                // Check if standard value is still possible
-                this.checkDefaultValue();
-
                 this.$emit("update:name", this.modifiedAttribute.name);
                 this.$emit("update:datatype", this.modifiedAttribute.datatype);
                 this.$emit("update:defaultValue", this.modifiedAttribute.defaultValue);
@@ -141,6 +124,9 @@ export default defineComponent({
         },
     },
     computed: {
+        /**
+         * @return True if the datatype is an enum
+         */
         isEnum(): boolean {
             return this.datatype === ApiDatatype.ENUM;
         },
@@ -224,12 +210,17 @@ export default defineComponent({
     cursor: pointer;
 }
 
+.attribute-type-select {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .enum-edit-icon {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     fill: @dark;
     cursor: pointer;
-    padding: 8px 8px 0 0;
 }
 
 .attribute-checkbox {

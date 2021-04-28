@@ -99,9 +99,13 @@
       "description": "Das Attribut {name} ist bereits vorhanden!"
     },
     "editEnumConfig": {
-      "title": "Enum Werte editieren",
+      "title": "Enum editieren",
       "add": "Hinzufügen",
-      "newElementPlaceholder": "Neues Enum Element"
+      "newElementPlaceholder": "Neues Element",
+      "duplicateElement": {
+        "title": "Besetzter Wert",
+        "description": "Dieser Wert befindet sich bereits im Enum"
+      }
     }
   },
   "conflictView": {
