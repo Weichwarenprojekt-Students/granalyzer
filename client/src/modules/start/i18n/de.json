@@ -20,9 +20,14 @@
     "addFolder": "Ordner hinzufügen",
     "addDiagram": "Diagramm hinzufügen",
     "renameItem": "{item} umbenennen",
-    "deleteItem": {
+    "deletion": {
       "title": "{item} löschen",
-      "description": "Wollen Sie das ausgewählte Element löschen?"
+      "deleteItem": {
+        "description": "Wollen Sie das ausgewählte Element löschen?"
+      },
+      "deleteFolder": {
+        "description": "Der Ordner enthält {num} Element(e)."
+      }
     },
     "noSelection": {
       "title": "Kein Element ausgewählt",

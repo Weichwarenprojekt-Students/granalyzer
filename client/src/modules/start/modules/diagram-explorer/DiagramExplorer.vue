@@ -8,7 +8,7 @@
         :title="$t('start.diagrams.addFolder')"
     ></InputDialog>
 
-    <!-- The dialog for renaming a folder -->
+    <!-- The dialog for renaming an item -->
     <InputDialog
         @input-confirm="renameItem"
         @cancel="renameItemDialog = false"
@@ -17,13 +17,22 @@
         :title="$t('start.diagrams.renameItem', { item: selectedItemName })"
     ></InputDialog>
 
-    <!-- The dialog for removing a folder -->
+    <!-- The dialog for removing an item -->
     <ConfirmDialog
         @confirm="deleteItem"
         @cancel="deleteItemDialog = false"
         :show="deleteItemDialog"
-        :title="$t('start.diagrams.deleteItem.title', { item: selectedItemName })"
-        :description="$t('start.diagrams.deleteItem.description')"
+        :title="$t('start.diagrams.deletion.title', { item: selectedItemName })"
+        :description="$t('start.diagrams.deletion.deleteItem.description')"
+    ></ConfirmDialog>
+
+    <!-- The dialog for non empty folder deletion -->
+    <ConfirmDialog
+        @confirm="deleteFolder"
+        @cancel="deleteNonEmptyFolder = false"
+        :show="deleteNonEmptyFolder"
+        :title="$t('start.diagrams.deletion.title', { item: selectedItemName })"
+        :description="$t('start.diagrams.deletion.deleteFolder.description', { num: nItemsInFolder })"
     ></ConfirmDialog>
 
     <!-- The explorer toolbar -->
@@ -117,6 +126,10 @@ export default defineComponent({
             renameItemDialog: false,
             // True if the delete dialog should be shown
             deleteItemDialog: false,
+            // True if a folder is deleted
+            deleteNonEmptyFolder: false,
+            // Amount of items in a folder for deletion warning
+            nItemsInFolder: 0,
             // The selected folder (empty if no folder is selected)
             selectedFolder: {} as ApiFolder,
             // The selected diagram (empty if no diagram is selected)
@@ -171,7 +184,7 @@ export default defineComponent({
         /**
          * Handle keyup events
          */
-        onKeyUp(e: KeyboardEvent) {
+        onKeyUp(e: KeyboardEvent): void {
             if (e.key !== "Delete") return;
             if (!isEmpty(this.selectedDiagram) || !isEmpty(this.selectedFolder)) this.deleteItemDialog = true;
         },
@@ -197,7 +210,7 @@ export default defineComponent({
          *
          * @param newName The new name of the item
          */
-        renameItem(newName: string) {
+        renameItem(newName: string): void {
             if (!newName) {
                 errorToast(this.$t("start.newFolder.empty.title"), this.$t("start.newFolder.empty.description"));
                 return;
@@ -215,18 +228,27 @@ export default defineComponent({
             this.renameItemDialog = false;
         },
         /**
-         * Delete an item
+         * Delete an diagram or check for non-empty folders
          */
-        async deleteItem() {
+        async deleteItem(): Promise<void> {
             if (!isEmpty(this.selectedFolder)) {
-                await this.$store.dispatch("start/deleteFolder", this.selectedFolder);
-                this.loadItems();
+                this.nItemsInFolder = await this.$store.dispatch("start/checkFolder", this.selectedFolder.folderId);
+                if (this.nItemsInFolder === 0) this.deleteFolder();
+                else this.deleteNonEmptyFolder = true;
             } else if (!isEmpty(this.selectedDiagram)) {
                 this.$store.dispatch("start/deleteDiagram", this.selectedDiagram);
+                this.clearSelection();
             } else this.showSelectionError();
 
             this.deleteItemDialog = false;
+        },
+        /**
+         * Delete a folder
+         */
+        deleteFolder(): void {
+            this.$store.dispatch("start/deleteFolder", this.selectedFolder);
             this.clearSelection();
+            this.deleteNonEmptyFolder = false;
         },
         /**
          * Show a selection error
