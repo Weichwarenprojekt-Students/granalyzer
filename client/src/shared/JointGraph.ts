@@ -88,20 +88,23 @@ export class JointGraph {
 
         // Get range of y values
         const yRange: { min: number; max: number } = { min: Number.MAX_VALUE, max: Number.MIN_VALUE };
+        let averageElementHeight = 0;
 
         elements
             .map((el) => document.querySelector(`[model-id="${el.id}"]`)?.getBoundingClientRect())
             .forEach((element: DOMRect | undefined) => {
                 if (!element) return;
-                const y = element.y;
+                const y = element.y > 0 ? element.top : element.bottom;
                 if (y > yRange.max) yRange.max = y;
                 if (y < yRange.min) yRange.min = y;
+                averageElementHeight += element.height;
             });
 
         // Translate graph to fit the bounding box
+        averageElementHeight /= elements.length;
         const bBoxMiddle = this.paper.clientToLocalPoint({
             x: 0,
-            y: (yRange.min + yRange.max) / 2,
+            y: (yRange.min + yRange.max + averageElementHeight) / 2,
         });
         this.centerGraph({ x: 0, y: bBoxMiddle.y });
 
