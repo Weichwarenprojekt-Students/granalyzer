@@ -66,7 +66,7 @@ export default class RelationsController extends RelationsMap {
     ): Relation {
         // Create new relation info
         const relationInfo: RelationInfo = {
-            uuid: uuid ?? "unknown",
+            uuid: uuid ?? "",
             from: source.reference,
             to: target.reference,
         };
