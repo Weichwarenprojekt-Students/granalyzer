@@ -5,7 +5,6 @@ import { GET } from "@/utility";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 
 export class HeatMapState {
-
     /**
      * The labels of the diagram
      */
@@ -18,7 +17,7 @@ export const heatMap = {
         /**
          * set the active labels of the diagram with number attributes
          */
-        setHeatLabels(state: HeatMapState, labels: ApiLabel[]) {
+        setHeatLabels(state: HeatMapState, labels: ApiLabel[]): void {
             labels.forEach((label) => {
                 label.attributes = label.attributes.filter((attr) => attr.datatype == ApiDatatype.NUMBER);
             });

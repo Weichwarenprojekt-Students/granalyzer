@@ -2,7 +2,7 @@
     <div :class="['heat-view', { 'heat-view-expanded': !collapsed }]">
         <!-- The Header -->
         <div class="heat-header">
-            <svg class="heat-collapse-icon" @click="collapsed = !collapsed">
+            <svg class="heat-collapse-icon" @click="toggleCollapse">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#arrow`"></use>
             </svg>
             <label>{{ label.name }}</label>
@@ -20,7 +20,7 @@
         </div>
 
         <!-- The expandable content -->
-        <div class="heat-expanded">
+        <div class="heat-expanded" v-if="selectedAttribute !== null && selectedAttribute.datatype === types.NUMBER">
             <div class="heat-row">
                 <label>From</label>
                 <InputNumber showButtons v-model="heatAttribute.from" />
@@ -37,7 +37,8 @@
 import { defineComponent } from "vue";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
 import { HeatAttribute } from "@/modules/editor/modules/heatmap/models/HeatAttribute";
-import {ApiAttribute} from "@/models/data-scheme/ApiAttribute";
+import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
+import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 
 export default defineComponent({
     name: "HeatView",
@@ -46,6 +47,7 @@ export default defineComponent({
             heatAttribute: {} as HeatAttribute,
             selectedAttribute: {} as ApiAttribute,
             collapsed: false,
+            types: ApiDatatype,
         };
     },
     props: {
@@ -60,10 +62,7 @@ export default defineComponent({
         // Check if the input fields are field with numbers
         this.$watch(
             () => [this.heatAttribute.from, this.heatAttribute.to],
-            () => {
-                this.onChange();
-            },
-            { deep: true },
+            () => this.onChange(),
         );
     },
     methods: {
@@ -71,10 +70,23 @@ export default defineComponent({
          * Check if the input fields are field with numbers
          */
         onChange() {
-            if (this.heatAttribute.from != null && this.heatAttribute.to != null) {
+            if (!this.selectedAttribute) {
+                this.collapsed = true;
+                return;
+            }
+
+            if (this.heatAttribute.from !== null && this.heatAttribute.to !== null) {
                 this.heatAttribute.selectedAttributeName = this.selectedAttribute?.name;
                 this.$emit("change", this.heatAttribute);
             }
+        },
+
+        /**
+         * Toggle the expandable
+         */
+        toggleCollapse() {
+            if (!this.selectedAttribute) return;
+            this.collapsed = !this.collapsed;
         },
     },
 });

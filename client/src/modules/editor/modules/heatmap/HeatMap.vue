@@ -1,36 +1,29 @@
 <template>
     <div>
         <div class="underlined-title">{{ $t("editor.heatMap.title") }}</div>
-        <HeatView
-            v-for="label in $store.state.editor.heatMap.labels"
-            :key="label"
-            :label="label"
-            @change="onChange"
-        />
+        <HeatView v-for="label in $store.state.editor.heatMap.labels" :key="label" :label="label" @change="onChange" />
     </div>
 </template>
 
 <script lang="ts">
-
 import HeatView from "@/modules/editor/modules/heatmap/components/HeatView.vue";
-import {HeatAttribute} from "@/modules/editor/modules/heatmap/models/HeatAttribute";
-import {defineComponent} from "vue";
+import { HeatAttribute } from "@/modules/editor/modules/heatmap/models/HeatAttribute";
+import { defineComponent } from "vue";
 
-export default defineComponent( {
+export default defineComponent({
     name: "HeatMap",
     components: { HeatView },
     methods: {
-        onChange(heatAttr:HeatAttribute) {
+        onChange(heatAttr: HeatAttribute) {
             console.log("The heatattribute from the heatview: ", heatAttr);
             //TODO Change the color of all nodes in the diagram her
 
             for (const node of this.$store.state.editor.graphHandler.nodes) {
-                node.nodeInfo.color = '#FFFFFF'
+                node.nodeInfo.color = "#FFFFFF";
             }
-        }
-    }
+        },
+    },
 });
-
 </script>
 
 <style lang="less" scoped>
