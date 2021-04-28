@@ -134,18 +134,8 @@ describe("DataSchemeController", () => {
     describe("addLabelScheme", () => {
         it("adds one label scheme", async () => {
             const body = new LabelScheme("Test", "#666", [
-                {
-                    datatype: "string",
-                    name: "attrOne",
-                    mandatory: false,
-                    defaultValue: "",
-                },
-                {
-                    datatype: "string",
-                    name: "attrTwo",
-                    mandatory: false,
-                    defaultValue: "",
-                },
+                new StringAttribute("attrOne", false, ""),
+                new StringAttribute("attrTwo", false, ""),
             ]);
             expect(await schemeController.addLabelScheme(body)).toEqual(body);
         });
@@ -276,24 +266,10 @@ describe("DataSchemeController", () => {
             await schemeController.addLabelScheme(movieLabel);
 
             const body = new LabelScheme("Movie", "#666", [
-                {
-                    datatype: "string",
-                    name: "attrOne",
-                    mandatory: true,
-                    defaultValue: "",
-                },
-                {
-                    datatype: "string",
-                    name: "attrTwo",
-                    mandatory: false,
-                    defaultValue: "",
-                },
+                new StringAttribute("attrOne", false, ""),
+                new StringAttribute("attrTwo", false, ""),
             ]);
             expect(await schemeController.updateLabelScheme(movieLabel.name, body, false)).toEqual(body);
-        });
-
-        it("deletes invalid connections from all relation types when the label is no longer existent", async () => {
-            // TODO
         });
 
         it("throws ConflictException due to datatype conflict", async () => {
@@ -304,13 +280,13 @@ describe("DataSchemeController", () => {
             ]);
             await schemeController.addLabelScheme(movieLabel);
 
-            // Write the nodes which cause the datatype conflict
             const movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000 });
             movieNode1.nodeId = (await nodesController.createNode(movieNode1)).nodeId;
 
             const movieNode2 = new Node("Forrest Gump", "Movie", { attrOne: "Forrest Gump", attrTwo: 2000 });
             movieNode2.nodeId = (await nodesController.createNode(movieNode2)).nodeId;
 
+            // Write the scheme which causes the conflict
             const body = new LabelScheme("Movie", "#666", [
                 {
                     datatype: "number",
@@ -346,24 +322,9 @@ describe("DataSchemeController", () => {
             movieNode2.nodeId = (await nodesController.createNode(movieNode2)).nodeId;
 
             const body = new LabelScheme("Movie", "#666", [
-                {
-                    datatype: "string",
-                    name: "attrOne",
-                    mandatory: true,
-                    defaultValue: "",
-                },
-                {
-                    datatype: "string",
-                    name: "attrTwo",
-                    mandatory: false,
-                    defaultValue: "",
-                },
-                {
-                    datatype: "string",
-                    name: "attrThree",
-                    mandatory: true,
-                    defaultValue: "",
-                },
+                new StringAttribute("attrOne", true, ""),
+                new StringAttribute("attrTwo", false, ""),
+                new StringAttribute("attrThree", true, ""),
             ]);
             await expect(schemeController.updateLabelScheme(movieLabel.name, body, false)).rejects.toThrowError(
                 ConflictException,
@@ -420,50 +381,20 @@ describe("DataSchemeController", () => {
 
             const body = new RelationType(
                 "TEST_RELATION",
-                [
-                    {
-                        datatype: "string",
-                        name: "attrOne",
-                        mandatory: true,
-                        defaultValue: "",
-                    },
-                    {
-                        datatype: "string",
-                        name: "attrTwo",
-                        mandatory: true,
-                        defaultValue: "",
-                    },
-                ],
-                [
-                    {
-                        from: "Person",
-                        to: "Movie",
-                    },
-                ],
+                [new StringAttribute("attrOne", true, ""), new StringAttribute("attrTwo", true, "")],
+                [new Connection("Person", "Movie")],
             );
             expect(await schemeController.addRelationType(body)).toEqual(body);
         });
 
         it("throws exception due to non-existing node labels in connections", async () => {
-            const personLabel = new LabelScheme("Person", "#420", [
-                new StringAttribute("attrOne", true, "Done Default"),
-                new ColorAttribute("attrTwo"),
-            ]);
+            const personLabel = new LabelScheme("Person", "#420", []);
             await schemeController.addLabelScheme(personLabel);
 
             const body = new RelationType(
                 "invalidRelationType",
                 [],
-                [
-                    {
-                        from: "Person",
-                        to: "Person",
-                    },
-                    {
-                        from: "Person",
-                        to: "Movie",
-                    },
-                ],
+                [new Connection("Person", "Movie"), new Connection("Person", "Movie")],
             );
             await expect(schemeController.addRelationType(body)).rejects.toThrowError(BadRequestException);
         });
@@ -490,16 +421,7 @@ describe("DataSchemeController", () => {
             );
             await schemeController.addRelationType(actedInRelation);
 
-            const body = new RelationType(
-                "ACTED_IN",
-                [],
-                [
-                    {
-                        from: "Person",
-                        to: "Movie",
-                    },
-                ],
-            );
+            const body = new RelationType("ACTED_IN", [], [new Connection("Person", "Movie")]);
             await expect(schemeController.addRelationType(body)).rejects.toThrowError(ConflictException);
         });
     });
@@ -531,7 +453,7 @@ describe("DataSchemeController", () => {
             await expect(schemeController.getRelationType("ACTED_IN")).rejects.toThrowError(NotFoundException);
         });
 
-        it("should throw not found exception", async () => {
+        it("throws not found exception", async () => {
             await expect(schemeController.deleteRelationType("NOT_A_RELATION_TYPE")).rejects.toThrowError(
                 NotFoundException,
             );
@@ -590,28 +512,28 @@ describe("DataSchemeController", () => {
 
             const body = new RelationType(
                 "ACTED_IN",
-                [
-                    {
-                        datatype: "string",
-                        name: "attrOne",
-                        mandatory: false,
-                        defaultValue: "",
-                    },
-                    {
-                        datatype: "string",
-                        name: "attrTwo",
-                        mandatory: false,
-                        defaultValue: "",
-                    },
-                ],
-                [
-                    {
-                        from: "Person",
-                        to: "Movie",
-                    },
-                ],
+                [new StringAttribute("attrOne", false, ""), new StringAttribute("attrTwo", false, "")],
+                [new Connection("Person", "Movie")],
             );
             expect(await schemeController.updateRelationType(actedInRelation.name, body, false)).toEqual(body);
+        });
+
+        it("throws exception due to non-existing node labels in connections", async () => {
+            const personLabel = new LabelScheme("Person", "#420", []);
+            await schemeController.addLabelScheme(personLabel);
+
+            // Write the valid relation type
+            await schemeController.addRelationType(new RelationType("invalidRelationType", [], []));
+
+            // Invalidate the valid relation type
+            const body = new RelationType(
+                "invalidRelationType",
+                [],
+                [new Connection("Person", "Person"), new Connection("Person", "Movie")],
+            );
+            await expect(schemeController.updateRelationType(body.name, body, true)).rejects.toThrowError(
+                BadRequestException,
+            );
         });
 
         it("throws ConflictException due to datatype conflict", async () => {
@@ -666,12 +588,7 @@ describe("DataSchemeController", () => {
                         defaultValue: "",
                     },
                 ],
-                [
-                    {
-                        from: "Person",
-                        to: "Movie",
-                    },
-                ],
+                [new Connection("Person", "Movie")],
             );
             await expect(schemeController.updateRelationType(actedInRelation.name, body, false)).rejects.toThrowError(
                 ConflictException,
@@ -722,26 +639,8 @@ describe("DataSchemeController", () => {
 
             const body = new RelationType(
                 "ACTED_IN",
-                [
-                    {
-                        datatype: "string",
-                        name: "attrOne",
-                        mandatory: true,
-                        defaultValue: "",
-                    },
-                    {
-                        datatype: "string",
-                        name: "attrTwo",
-                        mandatory: true,
-                        defaultValue: "",
-                    },
-                ],
-                [
-                    {
-                        from: "Person",
-                        to: "Movie",
-                    },
-                ],
+                [new StringAttribute("attrOne", true, ""), new StringAttribute("attrTwo", true, "")],
+                [new Connection("Person", "Movie")],
             );
             await expect(schemeController.updateRelationType(actedInRelation.name, body, false)).rejects.toThrowError(
                 ConflictException,

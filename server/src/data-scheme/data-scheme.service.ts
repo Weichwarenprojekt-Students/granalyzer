@@ -264,8 +264,16 @@ export class DataSchemeService {
      * Updates a relation type
      */
     async updateRelationType(name: string, relationType: RelationType, force: boolean): Promise<LabelScheme> {
-        console.log(relationType.connections);
-        // TODO: Check connection labels
+        // Check if there is any connection which has an invalid node label
+        try {
+            await Promise.all(
+                relationType.connections.map((connection) =>
+                    Promise.all([this.getLabelScheme(connection.from), this.getLabelScheme(connection.to)]),
+                ),
+            );
+        } catch (ex) {
+            throw new BadRequestException("One of the connections has an invalid node label!");
+        }
 
         // language=Cypher
         const cypher = `
