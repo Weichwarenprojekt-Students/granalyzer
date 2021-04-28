@@ -65,10 +65,6 @@ export class ConnectRelationCommand implements ICommand {
         // Additional check for undefined, so that eslint is happy
         if (!this.connectionHasChanged() || this.newSource == null || this.newTarget == null) return;
 
-        // Connect the actual joint link
-        this.relation.jointLink.source(this.newSource.jointElement);
-        this.relation.jointLink.target(this.newTarget.jointElement);
-
         // Update sourceNode and targetNode of the relation, so that all relation references of the nodes are updated
         this.relation.sourceNode = this.newSource;
         this.relation.targetNode = this.newTarget;
@@ -79,10 +75,6 @@ export class ConnectRelationCommand implements ICommand {
      */
     undo(): void {
         if (!this.connectionHasChanged()) return;
-
-        // Connect the actual joint link
-        this.relation.jointLink.source(this.oldSource.jointElement);
-        this.relation.jointLink.target(this.oldTarget.jointElement);
 
         // Update sourceNode and targetNode of the relation, so that all relation references of the nodes are updated
         this.relation.sourceNode = this.oldSource;

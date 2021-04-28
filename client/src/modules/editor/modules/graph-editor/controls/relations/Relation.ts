@@ -107,13 +107,13 @@ export class Relation {
      */
     public set sourceNode(newNode: Node) {
         if (this._sourceNode != null)
-            if (this.relationModeType === RelationModeType.VISUAL)
-                // If source node is already set, only allow changing it for visual relations
-                // In this case, deregister the relation from the old node
-                this._sourceNode.outgoingRelations.delete(this.jointId);
-            else return;
+            // If source node is already set, deregister the relation from the old node
+            this._sourceNode.outgoingRelations.delete(this.jointId);
 
         this._sourceNode = newNode;
+        this.jointLink.source(newNode.jointElement);
+
+        this.relationInfo.from = newNode.reference;
 
         // Register the relation on the new node
         this._sourceNode.outgoingRelations.set(this.jointId, this);
@@ -141,13 +141,13 @@ export class Relation {
      */
     public set targetNode(newNode: Node) {
         if (this._targetNode != null)
-            if (this.relationModeType === RelationModeType.VISUAL)
-                // If target node is already set, only allow changing it for visual relations
-                // In this case, deregister the relation from the old node
-                this._targetNode.incomingRelations.delete(this.jointId);
-            else return;
+            // If target node is already set, deregister the relation from the old node
+            this._targetNode.incomingRelations.delete(this.jointId);
 
         this._targetNode = newNode;
+        this.jointLink.target(newNode.jointElement);
+
+        this.relationInfo.to = newNode.reference;
 
         // Register the relation on the new node
         this._targetNode.incomingRelations.set(this.jointId, this);
