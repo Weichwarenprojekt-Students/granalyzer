@@ -44,7 +44,7 @@ export class JointGraph {
     /**
      * Constructor
      */
-    constructor(canvas: string) {
+    constructor(canvas: string, async = false) {
         this.graph = new dia.Graph();
         const config: PaperOptions = {
             el: document.getElementById(canvas),
@@ -52,6 +52,7 @@ export class JointGraph {
             width: "100%",
             height: "100%",
             gridSize: 1,
+            async,
             interactive: (cellView: dia.CellView) => {
                 // Disable interaction of a cell, if its disableInteraction property is true
                 if (cellView.model.get("disableInteraction")) return false;
@@ -330,6 +331,34 @@ export class JointGraph {
 
         this.paper.translate(nextTx, nextTy);
         this.paper.scale(nextScale);
+    }
+
+    /**
+     * Get the size of a node
+     *
+     * @param node The node of which to get the size from
+     * @return Size of the node or undefined, if size can't be determined
+     */
+    public sizeOf(node: dia.Cell): { width: number; height: number } | undefined {
+        // Get size directly from jointJs and if it's set correctly (!= 1) return it
+        const jointSize = node.getBBox();
+        if (jointSize.width !== 1 && jointSize.height !== 1) return jointSize;
+
+        // Otherwise get the dimensions of the rendered element from the DOM
+        const domElement = document.querySelector(`.joint-cells-layer > [model-id="${node.id}"] > rect`);
+        const boundingClientRect = domElement?.getBoundingClientRect();
+
+        // Couldn't get bounding box
+        if (boundingClientRect == null) return;
+
+        // Get coordinates of opposite corners on the joint js paper
+        const upperLeft = this.paper.clientToLocalPoint(boundingClientRect.left, boundingClientRect.top);
+        const lowerRight = this.paper.clientToLocalPoint(boundingClientRect.right, boundingClientRect.bottom);
+
+        return {
+            width: lowerRight.x - upperLeft.x,
+            height: lowerRight.y - upperLeft.y,
+        };
     }
 
     /**

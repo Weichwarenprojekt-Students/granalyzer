@@ -278,6 +278,7 @@ export class GraphUtils {
                     shape: "rectangle",
                     x: diagEl?.attributes.position.x,
                     y: diagEl?.attributes.position.y,
+                    size: diagEl ? this.graph.sizeOf(diagEl) : undefined,
                 };
             },
         );

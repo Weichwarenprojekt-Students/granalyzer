@@ -46,6 +46,8 @@ export default defineComponent({
         };
     },
     async mounted(): Promise<void> {
+        // Show the loading bar
+        this.$store.commit("editor/setEditorLoading", true);
         this.$store.dispatch("editor/setRelationMode", false);
 
         // Load the currently opened diagram from REST backend
@@ -54,8 +56,8 @@ export default defineComponent({
         // Load the labels with the first load of matching nodes
         await this.$store.dispatch("overview/loadLabelsAndNodes", new NodeFilter());
 
-        // Set up the graph and the controls
-        this.graph = new JointGraph("joint");
+        // Set up the graph and the controls and enable async loading (only for first load)
+        this.graph = new JointGraph("joint", true);
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
 
         // Generate the active diagram if available
@@ -64,8 +66,15 @@ export default defineComponent({
         } else {
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
+
+        // Disable async loading and remove loading bar
+        this.graph.paper.options.async = false;
+        this.$store.commit("editor/setEditorLoading", false);
     },
     watch: {
+        /**
+         * Activate/Deactivate the relation edit mode
+         */
         async "$store.state.editor.graphEditor.relationModeActive"() {
             this.$store.commit("editor/setEditorLoading", true);
 

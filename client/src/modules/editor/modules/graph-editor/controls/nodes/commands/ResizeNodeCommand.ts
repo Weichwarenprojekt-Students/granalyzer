@@ -26,7 +26,7 @@ export class ResizeNodeCommand implements ICommand {
         private readonly node: Node,
         private readonly direction: dia.Direction,
     ) {
-        this.origSize = this.graphHandler.nodes.sizeOf(node);
+        this.origSize = this.graphHandler.graph.sizeOf(node.jointElement);
     }
 
     /**
@@ -34,7 +34,7 @@ export class ResizeNodeCommand implements ICommand {
      */
     public sizeChanged(): boolean {
         // Set new size of node
-        this.newSize = this.graphHandler.nodes.sizeOf(this.node);
+        this.newSize = this.graphHandler.graph.sizeOf(this.node.jointElement);
 
         // Any size couldn't be determined
         if (!this.origSize || !this.newSize) return false;

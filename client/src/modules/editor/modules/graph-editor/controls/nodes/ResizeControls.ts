@@ -179,7 +179,7 @@ export class ResizeControls {
 
         // Get current position and size of the node
         const pos = this.currentNode.jointElement.position();
-        const size = this.graphHandler.nodes.sizeOf(this.currentNode);
+        const size = this.graphHandler.graph.sizeOf(this.currentNode.jointElement);
 
         // If no size can be determined, handles can't be updated
         if (!size) return false;
@@ -209,7 +209,7 @@ export class ResizeControls {
 
             // Get current position and size of the node
             const pos = this.currentNode.jointElement.position();
-            const size = this.graphHandler.nodes.sizeOf(this.currentNode);
+            const size = this.graphHandler.graph.sizeOf(this.currentNode.jointElement);
 
             // If no size can be determined, don't resize the node
             if (!size) return;
