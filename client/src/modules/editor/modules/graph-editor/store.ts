@@ -115,7 +115,7 @@ export const graphEditor = {
             }
 
             // Deselect elements
-            state.graphHandler.graph.deselectElements();
+            state.graphHandler.controls.resetSelection();
 
             // Disable interactivity of nodes in relation mode
             // state.graphHandler.graph.setInteractivity(!value);

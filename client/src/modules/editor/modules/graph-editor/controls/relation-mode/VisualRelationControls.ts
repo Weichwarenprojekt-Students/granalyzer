@@ -76,6 +76,9 @@ export class VisualRelationControls {
         // If source and target elements are undefined, abort
         if (source == null || target == null) return;
 
+        // Don't connect relation if source and target are the same
+        if (source === target) return;
+
         // Add new visual relation between the nodes of the drawn relation
         await this.graphHandler.dispatchCommand(
             new NewRelationCommand(this.graphHandler, source, target, RelationModeType.VISUAL),

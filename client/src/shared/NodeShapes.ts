@@ -116,8 +116,8 @@ function getRectangleShape(info: NodeInfo): dia.Element {
             stroke: info.borderColor,
             rx: 4,
             ry: 4,
-            refWidth: 32,
-            refHeight: 16,
+            refWidth2: 32,
+            refHeight2: 16,
             class: "node-body",
         },
     });
@@ -145,7 +145,8 @@ function getTextShape(info: NodeInfo): dia.Element {
         label: getLabelStyle(info),
         body: {
             ref: "label",
-            fill: "none",
+            // Use completely transparent color, so that highlighting works correctly
+            fill: "#00000000",
             strokeWidth: 0,
             class: "node-body",
         },
@@ -157,7 +158,7 @@ function getTextShape(info: NodeInfo): dia.Element {
  * Create and style a circle shape
  */
 function getCircleShape(info: NodeInfo): dia.Element {
-    const shape = new shapes.standard.Circle();
+    const shape = new shapes.standard.Ellipse();
     shape.attr({
         label: getLabelStyle(info),
         body: {

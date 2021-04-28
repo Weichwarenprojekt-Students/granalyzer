@@ -73,4 +73,38 @@ export default class NodesController extends NodesMap {
         for (const rel of node.incomingRelations.values()) this.graphHandler.relations.removeExisting(rel);
         for (const rel of node.outgoingRelations.values()) this.graphHandler.relations.removeExisting(rel);
     }
+
+    /**
+     * Get the size of a node
+     *
+     * @param node The node of which to get the size from
+     * @return Size of the node or undefined, if size can't be determined
+     */
+    public sizeOf(node: Node): { width: number; height: number } | undefined {
+        // Get size directly from jointJs and if it's set correctly (!= 1) return it
+        const jointSize = node.jointElement.size();
+        if (jointSize.width !== 1 && jointSize.height !== 1) return jointSize;
+
+        // Otherwise get the dimensions of the rendered element from the DOM
+        const domElement = document.querySelector(`.joint-cells-layer > [model-id="${node.jointId}"] > rect`);
+        const boundingClientRect = domElement?.getBoundingClientRect();
+
+        // Couldn't get bounding box
+        if (boundingClientRect == null) return;
+
+        // Get coordinates of opposite corners on the joint js paper
+        const upperLeft = this.graphHandler.graph.paper.clientToLocalPoint(
+            boundingClientRect.left,
+            boundingClientRect.top,
+        );
+        const lowerRight = this.graphHandler.graph.paper.clientToLocalPoint(
+            boundingClientRect.right,
+            boundingClientRect.bottom,
+        );
+
+        return {
+            width: lowerRight.x - upperLeft.x,
+            height: lowerRight.y - upperLeft.y,
+        };
+    }
 }

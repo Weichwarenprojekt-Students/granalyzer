@@ -3,6 +3,7 @@ import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/Gra
 import { dia } from "jointjs";
 import { BendRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/BendRelationCommand";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
+import { ResizeControls } from "@/modules/editor/modules/graph-editor/controls/nodes/ResizeControls";
 
 export class GraphControls {
     /**
@@ -18,11 +19,18 @@ export class GraphControls {
     private bendCommand?: BendRelationCommand;
 
     /**
+     * Controller for resizing nodes
+     */
+    public readonly resizeControls: ResizeControls;
+
+    /**
      * Constructor
      *
      * @param graphHandler The graph handler object
      */
-    constructor(private graphHandler: GraphHandler) {}
+    constructor(private graphHandler: GraphHandler) {
+        this.resizeControls = new ResizeControls(graphHandler);
+    }
 
     /**
      * Select node in the graph and display it in the inspector
@@ -30,10 +38,16 @@ export class GraphControls {
      * @param elementView The view of the node to select
      */
     public async selectNode(elementView: dia.ElementView): Promise<void> {
+        // Only select existing nodes
+        if (!this.graphHandler.nodes.getByJointId(elementView.model.id)) return;
+
         // Only select nodes outside of relation mode
         if (!this.graphHandler.relationMode.active) {
             this.graphHandler.graph.selectElement(elementView);
             this.graphHandler.store.commit("editor/setSelectedElement", elementView.model);
+
+            // Activate resizing handles
+            this.resizeControls.activate(elementView);
 
             // Set the currently selected node for inspector
             const node = this.graphHandler.nodes.getByJointId(elementView.model.id);
@@ -47,6 +61,9 @@ export class GraphControls {
      * @param linkView The view of the link to select
      */
     public async selectRelation(linkView: dia.LinkView): Promise<void> {
+        // Deactivate resizing handles
+        this.resizeControls.deactivate();
+
         // Only select relations outside of relation mode
         if (!this.graphHandler.relationMode.active) {
             this.graphHandler.graph.selectElement(linkView);
@@ -64,6 +81,9 @@ export class GraphControls {
     public resetSelection(): void {
         this.graphHandler.graph.deselectElements();
         this.graphHandler.store.commit("editor/setSelectedElement", undefined);
+
+        // Deactivate resizing handles
+        this.resizeControls.deactivate();
 
         // Reset inspector selection
         this.graphHandler.store.commit("inspector/resetSelection");

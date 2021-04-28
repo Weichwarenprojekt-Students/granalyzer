@@ -76,7 +76,10 @@ export class GraphHandler {
             const labelColor = this.store.state.overview?.labelColor.get(node.label)?.color;
 
             // Create new node
-            this.nodes.new(node, labelColor);
+            const newNode = this.nodes.new(node, labelColor);
+
+            // Set correct size, if element has been resized
+            if (node.size != null) newNode.size = node.size;
         });
 
         // Create the relations
@@ -206,11 +209,17 @@ export class GraphHandler {
             },
             // Select node and begin registering a node movement
             "element:pointerdown": async (elementView) => {
+                // Handle pointer down on a resize handle
+                this.controls.resizeControls.pointerDownCallback(elementView);
+
                 this.controls.startNodeMovement(elementView);
                 await this.controls.selectNode(elementView);
             },
             // Stop registering node movement
-            "element:pointerup": async () => {
+            "element:pointerup": async (elementView) => {
+                // Handle pointer up on a resize handle
+                await this.controls.resizeControls.pointerUpCallback(elementView);
+
                 await this.controls.stopNodeMovement();
             },
             // Pass element click to relation mode for handling the drawing of visual relations

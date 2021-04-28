@@ -13,6 +13,13 @@ export interface NodeInfo {
      */
     y: number;
     /**
+     * The size of the node
+     */
+    size?: {
+        width: number;
+        height: number;
+    };
+    /**
      * The node reference
      */
     ref: NodeReference;
