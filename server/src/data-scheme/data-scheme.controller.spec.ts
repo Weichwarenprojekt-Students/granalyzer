@@ -36,18 +36,6 @@ describe("DataSchemeController", () => {
     let nodesController: NodesController;
     let relationsController: RelationsController;
 
-    let movieLabel: LabelScheme;
-    let personLabel: LabelScheme;
-    let actedInRelation: RelationType;
-    let followsRelation: RelationType;
-
-    let movieNode1: Node;
-    let movieNode2: Node;
-    let personNode1: Node;
-    let personNode2: Node;
-    let relation1: Relation;
-    let relation2: Relation;
-
     beforeAll(async () => {
         module = await TestUtil.createTestingModule(
             [DataSchemeService, NodesService, NodesRelationsService, RelationsService],
@@ -69,6 +57,9 @@ describe("DataSchemeController", () => {
     });
 
     it("is defined", () => {
+        expect(databaseUtil).toBeDefined();
+        expect(testUtil).toBeDefined();
+
         expect(neo4jService).toBeDefined();
         expect(schemeService).toBeDefined();
         expect(relationsService).toBeDefined();
@@ -77,8 +68,6 @@ describe("DataSchemeController", () => {
         expect(schemeController).toBeDefined();
         expect(nodesController).toBeDefined();
         expect(relationsController).toBeDefined();
-        expect(databaseUtil).toBeDefined();
-        expect(testUtil).toBeDefined();
     });
 
     afterEach(async () => {
@@ -87,50 +76,34 @@ describe("DataSchemeController", () => {
 
     beforeEach(async () => {
         await databaseUtil.clearDatabase();
-
-        movieLabel = new LabelScheme("Movie", "#666", [
-            new StringAttribute("attrOne", true, "unknown"),
-            new NumberAttribute("attrTwo"),
-        ]);
-        await schemeController.addLabelScheme(movieLabel);
-
-        personLabel = new LabelScheme("Person", "#420", [
-            new StringAttribute("attrOne", true, "Done Default"),
-            new ColorAttribute("attrTwo"),
-        ]);
-        await schemeController.addLabelScheme(personLabel);
-
-        actedInRelation = new RelationType(
-            "ACTED_IN",
-            [new StringAttribute("attrOne", false)],
-            [new Connection("Person", "Movie")],
-        );
-        await schemeController.addRelationType(actedInRelation);
-
-        followsRelation = new RelationType("FOLLOWS", [], [new Connection("Person", "Person")]);
-        await schemeController.addRelationType(followsRelation);
-
-        movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000 });
-        movieNode1.nodeId = (await nodesController.createNode(movieNode1)).nodeId;
-
-        personNode1 = new Node("Keanu Reeves", "Person", { attrOne: "Keanu Reeves", attrTwo: "#420" });
-        personNode1.nodeId = (await nodesController.createNode(personNode1)).nodeId;
-
-        relation1 = new Relation("ACTED_IN", personNode1.nodeId, movieNode1.nodeId, { attrOne: "Neo" });
-        relation1.relationId = (await relationsController.createRelation(relation1)).relationId;
-
-        movieNode2 = new Node("Forrest Gump", "Movie", { attrOne: "Forrest Gump", attrTwo: 2000 });
-        movieNode2.nodeId = (await nodesController.createNode(movieNode2)).nodeId;
-
-        personNode2 = new Node("Tom Hanks", "Person", { attrOne: "Tom Hanks", attrTwo: "#420" });
-        personNode2.nodeId = (await nodesController.createNode(personNode2)).nodeId;
-
-        relation2 = new Relation("ACTED_IN", personNode2.nodeId, movieNode2.nodeId, { attrOne: "Forrest" });
-        relation2.relationId = (await relationsController.createRelation(relation2)).relationId;
     });
 
     describe("getScheme", () => {
         it("returns the scheme", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
+            // Write the relation types
+            const actedInRelation = new RelationType(
+                "ACTED_IN",
+                [new StringAttribute("attrOne", false)],
+                [new Connection("Person", "Movie")],
+            );
+            await schemeController.addRelationType(actedInRelation);
+
+            const followsRelation = new RelationType("FOLLOWS", [], [new Connection("Person", "Person")]);
+            await schemeController.addRelationType(followsRelation);
+
             expect(await schemeController.getScheme()).toMatchObject(
                 new Scheme([movieLabel, personLabel], [actedInRelation, followsRelation]),
             );
@@ -139,6 +112,19 @@ describe("DataSchemeController", () => {
 
     describe("getAllLabels", () => {
         it("returns all Labels", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
             expect((await schemeController.getAllLabelSchemes()).sort(TestUtil.getSortOrder("name"))).toEqual(
                 [movieLabel, personLabel].sort(TestUtil.getSortOrder("name")),
             );
@@ -164,7 +150,14 @@ describe("DataSchemeController", () => {
             expect(await schemeController.addLabelScheme(body)).toEqual(body);
         });
 
-        it("throws ConflictException", async () => {
+        it("throws ConflictException due to already existing label 'Movie'", async () => {
+            // Write the label
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
             const body = new LabelScheme("Movie", "#666", [
                 {
                     datatype: "string",
@@ -185,33 +178,65 @@ describe("DataSchemeController", () => {
 
     describe("deleteLabelScheme", () => {
         it("deletes one label scheme", async () => {
+            // Write the label
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
             expect(await schemeController.deleteLabelScheme("Movie")).toEqual(movieLabel);
             await expect(schemeController.getLabelScheme("Movie")).rejects.toThrowError(NotFoundException);
         });
 
-        it("throws not found exception", async () => {
+        it("throws not found exception due to invalid label name", async () => {
             await expect(schemeController.deleteLabelScheme("Not_a_Label")).rejects.toThrowError(NotFoundException);
         });
     });
 
     describe("getLabel", () => {
         it("returns one label", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
             expect(await schemeController.getLabelScheme(movieLabel.name)).toEqual(movieLabel);
         });
 
         it("throws exception due to non-existing id", async () => {
-            await expect(
-                schemeController.getLabelScheme(movieLabel.name + personLabel.name + 100),
-            ).rejects.toThrowError(NotFoundException);
+            await expect(schemeController.getLabelScheme("invalidLabelName")).rejects.toThrowError(NotFoundException);
         });
     });
 
     describe("updateLabelScheme", () => {
         it("updates one Label with the same values", async () => {
+            // Write the label
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
             expect(await schemeController.updateLabelScheme(movieLabel.name, movieLabel, false)).toEqual(movieLabel);
         });
 
         it("updates one label", async () => {
+            // Write the label
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
             const body = new LabelScheme("Movie", "#666", [
                 {
                     datatype: "string",
@@ -230,6 +255,20 @@ describe("DataSchemeController", () => {
         });
 
         it("throws ConflictException due to datatype conflict", async () => {
+            // Write the label
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            // Write the nodes which cause the datatype conflict
+            const movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000 });
+            movieNode1.nodeId = (await nodesController.createNode(movieNode1)).nodeId;
+
+            const movieNode2 = new Node("Forrest Gump", "Movie", { attrOne: "Forrest Gump", attrTwo: 2000 });
+            movieNode2.nodeId = (await nodesController.createNode(movieNode2)).nodeId;
+
             const body = new LabelScheme("Movie", "#666", [
                 {
                     datatype: "number",
@@ -250,6 +289,20 @@ describe("DataSchemeController", () => {
         });
 
         it("throws ConflictException due to missing attr when mandatory", async () => {
+            // Write the label
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            // Write the nodes which cause the mandatory attribute conflict
+            const movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000 });
+            movieNode1.nodeId = (await nodesController.createNode(movieNode1)).nodeId;
+
+            const movieNode2 = new Node("Forrest Gump", "Movie", { attrOne: "Forrest Gump", attrTwo: 2000 });
+            movieNode2.nodeId = (await nodesController.createNode(movieNode2)).nodeId;
+
             const body = new LabelScheme("Movie", "#666", [
                 {
                     datatype: "string",
@@ -278,6 +331,30 @@ describe("DataSchemeController", () => {
 
     describe("getAllRelations", () => {
         it("returns all relations", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
+            // Write the relation types
+            const actedInRelation = new RelationType(
+                "ACTED_IN",
+                [new StringAttribute("attrOne", false)],
+                [new Connection("Person", "Movie")],
+            );
+            await schemeController.addRelationType(actedInRelation);
+
+            const followsRelation = new RelationType("FOLLOWS", [], [new Connection("Person", "Person")]);
+            await schemeController.addRelationType(followsRelation);
+
             expect((await schemeController.getAllRelationTypes()).sort(TestUtil.getSortOrder("name"))).toEqual(
                 [actedInRelation, followsRelation].sort(TestUtil.getSortOrder("name")),
             );
@@ -285,7 +362,7 @@ describe("DataSchemeController", () => {
     });
 
     describe("addRelationType", () => {
-        it("adds one relation", async () => {
+        it("adds one relation type", async () => {
             const body = new RelationType(
                 "TEST_RELATION",
                 [
@@ -312,7 +389,28 @@ describe("DataSchemeController", () => {
             expect(await schemeController.addRelationType(body)).toEqual(body);
         });
 
-        it("throws ConflictException", async () => {
+        it("throws ConflictException due to already existing relation type 'ACTED_IN'", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
+            // Write the relation which cause the conflict
+            const actedInRelation = new RelationType(
+                "ACTED_IN",
+                [new StringAttribute("attrOne", false)],
+                [new Connection("Person", "Movie")],
+            );
+            await schemeController.addRelationType(actedInRelation);
+
             const body = new RelationType(
                 "ACTED_IN",
                 [
@@ -342,6 +440,27 @@ describe("DataSchemeController", () => {
 
     describe("deleteRelationType", () => {
         it("deletes one relation type", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
+            // Write the relation which cause the conflict
+            const actedInRelation = new RelationType(
+                "ACTED_IN",
+                [new StringAttribute("attrOne", false)],
+                [new Connection("Person", "Movie")],
+            );
+            await schemeController.addRelationType(actedInRelation);
+
             expect(await schemeController.deleteRelationType("ACTED_IN")).toEqual(actedInRelation);
             await expect(schemeController.getRelationType("ACTED_IN")).rejects.toThrowError(NotFoundException);
         });
@@ -355,12 +474,54 @@ describe("DataSchemeController", () => {
 
     describe("updateRelationType", () => {
         it("updates one relation with the same values", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
+            // Write the relation type
+            const actedInRelation = new RelationType(
+                "ACTED_IN",
+                [new StringAttribute("attrOne", false)],
+                [new Connection("Person", "Movie")],
+            );
+            await schemeController.addRelationType(actedInRelation);
+
             expect(await schemeController.updateRelationType(actedInRelation.name, actedInRelation, false)).toEqual(
                 actedInRelation,
             );
         });
 
         it("updates one relation", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
+            // Write the relation types
+            const actedInRelation = new RelationType(
+                "ACTED_IN",
+                [new StringAttribute("attrOne", false)],
+                [new Connection("Person", "Movie")],
+            );
+            await schemeController.addRelationType(actedInRelation);
+
             const body = new RelationType(
                 "ACTED_IN",
                 [
@@ -388,6 +549,47 @@ describe("DataSchemeController", () => {
         });
 
         it("throws ConflictException due to datatype conflict", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
+            // Write the relation types
+            const actedInRelation = new RelationType(
+                "ACTED_IN",
+                [new StringAttribute("attrOne", false)],
+                [new Connection("Person", "Movie")],
+            );
+            await schemeController.addRelationType(actedInRelation);
+
+            // Write the nodes which cause the conflict
+            const movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000 });
+            movieNode1.nodeId = (await nodesController.createNode(movieNode1)).nodeId;
+
+            const movieNode2 = new Node("Forrest Gump", "Movie", { attrOne: "Forrest Gump", attrTwo: 2000 });
+            movieNode2.nodeId = (await nodesController.createNode(movieNode2)).nodeId;
+
+            const personNode1 = new Node("Keanu Reeves", "Person", { attrOne: "Keanu Reeves", attrTwo: "#420" });
+            personNode1.nodeId = (await nodesController.createNode(personNode1)).nodeId;
+
+            const personNode2 = new Node("Tom Hanks", "Person", { attrOne: "Tom Hanks", attrTwo: "#420" });
+            personNode2.nodeId = (await nodesController.createNode(personNode2)).nodeId;
+
+            // Create the relations which cause the datatype conflict
+            const relation1 = new Relation("ACTED_IN", personNode1.nodeId, movieNode1.nodeId, { attrOne: "Neo" });
+            relation1.relationId = (await relationsController.createRelation(relation1)).relationId;
+
+            const relation2 = new Relation("ACTED_IN", personNode2.nodeId, movieNode2.nodeId, { attrOne: "Forrest" });
+            relation2.relationId = (await relationsController.createRelation(relation2)).relationId;
+
             const body = new RelationType(
                 "ACTED_IN",
                 [
@@ -411,6 +613,47 @@ describe("DataSchemeController", () => {
         });
 
         it("throws ConflictException due to missing attr when mandatory", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
+            // Write the relation type
+            const actedInRelation = new RelationType(
+                "ACTED_IN",
+                [new StringAttribute("attrOne", false)],
+                [new Connection("Person", "Movie")],
+            );
+            await schemeController.addRelationType(actedInRelation);
+
+            // Write the nodes which cause the conflict
+            const movieNode1 = new Node("The Matrix", "Movie", { attrOne: "The Matrix", attrTwo: 2000 });
+            movieNode1.nodeId = (await nodesController.createNode(movieNode1)).nodeId;
+
+            const movieNode2 = new Node("Forrest Gump", "Movie", { attrOne: "Forrest Gump", attrTwo: 2000 });
+            movieNode2.nodeId = (await nodesController.createNode(movieNode2)).nodeId;
+
+            const personNode1 = new Node("Keanu Reeves", "Person", { attrOne: "Keanu Reeves", attrTwo: "#420" });
+            personNode1.nodeId = (await nodesController.createNode(personNode1)).nodeId;
+
+            const personNode2 = new Node("Tom Hanks", "Person", { attrOne: "Tom Hanks", attrTwo: "#420" });
+            personNode2.nodeId = (await nodesController.createNode(personNode2)).nodeId;
+
+            // Create the relations which cause the missing mandatory conflict
+            const relation1 = new Relation("ACTED_IN", personNode1.nodeId, movieNode1.nodeId, { attrOne: "Neo" });
+            relation1.relationId = (await relationsController.createRelation(relation1)).relationId;
+
+            const relation2 = new Relation("ACTED_IN", personNode2.nodeId, movieNode2.nodeId, { attrOne: "Forrest" });
+            relation2.relationId = (await relationsController.createRelation(relation2)).relationId;
+
             const body = new RelationType(
                 "ACTED_IN",
                 [
@@ -442,13 +685,37 @@ describe("DataSchemeController", () => {
 
     describe("getRelationType", () => {
         it("returns one relation", async () => {
+            // Write the labels
+            const movieLabel = new LabelScheme("Movie", "#666", [
+                new StringAttribute("attrOne", true, "unknown"),
+                new NumberAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(movieLabel);
+
+            const personLabel = new LabelScheme("Person", "#420", [
+                new StringAttribute("attrOne", true, "Done Default"),
+                new ColorAttribute("attrTwo"),
+            ]);
+            await schemeController.addLabelScheme(personLabel);
+
+            // Write the relation types
+            const actedInRelation = new RelationType(
+                "ACTED_IN",
+                [new StringAttribute("attrOne", false)],
+                [new Connection("Person", "Movie")],
+            );
+            await schemeController.addRelationType(actedInRelation);
+
+            const followsRelation = new RelationType("FOLLOWS", [], [new Connection("Person", "Person")]);
+            await schemeController.addRelationType(followsRelation);
+
             expect(await schemeController.getRelationType(actedInRelation.name)).toEqual(actedInRelation);
         });
 
         it("throws not found exception due to non-existing id", async () => {
-            await expect(
-                schemeController.getRelationType(actedInRelation.name + followsRelation.name + 100),
-            ).rejects.toThrowError(NotFoundException);
+            await expect(schemeController.getRelationType("invalidRelationTypeName")).rejects.toThrowError(
+                NotFoundException,
+            );
         });
     });
 });

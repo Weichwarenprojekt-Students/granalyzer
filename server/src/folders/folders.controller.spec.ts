@@ -78,10 +78,6 @@ describe("FoldersController", () => {
                 folder3 = await foldersService.moveFolderToFolder(folder1["folderId"], folder3["folderId"]);
                 let folder4 = await foldersService.addFolder("Folder 4");
                 folder4 = await foldersService.moveFolderToFolder(folder1["folderId"], folder4["folderId"]);
-                let diagram1 = await diagramsService.addDiagram("Diagram 1");
-                diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
-                await diagramsService.addDiagram("Diagram 2");
-                await diagramsService.addDiagram("Diagram 3");
 
                 expect((await foldersController.getAllFolders()).sort(TestUtil.getSortOrder("folderId"))).toEqual(
                     [folder3, { ...folder1, parentId: null }, { ...folder2, parentId: null }, folder4].sort(
@@ -95,14 +91,12 @@ describe("FoldersController", () => {
             it("returns all folders in root", async () => {
                 const folder1 = await foldersService.addFolder("Folder 1");
                 const folder2 = await foldersService.addFolder("Folder 2");
-                let folder3 = await foldersService.addFolder("Folder 3");
-                folder3 = await foldersService.moveFolderToFolder(folder1["folderId"], folder3["folderId"]);
-                let folder4 = await foldersService.addFolder("Folder 4");
-                folder4 = await foldersService.moveFolderToFolder(folder1["folderId"], folder4["folderId"]);
-                let diagram1 = await diagramsService.addDiagram("Diagram 1");
-                diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
-                await diagramsService.addDiagram("Diagram 2");
-                await diagramsService.addDiagram("Diagram 3");
+
+                // Create non-root folders which should not be returned
+                const folder3 = await foldersService.addFolder("Folder 3");
+                await foldersService.moveFolderToFolder(folder1["folderId"], folder3["folderId"]);
+                const folder4 = await foldersService.addFolder("Folder 4");
+                await foldersService.moveFolderToFolder(folder1["folderId"], folder4["folderId"]);
 
                 expect((await foldersController.getAllRootFolders()).sort(TestUtil.getSortOrder("folderId"))).toEqual(
                     [folder1, folder2].sort(TestUtil.getSortOrder("folderId")),
@@ -113,15 +107,7 @@ describe("FoldersController", () => {
         describe("getFolder", () => {
             it("returns one folder", async () => {
                 const folder1 = await foldersService.addFolder("Folder 1");
-                const folder2 = await foldersService.addFolder("Folder 2");
-                let folder3 = await foldersService.addFolder("Folder 3");
-                folder3 = await foldersService.moveFolderToFolder(folder1["folderId"], folder3["folderId"]);
-                let folder4 = await foldersService.addFolder("Folder 4");
-                folder4 = await foldersService.moveFolderToFolder(folder1["folderId"], folder4["folderId"]);
-                let diagram1 = await diagramsService.addDiagram("Diagram 1");
-                diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
-                await diagramsService.addDiagram("Diagram 2");
-                await diagramsService.addDiagram("Diagram 3");
+                await foldersService.addFolder("Folder 2");
 
                 expect(await foldersController.getFolder(folder1["folderId"])).toEqual({ ...folder1, parentId: null });
             });
@@ -134,15 +120,7 @@ describe("FoldersController", () => {
         describe("updateFolder", () => {
             it("updates one folder", async () => {
                 const folder1 = await foldersService.addFolder("Folder 1");
-                const folder2 = await foldersService.addFolder("Folder 2");
-                let folder3 = await foldersService.addFolder("Folder 3");
-                folder3 = await foldersService.moveFolderToFolder(folder1["folderId"], folder3["folderId"]);
-                let folder4 = await foldersService.addFolder("Folder 4");
-                folder4 = await foldersService.moveFolderToFolder(folder1["folderId"], folder4["folderId"]);
-                let diagram1 = await diagramsService.addDiagram("Diagram 1");
-                diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
-                await diagramsService.addDiagram("Diagram 2");
-                await diagramsService.addDiagram("Diagram 3");
+                await foldersService.addFolder("Folder 2");
 
                 expect(
                     (await foldersController.updateFolder(folder1["folderId"], new Folder("updated folder")))["name"],
@@ -154,40 +132,38 @@ describe("FoldersController", () => {
         describe("deleteFolder", () => {
             it("deletes one folder", async () => {
                 const folder1 = await foldersService.addFolder("Folder 1");
-                const folder2 = await foldersService.addFolder("Folder 2");
+                await foldersService.addFolder("Folder 2");
+
+                // Move folder 3 to folder 1 which should be removed with folder 1
                 let folder3 = await foldersService.addFolder("Folder 3");
                 folder3 = await foldersService.moveFolderToFolder(folder1["folderId"], folder3["folderId"]);
-                let folder4 = await foldersService.addFolder("Folder 4");
-                folder4 = await foldersService.moveFolderToFolder(folder1["folderId"], folder4["folderId"]);
+
+                // Move diagram 1 to folder 1 which should be removed with folder 1
                 let diagram1 = await diagramsService.addDiagram("Diagram 1");
                 diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
-                await diagramsService.addDiagram("Diagram 2");
-                await diagramsService.addDiagram("Diagram 3");
 
                 expect(await foldersController.deleteFolder(folder1["folderId"])).toEqual({
                     ...folder1,
                     parentId: null,
                 });
                 await expect(foldersController.getFolder(folder1["folderId"])).rejects.toThrowError(NotFoundException);
-                await expect(foldersController.getFolder(diagram1["diagramId"])).rejects.toThrowError(
-                    NotFoundException,
-                );
                 await expect(foldersController.getFolder(folder3["folderId"])).rejects.toThrowError(NotFoundException);
+                await expect(
+                    foldersController.getDiagramInFolder(folder1["folderId"], diagram1["diagramId"]),
+                ).rejects.toThrowError(NotFoundException);
             });
         });
 
         describe("getFoldersInFolder", () => {
             it("returns folders inside of given folder", async () => {
                 const folder1 = await foldersService.addFolder("Folder 1");
-                const folder2 = await foldersService.addFolder("Folder 2");
+                await foldersService.addFolder("Folder 2");
+
                 let folder3 = await foldersService.addFolder("Folder 3");
                 folder3 = await foldersService.moveFolderToFolder(folder1["folderId"], folder3["folderId"]);
+
                 let folder4 = await foldersService.addFolder("Folder 4");
                 folder4 = await foldersService.moveFolderToFolder(folder1["folderId"], folder4["folderId"]);
-                let diagram1 = await diagramsService.addDiagram("Diagram 1");
-                diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
-                await diagramsService.addDiagram("Diagram 2");
-                await diagramsService.addDiagram("Diagram 3");
 
                 expect(
                     (await foldersController.getFoldersInFolder(folder1["folderId"])).sort(
@@ -200,15 +176,10 @@ describe("FoldersController", () => {
         describe("getFolderInFolder", () => {
             it("returns folders inside of given folder", async () => {
                 const folder1 = await foldersService.addFolder("Folder 1");
-                const folder2 = await foldersService.addFolder("Folder 2");
+                await foldersService.addFolder("Folder 2");
+
                 let folder3 = await foldersService.addFolder("Folder 3");
                 folder3 = await foldersService.moveFolderToFolder(folder1["folderId"], folder3["folderId"]);
-                let folder4 = await foldersService.addFolder("Folder 4");
-                folder4 = await foldersService.moveFolderToFolder(folder1["folderId"], folder4["folderId"]);
-                let diagram1 = await diagramsService.addDiagram("Diagram 1");
-                diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
-                await diagramsService.addDiagram("Diagram 2");
-                await diagramsService.addDiagram("Diagram 3");
 
                 expect(await foldersController.getFolderInFolder(folder1["folderId"], folder3["folderId"])).toEqual(
                     folder3,
@@ -222,16 +193,8 @@ describe("FoldersController", () => {
 
         describe("addFolderInFolder", () => {
             it("creates a new folder inside of another folder", async () => {
-                const folder1 = await foldersService.addFolder("Folder 1");
+                await foldersService.addFolder("Folder 1");
                 const folder2 = await foldersService.addFolder("Folder 2");
-                let folder3 = await foldersService.addFolder("Folder 3");
-                folder3 = await foldersService.moveFolderToFolder(folder1["folderId"], folder3["folderId"]);
-                let folder4 = await foldersService.addFolder("Folder 4");
-                folder4 = await foldersService.moveFolderToFolder(folder1["folderId"], folder4["folderId"]);
-                let diagram1 = await diagramsService.addDiagram("Diagram 1");
-                diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
-                await diagramsService.addDiagram("Diagram 2");
-                await diagramsService.addDiagram("Diagram 3");
 
                 expect(
                     (await foldersController.createFolderInFolder(new Folder("Folder 4"), folder2["folderId"]))["name"],
@@ -245,15 +208,10 @@ describe("FoldersController", () => {
         describe("removeFolderFromFolder", () => {
             it("removes a folder from another folder", async () => {
                 const folder1 = await foldersService.addFolder("Folder 1");
-                const folder2 = await foldersService.addFolder("Folder 2");
+                await foldersService.addFolder("Folder 2");
+
                 let folder3 = await foldersService.addFolder("Folder 3");
                 folder3 = await foldersService.moveFolderToFolder(folder1["folderId"], folder3["folderId"]);
-                let folder4 = await foldersService.addFolder("Folder 4");
-                folder4 = await foldersService.moveFolderToFolder(folder1["folderId"], folder4["folderId"]);
-                let diagram1 = await diagramsService.addDiagram("Diagram 1");
-                diagram1 = await diagramsService.moveDiagramToFolder(folder1["folderId"], diagram1["diagramId"]);
-                await diagramsService.addDiagram("Diagram 2");
-                await diagramsService.addDiagram("Diagram 3");
 
                 expect(
                     await foldersController.removeFolderFromFolder(folder1["folderId"], folder3["folderId"]),
