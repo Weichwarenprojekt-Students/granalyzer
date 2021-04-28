@@ -23,6 +23,7 @@ import NeighborView from "@/modules/inventory/modules/neighbor-view/NeighborView
 import ApiNode from "@/models/data-scheme/ApiNode";
 import WriteInspector from "@/modules/inspector/WriteInspector.vue";
 import { NodeDrag } from "@/shared/NodeDrag";
+import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
 
 export default defineComponent({
     name: "Inventory",
@@ -34,6 +35,7 @@ export default defineComponent({
     },
     beforeCreate() {
         // Load the labels with the first load of matching nodes
+        this.$store.commit("overview/updateFilter", new NodeFilter());
         this.$store.dispatch("overview/loadLabelsAndNodes");
 
         // Restore last selection if revisiting

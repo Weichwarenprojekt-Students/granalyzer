@@ -54,6 +54,7 @@ import ApiNode from "@/models/data-scheme/ApiNode";
 import VisualElements from "@/modules/editor/modules/graph-editor/components/VisualElements.vue";
 import { NodeDrag } from "@/shared/NodeDrag";
 import NodeEdit from "@/modules/editor/modules/graph-editor/components/NodeEdit.vue";
+import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
 
 export default defineComponent({
     name: "Editor",
@@ -73,6 +74,7 @@ export default defineComponent({
          * Store node that was selected
          */
         onNodeClicked(node: ApiNode): void {
+            this.$store.commit("overview/updateFilter", new NodeFilter());
             this.$store.commit("editor/setSelectedNode", node);
             this.$store.dispatch("inspector/selectNode", node.nodeId);
         },

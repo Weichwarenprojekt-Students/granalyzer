@@ -167,6 +167,5 @@ export default defineComponent({
 
 .empty-warning {
     height: 100%;
-    margin-right: 0;
 }
 </style>
