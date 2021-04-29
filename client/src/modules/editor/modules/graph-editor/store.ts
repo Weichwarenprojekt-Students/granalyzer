@@ -262,10 +262,13 @@ export const graphEditor = {
         ): Promise<void> {
             if (!context.state.graphHandler || !context.state.selectedElement) return;
 
-            await context.dispatch(
-                "addCommand",
-                new ZIndexCommand(context.state.graphHandler, context.state.selectedElement, bringToFront),
+            const zIndexCommand = new ZIndexCommand(
+                context.state.graphHandler,
+                context.state.selectedElement,
+                bringToFront,
             );
+
+            if (zIndexCommand.zIndexChanges) await context.dispatch("addCommand", zIndexCommand);
         },
         /**
          * Open the new relation dialog and temporarily save the command for adding the new relation
