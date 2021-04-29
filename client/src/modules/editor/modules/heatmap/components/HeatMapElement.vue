@@ -81,7 +81,6 @@ export default defineComponent({
 
             // Assign the min and max value of all nodes by default
             if (!this.heatAttribute.from || !this.heatAttribute.to) {
-                console.log("affected nodes", this.affectedNodes);
                 const selectedAttribute: number[] = this.affectedNodes
                     .map((node) => node.attributes[this.selectedAttribute.name] as number)
                     .filter((attribute) => !!attribute);

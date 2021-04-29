@@ -1,11 +1,11 @@
 import ApiLabel from "@/models/data-scheme/ApiLabel";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import {GET, getBrightness, isUnexpected} from "@/utility";
+import { GET } from "@/utility";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
-import {HeatMapUtils} from "@/modules/editor/modules/heatmap/controls/HeatMapUtils";
+import { HeatMapUtils } from "@/modules/editor/modules/heatmap/controls/HeatMapUtils";
 
 export class HeatMapState {
     /**
@@ -81,36 +81,43 @@ export const heatMap = {
             // Store the nodes
             context.state.affectedNodesByLabel.set(payload.labelName, affectedNodes);
 
-            console.log("affected Nodes", affectedNodes);
             return affectedNodes;
         },
 
         /**
          * Reset the color of all nodes matching the given label
          */
-        async resetHeatmapColor(context: ActionContext<HeatMapState, RootState>, heatMapAttribute: HeatMapAttribute): Promise<void> {
+        async resetHeatmapColor(
+            context: ActionContext<HeatMapState, RootState>,
+            heatMapAttribute: HeatMapAttribute,
+        ): Promise<void> {
             const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
             if (!graphHandler) return;
+
             for (const node of graphHandler.nodes) {
                 if (node.nodeInfo.label === heatMapAttribute.labelName) {
-                    node.jointElement.attr("body/fill", node.nodeInfo.color);
-                    node.jointElement.attr("label/fill", getBrightness(node.nodeInfo.color) > 170 ? "#333" : "#FFF");
+                    context.state.heatMapUtils.setNodeColor(node.jointElement, node.nodeInfo.color);
                 }
+            }
+
+            graphHandler.dropHeatMapAttribute(heatMapAttribute);
+
+            if (graphHandler.getActiveHeatMapLabels().length === 0) {
+                await context.dispatch("resetUnaffectedNodesColor");
             }
         },
 
         /**
          * Sets the the color of all nodes matching the given label name
          */
-        async setHeatmapColor(context: ActionContext<HeatMapState, RootState>, heatMapAttribute: HeatMapAttribute): Promise<void> {
+        async setHeatmapColor(
+            context: ActionContext<HeatMapState, RootState>,
+            heatMapAttribute: HeatMapAttribute,
+        ): Promise<void> {
             const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
 
             // Get all nodes affected by the heatmap selection
-            const affectedNodes: ApiNode[] = await context.dispatch(
-                "fetchAffectedNodes",
-                heatMapAttribute,
-            );
-            console.log("AN:", affectedNodes);
+            const affectedNodes: ApiNode[] = await context.dispatch("fetchAffectedNodes", heatMapAttribute);
             if (!graphHandler) return;
             for (const node of graphHandler.nodes) {
                 // Filter all the nodes affected by the heatmap label name
@@ -123,19 +130,52 @@ export const heatMap = {
                     const newColor =
                         heatMapAttribute.selectedAttributeName && nodeValue != undefined
                             ? context.state.heatMapUtils.getLinearColor(
-                            heatMapAttribute.from ?? 0,
-                            heatMapAttribute.to ?? 0,
-                            parseFloat(nodeValue.toString()),
-                            )
-                            : node.nodeInfo.color;
+                                  heatMapAttribute.from ?? 0,
+                                  heatMapAttribute.to ?? 0,
+                                  parseFloat(nodeValue.toString()),
+                              )
+                            : "#aaa";
 
                     // Set new color to node
-                    node.jointElement.attr("body/fill", newColor);
-                    node.jointElement.attr("label/fill", getBrightness(newColor) > 170 ? "#333" : "#FFF");
+                    context.state.heatMapUtils.setNodeColor(node.jointElement, newColor);
                 }
             }
             // Save the heatmap attribute to be serialized
             graphHandler.setHeatMapAttribute(heatMapAttribute);
+
+            await context.dispatch("setUnaffectedNodesColor");
+        },
+
+        /**
+         * If at least one heatmap is active, all other nodes should be colored grey
+         */
+        setUnaffectedNodesColor(context: ActionContext<HeatMapState, RootState>): Promise<void> | undefined {
+            const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
+            if (!graphHandler) return;
+
+            const heatMapLabels: string[] = graphHandler.getActiveHeatMapLabels();
+
+            for (const node of graphHandler.nodes) {
+                if (!heatMapLabels.includes(node.nodeInfo.label)) {
+                    context.state.heatMapUtils.setNodeColor(node.jointElement, "#aaa");
+                }
+            }
+        },
+
+        /**
+         * Resets the color of all nodes which are not colored with a heatmap anymore
+         */
+        resetUnaffectedNodesColor(context: ActionContext<HeatMapState, RootState>): Promise<void> | undefined {
+            const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
+            if (!graphHandler) return;
+
+            const heatMapLabels: string[] = graphHandler.getActiveHeatMapLabels();
+
+            for (const node of graphHandler.nodes) {
+                if (!heatMapLabels.includes(node.nodeInfo.label)) {
+                    context.state.heatMapUtils.setNodeColor(node.jointElement, node.nodeInfo.color);
+                }
+            }
         },
     },
     getters: {},

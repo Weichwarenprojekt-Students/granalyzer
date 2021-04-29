@@ -242,4 +242,17 @@ export class GraphHandler {
     setHeatMapAttribute(heatMapAttribute: HeatMapAttribute): void {
         this.heatMapAttributes.set(heatMapAttribute.labelName, heatMapAttribute);
     }
+
+    dropHeatMapAttribute(heatMapAttribute: HeatMapAttribute): void {
+        this.heatMapAttributes.delete(heatMapAttribute.labelName);
+    }
+
+    /**
+     * Returns all label names which are listed as an heatmap attribute
+     */
+    getActiveHeatMapLabels(): string[] {
+        const labels: string[] = [];
+        this.heatMapAttributes.forEach((heatMapAttribute: HeatMapAttribute) => labels.push(heatMapAttribute.labelName));
+        return labels;
+    }
 }

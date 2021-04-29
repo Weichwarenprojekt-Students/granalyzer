@@ -1,9 +1,8 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
-import {GET, isUnexpected} from "@/utility";
+import { GET, getBrightness, isUnexpected } from "@/utility";
+import { dia } from "jointjs";
 
 export class HeatMapUtils {
-
-
     /**
      * Gets the color according a linear gradient red-yellow-green
      */
@@ -54,5 +53,10 @@ export class HeatMapUtils {
         const result = await GET(`/api/nodes/${uuid}`);
         if (isUnexpected(result)) return;
         return result.json();
+    }
+
+    setNodeColor(node: dia.Element, color: string): void {
+        node.attr("body/fill", color);
+        node.attr("label/fill", getBrightness(color) > 170 ? "#333" : "#FFF");
     }
 }
