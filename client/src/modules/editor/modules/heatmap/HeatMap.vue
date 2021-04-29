@@ -39,13 +39,14 @@ export default defineComponent({
                     )[0].attributes[heatMapAttribute.selectedAttributeName];
 
                     // Get new color from gradient
-                    const newColor = heatMapAttribute.selectedAttributeName
-                        ? this.getLinearColor(
-                              heatMapAttribute.from,
-                              heatMapAttribute.to,
-                              parseFloat(nodeValue.toString()),
-                          )
-                        : node.nodeInfo.color;
+                    const newColor =
+                        heatMapAttribute.selectedAttributeName && nodeValue != undefined
+                            ? this.getLinearColor(
+                                  heatMapAttribute.from,
+                                  heatMapAttribute.to,
+                                  parseFloat(nodeValue.toString()),
+                              )
+                            : node.nodeInfo.color;
 
                     // Set new color to node
                     node.jointElement.attr("body/fill", newColor);
@@ -82,13 +83,7 @@ export default defineComponent({
             const r = amountSteps > 255 ? padHex((255 - (amountSteps - 256)).toString(16)) : "FF";
 
             // Concat to final color
-            const color = "#" + r + g + "00";
-
-            console.log("start", start);
-            console.log("stop", stop);
-            console.log("value", value);
-            console.log("color", color);
-            return color;
+            return "#" + r + g + "00";
         },
 
         /**
