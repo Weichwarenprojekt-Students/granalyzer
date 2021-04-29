@@ -15,14 +15,38 @@ import HeatMapElement from "@/modules/editor/modules/heatmap/components/HeatMapE
 import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 import { defineComponent } from "vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
+import { getBrightness } from "@/utility";
 
 export default defineComponent({
     name: "HeatMap",
     components: { HeatMapElement },
     methods: {
         async onChange(heatMapAttribute: HeatMapAttribute) {
-            if (!heatMapAttribute.selectedAttributeName) return;
+            if (heatMapAttribute.selectedAttributeName) {
+                // Set the heatmap colors according the selection
+                await this.setHeatmapColor(heatMapAttribute);
+            } else {
+                this.resetHeatmapColor(heatMapAttribute);
+            }
+        },
 
+        /**
+         * Reset the color of all nodes matching the given label
+         */
+        resetHeatmapColor(heatMapAttribute: HeatMapAttribute) {
+            const graphHandler = this.$store.state.editor.graphEditor.graphHandler;
+            for (const node of graphHandler.nodes) {
+                if (node.nodeInfo.label === heatMapAttribute.labelName) {
+                    node.jointElement.attr("body/fill", node.nodeInfo.color);
+                    node.jointElement.attr("label/fill", getBrightness(node.nodeInfo.color) > 170 ? "#333" : "#FFF");
+                }
+            }
+        },
+
+        /**
+         * Sets the the color of all nodes matching the given label name
+         */
+        async setHeatmapColor(heatMapAttribute: HeatMapAttribute) {
             const graphHandler = this.$store.state.editor.graphEditor.graphHandler;
 
             // Get all nodes affected by the heatmap selection
@@ -31,25 +55,26 @@ export default defineComponent({
                 heatMapAttribute,
             );
 
-            for (let node of graphHandler.nodes) {
+            for (const node of graphHandler.nodes) {
                 // Filter all the nodes affected by the heatmap label name
                 if (node.nodeInfo.label === heatMapAttribute.labelName) {
                     const nodeValue = affectedNodes.filter(
                         (affectedNode) => affectedNode.nodeId === node.nodeInfo.ref.uuid,
-                    )[0].attributes[heatMapAttribute.selectedAttributeName];
+                    )[0].attributes[heatMapAttribute.selectedAttributeName as string];
 
                     // Get new color from gradient
                     const newColor =
                         heatMapAttribute.selectedAttributeName && nodeValue != undefined
                             ? this.getLinearColor(
-                                  heatMapAttribute.from,
-                                  heatMapAttribute.to,
+                                  heatMapAttribute.from ?? 0,
+                                  heatMapAttribute.to ?? 0,
                                   parseFloat(nodeValue.toString()),
                               )
                             : node.nodeInfo.color;
 
                     // Set new color to node
                     node.jointElement.attr("body/fill", newColor);
+                    node.jointElement.attr("label/fill", getBrightness(newColor) > 170 ? "#333" : "#FFF");
                 }
             }
 

@@ -39,6 +39,7 @@ import ApiLabel from "@/models/data-scheme/ApiLabel";
 import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
+import ApiNode from "@/models/data-scheme/ApiNode";
 
 export default defineComponent({
     name: "HeatMapElement",
@@ -48,6 +49,7 @@ export default defineComponent({
             selectedAttribute: {} as ApiAttribute,
             collapsed: false,
             types: ApiDatatype,
+            affectedNodes: [] as Array<ApiNode>,
         };
     },
     props: {
@@ -56,8 +58,11 @@ export default defineComponent({
             default: new ApiLabel(),
         },
     },
-    mounted() {
+    async mounted() {
         this.heatAttribute = new HeatMapAttribute(this.label.name, null);
+
+        // Fetch the nodes belonging to the specific label
+        this.affectedNodes = await this.$store.dispatch("editor/heatMap/fetchAffectedNodes", this.heatAttribute);
 
         // Check if the input fields are field with numbers
         this.$watch(
@@ -72,6 +77,16 @@ export default defineComponent({
         onChange() {
             if (!this.selectedAttribute) {
                 this.collapsed = true;
+            }
+
+            // Assign the min and max value of all nodes by default
+            if (!this.heatAttribute.from || !this.heatAttribute.to) {
+                console.log("affected nodes", this.affectedNodes);
+                const selectedAttribute: number[] = this.affectedNodes
+                    .map((node) => node.attributes[this.selectedAttribute.name] as number)
+                    .filter((attribute) => !!attribute);
+                if (!this.heatAttribute.from) this.heatAttribute.from = Math.min(...selectedAttribute);
+                if (!this.heatAttribute.to) this.heatAttribute.to = Math.max(...selectedAttribute);
             }
 
             this.heatAttribute.selectedAttributeName = this.selectedAttribute?.name;

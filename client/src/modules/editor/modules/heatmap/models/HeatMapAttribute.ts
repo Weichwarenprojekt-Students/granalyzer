@@ -9,7 +9,7 @@ export class HeatMapAttribute {
     constructor(
         public labelName: string,
         public selectedAttributeName: string | null,
-        public from: number = 0,
-        public to: number = 10,
+        public from?: number,
+        public to?: number,
     ) {}
 }
