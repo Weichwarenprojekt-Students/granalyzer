@@ -38,6 +38,7 @@
                 :key="attribute.name"
                 :attribute="attribute"
             ></ReadAttribute>
+            <HeatMap />
         </ScrollPanel>
     </div>
     <DefaultInspector v-else :title="false" />
@@ -47,10 +48,12 @@
 import { defineComponent } from "vue";
 import DefaultInspector from "@/modules/inspector/components/DefaultInspector.vue";
 import ReadAttribute from "@/modules/inspector/components/ReadAttribute.vue";
+import HeatMap from "@/modules/editor/modules/heatmap/HeatMap.vue";
 
 export default defineComponent({
     name: "ReadInspector",
     components: {
+        HeatMap,
         DefaultInspector,
         ReadAttribute,
     },
