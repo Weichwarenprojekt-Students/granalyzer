@@ -1,5 +1,5 @@
 <template>
-    <div class="container" @click="removeFocus" @mousemove="mousemove">
+    <div class="container" @mousemove="mousemove">
         <!-- The dialog for adding a new visual relation -->
         <InputDialog
             @input-confirm="addNewVisualRelation"
@@ -147,14 +147,6 @@ export default defineComponent({
          */
         addNewVisualRelation(relationName: string): void {
             this.$store.dispatch("editor/confirmNewRelationDialog", relationName);
-        },
-        /**
-         * Remove the focus of other fields (input fields etc.)
-         * That's important for the toolbar shortcuts to work
-         */
-        removeFocus(): void {
-            const input = document.activeElement as HTMLElement;
-            if (input) input.blur();
         },
     },
 });

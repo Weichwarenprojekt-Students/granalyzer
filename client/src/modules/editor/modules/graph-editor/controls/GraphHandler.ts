@@ -198,6 +198,15 @@ export class GraphHandler {
     }
 
     /**
+     * Remove the focus of other ui fields (input fields etc.)
+     * That's important for the toolbar shortcuts to work
+     */
+    private removeInputFocus(): void {
+        const input = document.activeElement as HTMLElement;
+        if (input) input.blur();
+    }
+
+    /**
      * Register callbacks to joint js events
      * @private
      */
@@ -205,7 +214,12 @@ export class GraphHandler {
         this.graph.paper.on({
             // Reset selection when clicking on a blank paper space
             "blank:pointerclick": () => {
+                this.removeInputFocus();
                 this.controls.resetSelection();
+            },
+            // Reset the focus of input fields if necessary
+            "cell:pointerdown": () => {
+                this.removeInputFocus();
             },
             // Select node and begin registering a node movement
             "element:pointerdown": async (elementView) => {
