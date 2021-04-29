@@ -112,6 +112,10 @@ export default defineComponent({
          * Handle the key events
          */
         handleKeys(e: KeyboardEvent): void {
+            // Check if some input or something else is currently selected
+            if (document.activeElement !== document.body) return;
+
+            // Find the right shortcut
             if (e.key == "Delete" && this.$store.getters["editor/itemSelected"]) this.remove();
             else if (e.key == "z" && e.ctrlKey && this.$store.getters["editor/undoAvailable"]) this.undo();
             else if (e.key == "y" && e.ctrlKey && this.$store.getters["editor/redoAvailable"]) this.redo();
