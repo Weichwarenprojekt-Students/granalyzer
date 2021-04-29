@@ -92,8 +92,10 @@ export class GraphUtils {
                 class: "node-body",
             },
         });
+
         shape.addTo(this.graph.graph);
         shape.attr("body/strokeWidth", 0);
+        if (!this.rootNodeSet) this.graph.selectElement(this.graph.paper.findViewByModel(shape.id));
         this.rootNodeSet = true;
         return shape;
     }

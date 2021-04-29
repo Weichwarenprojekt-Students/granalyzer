@@ -29,8 +29,8 @@
     <!-- The explorer toolbar -->
     <div class="explorer-header">
         <h2 class="title">{{ $t("start.diagrams.title") }}</h2>
-        <h2 v-show="$store.state.start.parent.name" class="title-minus">&#8212;</h2>
-        <h2 v-show="$store.state.start.parent.name" class="title-folder">{{ $store.state.start.parent.name }}</h2>
+        <h2 v-show="$store.state.start.parent.name" class="title-extra">&#8212;</h2>
+        <h2 v-show="$store.state.start.parent.name" class="title-extra">{{ $store.state.start.parent.name }}</h2>
         <svg class="add-folder explorer-button" @click="addFolderDialog = true">
             <use xlink:href="~@/assets/img/icons.svg#add-folder"></use>
         </svg>
@@ -311,11 +311,8 @@ export default defineComponent({
     margin-left: 32px;
 }
 
-.title-minus {
-    margin: 0 12px;
-}
-
-.title-folder {
+.title-extra {
+    margin-left: 12px;
     font-style: italic;
 }
 

@@ -9,6 +9,10 @@
             :title="$t('inventory.createDiagram')"
         ></InputDialog>
         <h3>{{ $t("inventory.header.title") }}</h3>
+        <h3 v-show="$store.state.inventory.selectedNode?.name" class="title-extra">&#8212;</h3>
+        <h3 v-show="$store.state.inventory.selectedNode?.name" class="title-extra">
+            {{ $store.state.inventory.selectedNode?.name }}
+        </h3>
         <button
             :disabled="!$store.state.inventory.selectedNode || $store.state.inventory.loading"
             class="btn btn-secondary btn-icon"
@@ -77,5 +81,10 @@ export default defineComponent({
 button {
     position: absolute;
     right: 16px;
+}
+
+.title-extra {
+    margin-left: 12px;
+    font-style: italic;
 }
 </style>
