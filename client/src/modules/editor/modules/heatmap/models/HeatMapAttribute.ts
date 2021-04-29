@@ -1,5 +1,4 @@
-
-export class HeatAttribute {
+export class HeatMapAttribute {
     /**
      *
      * @param from The start value of the heat map
@@ -8,9 +7,9 @@ export class HeatAttribute {
      * @param selectedAttributeName the selected attribute of the label
      */
     constructor(
-        public from: number | null = null,
-        public to:number | null = null,
-        public labelName: string | null = null,
-        public selectedAttributeName: string | null = null) {}
-
+        public labelName: string,
+        public selectedAttributeName: string,
+        public from: number = 0,
+        public to: number = 10,
+    ) {}
 }

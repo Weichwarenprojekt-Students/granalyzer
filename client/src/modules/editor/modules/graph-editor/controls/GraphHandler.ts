@@ -11,6 +11,7 @@ import NodesController from "@/modules/editor/modules/graph-editor/controls/node
 import RelationsController from "@/modules/editor/modules/graph-editor/controls/relations/RelationsController";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
+import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 
 export class GraphHandler {
     /**
@@ -41,6 +42,11 @@ export class GraphHandler {
      * The undo stack
      */
     private undoStack = new Array<ICommand>();
+
+    /**
+     * Label-name, HeatMapAttribute
+     */
+    private heatMapAttributes = new Map<string, HeatMapAttribute>();
 
     /**
      * Constructor
@@ -231,5 +237,9 @@ export class GraphHandler {
                 await this.relationMode.connectRelation(linkView);
             },
         });
+    }
+
+    setHeatMapAttribute(heatMapAttribute: HeatMapAttribute): void {
+        this.heatMapAttributes.set(heatMapAttribute.labelName, heatMapAttribute);
     }
 }

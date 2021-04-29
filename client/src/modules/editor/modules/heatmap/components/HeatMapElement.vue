@@ -36,15 +36,15 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
-import { HeatAttribute } from "@/modules/editor/modules/heatmap/models/HeatAttribute";
+import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 
 export default defineComponent({
-    name: "HeatView",
+    name: "HeatMapElement",
     data() {
         return {
-            heatAttribute: {} as HeatAttribute,
+            heatAttribute: {} as HeatMapAttribute,
             selectedAttribute: {} as ApiAttribute,
             collapsed: false,
             types: ApiDatatype,
@@ -72,13 +72,10 @@ export default defineComponent({
         onChange() {
             if (!this.selectedAttribute) {
                 this.collapsed = true;
-                return;
             }
 
-            if (this.heatAttribute.from !== null && this.heatAttribute.to !== null) {
-                this.heatAttribute.selectedAttributeName = this.selectedAttribute?.name;
-                this.$emit("change", this.heatAttribute);
-            }
+            this.heatAttribute.selectedAttributeName = this.selectedAttribute?.name;
+            this.$emit("change", this.heatAttribute);
         },
 
         /**
