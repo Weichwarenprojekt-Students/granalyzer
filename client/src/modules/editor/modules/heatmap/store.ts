@@ -5,8 +5,6 @@ import { GET, isUnexpected } from "@/utility";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
-import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
-import { GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
 
 export class HeatMapState {
     /**
@@ -67,9 +65,8 @@ export const heatMap = {
             const fetchNodePromises = [];
 
             // Return nodes if already stored in map
-            if (context.state.affectedNodesByLabel.has(payload.labelName)) {
+            if (context.state.affectedNodesByLabel.has(payload.labelName))
                 return context.state.affectedNodesByLabel.get(payload.labelName) as ApiNode[];
-            }
 
             if (!context.rootState.editor?.graphEditor?.graphHandler) return [];
 

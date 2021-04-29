@@ -42,8 +42,8 @@ export default defineComponent({
                     const newColor =
                         heatMapAttribute.selectedAttributeName && nodeValue != undefined
                             ? this.getLinearColor(
-                                  heatMapAttribute.from,
-                                  heatMapAttribute.to,
+                                  heatMapAttribute.from ?? 0,
+                                  heatMapAttribute.to ?? 0,
                                   parseFloat(nodeValue.toString()),
                               )
                             : node.nodeInfo.color;
