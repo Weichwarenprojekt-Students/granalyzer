@@ -28,7 +28,7 @@ import { defineComponent } from "vue";
 import { GraphHandler } from "./controls/GraphHandler";
 import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
-import { errorToast, infoToast } from "@/utility";
+import { infoToast } from "@/utility";
 import InputDialog from "@/components/dialog/InputDialog.vue";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
 
@@ -57,13 +57,8 @@ export default defineComponent({
         this.graph.centerGraph();
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
 
-        // Generate the active diagram if available
-        if (!this.$store.state.editor.diagram) {
-            errorToast(this.$t("editor.noDiagram.title"), this.$t("editor.noDiagram.description"));
-        } else {
-            this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
-        }
-
+        // Generate the active diagram
+        this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         this.graph.centerContent();
     },
     watch: {

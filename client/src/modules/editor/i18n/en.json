@@ -1,5 +1,6 @@
 {
   "title": "Here you are in the editor!",
+  "nothing-loaded": "Please load a diagram",
   "exportDiagram": "Export Diagram",
   "toolbar": {
     "center": "Center (C)",

@@ -1,6 +1,6 @@
 <template>
     <div class="header">
-        <h3>{{ $store.state.editor.diagram?.name }}</h3>
+        <h3>{{ $store.state.editor.diagram ? $store.state.editor.diagram.name : "Editor" }}</h3>
         <button :disabled="!$store.state.editor.diagram" class="btn btn-secondary btn-icon" @click="exportDiagram">
             <svg>
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#export-bold`"></use>

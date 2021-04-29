@@ -1,5 +1,6 @@
 {
     "title": "Hier bist du im Editor!",
+    "nothing-loaded": "Bitte laden Sie ein Diagramm",
     "exportDiagram": "Diagramm exportieren",
     "toolbar": {
         "center": "Zentrieren (C)",
