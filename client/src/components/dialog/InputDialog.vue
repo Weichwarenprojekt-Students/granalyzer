@@ -7,7 +7,15 @@
             </svg>
             <div class="input-wrap">
                 <label for="name-input">{{ title }}</label>
-                <input tabindex="0" class="input-large" v-model="name" type="text" id="name-input" placeholder="Name" />
+                <input
+                    tabindex="0"
+                    class="input-large"
+                    v-model="name"
+                    type="text"
+                    id="name-input"
+                    placeholder="Name"
+                    autocomplete="off"
+                />
             </div>
         </div>
     </BaseDialog>

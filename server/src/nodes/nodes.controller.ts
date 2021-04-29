@@ -133,7 +133,7 @@ export class NodesController {
         description: "Identifier of the node which relations are requested",
     })
     @ApiOkResponse({
-        description: "Return the all relations of a node",
+        description: "Return all relations of a node",
         type: [Relation],
     })
     getRelationsOfNode(@Param("id") id: string) {

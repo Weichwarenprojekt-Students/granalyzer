@@ -59,7 +59,10 @@ export default class NodesController extends NodesMap {
         jointElement.addTo(this.graphHandler.graph.graph);
 
         // Directly set the size to an absolute value
-        node.size = node.info.size ?? this.graphHandler.graph.sizeOf(node.joint);
+        node.size =
+            node.info.size.width < 0 || node.info.size.height < 0
+                ? this.graphHandler.graph.sizeOf(node.joint)
+                : node.info.size;
     }
 
     /**

@@ -4,8 +4,9 @@ import { RootState } from "@/store";
 import { NodeInfo } from "./controls/nodes/models/NodeInfo";
 import { ApiDiagram } from "@/models/ApiDiagram";
 import { CreateNodeCommand } from "./controls/nodes/commands/CreateNodeCommand";
+import { g } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/RemoveNodeCommand";
-import { GET, PUT } from "@/utility";
+import { GET, PUT, randomRange } from "@/utility";
 import { RelationInfo } from "./controls/relations/models/RelationInfo";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
@@ -15,6 +16,8 @@ import { ZIndexCommand } from "@/modules/editor/modules/graph-editor/controls/co
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 import { ShapeNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/ShapeNodeCommand";
+import ApiNode from "@/models/data-scheme/ApiNode";
+import { CompoundCommand } from "@/modules/editor/modules/graph-editor/controls/commands/CompoundCommand";
 
 export class GraphEditorState {
     /**
@@ -46,6 +49,63 @@ export class GraphEditorState {
      * Temporarily save a new relation command while the new relation dialog is open
      */
     public newRelationCommand?: NewRelationCommand;
+
+    /**
+     * Amount of related nodes of the selected node
+     */
+    public relatedNodesAmount = 0;
+}
+
+/**
+ * Get create node command for one node
+ *
+ * @param graphHandler Instance of the graph handler
+ * @param nodeInfo The node info of the node to create
+ * @param labelColor The label color of the node
+ */
+async function getCreateNodeCommand(graphHandler: GraphHandler, nodeInfo: NodeInfo, labelColor?: string) {
+    // Perform api request
+    const res = await GET("/api/nodes/" + nodeInfo.ref.uuid + "/relations");
+    const newVar: ApiRelation[] = await res.json();
+
+    // Transform relations from api into Relation objects
+    const relations: RelationInfo[] = newVar.map((rel) => {
+        return {
+            from: { uuid: rel.from, index: 0 },
+            to: { uuid: rel.to, index: 0 },
+            uuid: rel.relationId,
+            name: rel.type,
+            color: Relation.NORMAL_RELATION_COLOR,
+        } as RelationInfo;
+    });
+
+    return new CreateNodeCommand(graphHandler, nodeInfo, relations, labelColor);
+}
+
+/**
+ * Get the uuids of all unique neighbors, which are not connected to the central node
+ *
+ * @param node The central node
+ */
+async function getUniqueNeighborIds(node: Node): Promise<Set<string> | undefined> {
+    // Get all relations directly connected to the node
+    const res = await GET("/api/nodes/" + node.reference.uuid + "/relations");
+    if (res.status !== 200) return;
+
+    // Unique ids of new nodes
+    const nodeIds = new Set<string>();
+
+    for (const rel of (await res.json()) as Array<ApiRelation>) {
+        // Remove circle relations
+        if (rel.from === rel.to) continue;
+        // Add relation if other node not yet connected to this node
+        if (![...node.outgoingRelations.values()].filter((r) => r.info.to.uuid === rel.to).length)
+            if (rel.to !== node.reference.uuid) nodeIds.add(rel.to);
+        if (![...node.incomingRelations.values()].filter((r) => r.info.from.uuid === rel.from).length)
+            if (rel.from !== node.reference.uuid) nodeIds.add(rel.from);
+    }
+
+    return nodeIds;
 }
 
 export const graphEditor = {
@@ -82,15 +142,6 @@ export const graphEditor = {
          */
         redo(state: GraphEditorState): void {
             state.graphHandler?.Redo();
-        },
-        /**
-         * Add a node
-         */
-        addNode(
-            state: GraphEditorState,
-            { node, relations, labelColor }: { node: NodeInfo; relations: RelationInfo[]; labelColor?: string },
-        ): void {
-            state.graphHandler?.addCommand(new CreateNodeCommand(state.graphHandler, node, relations, labelColor));
         },
         /**
          * Remove a node or relation
@@ -151,6 +202,14 @@ export const graphEditor = {
         setNewRelationCommand(state: GraphEditorState, command: NewRelationCommand | undefined): void {
             state.newRelationCommand = command;
         },
+
+        /**
+         * Updates the amount of nodes related to the selected nodes
+         */
+        updateRelatedNodesCount(state: GraphEditorState, relatedNodesAmount: number): void {
+            // Write amount of loaded related nodes to member
+            state.relatedNodesAmount = relatedNodesAmount;
+        },
     },
     actions: {
         /**
@@ -179,29 +238,21 @@ export const graphEditor = {
          * Add a node with its relations
          */
         async addNode(context: ActionContext<GraphEditorState, RootState>, node: NodeInfo): Promise<void> {
+            if (!context.state.graphHandler) return;
+
             context.commit("setEditorLoading", true);
-
-            // Perform api request
-            const res = await GET("/api/nodes/" + node.ref.uuid + "/relations");
-            const newVar: ApiRelation[] = res.status === 200 ? await res.json() : [];
-
-            // Transform relations from api into Relation objects
-            const relations: RelationInfo[] = newVar.map((rel) => {
-                return {
-                    from: { uuid: rel.from, index: 0 },
-                    to: { uuid: rel.to, index: 0 },
-                    uuid: rel.relationId,
-                    name: rel.type,
-                    color: Relation.NORMAL_RELATION_COLOR,
-                } as RelationInfo;
-            });
 
             const labelColor = context.rootState.overview?.labelColor.get(node.label)?.color;
 
-            context.commit("addNode", { node, relations, labelColor });
+            const createNodeCommand: CreateNodeCommand = await getCreateNodeCommand(
+                context.state.graphHandler,
+                node,
+                labelColor,
+            );
+
             context.commit("setEditorLoading", false);
 
-            await context.dispatch("saveChange");
+            await context.dispatch("addCommand", createNodeCommand);
         },
         /**
          * Remove a node
@@ -222,6 +273,9 @@ export const graphEditor = {
             context.commit("setEditorLoading", false);
 
             await context.dispatch("saveChange");
+
+            // TODO: link to selection
+            await context.dispatch("updateRelatedNodesCount");
         },
 
         /**
@@ -314,6 +368,87 @@ export const graphEditor = {
             }
 
             await context.dispatch("closeNewRelationDialog");
+        },
+        /**
+         * Add related nodes
+         */
+        async addRelatedNodes(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
+            if (!context.state.graphHandler || !context.state.selectedElement) return;
+
+            // Check if selected element is Node
+            if (!(context.state.selectedElement instanceof Node)) return;
+
+            context.commit("setEditorLoading", true);
+
+            const nodeIds = await getUniqueNeighborIds(context.state.selectedElement);
+
+            if (nodeIds != null) {
+                // Get array of create node commands
+                const commands: CreateNodeCommand[] = await context.dispatch("getNodeCommands", [
+                    nodeIds,
+                    context.state.selectedElement.joint.position(),
+                ]);
+
+                // Dispatch all commands at once
+                if (commands.length) await context.dispatch("addCommand", new CompoundCommand(commands));
+            }
+
+            context.commit("setEditorLoading", false);
+        },
+        /**
+         * Get create commands for multiple nodes
+         */
+        async getNodeCommands(
+            context: ActionContext<GraphEditorState, RootState>,
+            [nodeIds, originPosition]: [Set<string>, g.PlainPoint],
+        ): Promise<CreateNodeCommand[]> {
+            return (
+                await Promise.all(
+                    [...nodeIds].map(async (id) => {
+                        // Perform request
+                        const res = await GET(`/api/nodes/${id}`);
+
+                        if (!context.state.graphHandler || res.status !== 200) return;
+
+                        const apiNode: ApiNode = await res.json();
+
+                        // Transform to node info
+                        const nodeInfo: NodeInfo = {
+                            x: originPosition.x + randomRange(150, 500),
+                            y: originPosition.y + randomRange(150, 500),
+                            ref: {
+                                uuid: apiNode.nodeId,
+                                index: 0,
+                            },
+                            label: apiNode.label,
+                            name: apiNode.name,
+                            // TODO: incorporate new shapes?
+                            shape: "rectangle",
+                            color: context.rootState.overview?.labelColor.get(apiNode.label)?.color ?? "#333",
+                            borderColor: context.rootState.overview?.labelColor.get(apiNode.label)?.color ?? "#333",
+                            size: { width: -1, height: -1 },
+                        };
+
+                        return await getCreateNodeCommand(context.state.graphHandler, nodeInfo);
+                    }),
+                )
+            ).filter((el): el is CreateNodeCommand => !!el);
+        },
+        /**
+         * Updates the amount of nodes related to the selected nodes
+         */
+        async updateRelatedNodesCount(context: ActionContext<GraphEditorState, RootState>, node?: Node): Promise<void> {
+            if (!context.state.graphHandler) return;
+            if (!node) {
+                context.commit("updateRelatedNodesCount", 0);
+                return;
+            }
+
+            // Get ids of related nodes
+            const relatedNodeIds = await getUniqueNeighborIds(node);
+
+            // Pass amount of nodes to mutation
+            context.commit("updateRelatedNodesCount", relatedNodeIds?.size ?? 0);
         },
     },
     getters: {

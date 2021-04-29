@@ -244,3 +244,20 @@ export async function allFulfilledPromises<T>(promises: Array<Promise<T>>): Prom
         .filter((result): result is PromiseFulfilledResult<T> => result.status === "fulfilled")
         .map((res: PromiseFulfilledResult<T>) => res.value);
 }
+
+/**
+ * Returns a random range that is also randomly positive or negative
+ *
+ * @param min Minimum number generated
+ * @param max Maximum number generated
+ * @return Returns a number that is randomly positive or negative within the given range
+ */
+export function randomRange(min: number, max: number): number {
+    let rand = Math.random() * (max - min) + min;
+
+    if (Math.random() < 0.5) {
+        rand = rand * -1;
+    }
+
+    return rand;
+}

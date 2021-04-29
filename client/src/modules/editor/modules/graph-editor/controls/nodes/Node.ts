@@ -73,7 +73,7 @@ export class Node {
         newElement.position(this._joint.position().x, this._joint.position().y);
 
         // Update the joint element and safe the old reference
-        const oldNode = this._joint;
+        const oldElement = this._joint;
         this._joint = newElement;
         this.size = this.info.size;
 
@@ -82,7 +82,7 @@ export class Node {
         this.outgoingRelations.forEach((value) => (value.sourceNode = this));
 
         // Delete the old node
-        oldNode.remove();
+        oldElement.remove();
     }
 
     /**

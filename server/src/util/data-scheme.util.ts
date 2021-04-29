@@ -113,6 +113,7 @@ export class DataSchemeUtil {
 
         // Parse attributes which are contained in the scheme of the node label
         node.attributes = this.transformAttributes(label, node.attributes, includeDefaults);
+
         return node;
     }
 

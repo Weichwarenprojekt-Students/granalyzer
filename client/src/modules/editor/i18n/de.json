@@ -5,6 +5,7 @@
     "redo": "Wiederholen (Strg + Y)",
     "delete": "Löschen (Entf)",
     "relation": "Beziehungen editieren (R)",
+    "related": "{amount} Verwandte Elemente hinzufügen",
     "active": "Aktiv",
     "front": "Nach vorne bringen",
     "back": "Nach hinten bringen"

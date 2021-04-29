@@ -5,6 +5,7 @@
     "redo": "Redo (Ctrl + Y)",
     "delete": "Delete (Del)",
     "relation": "Edit relations (R)",
+    "related": "Add {amount} related nodes",
     "active": "Active",
     "front": "Bring to front",
     "back": "Bring to back"

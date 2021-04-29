@@ -349,7 +349,7 @@ export class JointGraph {
         const boundingClientRect = domElement?.getBoundingClientRect();
 
         // Couldn't get bounding box
-        if (boundingClientRect == null) return { width: 100, height: 100 };
+        if (boundingClientRect == null) return { width: 200, height: 30 };
 
         // Get coordinates of opposite corners on the joint js paper
         const upperLeft = this.paper.clientToLocalPoint(boundingClientRect.left, boundingClientRect.top);

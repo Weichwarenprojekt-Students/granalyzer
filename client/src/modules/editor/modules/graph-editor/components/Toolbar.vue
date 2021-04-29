@@ -2,7 +2,7 @@
     <!-- The extra divs are necessary for the tooltips to work -->
     <div class="toolbar-container">
         <div
-            :class="['item', $store.state.editor.graphEditor.relationModeActive ? 'selected' : '']"
+            :class="['item-relation-mode', $store.state.editor.graphEditor.relationModeActive ? 'selected' : '']"
             v-tooltip.bottom="$t('editor.toolbar.relation')"
             @click="toggleRelationMode"
         >
@@ -12,6 +12,20 @@
             <span class="addon" v-show="$store.state.editor.graphEditor.relationModeActive">
                 {{ $t("editor.toolbar.active") }}
             </span>
+        </div>
+        <div
+            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            v-tooltip.bottom="
+                $t('editor.toolbar.related', { amount: $store.state.editor.graphEditor.relatedNodesAmount })
+            "
+            @click="addRelatedNodes"
+        >
+            <svg class="icon">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#bold-diagram`"></use>
+            </svg>
+            <p v-if="$store.getters['editor/itemSelected']" class="related-nodes-number">
+                {{ $store.state.editor.graphEditor.relatedNodesAmount }}
+            </p>
         </div>
         <div
             :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
@@ -105,6 +119,15 @@ export default defineComponent({
          */
         toggleRelationMode(): void {
             this.$store.dispatch("editor/toggleRelationMode");
+            // TODO: move to deselection
+            this.$store.dispatch("editor/updateRelatedNodesCount");
+        },
+        /**
+         * Add related nodes to last selected node
+         */
+        addRelatedNodes(): void {
+            this.$store.dispatch("editor/addRelatedNodes");
+            this.$store.dispatch("editor/updateRelatedNodesCount");
         },
         /**
          * Bring selected element to the front
@@ -137,15 +160,19 @@ export default defineComponent({
 }
 
 .item {
+    position: relative;
+
     height: 40px;
-    width: auto;
-    min-width: 48px;
-    display: flex;
+    width: 48px;
     cursor: pointer;
     border-radius: @border_radius;
 
     &:hover {
         background: @accent_color;
+
+        .related-nodes-number {
+            background: @accent_color;
+        }
     }
 
     svg {
@@ -154,18 +181,37 @@ export default defineComponent({
         padding: 8px 0;
     }
 
-    .addon {
-        line-height: 40px;
-        padding-right: 8px;
-        width: auto;
-    }
-
     &.selected {
         background: @secondary_color;
 
         &:hover {
             background: @secondary_color;
         }
+    }
+
+    .related-nodes-number {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        border-radius: 2px;
+        background: #fff;
+        padding: 0 2px 0 2px;
+        font-size: 12px;
+        min-width: 20px;
+        text-align: center;
+    }
+}
+
+.item-relation-mode {
+    .item();
+    width: auto;
+    min-width: 48px;
+    display: flex;
+
+    .addon {
+        line-height: 40px;
+        padding-right: 8px;
+        width: auto;
     }
 }
 

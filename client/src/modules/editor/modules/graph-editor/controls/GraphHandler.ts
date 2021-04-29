@@ -70,6 +70,9 @@ export class GraphHandler {
         const { nodes, relations }: SerializableGraph = JSON.parse(jsonString);
 
         nodes.forEach((node) => {
+            // Set default size for diagrams that don't have a saved size
+            if (node.size == null) node.size = { width: -1, height: -1 };
+
             // Get color for the label of the node for updating the diagram if the color changed
             const labelColor = this.store.state.overview?.labelColor.get(node.label)?.color;
 

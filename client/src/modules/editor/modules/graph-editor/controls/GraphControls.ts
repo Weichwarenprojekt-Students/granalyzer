@@ -52,6 +52,9 @@ export class GraphControls {
             const node = this.graphHandler.nodes.getByJointId(elementView.model.id);
             this.graphHandler.store.commit("editor/setSelectedElement", node);
             await this.graphHandler.store.dispatch("inspector/selectNode", node?.reference.uuid);
+
+            // Load amount of related nodes to display in toolbar
+            await this.graphHandler.store.dispatch("editor/updateRelatedNodesCount", node);
         }
     }
 
@@ -87,6 +90,10 @@ export class GraphControls {
 
         // Reset inspector selection
         this.graphHandler.store.commit("inspector/resetSelection");
+
+        // Hide related nodes amount
+        // TODO: use await
+        this.graphHandler.store.dispatch("editor/updateRelatedNodesCount");
     }
 
     /**

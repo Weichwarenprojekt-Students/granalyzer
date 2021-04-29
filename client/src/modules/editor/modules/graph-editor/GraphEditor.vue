@@ -32,6 +32,7 @@ import { errorToast, infoToast } from "@/utility";
 import InputDialog from "@/components/dialog/InputDialog.vue";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
 import { NodeDrag } from "@/shared/NodeDrag";
+import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 
 export default defineComponent({
     name: "GraphEditor",
@@ -116,7 +117,7 @@ export default defineComponent({
 
             // Set the position and add the node accordingly
             const point = this.graph.paper.clientToLocalPoint({ x: evt.clientX, y: evt.clientY });
-            const node = {
+            const node: NodeInfo = {
                 ...nodeDrag,
                 x: point.x,
                 y: point.y,
@@ -124,6 +125,7 @@ export default defineComponent({
                     uuid: nodeDrag.nodeId,
                     index: 0,
                 },
+                size: { width: -1, height: -1 },
             };
             this.$store.dispatch("editor/addNode", node);
         },
