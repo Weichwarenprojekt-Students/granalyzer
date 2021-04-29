@@ -1,5 +1,5 @@
 import { NodeInfo } from "../models/NodeInfo";
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { RelationInfo } from "../../relations/models/RelationInfo";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";

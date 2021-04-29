@@ -9,7 +9,7 @@ import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/control
 import { GET, PUT } from "@/utility";
 import { RelationInfo } from "./controls/relations/models/RelationInfo";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { NewRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/NewRelationCommand";
 import { RemoveRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/RemoveRelationCommand";
 import { ZIndexCommand } from "@/modules/editor/modules/graph-editor/controls/commands/ZIndexCommand";

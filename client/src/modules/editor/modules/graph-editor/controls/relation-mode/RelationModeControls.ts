@@ -5,7 +5,7 @@ import { dia } from "jointjs";
 import { VisualRelationControls } from "@/modules/editor/modules/graph-editor/controls/relation-mode/VisualRelationControls";
 import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/DisableDbRelationCommand";
 import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/EnableDbRelationCommand";
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
 
 export class RelationModeControls {

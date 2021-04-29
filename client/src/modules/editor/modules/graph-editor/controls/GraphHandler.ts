@@ -1,7 +1,7 @@
 import { RelationInfo } from "./relations/models/RelationInfo";
 import { NodeInfo } from "./nodes/models/NodeInfo";
 import { SerializableGraph } from "@/modules/editor/modules/graph-editor/controls/models/SerializableGraph";
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { JointGraph } from "@/shared/JointGraph";
 import { Store } from "vuex";
 import { RootState } from "@/store";

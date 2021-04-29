@@ -1,4 +1,4 @@
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
