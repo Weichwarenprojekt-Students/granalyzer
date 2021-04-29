@@ -81,7 +81,11 @@ export class NodesController {
     }
 
     @Get(":id")
-    @ApiQuery({ name: "includeDefaults", type: "number" })
+    @ApiQuery({
+        name: "includeDefaults",
+        type: "number",
+        description: "True if the returned attributes shall contain default values",
+    })
     @ApiOperation({
         description: "Returns a specific node from the customer db matching by id",
     })

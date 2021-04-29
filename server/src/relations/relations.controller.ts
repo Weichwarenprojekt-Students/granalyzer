@@ -31,7 +31,11 @@ export class RelationsController {
     constructor(private readonly relationsService: RelationsService) {}
 
     @Get(":id")
-    @ApiQuery({ name: "includeDefaults", type: "number" })
+    @ApiQuery({
+        name: "includeDefaults",
+        type: "number",
+        description: "True if the returned attributes shall contain default values",
+    })
     @ApiOperation({ description: "Returns a specific relation from the customer db matching by id" })
     @ApiOkResponse({ description: "Return the relation with the given id", type: Relation })
     @ApiInternalServerErrorResponse()
