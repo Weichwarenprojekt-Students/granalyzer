@@ -57,7 +57,7 @@ export default defineComponent({
         },
     },
     mounted() {
-        this.heatAttribute.labelName = this.label.name;
+        this.heatAttribute = new HeatMapAttribute(this.label.name, null);
 
         // Check if the input fields are field with numbers
         this.$watch(

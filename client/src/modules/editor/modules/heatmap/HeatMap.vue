@@ -15,31 +15,21 @@ import HeatMapElement from "@/modules/editor/modules/heatmap/components/HeatMapE
 import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 import { defineComponent } from "vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
-import { GET, isUnexpected } from "@/utility";
 
 export default defineComponent({
     name: "HeatMap",
     components: { HeatMapElement },
-    mounted() {
-        console.log("yellow", this.getLinearColor(1, 10, 5));
-        console.log("red", this.getLinearColor(1, 10, 1));
-        console.log("green", this.getLinearColor(1, 10, 10));
-    },
     methods: {
         async onChange(heatMapAttribute: HeatMapAttribute) {
+            if (!heatMapAttribute.selectedAttributeName) return;
+
             const graphHandler = this.$store.state.editor.graphEditor.graphHandler;
 
-            const fetchNodePromises = [];
-
-            for (let node of graphHandler.nodes) {
-                if (node.nodeInfo.label === heatMapAttribute.labelName) {
-                    fetchNodePromises.push(this.fetchNode(node.nodeInfo.ref.uuid));
-                }
-            }
-
-            const affectedNodes = (await Promise.allSettled(fetchNodePromises))
-                .filter((promise) => promise.status === "fulfilled")
-                .map((promise) => (promise as PromiseFulfilledResult<ApiNode>).value);
+            // Get all nodes affected by the heatmap selection
+            const affectedNodes: ApiNode[] = await this.$store.dispatch(
+                "editor/heatMap/fetchAffectedNodes",
+                heatMapAttribute,
+            );
 
             for (let node of graphHandler.nodes) {
                 // Filter all the nodes affected by the heatmap label name
@@ -64,13 +54,6 @@ export default defineComponent({
 
             // Save the heatmap attribute to be serialized
             graphHandler.setHeatMapAttribute(heatMapAttribute);
-        },
-
-        async fetchNode(uuid: string): Promise<ApiNode | undefined> {
-            // Fetch node data
-            let result = await GET(`/api/nodes/${uuid}`);
-            if (isUnexpected(result)) return;
-            return result.json();
         },
 
         /**
@@ -99,7 +82,13 @@ export default defineComponent({
             const r = amountSteps > 255 ? padHex((255 - (amountSteps - 256)).toString(16)) : "FF";
 
             // Concat to final color
-            return "#" + r + g + "aa";
+            const color = "#" + r + g + "00";
+
+            console.log("start", start);
+            console.log("stop", stop);
+            console.log("value", value);
+            console.log("color", color);
+            return color;
         },
 
         /**
