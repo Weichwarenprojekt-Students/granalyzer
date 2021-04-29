@@ -176,20 +176,6 @@ export class GraphUtils {
     }
 
     /**
-     * Centers the graph
-     */
-    public centerGraph(): void {
-        const area = this.graph.paper.getArea();
-        const xMiddle = area.x + area.width / 2;
-        const yMiddle = area.y + area.height / 2;
-
-        const translate = this.graph.paper.translate();
-        const scale = this.graph.paper.scale();
-
-        this.graph.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
-    }
-
-    /**
      * Finds the node id that corresponds to a shape id
      *
      * @param id Id of the shape

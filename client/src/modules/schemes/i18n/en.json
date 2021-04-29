@@ -87,7 +87,8 @@
     "datatype": {
       "string": "Text",
       "number": "Number",
-      "color": "Color"
+      "color": "Color",
+      "enum": "Enum"
     },
     "nameRequired": {
       "title": "Name required",
@@ -96,6 +97,19 @@
     "nameDuplicate": {
       "title": "Name duplicate",
       "description": "The attribute {name} is defined multiple times!"
+    },
+    "invalidEnumDefault": {
+      "title": "Default value invalid",
+      "description": "The default value of {name} isn't a part of the defined enum!"
+    },
+    "editEnumConfig": {
+      "title": "Edit Enum",
+      "add": "Add",
+      "newElementPlaceholder": "New Element",
+      "duplicateElement": {
+        "title": "Duplicate value",
+        "description": "The enum already contains this value"
+      }
     }
   },
   "conflictView": {

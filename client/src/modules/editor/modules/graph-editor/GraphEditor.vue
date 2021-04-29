@@ -59,6 +59,7 @@ export default defineComponent({
         // Set up the graph and the controls and enable async loading (only for first load)
         this.graph = new JointGraph("joint", true);
         this.graph.paper.freeze();
+        this.graph.centerGraph();
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
 
         // Generate the active diagram if available
@@ -83,6 +84,8 @@ export default defineComponent({
         });
 
         this.$store.commit("editor/setEditorLoading", false);
+
+        this.graph.centerContent();
     },
     watch: {
         /**

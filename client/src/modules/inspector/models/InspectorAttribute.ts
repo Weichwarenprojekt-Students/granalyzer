@@ -1,4 +1,5 @@
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
+import { EnumConfigElement } from "@/modules/schemes/models/EnumConfigElement";
 
 export class InspectorAttribute {
     /**
@@ -8,12 +9,14 @@ export class InspectorAttribute {
      * @param value The value of the attribute
      * @param datatype The datatype of the value
      * @param active True if the attribute is active (not deleted)
+     * @param config Enum options and reserved for other complex data types
      */
     constructor(
         public name: string = "",
         public value: string | number = "",
         public datatype: string = ApiDatatype.STRING,
         public active = false,
+        public config: EnumConfigElement[] = [],
     ) {}
 
     /**

@@ -39,6 +39,7 @@
                 v-model:mandatory="attribute.mandatory"
                 v-model:defaultValue="attribute.defaultValue"
                 v-model:datatype="attribute.datatype"
+                v-model:config="attribute.config"
                 @delete="deleteAttribute(index)"
             />
 
@@ -66,6 +67,7 @@ import { deepCopy, errorToast, objectUUID } from "@/utility";
 import AttributeView from "@/modules/schemes/components/AttributeView.vue";
 import ConfirmDialog from "@/components/dialog/ConfirmDialog.vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
+import { validateAttributes } from "@/modules/schemes/utility";
 
 export default defineComponent({
     name: "LabelEditor",
@@ -183,27 +185,7 @@ export default defineComponent({
             }
 
             // Check if the attributes are valid
-            const names = new Set<string>();
-            for (let attribute of this.modifiedLabel.attributes) {
-                // If the name is empty
-                if (attribute.name === "") {
-                    errorToast(
-                        this.$t("schemes.attribute.nameRequired.title"),
-                        this.$t("schemes.attribute.nameRequired.description"),
-                    );
-                    return false;
-                }
-                // If the name is a duplicate
-                if (names.has(attribute.name)) {
-                    errorToast(
-                        this.$t("schemes.attribute.nameDuplicate.title"),
-                        this.$t("schemes.attribute.nameDuplicate.description", { name: attribute.name }),
-                    );
-                    return false;
-                }
-                names.add(attribute.name);
-            }
-            return true;
+            return validateAttributes(this.modifiedLabel.attributes);
         },
     },
 });

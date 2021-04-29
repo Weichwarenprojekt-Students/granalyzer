@@ -121,7 +121,7 @@ export const graphEditor = {
          * Set the active diagram
          */
         generateDiagramFromJSON(state: GraphEditorState, diagram: ApiDiagram): void {
-            if (state.graphHandler) state.graphHandler.fromJSON(diagram.serialized);
+            state.graphHandler?.fromJSON(diagram.serialized);
         },
 
         /**
@@ -129,6 +129,13 @@ export const graphEditor = {
          */
         setSelectedElement(state: GraphEditorState, selectedElement?: Node | Relation): void {
             state.selectedElement = selectedElement;
+        },
+
+        /**
+         * Centers the content of the graph
+         */
+        centerContent(state: GraphEditorState): void {
+            state.graphHandler?.graph.centerContent();
         },
 
         /**

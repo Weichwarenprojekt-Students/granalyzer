@@ -180,7 +180,7 @@ export function errorToast(summary: string, detail: string, life = 3000): void {
     setTimeout(() => (toastCount = Math.max(0, --toastCount)), life);
 
     // Show easter egg toast
-    if (toastCount < 3) return;
+    if (toastCount < 4) return;
     toastCount = 0;
     toast.removeAllGroups();
     warnToast(i18n.global.t("global.stopSpamming.title"), i18n.global.t("global.stopSpamming.description"), 10000);

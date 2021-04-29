@@ -72,14 +72,14 @@ export default defineComponent({
         // Set up the graph and the controls
         this.graph = new JointGraph("joint");
         this.graphUtils = new GraphUtils(this.graph, this.$store);
-        this.graphUtils.centerGraph();
+        this.graph.centerGraph();
 
         this.$store.commit("inventory/setGraphUtils", this.graphUtils);
 
-        window.addEventListener("resize", () => this.graphUtils.centerGraph());
+        window.addEventListener("resize", () => this.graph.centerGraph());
     },
     unmounted(): void {
-        window.removeEventListener("resize", () => this.graphUtils.centerGraph());
+        window.removeEventListener("resize", () => this.graph.centerGraph());
     },
     methods: {
         /**
@@ -122,7 +122,7 @@ export default defineComponent({
         clearGraphAndSettings(): void {
             this.graphUtils.resetNeighborPlacement();
             this.graphUtils.resetGraph();
-            this.graphUtils.centerGraph();
+            this.graph.centerGraph();
         },
         /**
          * Dropping of a node into the preview

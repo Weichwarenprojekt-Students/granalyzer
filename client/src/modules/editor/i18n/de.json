@@ -1,6 +1,7 @@
 {
   "title": "Hier bist du im Editor!",
   "toolbar": {
+    "center": "Zentrieren (C)",
     "undo": "Rückgängig (Strg + Z)",
     "redo": "Wiederholen (Strg + Y)",
     "delete": "Löschen (Entf)",

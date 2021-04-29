@@ -1,6 +1,7 @@
 <template>
     <!-- The extra divs are necessary for the tooltips to work -->
     <div class="toolbar-container">
+        <!-- Relation Edit Mode -->
         <div
             :class="['item-relation-mode', $store.state.editor.graphEditor.relationModeActive ? 'selected' : '']"
             v-tooltip.bottom="$t('editor.toolbar.relation')"
@@ -45,6 +46,15 @@
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#to-back`"></use>
             </svg>
         </div>
+
+        <!-- Center -->
+        <div :class="['item']" v-tooltip.bottom="$t('editor.toolbar.center')" @click="centerContent">
+            <svg class="icon">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#center`"></use>
+            </svg>
+        </div>
+
+        <!-- Undo -->
         <div
             :class="['item', $store.getters['editor/undoAvailable'] ? '' : 'item-disabled']"
             @click="undo"
@@ -54,6 +64,8 @@
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#undo`"></use>
             </svg>
         </div>
+
+        <!-- Redo -->
         <div
             :class="['item', $store.getters['editor/redoAvailable'] ? '' : 'item-disabled']"
             @click="redo"
@@ -63,6 +75,8 @@
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#redo`"></use>
             </svg>
         </div>
+
+        <!-- Trash -->
         <div
             :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
             @click="remove"
@@ -95,12 +109,19 @@ export default defineComponent({
             else if (e.key == "z" && e.ctrlKey && this.$store.getters["editor/undoAvailable"]) this.undo();
             else if (e.key == "y" && e.ctrlKey && this.$store.getters["editor/redoAvailable"]) this.redo();
             else if (e.key == "r") this.toggleRelationMode();
+            else if (e.key == "c") this.centerContent();
         },
         /**
          * Remove the last selected node
          */
         remove(): void {
             this.$store.dispatch("editor/removeNode");
+        },
+        /**
+         * Capture the content of the diagram
+         */
+        centerContent(): void {
+            this.$store.commit("editor/centerContent");
         },
         /**
          * Start an undo action
