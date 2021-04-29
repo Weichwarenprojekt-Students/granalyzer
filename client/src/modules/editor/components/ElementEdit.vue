@@ -23,6 +23,7 @@
                 optionValue="value"
                 v-model="elementStyle.shape"
                 @change="changeShape"
+                @hide="hide"
                 :placeholder="$t('global.dropdown.choose')"
                 :emptyMessage="$t('global.dropdown.empty')"
             />
@@ -105,6 +106,12 @@ export default defineComponent({
          */
         changeShape(): void {
             this.$store.dispatch("editor/changeNodeShape", this.elementStyle.shape);
+        },
+        /**
+         * Remove the focus from the dropdown (necessary to disable shortcuts)
+         */
+        hide(): void {
+            (document.activeElement as HTMLElement).blur();
         },
     },
 });
