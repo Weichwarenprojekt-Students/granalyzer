@@ -43,7 +43,7 @@ export class GraphControls {
             await this.store.dispatch("inspector/selectNode", node?.reference.uuid);
 
             // Load amount of related nodes to display in toolbar
-            await this.store.dispatch("editor/updateRelatedNodesCount", node?.reference.uuid);
+            await this.store.dispatch("editor/updateRelatedNodesCount", node);
         }
     }
 

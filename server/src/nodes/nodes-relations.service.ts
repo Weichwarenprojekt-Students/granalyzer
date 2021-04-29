@@ -18,41 +18,6 @@ export class NodesRelationsService {
     ) {}
 
     /**
-     * Get all related nodes that are connected to a certain node
-     *
-     * @param id The id of the node
-     */
-    async getRelatedNodes(id: string): Promise<Node[]> {
-        // Cypher query to get related nodes
-        // language=Cypher
-        const cypher = `
-        CALL db.index.fulltext.queryNodes("allNodesIndex", $nodeId) YIELD node AS n
-        MATCH (n)-[r]-(m)
-        WITH labels(m) AS lbls, m
-        UNWIND lbls AS label
-        RETURN m {. *, label:label} AS node
-        `;
-
-        const params = {
-            id,
-            nodeId: `\'\"${id}\"\'`,
-        };
-
-        // create callback
-        const resolveRead = (result) => {
-            const relatedNodes = result.records.map(async (rec) => await this.dataSchemeUtil.parseNode(rec));
-            // Filter relations which are not allowed by the scheme
-            return Promise.all(relatedNodes).then((res) => res.filter((el) => !!el));
-        };
-
-        // return nodes
-        return this.neo4jService
-            .read(cypher, params, this.database)
-            .then(resolveRead)
-            .catch(this.databaseUtil.catchDbError);
-    }
-
-    /**
      * Get all relations that are connected to a certain node
      *
      * @param id The id of the node
