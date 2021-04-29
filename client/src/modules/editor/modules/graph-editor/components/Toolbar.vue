@@ -17,7 +17,7 @@
 
         <!-- Add Related Nodes -->
         <div
-            :class="['item', enableAddRelationsButton ? '' : 'item-disabled']"
+            :class="['item', canAddNeighbors ? '' : 'item-disabled']"
             v-tooltip.bottom="
                 $t('editor.toolbar.related', { amount: $store.state.editor.graphEditor.relatedNodesAmount })
             "
@@ -26,7 +26,7 @@
             <svg class="icon">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#bold-diagram`"></use>
             </svg>
-            <p v-if="enableAddRelationsButton" class="related-nodes-number">
+            <p v-if="isNode" class="related-nodes-number">
                 {{ $store.state.editor.graphEditor.relatedNodesAmount }}
             </p>
         </div>
@@ -97,7 +97,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
+import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 
 export default defineComponent({
     name: "Toolbar",
@@ -117,7 +117,7 @@ export default defineComponent({
 
             // Find the right shortcut
             if (e.key == "r") this.toggleRelationMode();
-            else if (e.key == "a" && this.enableAddRelationsButton) this.addRelatedNodes();
+            else if (e.key == "a" && this.canAddNeighbors) this.addRelatedNodes();
             else if (e.key == "f" && this.$store.getters["editor/itemSelected"]) this.toFront();
             else if (e.key == "b" && this.$store.getters["editor/itemSelected"]) this.toBack();
             else if (e.key == "c") this.centerContent();
@@ -176,11 +176,19 @@ export default defineComponent({
         },
     },
     computed: {
-        enableAddRelationsButton(): boolean {
+        /**
+         * @return True if the currently selected node has neighbors to add
+         */
+        canAddNeighbors(): boolean {
+            return this.isNode && this.$store.state.editor.graphEditor.relatedNodesAmount > 0;
+        },
+        /**
+         * @return True if the currently selected element is a node
+         */
+        isNode(): boolean {
             return (
                 this.$store.getters["editor/itemSelected"] &&
-                !(this.$store.state.editor.graphEditor.selectedElement instanceof Relation) &&
-                this.$store.state.editor.graphEditor.relatedNodesAmount > 0
+                this.$store.state.editor.graphEditor.selectedElement instanceof Node
             );
         },
     },
@@ -211,10 +219,6 @@ export default defineComponent({
 
     &:hover {
         background: @accent_color;
-
-        .related-nodes-number {
-            background: @accent_color;
-        }
     }
 
     svg {
@@ -233,14 +237,13 @@ export default defineComponent({
 
     .related-nodes-number {
         position: absolute;
-        bottom: 2px;
-        right: 2px;
-        border-radius: 2px;
-        background: #fff;
-        padding: 0 2px 0 2px;
-        font-size: 12px;
-        min-width: 20px;
-        text-align: center;
+        bottom: 6px;
+        right: 10px;
+        border-radius: 4px;
+        background: @dark;
+        color: white;
+        padding: 1px 4px 0 4px;
+        font-size: 9px;
     }
 }
 
@@ -266,6 +269,10 @@ export default defineComponent({
         &:hover {
             background: transparent;
         }
+    }
+
+    .related-nodes-number {
+        background: @dark_accent;
     }
 }
 </style>
