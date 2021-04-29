@@ -4,7 +4,7 @@
         <svg class="close" v-if="inputValue.length > 0" @click="inputValue = ''">
             <use xlink:href="@/assets/img/icons.svg#delete"></use>
         </svg>
-        <svg class="filter-icon" @click="$emit('show-filter')">
+        <svg v-if="showFilter" class="filter-icon" @click="$emit('show-filter')">
             <use :xlink:href="`${require('@/assets/img/icons.svg')}#filter`"></use>
         </svg>
     </label>
@@ -16,6 +16,11 @@ import { defineComponent } from "vue";
 export default defineComponent({
     name: "Searchbar",
     props: {
+        // Visibility of filter icon
+        showFilter: {
+            type: Boolean,
+            default: true,
+        },
         // The input value
         modelValue: {
             type: String,
