@@ -100,7 +100,7 @@ export class ResizeControls {
 
         // Set current element and register event for moving handles with the node
         this.currentNode = node;
-        this.currentNode.jointElement.on("change:position change:size", () => {
+        this.currentNode.joint.on("change:position change:size", () => {
             this.blockResizing = true;
             this.updateHandles();
             this.blockResizing = false;
@@ -126,8 +126,7 @@ export class ResizeControls {
      */
     public deactivate(): void {
         // Remove event listener from current node
-        this.currentNode?.jointElement.off("change:position change:size", this.updateHandles);
-
+        this.currentNode?.joint.off("change:position change:size", this.updateHandles);
         // Disable resizing
         this.currentNode = undefined;
         this.blockResizing = true;
@@ -178,11 +177,8 @@ export class ResizeControls {
         if (!this.currentNode) return false;
 
         // Get current position and size of the node
-        const pos = this.currentNode.jointElement.position();
-        const size = this.graphHandler.graph.sizeOf(this.currentNode.jointElement);
-
-        // If no size can be determined, handles can't be updated
-        if (!size) return false;
+        const pos = this.currentNode.joint.position();
+        const size = this.graphHandler.graph.sizeOf(this.currentNode.joint);
 
         // Set the positions of the handles to the four corners of the node, taking offsets into consideration
         this.upperLeft.position(pos.x - ResizeControls.HANDLE_SIZE, pos.y - ResizeControls.HANDLE_SIZE);
@@ -208,11 +204,8 @@ export class ResizeControls {
             this.blockResizing = true;
 
             // Get current position and size of the node
-            const pos = this.currentNode.jointElement.position();
-            const size = this.graphHandler.graph.sizeOf(this.currentNode.jointElement);
-
-            // If no size can be determined, don't resize the node
-            if (!size) return;
+            const pos = this.currentNode.joint.position();
+            const size = this.graphHandler.graph.sizeOf(this.currentNode.joint);
 
             // Calculate width and height according to the direction in which to resize
             const [width, height] =

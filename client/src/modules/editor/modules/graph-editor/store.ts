@@ -4,7 +4,6 @@ import { RootState } from "@/store";
 import { NodeInfo } from "./controls/nodes/models/NodeInfo";
 import { ApiDiagram } from "@/models/ApiDiagram";
 import { CreateNodeCommand } from "./controls/nodes/commands/CreateNodeCommand";
-import { dia } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/RemoveNodeCommand";
 import { GET, PUT } from "@/utility";
 import { RelationInfo } from "./controls/relations/models/RelationInfo";
@@ -13,6 +12,9 @@ import { ICommand } from "@/modules/editor/modules/graph-editor/controls/command
 import { NewRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/NewRelationCommand";
 import { RemoveRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/RemoveRelationCommand";
 import { ZIndexCommand } from "@/modules/editor/modules/graph-editor/controls/commands/ZIndexCommand";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
+import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
+import { ShapeNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/ShapeNodeCommand";
 
 export class GraphEditorState {
     /**
@@ -23,7 +25,7 @@ export class GraphEditorState {
     /**
      * The diagram element which has been clicked most recently
      */
-    public selectedElement?: dia.Element | dia.Link;
+    public selectedElement?: Node | Relation;
 
     /**
      * True if the graph editor is currently loading
@@ -65,8 +67,8 @@ export const graphEditor = {
         /**
          * Set the clicked diagram element
          */
-        setSelectedElement(state: GraphEditorState, diagElement?: dia.Element | dia.Link): void {
-            state.selectedElement = diagElement;
+        setSelectedElement(state: GraphEditorState, selectedElement?: Node | Relation): void {
+            state.selectedElement = selectedElement;
         },
 
         /**
@@ -95,20 +97,19 @@ export const graphEditor = {
          */
         removeNode(state: GraphEditorState): void {
             if (!state.graphHandler) return;
-
-            if (state.selectedElement) {
-                if (state.selectedElement instanceof dia.Element) {
-                    const node = state.graphHandler.nodes.getByJointId(state.selectedElement.id);
-
-                    if (node != null) state.graphHandler.addCommand(new RemoveNodeCommand(state.graphHandler, node));
-                } else {
-                    const relation = state.graphHandler.relations.getByJointId(state.selectedElement.id);
-                    if (relation != null)
-                        state.graphHandler.addCommand(new RemoveRelationCommand(state.graphHandler, relation));
-                }
-            }
+            if (state.selectedElement instanceof Node)
+                state.graphHandler.addCommand(new RemoveNodeCommand(state.graphHandler, state.selectedElement));
+            else if (state.selectedElement instanceof Relation)
+                state.graphHandler.addCommand(new RemoveRelationCommand(state.graphHandler, state.selectedElement));
 
             state.graphHandler.controls.resetSelection();
+        },
+        /**
+         * Remove a node or relation
+         */
+        changeNodeShape(state: GraphEditorState, shape: string): void {
+            if (!state.graphHandler || !(state.selectedElement instanceof Node)) return;
+            state.graphHandler.addCommand(new ShapeNodeCommand(state.graphHandler, state.selectedElement, shape));
         },
         /**
          * Active/Deactivate the loading state
@@ -190,7 +191,8 @@ export const graphEditor = {
                     from: { uuid: rel.from, index: 0 },
                     to: { uuid: rel.to, index: 0 },
                     uuid: rel.relationId,
-                    label: rel.type,
+                    name: rel.type,
+                    color: Relation.NORMAL_RELATION_COLOR,
                 } as RelationInfo;
             });
 
@@ -207,6 +209,16 @@ export const graphEditor = {
         async removeNode(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
             context.commit("removeNode");
+            context.commit("setEditorLoading", false);
+
+            await context.dispatch("saveChange");
+        },
+        /**
+         * Change the shape of a node
+         */
+        async changeNodeShape(context: ActionContext<GraphEditorState, RootState>, shape: string): Promise<void> {
+            context.commit("setEditorLoading", true);
+            context.commit("changeNodeShape", shape);
             context.commit("setEditorLoading", false);
 
             await context.dispatch("saveChange");
@@ -264,7 +276,7 @@ export const graphEditor = {
 
             const zIndexCommand = new ZIndexCommand(
                 context.state.graphHandler,
-                context.state.selectedElement,
+                context.state.selectedElement.joint,
                 bringToFront,
             );
 

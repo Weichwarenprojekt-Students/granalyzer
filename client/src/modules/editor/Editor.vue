@@ -51,9 +51,9 @@ import OverviewList from "@/modules/overview-list/OverviewList.vue";
 import GraphEditor from "@/modules/editor/modules/graph-editor/GraphEditor.vue";
 import ReadInspector from "@/modules/inspector/ReadInspector.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
-import VisualElements from "@/modules/editor/modules/graph-editor/components/VisualElements.vue";
+import VisualElements from "@/modules/editor/components/VisualElements.vue";
 import { NodeDrag } from "@/shared/NodeDrag";
-import NodeEdit from "@/modules/editor/modules/graph-editor/components/NodeEdit.vue";
+import NodeEdit from "@/modules/editor/components/ElementEdit.vue";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
 
 export default defineComponent({

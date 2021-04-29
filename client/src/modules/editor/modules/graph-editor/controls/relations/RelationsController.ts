@@ -54,7 +54,7 @@ export default class RelationsController extends RelationsMap {
      * @param source The source node of the relation
      * @param target The target node of the relation
      * @param relationModeType The type of relation in relation mode, defaults to NORMAL
-     * @param labelText An optional text for the relation
+     * @param name An optional text for the relation
      * @param uuid An optional uuid for the relation
      * @param z The z index of the relation
      */
@@ -62,7 +62,7 @@ export default class RelationsController extends RelationsMap {
         source: Node,
         target: Node,
         relationModeType = RelationModeType.NORMAL,
-        labelText?: string,
+        name = "",
         uuid?: string,
         z?: number,
     ): Relation {
@@ -71,31 +71,31 @@ export default class RelationsController extends RelationsMap {
             uuid: uuid ?? "",
             from: source.reference,
             to: target.reference,
+            color: Relation.NORMAL_RELATION_COLOR,
+            name,
             z,
         };
 
         // Create the link and connect it to source and target
         const link = new shapes.standard.Link();
-        link.source(source.jointElement);
-        link.target(target.jointElement);
+        link.source(source.joint);
+        link.target(target.joint);
         link.attr({
             line: {
+                stroke: relationInfo.color,
                 strokeWidth: 4,
             },
         });
 
         // Optionally set a label
-        if (labelText) {
-            link.appendLabel(Relation.makeLabel(labelText, relationModeType));
-            relationInfo.label = labelText;
-        }
+        if (name) link.appendLabel(Relation.makeLabel(name, relationModeType));
 
         // Create the relation and add it to the graph
         const relation = new Relation(relationInfo, link, source, target, relationModeType);
         this.addExisting(relation);
 
         // Set z index
-        if (relationInfo.z != null) relation.jointLink.set("z", relationInfo.z);
+        if (relationInfo.z != null) relation.joint.set("z", relationInfo.z);
 
         return relation;
     }
@@ -111,7 +111,7 @@ export default class RelationsController extends RelationsMap {
 
         // Add relation to RelationsMap and to the joint js graph
         this.add(relation);
-        relation.jointLink.addTo(this.graphHandler.graph.graph);
+        relation.joint.addTo(this.graphHandler.graph.graph);
 
         // Register the relation on the source and target nodes
         relation.reconnect();
@@ -121,7 +121,7 @@ export default class RelationsController extends RelationsMap {
 
     public removeExisting(relation: Relation): void {
         this.remove(relation);
-        relation.jointLink.remove();
+        relation.joint.remove();
 
         // Remove relation from source and target nodes
         relation.disconnect();
@@ -134,7 +134,7 @@ export default class RelationsController extends RelationsMap {
      */
     public setLinkTools(relation: Relation): void {
         // Remove all existing tools
-        const link = relation.jointLink;
+        const link = relation.joint;
         const linkView = link.findView(this.graphHandler.graph.paper);
         linkView.removeTools();
 

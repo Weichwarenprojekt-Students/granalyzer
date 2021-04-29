@@ -339,7 +339,7 @@ export class JointGraph {
      * @param node The node of which to get the size from
      * @return Size of the node or undefined, if size can't be determined
      */
-    public sizeOf(node: dia.Cell): { width: number; height: number } | undefined {
+    public sizeOf(node: dia.Cell): { width: number; height: number } {
         // Get size directly from jointJs and if it's set correctly (!= 1) return it
         const jointSize = node.getBBox();
         if (jointSize.width !== 1 && jointSize.height !== 1) return jointSize;
@@ -349,7 +349,7 @@ export class JointGraph {
         const boundingClientRect = domElement?.getBoundingClientRect();
 
         // Couldn't get bounding box
-        if (boundingClientRect == null) return;
+        if (boundingClientRect == null) return { width: 100, height: 100 };
 
         // Get coordinates of opposite corners on the joint js paper
         const upperLeft = this.paper.clientToLocalPoint(boundingClientRect.left, boundingClientRect.top);

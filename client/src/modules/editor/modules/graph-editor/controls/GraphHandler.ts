@@ -89,7 +89,7 @@ export class GraphHandler {
                     source,
                     target,
                     RelationModeType.NORMAL,
-                    relation.label,
+                    relation.name,
                     relation.uuid,
                     relation.z,
                 );
@@ -108,23 +108,22 @@ export class GraphHandler {
         // Prepare the serialization object for each node
         const nodes: Array<NodeInfo> = Array.from(this.nodes, (node) => {
             // Get current position of the element
-            const { x, y } = node.jointElement.position();
-
+            const { x, y } = node.joint.position();
             return {
-                ...node.nodeInfo,
+                ...node.info,
                 x,
                 y,
-                z: node.jointElement.get("z"),
+                z: node.joint.get("z"),
             } as NodeInfo;
         });
 
         // Map normal and visual relations to an array
         const relations: RelationInfo[] = Array.from(this.relations.savableRelations(), (relation: Relation) => {
             return {
-                ...relation.relationInfo,
+                ...relation.info,
                 vertices: relation.vertices,
                 anchors: relation.anchors,
-                z: relation.jointLink.get("z"),
+                z: relation.joint.get("z"),
             } as RelationInfo;
         });
 
@@ -209,7 +208,6 @@ export class GraphHandler {
             "element:pointerdown": async (elementView) => {
                 // Handle pointer down on a resize handle
                 this.controls.resizeControls.pointerDownCallback(elementView);
-
                 this.controls.startNodeMovement(elementView);
                 await this.controls.selectNode(elementView);
             },

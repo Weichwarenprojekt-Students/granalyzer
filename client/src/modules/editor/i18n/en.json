@@ -26,7 +26,7 @@
     "setRelationName": "New visual relation"
   },
   "nodeEdit": {
-    "title": "Node Edit",
+    "title": "Element Edit",
     "text": "Text",
     "shape": "Shape",
     "color": "Color",

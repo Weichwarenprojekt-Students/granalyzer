@@ -21,7 +21,11 @@ export interface RelationInfo {
     /**
      * The label text of the relation
      */
-    label?: string;
+    name: string;
+    /**
+     * The color value
+     */
+    color: string;
     /**
      * Vertices of the relation
      */

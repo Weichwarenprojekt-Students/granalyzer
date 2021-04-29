@@ -280,7 +280,7 @@ export class GraphUtils {
                     shape: "rectangle",
                     x: diagEl?.attributes.position.x,
                     y: diagEl?.attributes.position.y,
-                    size: diagEl ? this.graph.sizeOf(diagEl) : undefined,
+                    size: diagEl ? this.graph.sizeOf(diagEl) : { width: 100, height: 100 },
                 };
             },
         );
@@ -300,7 +300,7 @@ export class GraphUtils {
                     uuid: relation.to,
                     index: 0,
                 },
-                label: relation.type,
+                name: relation.type,
                 vertices: link.vertices(),
             } as RelationInfo;
         };

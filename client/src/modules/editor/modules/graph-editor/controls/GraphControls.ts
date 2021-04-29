@@ -44,13 +44,13 @@ export class GraphControls {
         // Only select nodes outside of relation mode
         if (!this.graphHandler.relationMode.active) {
             this.graphHandler.graph.selectElement(elementView);
-            this.graphHandler.store.commit("editor/setSelectedElement", elementView.model);
 
             // Activate resizing handles
             this.resizeControls.activate(elementView);
 
             // Set the currently selected node for inspector
             const node = this.graphHandler.nodes.getByJointId(elementView.model.id);
+            this.graphHandler.store.commit("editor/setSelectedElement", node);
             await this.graphHandler.store.dispatch("inspector/selectNode", node?.reference.uuid);
         }
     }
@@ -67,10 +67,10 @@ export class GraphControls {
         // Only select relations outside of relation mode
         if (!this.graphHandler.relationMode.active) {
             this.graphHandler.graph.selectElement(linkView);
-            this.graphHandler.store.commit("editor/setSelectedElement", linkView.model);
 
             // Set the currently selected relation for inspector
             const relation = this.graphHandler.relations.getByJointId(linkView.model.id);
+            this.graphHandler.store.commit("editor/setSelectedElement", relation);
             await this.graphHandler.store.dispatch("inspector/selectRelation", relation?.uuid);
         }
     }

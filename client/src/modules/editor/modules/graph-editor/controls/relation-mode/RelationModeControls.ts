@@ -61,15 +61,11 @@ export class RelationModeControls {
         for (const relation of this.graphHandler.relations) {
             const apiRel = relationMap.get(relation.uuid);
 
-            if (
-                apiRel &&
-                apiRel.from === relation.relationInfo.from.uuid &&
-                apiRel.to === relation.relationInfo.to.uuid
-            ) {
+            if (apiRel && apiRel.from === relation.info.from.uuid && apiRel.to === relation.info.to.uuid) {
                 // If the api relation with the same uuid has the same start and end node, register it as found db relation
                 alreadyPresentRelations.add(
-                    `${relation.uuid}-${relation.relationInfo.from.uuid}.${relation.relationInfo.from.index}` +
-                        `-${relation.relationInfo.to.uuid}.${relation.relationInfo.to.index}`,
+                    `${relation.uuid}-${relation.info.from.uuid}.${relation.info.from.index}` +
+                        `-${relation.info.to.uuid}.${relation.info.to.index}`,
                 );
             } else {
                 // Else it's a visual relation
@@ -94,15 +90,15 @@ export class RelationModeControls {
         }
 
         for (const visualRel of this.graphHandler.relations.visualRelations()) {
-            const link = visualRel.jointLink;
+            const link = visualRel.joint;
 
             // Get IDs of source and target elements, if either is not an element but a point, id is undefined
             const [sourceId, targetId] = [link.source()?.id, link.target()?.id];
 
             if (sourceId == null || targetId == null) {
                 // One or both endpoints are not connected to an element, relation should be reset
-                visualRel.jointLink.source(visualRel.sourceNode.jointElement);
-                visualRel.jointLink.target(visualRel.targetNode.jointElement);
+                visualRel.joint.source(visualRel.sourceNode.joint);
+                visualRel.joint.target(visualRel.targetNode.joint);
             }
 
             // Switch relation to normally displayed relation
@@ -201,8 +197,7 @@ export class RelationModeControls {
                 }
 
                 // Rearrange overlapping relations if it has a added sibling and is not yet manually positioned
-                if (addedNewRelation)
-                    this.graphHandler.graph.rearrangeOverlappingRelations(fromNode.jointElement, false);
+                if (addedNewRelation) this.graphHandler.graph.rearrangeOverlappingRelations(fromNode.joint, false);
             }
         });
     }

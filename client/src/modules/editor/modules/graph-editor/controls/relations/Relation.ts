@@ -27,12 +27,12 @@ export class Relation {
     /**
      * The corresponding relation info
      */
-    public readonly relationInfo: RelationInfo;
+    public readonly info: RelationInfo;
 
     /**
      * The joint link
      */
-    public readonly jointLink: dia.Link;
+    public readonly joint: dia.Link;
 
     /**
      * Constructor
@@ -50,8 +50,8 @@ export class Relation {
         targetNode: Node,
         relationModeType = RelationModeType.NORMAL,
     ) {
-        this.relationInfo = relation;
-        this.jointLink = jointLink;
+        this.info = relation;
+        this.joint = jointLink;
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;
         this.relationModeType = relationModeType;
@@ -79,10 +79,10 @@ export class Relation {
         this._relationModeType = value;
 
         // Change style of the link
-        this.jointLink.attr({ line: { stroke: Relation.getColorForRelationModeType(value) } });
+        this.joint.attr({ line: { stroke: Relation.getColorForRelationModeType(value) } });
 
         // Change style of the label separately
-        this.jointLink.label(0, { attrs: { rect: { fill: Relation.getColorForRelationModeType(value) } } });
+        this.joint.label(0, { attrs: { rect: { fill: Relation.getColorForRelationModeType(value) } } });
     }
 
     /**
@@ -111,9 +111,9 @@ export class Relation {
             this._sourceNode.outgoingRelations.delete(this.jointId);
 
         this._sourceNode = newNode;
-        this.jointLink.source(newNode.jointElement);
+        this.joint.source(newNode.joint);
 
-        this.relationInfo.from = newNode.reference;
+        this.info.from = newNode.reference;
 
         // Register the relation on the new node
         this._sourceNode.outgoingRelations.set(this.jointId, this);
@@ -145,9 +145,9 @@ export class Relation {
             this._targetNode.incomingRelations.delete(this.jointId);
 
         this._targetNode = newNode;
-        this.jointLink.target(newNode.jointElement);
+        this.joint.target(newNode.joint);
 
-        this.relationInfo.to = newNode.reference;
+        this.info.to = newNode.reference;
 
         // Register the relation on the new node
         this._targetNode.incomingRelations.set(this.jointId, this);
@@ -157,21 +157,21 @@ export class Relation {
      * The backend uuid of the relation
      */
     public get uuid(): string {
-        return this.relationInfo.uuid;
+        return this.info.uuid;
     }
 
     /**
      * The joint js uuid
      */
     public get jointId(): JointID {
-        return this.jointLink.id;
+        return this.joint.id;
     }
 
     /**
      * Vertices of the joint js link
      */
     public get vertices(): Array<dia.Link.Vertex> {
-        return this.jointLink.vertices();
+        return this.joint.vertices();
     }
 
     /**
@@ -181,15 +181,15 @@ export class Relation {
      */
     public set vertices(vertices: Array<dia.Link.Vertex>) {
         // Update relation info as well
-        this.relationInfo.vertices = vertices;
-        this.jointLink.vertices(vertices);
+        this.info.vertices = vertices;
+        this.joint.vertices(vertices);
     }
 
     /**
      * Anchors of the joint link
      */
     public get anchors(): Anchors {
-        return { sourceAnchor: this.jointLink.source().anchor, targetAnchor: this.jointLink.target().anchor };
+        return { sourceAnchor: this.joint.source().anchor, targetAnchor: this.joint.target().anchor };
     }
 
     /**
@@ -201,8 +201,8 @@ export class Relation {
         const { sourceAnchor, targetAnchor } = anchors;
 
         // Set new anchors, if any are undefined, just set the center anchor
-        this.jointLink.source({ ...this.jointLink.source(), anchor: sourceAnchor ?? { name: "center" } });
-        this.jointLink.target({ ...this.jointLink.target(), anchor: targetAnchor ?? { name: "center" } });
+        this.joint.source({ ...this.joint.source(), anchor: sourceAnchor ?? { name: "center" } });
+        this.joint.target({ ...this.joint.target(), anchor: targetAnchor ?? { name: "center" } });
     }
 
     /**

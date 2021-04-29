@@ -42,11 +42,7 @@ export default class NodesController extends NodesMap {
         this.addExisting(node);
 
         // Set z index
-        if (nodeInfo.z != null) node.jointElement.set("z", nodeInfo.z);
-
-        // Set the size to an absolute value
-        const newSize = nodeInfo.size ?? this.graphHandler.graph.sizeOf(node.jointElement);
-        if (newSize) node.size = newSize;
+        if (nodeInfo.z != null) node.joint.set("z", nodeInfo.z);
 
         return node;
     }
@@ -59,12 +55,11 @@ export default class NodesController extends NodesMap {
     public addExisting(node: Node): void {
         // Add node to NodesMap and to the joint js graph
         this.add(node);
-        const jointElement = node.jointElement;
+        const jointElement = node.joint;
         jointElement.addTo(this.graphHandler.graph.graph);
 
         // Directly set the size to an absolute value
-        const size = this.graphHandler.graph.sizeOf(node.jointElement);
-        if (size) node.size = size;
+        node.size = node.info.size ?? this.graphHandler.graph.sizeOf(node.joint);
     }
 
     /**
@@ -75,10 +70,29 @@ export default class NodesController extends NodesMap {
     public removeExisting(node: Node): void {
         // Remove from node map and joint js graph
         this.remove(node);
-        node.jointElement.remove();
+        node.joint.remove();
 
         // Remove all relations to and from the node
         for (const rel of node.incomingRelations.values()) this.graphHandler.relations.removeExisting(rel);
         for (const rel of node.outgoingRelations.values()) this.graphHandler.relations.removeExisting(rel);
+    }
+
+    /**
+     * Update the joint element of a node
+     */
+    public async setShape(node: Node, shape: string): Promise<void> {
+        await this.graphHandler.controls.resizeControls.deactivate();
+        // Create the new joint element
+        node.info.shape = shape;
+        const newNode = parseNodeShape(node.info);
+
+        // Add the element and update the node reference
+        newNode.addTo(this.graphHandler.graph.graph);
+        this.remove(node);
+        node.joint = newNode;
+        this.add(node);
+
+        // Select the item
+        await this.graphHandler.controls.selectNode(this.graphHandler.graph.paper.findViewByModel(newNode));
     }
 }

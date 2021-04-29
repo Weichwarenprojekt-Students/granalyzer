@@ -31,7 +31,6 @@ import { JointGraph } from "@/shared/JointGraph";
 import { errorToast, infoToast } from "@/utility";
 import InputDialog from "@/components/dialog/InputDialog.vue";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
-import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 import { NodeDrag } from "@/shared/NodeDrag";
 
 export default defineComponent({
@@ -68,11 +67,14 @@ export default defineComponent({
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
         }
 
+        // Force the paper to update the DOM
         this.graph.paper.updateViews();
         this.graph.paper.unfreeze();
+
         // Disable async loading and remove loading bar
         this.graph.paper.options.async = false;
 
+        // Hide the link tools (for bending)
         requestAnimationFrame(() => {
             for (const link of this.graph.graph.getLinks()) {
                 this.graph.paper.findViewByModel(link)?.hideTools();
@@ -114,7 +116,7 @@ export default defineComponent({
 
             // Set the position and add the node accordingly
             const point = this.graph.paper.clientToLocalPoint({ x: evt.clientX, y: evt.clientY });
-            const node: NodeInfo = {
+            const node = {
                 ...nodeDrag,
                 x: point.x,
                 y: point.y,

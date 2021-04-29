@@ -20,7 +20,7 @@ export interface NodeInfo {
     /**
      * The size of the node
      */
-    size?: NodeSize;
+    size: NodeSize;
     /**
      * The node reference
      */

@@ -5,15 +5,15 @@
         </div>
 
         <!-- The node text -->
-        <div class="attribute-item">
-            <div class="attribute-key">
+        <div :class="['attribute-item', { 'attribute-item-disabled': !isNode && !isRelation }]">
+            <div class="attribute-key" :disabled="true">
                 {{ $t("editor.nodeEdit.text") }}
             </div>
-            <input v-model="node.name" class="input text-input" :placeholder="$t('global.input.placeholder')" />
+            <input v-model="elementStyle.name" class="input text-input" :placeholder="$t('global.input.placeholder')" />
         </div>
 
         <!-- The node shape -->
-        <div class="attribute-item">
+        <div :class="['attribute-item', { 'attribute-item-disabled': !isNode }]">
             <div class="attribute-key">
                 {{ $t("editor.nodeEdit.shape") }}
             </div>
@@ -21,26 +21,27 @@
                 :options="shapes"
                 optionLabel="name"
                 optionValue="value"
-                v-model="node.shape"
+                v-model="elementStyle.shape"
+                @change="changeShape"
                 :placeholder="$t('global.dropdown.choose')"
                 :emptyMessage="$t('global.dropdown.empty')"
             />
         </div>
 
         <!-- The fill color -->
-        <div class="attribute-item">
+        <div :class="['attribute-item', { 'attribute-item-disabled': !isNode && !isRelation }]">
             <div class="attribute-key">
                 {{ $t("editor.nodeEdit.color") }}
             </div>
-            <ColorMultiInput v-model="node.color" />
+            <ColorMultiInput v-model="elementStyle.color" />
         </div>
 
         <!-- The border color -->
-        <div class="attribute-item">
+        <div :class="['attribute-item', { 'attribute-item-disabled': !isNode && !isRelation }]">
             <div class="attribute-key">
                 {{ $t("editor.nodeEdit.borderColor") }}
             </div>
-            <ColorMultiInput v-model="node.borderColor" />
+            <ColorMultiInput v-model="elementStyle.borderColor" />
         </div>
     </div>
 </template>
@@ -49,15 +50,18 @@
 import { defineComponent } from "vue";
 import { NodeShapes } from "@/shared/NodeShapes";
 import ColorMultiInput from "@/components/ColorMultiInput.vue";
+import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
+import { deepCopy } from "@/utility";
 
 export default defineComponent({
-    name: "NodeEdit",
+    name: "ElementEdit",
     components: { ColorMultiInput },
     data() {
         return {
             // The modified object
-            node: {
+            elementStyle: {
                 name: "Name",
                 shape: NodeShapes.RECTANGLE,
                 color: "#888888",
@@ -71,6 +75,37 @@ export default defineComponent({
                 };
             }),
         };
+    },
+    computed: {
+        /**
+         * @return True if the currently selected element is a node
+         */
+        isNode(): boolean {
+            return this.$store.state.editor.graphEditor.selectedElement instanceof Node;
+        },
+        /**
+         * @return True if the currently selected element is a node
+         */
+        isRelation(): boolean {
+            return this.$store.state.editor.graphEditor.selectedElement instanceof Relation;
+        },
+    },
+    watch: {
+        /**
+         * Keep the shown element style updated
+         */
+        "$store.state.editor.graphEditor.selectedElement"(): void {
+            if (this.$store.state.editor.graphEditor.selectedElement)
+                this.elementStyle = deepCopy(this.$store.state.editor.graphEditor.selectedElement.info);
+        },
+    },
+    methods: {
+        /**
+         * Change the shape of the selected node
+         */
+        changeShape(): void {
+            this.$store.dispatch("editor/changeNodeShape", this.elementStyle.shape);
+        },
     },
 });
 </script>
@@ -95,12 +130,13 @@ export default defineComponent({
     align-items: center;
 }
 
-.attribute-key {
-    font-weight: bold;
+.attribute-item-disabled {
+    opacity: 0.6;
+    pointer-events: none;
 }
 
-.attributes-key {
-    font-weight: 500;
+.attribute-key {
+    font-weight: bold;
 }
 
 .attribute-value {

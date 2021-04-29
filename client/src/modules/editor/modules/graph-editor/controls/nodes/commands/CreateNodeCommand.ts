@@ -51,7 +51,7 @@ export class CreateNodeCommand implements ICommand {
         }
 
         // Rearrange any straight relations, so that they don't overlap
-        this.graphHandler.graph.rearrangeOverlappingRelations(this.node.jointElement, false);
+        this.graphHandler.graph.rearrangeOverlappingRelations(this.node.joint, false);
     }
 
     /**
@@ -98,7 +98,7 @@ export class CreateNodeCommand implements ICommand {
                     sourceNode,
                     targetNode,
                     RelationModeType.NORMAL,
-                    rel.label,
+                    rel.name,
                     rel.uuid,
                 );
 

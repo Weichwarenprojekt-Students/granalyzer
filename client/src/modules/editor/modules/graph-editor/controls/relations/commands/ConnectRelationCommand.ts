@@ -44,8 +44,8 @@ export class ConnectRelationCommand implements ICommand {
 
         // Save new nodes from the actual source and target of the joint Link
         // They might be undefined if one end isn't connected to any node, but "floats" in the diagram
-        this.newSource = this.graphHandler.nodes.getByJointId(relation.jointLink.source()?.id);
-        this.newTarget = this.graphHandler.nodes.getByJointId(relation.jointLink.target()?.id);
+        this.newSource = this.graphHandler.nodes.getByJointId(relation.joint.source()?.id);
+        this.newTarget = this.graphHandler.nodes.getByJointId(relation.joint.target()?.id);
     }
 
     /**

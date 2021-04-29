@@ -128,13 +128,13 @@ export class VisualRelationControls {
         // If no corresponding relation is known, abort
         if (relation == null) return;
 
-        const sourceId = relation.jointLink.source()?.id;
-        const targetId = relation.jointLink.target()?.id;
+        const sourceId = relation.joint.source()?.id;
+        const targetId = relation.joint.target()?.id;
 
         if (sourceId === targetId) {
             // Source and target element are the same, reset the connection
-            relation.jointLink.source(relation.sourceNode.jointElement);
-            relation.jointLink.target(relation.targetNode.jointElement);
+            relation.joint.source(relation.sourceNode.joint);
+            relation.joint.target(relation.targetNode.joint);
 
             return;
         }
