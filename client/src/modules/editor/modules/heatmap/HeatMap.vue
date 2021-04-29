@@ -15,6 +15,7 @@ import HeatMapElement from "@/modules/editor/modules/heatmap/components/HeatMapE
 import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 import { defineComponent } from "vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
+import { getBrightness } from "@/utility";
 
 export default defineComponent({
     name: "HeatMap",
@@ -50,6 +51,7 @@ export default defineComponent({
 
                     // Set new color to node
                     node.jointElement.attr("body/fill", newColor);
+                    node.jointElement.attr("label/fill", getBrightness(newColor) > 170 ? "#333" : "#FFF");
                 }
             }
 
