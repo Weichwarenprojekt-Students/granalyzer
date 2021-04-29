@@ -116,11 +116,14 @@ export default defineComponent({
             if (document.activeElement !== document.body) return;
 
             // Find the right shortcut
-            if (e.key == "Delete" && this.$store.getters["editor/itemSelected"]) this.remove();
+            if (e.key == "r") this.toggleRelationMode();
+            else if (e.key == "a" && this.enableAddRelationsButton) this.addRelatedNodes();
+            else if (e.key == "f" && this.$store.getters["editor/itemSelected"]) this.toFront();
+            else if (e.key == "b" && this.$store.getters["editor/itemSelected"]) this.toBack();
+            else if (e.key == "c") this.centerContent();
             else if (e.key == "z" && e.ctrlKey && this.$store.getters["editor/undoAvailable"]) this.undo();
             else if (e.key == "y" && e.ctrlKey && this.$store.getters["editor/redoAvailable"]) this.redo();
-            else if (e.key == "r") this.toggleRelationMode();
-            else if (e.key == "c") this.centerContent();
+            else if (e.key == "Delete" && this.$store.getters["editor/itemSelected"]) this.remove();
         },
         /**
          * Remove the last selected node
@@ -176,7 +179,8 @@ export default defineComponent({
         enableAddRelationsButton(): boolean {
             return (
                 this.$store.getters["editor/itemSelected"] &&
-                !(this.$store.state.editor.graphEditor.selectedElement instanceof Relation)
+                !(this.$store.state.editor.graphEditor.selectedElement instanceof Relation) &&
+                this.$store.state.editor.graphEditor.relatedNodesAmount > 0
             );
         },
     },

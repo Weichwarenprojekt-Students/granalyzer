@@ -6,10 +6,10 @@
     "redo": "Wiederholen (Strg + Y)",
     "delete": "Löschen (Entf)",
     "relation": "Beziehungen editieren (R)",
-    "related": "{amount} Verwandte Elemente hinzufügen",
+    "related": "{amount} benachbarte Elemente hinzufügen (A)",
     "active": "Aktiv",
-    "front": "Nach vorne bringen",
-    "back": "Nach hinten bringen"
+    "front": "Nach vorne bringen (F)",
+    "back": "Nach hinten bringen (B)"
   },
   "noDiagram": {
     "title": "Kein Diagram",
