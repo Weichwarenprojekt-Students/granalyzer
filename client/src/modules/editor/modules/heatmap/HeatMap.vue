@@ -14,8 +14,7 @@
 import HeatMapElement from "@/modules/editor/modules/heatmap/components/HeatMapElement.vue";
 import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 import { defineComponent } from "vue";
-import ApiNode from "@/models/data-scheme/ApiNode";
-import { getBrightness } from "@/utility";
+import {HeatMapUtils} from "@/modules/editor/modules/heatmap/controls/HeatMapUtils";
 
 export default defineComponent({
     name: "HeatMap",
@@ -24,107 +23,10 @@ export default defineComponent({
         async onChange(heatMapAttribute: HeatMapAttribute) {
             if (heatMapAttribute.selectedAttributeName) {
                 // Set the heatmap colors according the selection
-                await this.setHeatmapColor(heatMapAttribute);
+                await this.$store.dispatch("editor/heatMap/setHeatmapColor", heatMapAttribute)
             } else {
-                this.resetHeatmapColor(heatMapAttribute);
+                this.$store.dispatch("editor/heatMap/resetHeatmapColor", heatMapAttribute)
             }
-        },
-
-        /**
-         * Reset the color of all nodes matching the given label
-         */
-        resetHeatmapColor(heatMapAttribute: HeatMapAttribute) {
-            const graphHandler = this.$store.state.editor.graphEditor.graphHandler;
-            for (const node of graphHandler.nodes) {
-                if (node.nodeInfo.label === heatMapAttribute.labelName) {
-                    node.jointElement.attr("body/fill", node.nodeInfo.color);
-                    node.jointElement.attr("label/fill", getBrightness(node.nodeInfo.color) > 170 ? "#333" : "#FFF");
-                }
-            }
-        },
-
-        /**
-         * Sets the the color of all nodes matching the given label name
-         */
-        async setHeatmapColor(heatMapAttribute: HeatMapAttribute) {
-            const graphHandler = this.$store.state.editor.graphEditor.graphHandler;
-
-            // Get all nodes affected by the heatmap selection
-            const affectedNodes: ApiNode[] = await this.$store.dispatch(
-                "editor/heatMap/fetchAffectedNodes",
-                heatMapAttribute,
-            );
-
-            for (const node of graphHandler.nodes) {
-                // Filter all the nodes affected by the heatmap label name
-                if (node.nodeInfo.label === heatMapAttribute.labelName) {
-                    const nodeValue = affectedNodes.filter(
-                        (affectedNode) => affectedNode.nodeId === node.nodeInfo.ref.uuid,
-                    )[0].attributes[heatMapAttribute.selectedAttributeName as string];
-
-                    // Get new color from gradient
-                    const newColor =
-                        heatMapAttribute.selectedAttributeName && nodeValue != undefined
-                            ? this.getLinearColor(
-                                  heatMapAttribute.from ?? 0,
-                                  heatMapAttribute.to ?? 0,
-                                  parseFloat(nodeValue.toString()),
-                              )
-                            : node.nodeInfo.color;
-
-                    // Set new color to node
-                    node.jointElement.attr("body/fill", newColor);
-                    node.jointElement.attr("label/fill", getBrightness(newColor) > 170 ? "#333" : "#FFF");
-                }
-            }
-
-            // Save the heatmap attribute to be serialized
-            graphHandler.setHeatMapAttribute(heatMapAttribute);
-        },
-
-        /**
-         * Gets the color according a linear gradient red-yellow-green
-         */
-        getLinearColor(start: number, stop: number, value: number): string {
-            // Start and stop boundaries of the gradient
-            const startColor = "#F00";
-            const endColor = "#0F0";
-
-            // Check if value is outside the given interval
-            const outsideBoundaries = this.isOutsideBoundaries(start, stop, value);
-            if (outsideBoundaries === 1) return endColor;
-            else if (outsideBoundaries === -1) return startColor;
-
-            // Calculate the position of the value on the gradient
-            const delta = value >= start ? value - start : value - stop;
-            const stepSize = (Math.abs(start - stop) + 1) / 512;
-            const amountSteps = Math.floor(delta / stepSize);
-
-            // Helper to fill each hex value to two chars
-            const padHex = (hex: string) => (hex.length === 1 ? "0" + hex : hex);
-
-            // Get the according red and green values
-            const g = amountSteps > 255 ? "FF" : padHex(amountSteps.toString(16));
-            const r = amountSteps > 255 ? padHex((255 - (amountSteps - 256)).toString(16)) : "FF";
-
-            // Concat to final color
-            return "#" + r + g + "00";
-        },
-
-        /**
-         * Returns 1 if outside stop boundary, and -1 if outside start boundary.
-         * 0 is returned if inside the interval
-         */
-        isOutsideBoundaries(start: number, stop: number, value: number): number {
-            if (start < stop) {
-                if (value < start) return -1;
-                if (value > stop) return 1;
-            } else {
-                if (value > start) return -1;
-                if (value < stop) return 1;
-            }
-
-            return 0;
         },
     },
 });
