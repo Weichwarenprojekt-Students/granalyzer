@@ -1,5 +1,6 @@
 {
   "title": "Here you are in the editor!",
+  "exportDiagram": "Export Diagram",
   "toolbar": {
     "center": "Center (C)",
     "undo": "Undo (Ctrl + Z)",
