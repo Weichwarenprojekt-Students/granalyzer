@@ -5,4 +5,5 @@ export enum ApiDatatype {
     NUMBER = "number",
     STRING = "string",
     COLOR = "color",
+    ENUM = "enum",
 }

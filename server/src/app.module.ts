@@ -28,7 +28,8 @@ import { join } from "path";
         RelationsModule,
         UtilModule.forRoot(),
         ServeStaticModule.forRoot({
-            rootPath: join(__dirname, "../../../client/dist"),
+            rootPath: join(__dirname, "..", "..", "..", "client", "dist"),
+            exclude: ["/api*"],
         }),
     ],
 })

@@ -206,7 +206,7 @@ export const schemes = {
                     i18n.global.t("schemes.labelEditor.updateSuccess.title"),
                     i18n.global.t("schemes.labelEditor.updateSuccess.description"),
                 );
-            } else {
+            } else if (res.status === 409) {
                 let data = await res.json();
                 data = data ?? { missingError: 0, parseError: 0 };
                 context.commit(
@@ -223,6 +223,8 @@ export const schemes = {
                     i18n.global.t("schemes.labelEditor.updateConflicts.title"),
                     i18n.global.t("schemes.labelEditor.updateConflicts.description"),
                 );
+            } else {
+                isUnexpected(res);
             }
         },
         /**
@@ -242,7 +244,7 @@ export const schemes = {
                     i18n.global.t("schemes.relationEditor.updateSuccess.title"),
                     i18n.global.t("schemes.relationEditor.updateSuccess.description"),
                 );
-            } else {
+            } else if (res.status === 409) {
                 let data = await res.json();
                 data = data ?? { missingError: 0, parseError: 0 };
                 context.commit(
@@ -259,6 +261,8 @@ export const schemes = {
                     i18n.global.t("schemes.relationEditor.updateConflicts.title"),
                     i18n.global.t("schemes.relationEditor.updateConflicts.description"),
                 );
+            } else {
+                isUnexpected(res);
             }
         },
         /**
