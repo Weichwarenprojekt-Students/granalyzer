@@ -944,110 +944,47 @@ describe("NodesController", () => {
             invalidNode.nodeId = (await nodesController.createNode(invalidNode)).nodeId;
 
             // Write the actual relations into customer-db
-            const validRelation = new Relation(validRelationType.name, sourceNode.nodeId, targetNode.nodeId, {
-                attrOne: "Test",
-            });
+            const validRelation = new Relation(validRelationType.name, sourceNode.nodeId, targetNode.nodeId, {});
             validRelation.relationId = (await relationsController.createRelation(validRelation)).relationId;
 
-            // Forcefully write invalid relation into DB
-            const invalidRelation = new Relation("invalid", sourceNode.nodeId, invalidNode.nodeId, {
-                attrOne: "Test",
-            });
+            const invalidRelation = new Relation("invalid", sourceNode.nodeId, invalidNode.nodeId, {});
             await relationsController.createRelation(invalidRelation);
 
+            await dropFullTextScheme();
+            await writeFullTextScheme();
+
             const relations: Relation[] = await nodesController.getRelationsOfNode(sourceNode.nodeId);
+
             // Second relation of the node is not valid -> only one is returned
             expect(relations.length).toEqual(1);
             expect(relations[0].from).toEqual(sourceNode.nodeId);
             expect(relations[0].to).toEqual(targetNode.nodeId);
+
+            await dropFullTextScheme();
         });
 
-        // TODO: Fix test
-        // it("returns all valid relations of the node with fulltext scheme", async () => {
-        //     const movieLabel = new LabelScheme("Movie", "#EEE", [
-        //         new NumberAttribute("attrOne", true, 1900),
-        //         new StringAttribute("attrTwo", false, "empty"),
-        //     ]);
-        //     movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
-        //
-        //     const validLabel = new LabelScheme("validLabel", "#222", [
-        //         new NumberAttribute("attrOne", true, 1900),
-        //         new StringAttribute("attrTwo", true, "empty"),
-        //     ]);
-        //     validLabel.name = (await schemeController.addLabelScheme(validLabel)).name;
-        //
-        //     const nmLabel = new LabelScheme("nmLabel", "#424", [
-        //         new NumberAttribute("attrOne", false, null),
-        //         new StringAttribute("attrTwo", false, null),
-        //         new StringAttribute("attrThree", false, null),
-        //     ]);
-        //     nmLabel.name = (await schemeController.addLabelScheme(nmLabel)).name;
-        //
-        //     const movieNode = new Node("Avengers", "Movie", { attrOne: 1990, attrTwo: "GER" });
-        //     movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
-        //
-        //     const validNode = new Node("ValidNode", "validLabel", { attrOne: 1234, attrTwo: "HansPeter" });
-        //     validNode.nodeId = (await nodesController.createNode(validNode)).nodeId;
-        //
-        //     const nmNode = new Node("nmNode", "nmLabel", { attrOne: 42, attrTwo: "GER" });
-        //     nmNode.nodeId = (await nodesController.createNode(nmNode)).nodeId;
-        //
-        //     /**
-        //      * Mock relations
-        //      */
-        //
-        //     const hobbitRelation = new RelationType(
-        //         "isHobbitOf",
-        //         [new StringAttribute("attrOne", false)],
-        //         [new Connection(movieLabel.name, validLabel.name)],
-        //     );
-        //     hobbitRelation.name = (await schemeController.addRelationType(hobbitRelation)).name;
-        //
-        //     const validRelation = new Relation("isHobbitOf", movieNode.nodeId, validNode.nodeId, {
-        //         attrOne: "Gandalf",
-        //     });
-        //     validRelation.relationId = (await relationsController.createRelation(validRelation)).relationId;
-        //
-        //     const invalidRelation = new Relation("isHobbitOf", validNode.nodeId, validNode.nodeId, {
-        //         attrOne: "Hermione Granger",
-        //     });
-        //     await relationsController.createRelation(invalidRelation);
-        //
-        //     await writeFullTextScheme();
-        //
-        //     const relations: Relation[] = await nodesController.getRelationsOfNode(movieNode.nodeId);
-        //
-        //     // Second relation of the node is not valid -> only one is returned
-        //     expect(relations.length).toEqual(1);
-        //     expect(relations[0].from).toEqual(movieNode.nodeId);
-        //     expect(relations[0].to).toEqual(validNode.nodeId);
-        //
-        //     await dropFullTextScheme();
-        // });
-        //
-        // /**
-        //  * Write the full text scheme allNodesIndex to test getRelationsOfNode
-        //  */
-        // async function writeFullTextScheme() {
-        //     // language=cypher
-        //     const cypher = `
-        //   CALL db.index.fulltext.createNodeIndex('allNodesIndex', $labels, $indexedAttrs)
-        // `;
-        //
-        //     const params = {
-        //         labels: ["Movie", "validLabel", "nmLabel"],
-        //         indexedAttrs: ["nodeId"],
-        //     };
-        //
-        //     return neo4jService.write(cypher, params, process.env.DB_CUSTOMER).catch(databaseUtil.catchDbError);
-        // }
-        //
-        // /**
-        //  * Drop the fullTextScheme allNodesIndex
-        //  */
-        // async function dropFullTextScheme() {
-        //     const dropIndex = 'CALL db.index.fulltext.drop("allNodesIndex")';
-        //     await neo4jService.write(dropIndex, {}, process.env.DB_CUSTOMER);
-        // }
+        /**
+         * Write the full text scheme allNodesIndex to test getRelationsOfNode
+         */
+        async function writeFullTextScheme() {
+            // language=cypher
+            const cypher = `
+              CALL db.index.fulltext.createNodeIndex("allNodesIndex", $labels, $indexedAttrs)
+            `;
+
+            const params = {
+                labels: ["ValidStartNode", "ValidEndNode", "invalidNode"],
+                indexedAttrs: ["nodeId"],
+            };
+
+            return neo4jService.write(cypher, params, process.env.DB_CUSTOMER).catch(databaseUtil.catchDbError);
+        }
+        /**
+         * Drop the fullTextScheme allNodesIndex
+         */
+        async function dropFullTextScheme() {
+            const dropIndex = 'CALL db.index.fulltext.drop("allNodesIndex")';
+            await neo4jService.write(dropIndex, {}, process.env.DB_CUSTOMER);
+        }
     });
 });
