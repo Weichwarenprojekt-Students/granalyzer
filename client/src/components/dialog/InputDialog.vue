@@ -95,6 +95,11 @@ export default defineComponent({
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        input {
+            border-bottom: 1px solid @grey;
+            width: auto;
+        }
     }
 }
 </style>
