@@ -22,8 +22,31 @@ export default defineComponent({
     components: { HeatMapElement },
     methods: {
         async onChange(heatMapAttribute: HeatMapAttribute) {
-            if (!heatMapAttribute.selectedAttributeName) return;
+            if (heatMapAttribute.selectedAttributeName) {
+                // Set the heatmap colors according the selection
+                await this.setHeatmapColor(heatMapAttribute);
+            } else {
+                this.resetHeatmapColor(heatMapAttribute);
+            }
+        },
 
+        /**
+         * Reset the color of all nodes matching the given label
+         */
+        resetHeatmapColor(heatMapAttribute: HeatMapAttribute) {
+            const graphHandler = this.$store.state.editor.graphEditor.graphHandler;
+            for (const node of graphHandler.nodes) {
+                if (node.nodeInfo.label === heatMapAttribute.labelName) {
+                    node.jointElement.attr("body/fill", node.nodeInfo.color);
+                    node.jointElement.attr("label/fill", getBrightness(node.nodeInfo.color) > 170 ? "#333" : "#FFF");
+                }
+            }
+        },
+
+        /**
+         * Sets the the color of all nodes matching the given label name
+         */
+        async setHeatmapColor(heatMapAttribute: HeatMapAttribute) {
             const graphHandler = this.$store.state.editor.graphEditor.graphHandler;
 
             // Get all nodes affected by the heatmap selection
@@ -32,12 +55,12 @@ export default defineComponent({
                 heatMapAttribute,
             );
 
-            for (let node of graphHandler.nodes) {
+            for (const node of graphHandler.nodes) {
                 // Filter all the nodes affected by the heatmap label name
                 if (node.nodeInfo.label === heatMapAttribute.labelName) {
                     const nodeValue = affectedNodes.filter(
                         (affectedNode) => affectedNode.nodeId === node.nodeInfo.ref.uuid,
-                    )[0].attributes[heatMapAttribute.selectedAttributeName];
+                    )[0].attributes[heatMapAttribute.selectedAttributeName as string];
 
                     // Get new color from gradient
                     const newColor =
