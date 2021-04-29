@@ -14,8 +14,10 @@
                 {{ $t("editor.toolbar.active") }}
             </span>
         </div>
+
+        <!-- Add Related Nodes -->
         <div
-            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            :class="['item', enableAddRelationsButton ? '' : 'item-disabled']"
             v-tooltip.bottom="
                 $t('editor.toolbar.related', { amount: $store.state.editor.graphEditor.relatedNodesAmount })
             "
@@ -24,10 +26,12 @@
             <svg class="icon">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#bold-diagram`"></use>
             </svg>
-            <p v-if="$store.getters['editor/itemSelected']" class="related-nodes-number">
+            <p v-if="enableAddRelationsButton" class="related-nodes-number">
                 {{ $store.state.editor.graphEditor.relatedNodesAmount }}
             </p>
         </div>
+
+        <!-- To Front -->
         <div
             :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
             @click="toFront"
@@ -37,6 +41,8 @@
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#to-front`"></use>
             </svg>
         </div>
+
+        <!-- To Back -->
         <div
             :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
             @click="toBack"
@@ -91,6 +97,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 
 export default defineComponent({
     name: "Toolbar",
@@ -159,6 +166,14 @@ export default defineComponent({
          */
         toBack(): void {
             this.$store.dispatch("editor/addZIndexCommand", false);
+        },
+    },
+    computed: {
+        enableAddRelationsButton(): boolean {
+            return (
+                this.$store.getters["editor/itemSelected"] &&
+                !(this.$store.state.editor.graphEditor.selectedElement instanceof Relation)
+            );
         },
     },
 });

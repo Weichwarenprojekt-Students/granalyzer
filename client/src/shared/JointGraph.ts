@@ -373,7 +373,7 @@ export class JointGraph {
         // Calculate the new scale and check if it is in bounds
         const oldScale = this.paper.scale().sx;
         const nextScale = 1.1 ** delta * oldScale;
-        if ((nextScale < 0.1 && nextScale < oldScale) || nextScale > 10) return;
+        if ((nextScale < 0.01 && nextScale < oldScale) || nextScale > 10) return;
 
         // Adjust the translation of the paper so that the zoom actually
         // centers with the mouse
