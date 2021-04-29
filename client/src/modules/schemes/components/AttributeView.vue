@@ -160,8 +160,6 @@ export default defineComponent({
 
 .attribute-view-expanded {
     height: @line_height + 3 * @attribute_edit_height;
-    overflow: initial;
-    animation: 0.4s delay-overflow forwards;
 
     .attribute-collapse-icon {
         transform: rotate(90deg);
