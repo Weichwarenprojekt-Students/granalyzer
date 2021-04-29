@@ -75,6 +75,9 @@ export class GraphControls {
             const relation = this.graphHandler.relations.getByJointId(linkView.model.id);
             this.graphHandler.store.commit("editor/setSelectedElement", relation);
             await this.graphHandler.store.dispatch("inspector/selectRelation", relation?.uuid);
+
+            // Set Related nodes amount to 0
+            await this.graphHandler.store.dispatch("editor/updateRelatedNodesCount");
         }
     }
 
@@ -91,9 +94,10 @@ export class GraphControls {
         // Reset inspector selection
         this.graphHandler.store.commit("inspector/resetSelection");
 
-        // Hide related nodes amount
-        // TODO: use await
-        this.graphHandler.store.dispatch("editor/updateRelatedNodesCount");
+        requestAnimationFrame(async () => {
+            // Set Related nodes amount to 0
+            await this.graphHandler.store.dispatch("editor/updateRelatedNodesCount");
+        });
     }
 
     /**

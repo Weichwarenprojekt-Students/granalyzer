@@ -18,6 +18,7 @@ import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node"
 import { ShapeNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/ShapeNodeCommand";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { CompoundCommand } from "@/modules/editor/modules/graph-editor/controls/commands/CompoundCommand";
+import { NodeShapes } from "@/shared/NodeShapes";
 
 export class GraphEditorState {
     /**
@@ -280,9 +281,6 @@ export const graphEditor = {
             context.commit("setEditorLoading", false);
 
             await context.dispatch("saveChange");
-
-            // TODO: link to selection
-            await context.dispatch("updateRelatedNodesCount");
         },
 
         /**
@@ -429,8 +427,7 @@ export const graphEditor = {
                             },
                             label: apiNode.label,
                             name: apiNode.name,
-                            // TODO: incorporate new shapes?
-                            shape: "rectangle",
+                            shape: NodeShapes.RECTANGLE,
                             color: context.rootState.overview?.labelColor.get(apiNode.label)?.color ?? "#333",
                             borderColor: context.rootState.overview?.labelColor.get(apiNode.label)?.color ?? "#333",
                             size: { width: -1, height: -1 },
