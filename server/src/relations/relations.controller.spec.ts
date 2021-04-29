@@ -12,7 +12,12 @@ import Node from "../nodes/node.model";
 import Relation from "./relation.model";
 import { LabelScheme } from "../data-scheme/models/label-scheme.model";
 import { RelationType } from "../data-scheme/models/relation-type.model";
-import { ColorAttribute, NumberAttribute, StringAttribute } from "../data-scheme/models/attributes.model";
+import {
+    ColorAttribute,
+    EnumAttribute,
+    NumberAttribute,
+    StringAttribute,
+} from "../data-scheme/models/attributes.model";
 import { Connection } from "../data-scheme/models/connection.model";
 import { ArgumentMetadata, NotFoundException } from "@nestjs/common";
 import { NodesService } from "../nodes/nodes.service";
@@ -188,6 +193,7 @@ describe("RelationsController", () => {
                     new StringAttribute("genre", false, ""),
                     new StringAttribute("director", false, ""),
                     new ColorAttribute("color", false, ""),
+                    new EnumAttribute("download", false, "false", ["false", "true"]),
                 ],
                 [new Connection(validStartNodeLabel.name, validEndNodeLabel.name)],
             );
@@ -208,6 +214,7 @@ describe("RelationsController", () => {
                 genre: "Fantasy",
                 director: "Robert Zemeckis",
                 color: "#0000ff",
+                download: "true",
             });
             validRelation.relationId = (await relationsController.createRelation(validRelation)).relationId;
             const actual = await relationsController.getRelation(validRelation.relationId, true);
@@ -223,6 +230,7 @@ describe("RelationsController", () => {
                     genre: "Fantasy",
                     director: "Robert Zemeckis",
                     color: "#0000ff",
+                    download: "true",
                 },
             });
         });
@@ -347,6 +355,7 @@ describe("RelationsController", () => {
                     new StringAttribute("stringAttr", false, "defaultString"),
                     new NumberAttribute("numberAttr", false, 0),
                     new ColorAttribute("colorAttr", false, "#000000"),
+                    new EnumAttribute("download", false, "false", ["false", "true"]),
                 ],
                 [new Connection(validStartNodeLabel.name, validEndNodeLabel.name)],
             );
@@ -364,6 +373,7 @@ describe("RelationsController", () => {
                 stringAttr: "relString",
                 numberAttr: 21091986,
                 colorAttr: "#ff00ff",
+                download: "true",
             });
             validRelation.relationId = (await relationsController.createRelation(validRelation)).relationId;
 
@@ -396,6 +406,7 @@ describe("RelationsController", () => {
                     new NumberAttribute("numberAttr", false, 0),
                     new ColorAttribute("colorAttr", false, "#000000"),
                     new StringAttribute("stringAttr2", false, "defaultString2"),
+                    new EnumAttribute("download", false, "false", ["false", "true"]),
                 ],
                 [new Connection(validStartNodeLabel.name, validEndNodeLabel.name)],
             );
@@ -413,6 +424,7 @@ describe("RelationsController", () => {
                 stringAttr: "relString",
                 numberAttr: 21091986,
                 colorAttr: "#ff00ff",
+                download: "false",
             });
             validRelation.relationId = (await relationsController.createRelation(validRelation)).relationId;
 
@@ -420,6 +432,7 @@ describe("RelationsController", () => {
                 numberAttr: 21091986,
                 colorAttr: "#00ff00",
                 stringAttr2: "newString",
+                download: "true",
             });
             modifiedRelation.relationId = (
                 await relationsController.modifyRelation(validRelation.relationId, modifiedRelation)
@@ -435,6 +448,7 @@ describe("RelationsController", () => {
                     numberAttr: 21091986,
                     colorAttr: "#00ff00",
                     stringAttr2: "newString",
+                    download: "true",
                 },
             });
         });
@@ -543,6 +557,7 @@ describe("RelationsController", () => {
                     new NumberAttribute("rating", false, 0),
                     new ColorAttribute("color", true, "#00ff00"),
                     new StringAttribute("test", false, ""),
+                    new EnumAttribute("download", false, "false", ["false", "true"]),
                 ],
                 [new Connection(validStartNodeLabel.name, validEndNodeLabel.name)],
             );
@@ -561,6 +576,7 @@ describe("RelationsController", () => {
                 test: "TestString",
                 color: "invalidColor",
                 additionalColor: "additionalColor",
+                download: "true",
             });
             validRelation.relationId = (await relationsController.createRelation(validRelation)).relationId;
 
@@ -575,6 +591,7 @@ describe("RelationsController", () => {
                     rating: 3.14,
                     color: "#00ff00",
                     test: "TestString",
+                    download: "true",
                 },
             });
         });

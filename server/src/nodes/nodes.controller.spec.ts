@@ -7,7 +7,12 @@ import { NodesController } from "./nodes.controller";
 import { Neo4jService } from "nest-neo4j/dist";
 import { NodesService } from "./nodes.service";
 import Node from "./node.model";
-import { ColorAttribute, NumberAttribute, StringAttribute } from "../data-scheme/models/attributes.model";
+import {
+    ColorAttribute,
+    EnumAttribute,
+    NumberAttribute,
+    StringAttribute,
+} from "../data-scheme/models/attributes.model";
 import Relation from "../relations/relation.model";
 import { RelationType } from "../data-scheme/models/relation-type.model";
 import { Connection } from "../data-scheme/models/connection.model";
@@ -150,6 +155,7 @@ describe("NodesController", () => {
                 new NumberAttribute("intAttr", true, 21091986),
                 new NumberAttribute("doubleAttr", true, 3.14),
                 new ColorAttribute("colorAttr", true, "#00ff00"),
+                new EnumAttribute("enumAttr", true, "true", ["false", "true"]),
             ]);
             movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
 
@@ -166,6 +172,7 @@ describe("NodesController", () => {
                 intAttr: 21091986,
                 doubleAttr: 3.14,
                 colorAttr: "#00ff00",
+                enumAttr: "true",
             });
         });
 
@@ -230,6 +237,7 @@ describe("NodesController", () => {
                 new StringAttribute("objString", false, "TestString2"),
                 new NumberAttribute("numberAttr", false, 3.14),
                 new ColorAttribute("colorAttr", false, "#00ff00"),
+                new EnumAttribute("enumAttr", false, "true", ["false", "true"]),
             ]);
             movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
 
@@ -241,6 +249,7 @@ describe("NodesController", () => {
                     objString: '?#§["Value1", "Value2"]',
                     numberAttr: "ff##00ff",
                     doubleAttr: "440?21",
+                    enumAttr: "illegalEnumeral",
                 },
             } as Node;
             movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
@@ -250,6 +259,7 @@ describe("NodesController", () => {
             expect(actualNode.attributes.objString).toBe('?#§["Value1", "Value2"]');
             expect(actualNode.attributes.numberAttr).toBeUndefined();
             expect(actualNode.attributes.colorAttr).toBeUndefined();
+            expect(actualNode.attributes.enumAttr).toBeUndefined();
         });
 
         it("returns default value if the value cannot be parsed, includefault is true and attribute is mandatory", async () => {
@@ -259,6 +269,7 @@ describe("NodesController", () => {
                 new StringAttribute("objString", true, "TestString2"),
                 new NumberAttribute("numberAttr", true, 3.14),
                 new ColorAttribute("colorAttr", true, "#00ff00"),
+                new EnumAttribute("enumAttr", true, "true", ["false", "true"]),
             ]);
             movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
 
@@ -270,6 +281,7 @@ describe("NodesController", () => {
                     objString: '?#§["Value1", "Value2"]',
                     numberAttr: "ff##00ff",
                     colorAttr: "440?21",
+                    enumAttr: "illegalEnumeral",
                 },
             } as Node;
             movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
@@ -279,6 +291,7 @@ describe("NodesController", () => {
             expect(actualNode.attributes.objString).toBe('?#§["Value1", "Value2"]');
             expect(actualNode.attributes.numberAttr).toBe(3.14);
             expect(actualNode.attributes.colorAttr).toBe("#00ff00");
+            expect(actualNode.attributes.enumAttr).toBe("true");
         });
 
         it("returns undefined value if the value cannot be parsed, includefault is false and attribute is mandatory", async () => {
@@ -288,6 +301,7 @@ describe("NodesController", () => {
                 new StringAttribute("objString", true, "TestString2"),
                 new NumberAttribute("numberAttr", true, 3.14),
                 new ColorAttribute("colorAttr", true, "#00ff00"),
+                new EnumAttribute("enumAttr", true, "true", ["false", "true"]),
             ]);
             movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
 
@@ -299,6 +313,7 @@ describe("NodesController", () => {
                     objString: '?#§["Value1", "Value2"]',
                     numberAttr: "ff##00ff",
                     colorAttr: "440?21",
+                    enumAttr: "illegalEnumeral",
                 },
             } as Node;
             movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
@@ -308,6 +323,27 @@ describe("NodesController", () => {
             expect(actualNode.attributes.objString).toBe('?#§["Value1", "Value2"]');
             expect(actualNode.attributes.numberAttr).toBeUndefined();
             expect(actualNode.attributes.colorAttr).toBeUndefined();
+            expect(actualNode.attributes.enumAttr).toBeUndefined();
+        });
+
+        it("if attribute is declared as ENUM and is enum string, returns enum", async () => {
+            // Write the label scheme
+            const movieLabel = new LabelScheme("Movie", "#EEE", [
+                new EnumAttribute("enumAttr", true, "false", ["false", "true"]),
+            ]);
+            movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
+
+            const movieNode = {
+                name: "The Polar Express",
+                label: "Movie",
+                attributes: {
+                    enumAttr: "true",
+                },
+            } as Node;
+            movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
+
+            const actualNode = await nodesController.getNode(movieNode.nodeId, false);
+            expect(actualNode.attributes.enumAttr).toBe("true");
         });
 
         it("if attribute is declared as number and is integer/long, returns integer", async () => {
@@ -440,6 +476,7 @@ describe("NodesController", () => {
                 new StringAttribute("genre", false, ""),
                 new StringAttribute("director", false, ""),
                 new ColorAttribute("color", false, ""),
+                new EnumAttribute("download", true, "true", ["false", "true"]),
             ]);
             movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
 
@@ -453,12 +490,12 @@ describe("NodesController", () => {
                     genre: "Fantasy",
                     director: "Robert Zemeckis",
                     color: "#0000ff",
+                    download: "true",
                 },
             } as Node;
 
             const uuid = (await nodesController.createNode(newNode)).nodeId;
             const actualNode = await nodesController.getNode(uuid, true);
-
             expect(actualNode).toEqual({
                 nodeId: uuid,
                 name: newNode.name,
@@ -470,6 +507,7 @@ describe("NodesController", () => {
                     genre: "Fantasy",
                     director: "Robert Zemeckis",
                     color: "#0000ff",
+                    download: "true",
                 },
             });
         });
@@ -490,6 +528,7 @@ describe("NodesController", () => {
                     genre: "Fantasy",
                     director: "Robert Zemeckis",
                     color: "#0000ff",
+                    download: "false",
                 },
             } as Node;
 
@@ -616,6 +655,7 @@ describe("NodesController", () => {
                 new StringAttribute("genre", false, ""),
                 new StringAttribute("director", false, ""),
                 new NumberAttribute("year", false, 0),
+                new EnumAttribute("download", true, "false", ["false", "true"]),
             ]);
             movieLabel.name = (await schemeController.addLabelScheme(movieLabel)).name;
 
@@ -626,6 +666,7 @@ describe("NodesController", () => {
                     released: 2004,
                     genre: "Fantasy",
                     director: "Robert Zemeckis",
+                    download: "false",
                 },
             } as Node;
             movieNode.nodeId = (await nodesController.createNode(movieNode)).nodeId;
@@ -637,6 +678,7 @@ describe("NodesController", () => {
                     genre: "Fantasy",
                     director: "Tom Hanks",
                     year: 2004,
+                    download: "true",
                 },
             } as Node;
             await nodesController.modifyNode(movieNode.nodeId, modifiedNode);
@@ -650,6 +692,7 @@ describe("NodesController", () => {
                     genre: "Fantasy",
                     director: "Tom Hanks",
                     year: 2004,
+                    download: "true",
                 },
             });
         });
@@ -981,30 +1024,30 @@ describe("NodesController", () => {
         //
         //     await dropFullTextScheme();
         // });
-
-        /**
-         * Write the full text scheme allNodesIndex to test getRelationsOfNode
-         */
-        async function writeFullTextScheme() {
-            // language=cypher
-            const cypher = `
-          CALL db.index.fulltext.createNodeIndex('allNodesIndex', $labels, $indexedAttrs)
-        `;
-
-            const params = {
-                labels: ["Movie", "validLabel", "nmLabel"],
-                indexedAttrs: ["nodeId"],
-            };
-
-            return neo4jService.write(cypher, params, process.env.DB_CUSTOMER).catch(databaseUtil.catchDbError);
-        }
-
-        /**
-         * Drop the fullTextScheme allNodesIndex
-         */
-        async function dropFullTextScheme() {
-            const dropIndex = 'CALL db.index.fulltext.drop("allNodesIndex")';
-            await neo4jService.write(dropIndex, {}, process.env.DB_CUSTOMER);
-        }
+        //
+        // /**
+        //  * Write the full text scheme allNodesIndex to test getRelationsOfNode
+        //  */
+        // async function writeFullTextScheme() {
+        //     // language=cypher
+        //     const cypher = `
+        //   CALL db.index.fulltext.createNodeIndex('allNodesIndex', $labels, $indexedAttrs)
+        // `;
+        //
+        //     const params = {
+        //         labels: ["Movie", "validLabel", "nmLabel"],
+        //         indexedAttrs: ["nodeId"],
+        //     };
+        //
+        //     return neo4jService.write(cypher, params, process.env.DB_CUSTOMER).catch(databaseUtil.catchDbError);
+        // }
+        //
+        // /**
+        //  * Drop the fullTextScheme allNodesIndex
+        //  */
+        // async function dropFullTextScheme() {
+        //     const dropIndex = 'CALL db.index.fulltext.drop("allNodesIndex")';
+        //     await neo4jService.write(dropIndex, {}, process.env.DB_CUSTOMER);
+        // }
     });
 });

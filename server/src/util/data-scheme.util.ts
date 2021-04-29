@@ -222,8 +222,10 @@ export class DataSchemeUtil {
                 break;
             case Datatype.STRING:
                 if (!isString(element)) element = JSON.stringify(element);
+                break;
+            case Datatype.ENUM:
+                if (attribute.config === undefined || !attribute.config.includes(element)) element = undefined;
         }
-
         // Insert the attribute's default value if necessary
         if (element === undefined && attribute.mandatory && includeDefaults) return attribute["defaultValue"];
         return element;
