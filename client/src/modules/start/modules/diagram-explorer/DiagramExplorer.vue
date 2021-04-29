@@ -217,8 +217,9 @@ export default defineComponent({
          * Handle keyup events
          */
         onKeyUp(e: KeyboardEvent) {
-            if (e.key !== "Delete") return;
-            if (!isEmpty(this.selectedDiagram) || !isEmpty(this.selectedFolder)) this.deleteItemDialog = true;
+            if (e.key == "Delete" && (!isEmpty(this.selectedDiagram) || !isEmpty(this.selectedFolder)))
+                this.deleteItemDialog = true;
+            else if (e.key == "c" && e.ctrlKey && !isEmpty(this.selectedDiagram)) this.diagramCopyDialog = true;
         },
         /**
          * Add an empty folder
