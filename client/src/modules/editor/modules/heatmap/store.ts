@@ -6,6 +6,8 @@ import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 import { HeatMapUtils } from "@/modules/editor/modules/heatmap/controls/HeatMapUtils";
+import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
+import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 
 export class HeatMapState {
     /**
@@ -181,13 +183,38 @@ export const heatMap = {
         /**
          * Returns the heatmap attribute from the graph handler if set
          */
-        getHeatMapAttribute: (
+        getHeatMapAttribute(
             context: ActionContext<HeatMapState, RootState>,
             labelName: string,
-        ): HeatMapAttribute | null => {
+        ): HeatMapAttribute | null {
             const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
             if (!graphHandler) return null;
             return graphHandler.getHeatMapAttribute(labelName);
+        },
+
+        /**
+         * Adjusts a added nodes color to match the heatmap settings
+         */
+        async addNode(context: ActionContext<HeatMapState, RootState>, nodeInfo: NodeInfo): Promise<void> {
+            const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
+            if (!graphHandler) return;
+            if (graphHandler?.getActiveHeatMapLabels().length == 0) return;
+
+            const heatMapAttribute = graphHandler.getHeatMapAttribute(nodeInfo.label);
+            const jointNode = graphHandler.nodes.getByReference(nodeInfo.ref.uuid, nodeInfo.ref.index) as Node;
+            const apiNode = (await context.state.heatMapUtils.fetchNode(nodeInfo.ref.uuid)) as ApiNode;
+            const nodeValue = apiNode.attributes[heatMapAttribute?.selectedAttributeName as string];
+            const newColor =
+                heatMapAttribute && nodeValue
+                    ? context.state.heatMapUtils.getLinearColor(
+                          heatMapAttribute.from ?? 0,
+                          heatMapAttribute.to ?? 0,
+                          parseFloat(nodeValue.toString()),
+                      )
+                    : "#aaa";
+
+            // Set new color to node
+            context.state.heatMapUtils.setNodeColor(jointNode?.jointElement, newColor);
         },
     },
     getters: {},

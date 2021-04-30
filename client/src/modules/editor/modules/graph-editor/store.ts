@@ -189,6 +189,9 @@ export const graphEditor = {
             context.commit("addNode", { node, relations, labelColor });
             context.commit("setEditorLoading", false);
 
+            // Apply heatmap on the new node
+            await context.dispatch("heatMap/addNode", node);
+
             await context.dispatch("saveChange");
         },
         /**
