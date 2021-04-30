@@ -34,7 +34,7 @@
             <div class="attribute-key">
                 {{ $t("editor.nodeEdit.color") }}
             </div>
-            <ColorMultiInput v-model="elementStyle.color" />
+            <ColorPicker v-model="elementStyle.color" />
         </div>
 
         <!-- The border color -->
@@ -42,7 +42,7 @@
             <div class="attribute-key">
                 {{ $t("editor.nodeEdit.borderColor") }}
             </div>
-            <ColorMultiInput v-model="elementStyle.borderColor" />
+            <ColorPicker v-model="elementStyle.borderColor" />
         </div>
     </div>
 </template>
@@ -50,13 +50,13 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { NodeShapes } from "@/shared/NodeShapes";
-import ColorMultiInput from "@/components/ColorMultiInput.vue";
+import ColorPicker from "@/components/ColorPicker.vue";
 import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 import { deepCopy } from "@/utility";
 
 export default defineComponent({
     name: "ElementEdit",
-    components: { ColorMultiInput },
+    components: { ColorPicker },
     data() {
         return {
             // The modified object

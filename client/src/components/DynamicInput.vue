@@ -8,7 +8,7 @@
         :disabled="disabled"
     />
     <Dropdown v-else-if="type === datatype.ENUM" :options="config" v-model="value" :disabled="disabled" />
-    <ColorMultiInput v-else-if="type === datatype.COLOR" v-model="value" :disabled="disabled" />
+    <ColorPicker v-else-if="type === datatype.COLOR" v-model="value" :disabled="disabled" />
     <label v-else>
         <input
             v-model="value"
@@ -22,12 +22,12 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
-import ColorMultiInput from "@/components/ColorMultiInput.vue";
 import { isHexColor, isNumber } from "class-validator";
+import ColorPicker from "@/components/ColorPicker.vue";
 
 export default defineComponent({
     name: "DynamicInput",
-    components: { ColorMultiInput },
+    components: { ColorPicker },
     props: {
         // The v-model
         modelValue: {

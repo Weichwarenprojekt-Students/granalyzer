@@ -14,15 +14,15 @@
         </div>
         <ScrollPanel class="scroll-panel">
             <!-- The main attributes -->
-            <label class="main-attribute">
+            <div class="main-attribute">
                 <span>{{ $t("schemes.labelEditor.name") }}</span>
                 <input v-if="createMode" id="label-name-input" v-model="modifiedLabel.name" />
                 <span v-else> {{ modifiedLabel.name }}</span>
-            </label>
-            <label class="main-attribute">
+            </div>
+            <div class="main-attribute">
                 <span>{{ $t("schemes.labelEditor.color") }}</span>
-                <ColorMultiInput v-model="modifiedLabel.color" />
-            </label>
+                <ColorPicker v-model="modifiedLabel.color" />
+            </div>
 
             <!-- The optional parameters -->
             <div class="attributes-action-bar">
@@ -61,17 +61,17 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import ColorMultiInput from "@/components/ColorMultiInput.vue";
 import ApiLabel from "@/models/data-scheme/ApiLabel";
 import { deepCopy, errorToast, objectUUID } from "@/utility";
 import AttributeView from "@/modules/schemes/components/AttributeView.vue";
 import ConfirmDialog from "@/components/dialog/ConfirmDialog.vue";
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import { validateAttributes } from "@/modules/schemes/utility";
+import ColorPicker from "@/components/ColorPicker.vue";
 
 export default defineComponent({
     name: "LabelEditor",
-    components: { AttributeView, ColorMultiInput, ConfirmDialog },
+    components: { ColorPicker, AttributeView, ConfirmDialog },
     props: {
         // The label that will be modified
         label: {

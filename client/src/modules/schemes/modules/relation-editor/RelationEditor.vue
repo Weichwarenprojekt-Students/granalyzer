@@ -14,11 +14,11 @@
         </div>
         <ScrollPanel class="scroll-panel">
             <!-- The main attributes -->
-            <label class="main-attribute">
+            <div class="main-attribute">
                 <span>{{ $t("schemes.relationEditor.name") }}</span>
                 <input v-if="createMode" id="relation-name-input" v-model="modifiedRelation.name" />
                 <span v-else> {{ modifiedRelation.name }}</span>
-            </label>
+            </div>
 
             <!-- The optional parameters -->
             <div class="attributes-action-bar">
