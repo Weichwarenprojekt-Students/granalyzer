@@ -177,6 +177,18 @@ export const heatMap = {
                 }
             }
         },
+
+        /**
+         * Returns the heatmap attribute from the graph handler if set
+         */
+        getHeatMapAttribute: (
+            context: ActionContext<HeatMapState, RootState>,
+            labelName: string,
+        ): HeatMapAttribute | null => {
+            const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
+            if (!graphHandler) return null;
+            return graphHandler.getHeatMapAttribute(labelName);
+        },
     },
     getters: {},
 };

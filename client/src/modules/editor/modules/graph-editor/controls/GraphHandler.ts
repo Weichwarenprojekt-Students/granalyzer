@@ -255,4 +255,13 @@ export class GraphHandler {
         this.heatMapAttributes.forEach((heatMapAttribute: HeatMapAttribute) => labels.push(heatMapAttribute.labelName));
         return labels;
     }
+
+    /**
+     * Returns a specifig heatmap attribute or null if it is not set yet
+     */
+    getHeatMapAttribute(labelName: string): HeatMapAttribute | null {
+        return this.heatMapAttributes.has(labelName)
+            ? (this.heatMapAttributes.get(labelName) as HeatMapAttribute)
+            : null;
+    }
 }

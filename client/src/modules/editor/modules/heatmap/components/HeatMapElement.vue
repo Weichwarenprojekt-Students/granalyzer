@@ -54,12 +54,21 @@ export default defineComponent({
     },
     props: {
         label: {
-            type: Object,
+            type: ApiLabel,
             default: new ApiLabel(),
         },
     },
     async mounted() {
-        this.heatAttribute = new HeatMapAttribute(this.label.name, null);
+        // Restore already configured heatmap attribute if available
+        const heatMapAttribute: HeatMapAttribute = await this.$store.dispatch(
+            "editor/heatMap/getHeatMapAttribute",
+            this.label.name,
+        );
+        this.heatAttribute = heatMapAttribute ?? new HeatMapAttribute(this.label.name, null);
+        if (this.heatAttribute.selectedAttributeName)
+            this.selectedAttribute = this.label.attributes.filter(
+                (attribute) => attribute.name === this.heatAttribute.selectedAttributeName,
+            )[0];
 
         // Fetch the nodes belonging to the specific label
         this.affectedNodes = await this.$store.dispatch("editor/heatMap/fetchAffectedNodes", this.heatAttribute);
