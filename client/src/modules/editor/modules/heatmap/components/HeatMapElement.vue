@@ -21,11 +21,11 @@
 
         <!-- The expandable content -->
         <div class="heat-expanded" v-if="selectedAttribute !== null && selectedAttribute.datatype === types.NUMBER">
-            <div class="heat-row">
+            <div class="heat-row red">
                 <label>From</label>
                 <InputNumber showButtons v-model="heatAttribute.from" />
             </div>
-            <div class="heat-row">
+            <div class="heat-row green">
                 <label>To</label>
                 <InputNumber showButtons v-model="heatAttribute.to" />
             </div>
@@ -82,8 +82,8 @@ export default defineComponent({
             // Assign the min and max value of all nodes by default
             if (!this.heatAttribute.from || !this.heatAttribute.to) {
                 const selectedAttribute: number[] = this.affectedNodes
-                    .map((node) => node.attributes[this.selectedAttribute.name] as number)
-                    .filter((attribute) => !!attribute);
+                    .map((node) => node.attributes[this.selectedAttribute.name])
+                    .filter((attribute): attribute is number => !!attribute);
                 if (!this.heatAttribute.from) this.heatAttribute.from = Math.min(...selectedAttribute);
                 if (!this.heatAttribute.to) this.heatAttribute.to = Math.max(...selectedAttribute);
             }
@@ -164,5 +164,27 @@ export default defineComponent({
     display: flex;
     justify-content: space-between;
     margin-top: 8px;
+    padding-left: 8px;
+
+    &.red {
+        border-left: 4px red solid;
+    }
+
+    &.green {
+        border-left: 4px green solid;
+    }
+}
+
+.color {
+    width: 8px;
+    height: 8px;
+
+    &.red {
+        background-color: red;
+    }
+
+    &.green {
+        background-color: green;
+    }
 }
 </style>
