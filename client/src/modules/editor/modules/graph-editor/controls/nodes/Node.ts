@@ -78,8 +78,8 @@ export class Node {
         this.size = this.info.size;
 
         // Update the relations
-        this.incomingRelations.forEach((value) => (value.targetNode = this));
-        this.outgoingRelations.forEach((value) => (value.sourceNode = this));
+        for (const rel of [...this.incomingRelations.values()]) rel.targetNode = this;
+        for (const rel of [...this.outgoingRelations.values()]) rel.sourceNode = this;
 
         // Delete the old node
         oldElement.remove();
