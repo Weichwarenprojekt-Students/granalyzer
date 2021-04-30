@@ -121,9 +121,7 @@ export const inspector = {
         async updateNode(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
             const result = await PUT(`/api/nodes/${node.nodeId}`, JSON.stringify(node));
             if (isUnexpected(result)) return;
-            if (node.nodeId === context.rootState.inventory?.selectedNode?.nodeId)
-                await context.dispatch("inventory/updateNeighborRelations", true, { root: true });
-            else await context.dispatch("inventory/updateNeighborRelations", false, { root: true });
+            await context.dispatch("inventory/updateNeighborRelations", false, { root: true });
             context.commit("setAttributes", { item: Object.assign(new ApiNode(), await result.json()) });
             await context.dispatch("updateInspector");
         },
@@ -142,6 +140,11 @@ export const inspector = {
         async deleteNode(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
             const result = await DELETE(`/api/nodes/${node.nodeId}`);
             if (isUnexpected(result)) return;
+
+            if (node.nodeId === context.rootState.inventory?.selectedNode?.nodeId)
+                await context.dispatch("inventory/updateNeighborRelations", true, { root: true });
+            else await context.dispatch("inventory/updateNeighborRelations", false, { root: true });
+
             context.commit("setAttributes", {});
             await context.dispatch("updateInspector");
         },
@@ -169,7 +172,6 @@ export const inspector = {
          * Reload the shown inspector content
          */
         async updateInspector(context: ActionContext<InspectorState, RootState>): Promise<void> {
-            await context.dispatch("inventory/loadNeighbors", undefined, { root: true });
             await context.dispatch("overview/reloadNodes", undefined, { root: true });
         },
         /**

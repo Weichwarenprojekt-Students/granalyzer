@@ -58,8 +58,8 @@ export default defineComponent({
          * Clear graph if there is no selection
          */
         selectedNode(newValue) {
-            if (!newValue) this.clearGraphAndSettings();
-            this.$store.dispatch("inventory/loadNeighbors", this.selectedNode);
+            this.clearGraphAndSettings();
+            this.$store.dispatch("inventory/loadNeighbors", newValue);
         },
         /**
          * Display graph once all neighbors and relations are in the store
@@ -146,7 +146,7 @@ export default defineComponent({
             this.showDialog = false;
 
             await this.$store.dispatch("inventory/addNewRelation", relation);
-            this.graphLoaded();
+            this.$store.dispatch("inventory/updateNeighborRelations", false);
         },
     },
 });

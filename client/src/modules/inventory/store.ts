@@ -86,6 +86,14 @@ export const inventory = {
         setGraphUtils(state: InventoryState, graphUtils: GraphUtils): void {
             state.graphUtils = graphUtils;
         },
+
+        /**
+         * Reset state for neighbor relations
+         */
+        reset(state: InventoryState): void {
+            state.relations.length = 0;
+            state.neighbors.length = 0;
+        },
     },
     actions: {
         /**
@@ -197,16 +205,17 @@ export const inventory = {
          */
         async updateNeighborRelations(
             context: ActionContext<InventoryState, RootState>,
-            rootNodeUpdated: boolean,
+            rootDeleted: boolean,
         ): Promise<void> {
-            if (rootNodeUpdated) {
-                // Ensure that a node is loaded and that it is up to date
-                const res = await GET(`api/nodes/${context.state.selectedNode?.nodeId}`);
-                const node = res.status === 200 ? await res.json() : undefined;
-                context.commit("setSelectedNode", node);
-            } else {
-                await context.dispatch("loadNeighbors", context.state.selectedNode);
+            // Ensure that a node is loaded and that it is up to date
+            if (rootDeleted) {
+                context.commit("setSelectedNode", undefined);
+                return;
             }
+
+            const res = await GET(`api/nodes/${context.state.selectedNode?.nodeId}`);
+            const node = res.status === 200 ? await res.json() : undefined;
+            context.commit("setSelectedNode", node);
         },
 
         /**
