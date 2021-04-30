@@ -8,7 +8,6 @@
                 class="dropdown"
                 :options="label.attributes"
                 optionLabel="name"
-                oprionValue="name"
                 v-model="selectedAttribute"
                 :showClear="!collapsed"
                 @change="onChange"
@@ -18,7 +17,7 @@
         </div>
 
         <!-- The expandable content -->
-        <div class="heat-expanded" v-if="!collapsed && selectedAttribute.datatype === types.NUMBER">
+        <div class="heat-expanded" v-if="!collapsed && selectedAttribute?.datatype === types.NUMBER">
             <div class="heat-row red">
                 <label>From</label>
                 <InputNumber showButtons v-model="heatAttribute.from" />
@@ -63,12 +62,12 @@ export default defineComponent({
             this.label.name,
         );
         this.heatAttribute = heatMapAttribute ?? new HeatMapAttribute(this.label.name, null);
-        if (this.heatAttribute.selectedAttributeName)
+        if (this.heatAttribute.selectedAttribute)
             this.selectedAttribute = (this.label as ApiLabel).attributes.filter(
-                (attribute) => attribute.name === this.heatAttribute.selectedAttributeName,
+                (attribute) => attribute.name === this.heatAttribute.selectedAttribute?.name,
             )[0];
 
-        this.collapsed = !this.heatAttribute.selectedAttributeName;
+        this.collapsed = !this.heatAttribute.selectedAttribute?.name;
 
         // Fetch the nodes belonging to the specific label
         this.affectedNodes = await this.$store.dispatch("editor/heatMap/fetchAffectedNodes", this.heatAttribute);
@@ -84,27 +83,34 @@ export default defineComponent({
          * Check if the input fields are field with numbers
          */
         onChange() {
-            // Assign the min and max value of all nodes by default
-            if (!this.heatAttribute.from || !this.heatAttribute.to) {
-                const selectedAttribute: number[] = this.affectedNodes
-                    .map((node) => node.attributes[this.selectedAttribute.name])
-                    .filter((attribute): attribute is number => !!attribute);
-                if (!this.heatAttribute.from) this.heatAttribute.from = Math.min(...selectedAttribute);
-                if (!this.heatAttribute.to) this.heatAttribute.to = Math.max(...selectedAttribute);
-            }
+            this.heatAttribute.selectedAttribute = this.selectedAttribute;
+            this.collapsed = !this.heatAttribute.selectedAttribute;
 
-            this.heatAttribute.selectedAttributeName = this.selectedAttribute?.name;
-            this.collapsed = !this.heatAttribute.selectedAttributeName;
+            // Assign the min and max value of all nodes by default
+            if (!this.collapsed && (!this.heatAttribute.from || !this.heatAttribute.to)) {
+                const [min, max] = this.getMaxMinOfHeatAttribute();
+                if (!this.heatAttribute.from) this.heatAttribute.from = min;
+                if (!this.heatAttribute.to) this.heatAttribute.to = max;
+            }
 
             this.$emit("change", this.heatAttribute);
         },
 
         /**
-         * Toggle the expandable
+         * Returns the min and max value of the selected attribute
          */
-        toggleCollapse() {
-            if (!this.selectedAttribute) return;
-            this.collapsed = !this.collapsed;
+        getMaxMinOfHeatAttribute(): [number, number] {
+            let attributeValues: number[];
+            switch (this.selectedAttribute.datatype) {
+                case ApiDatatype.ENUM:
+                    return [0, this.selectedAttribute.config.length - 1];
+                case ApiDatatype.NUMBER:
+                default:
+                    attributeValues = this.affectedNodes
+                        .map((node) => node.attributes[this.selectedAttribute.name])
+                        .filter((attribute): attribute is number => !!attribute);
+                    return [Math.min(...attributeValues), Math.max(...attributeValues)];
+            }
         },
     },
 });

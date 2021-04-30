@@ -14,18 +14,17 @@
 import HeatMapElement from "@/modules/editor/modules/heatmap/components/HeatMapElement.vue";
 import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 import { defineComponent } from "vue";
-import {HeatMapUtils} from "@/modules/editor/modules/heatmap/controls/HeatMapUtils";
 
 export default defineComponent({
     name: "HeatMap",
     components: { HeatMapElement },
     methods: {
         async onChange(heatMapAttribute: HeatMapAttribute) {
-            if (heatMapAttribute.selectedAttributeName) {
+            if (heatMapAttribute.selectedAttribute) {
                 // Set the heatmap colors according the selection
-                await this.$store.dispatch("editor/heatMap/setHeatmapColor", heatMapAttribute)
+                await this.$store.dispatch("editor/heatMap/setHeatmapColor", heatMapAttribute);
             } else {
-                this.$store.dispatch("editor/heatMap/resetHeatmapColor", heatMapAttribute)
+                this.$store.dispatch("editor/heatMap/resetHeatmapColor", heatMapAttribute);
             }
         },
     },

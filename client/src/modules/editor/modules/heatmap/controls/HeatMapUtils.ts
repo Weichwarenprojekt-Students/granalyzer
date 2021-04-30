@@ -1,6 +1,8 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { GET, getBrightness, isUnexpected } from "@/utility";
 import { dia } from "jointjs";
+import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
+import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 
 export class HeatMapUtils {
     /**
@@ -58,5 +60,17 @@ export class HeatMapUtils {
     setNodeColor(node: dia.Element, color: string): void {
         node.attr("body/fill", color);
         node.attr("label/fill", getBrightness(color) > 170 ? "#333" : "#FFF");
+    }
+
+    /**
+     * Parse the nodes attribute value by the datatype; Enum value becomes the position in the definition
+     */
+    parseNodeValueByDataType(heatMapAttribute: HeatMapAttribute, nodeValue: string | number): number {
+        if (heatMapAttribute.selectedAttribute?.datatype === ApiDatatype.ENUM) {
+            // Enum by index
+            return heatMapAttribute.selectedAttribute.config.indexOf(nodeValue.toString()) ?? 0;
+        } else {
+            return parseFloat(nodeValue.toString());
+        }
     }
 }

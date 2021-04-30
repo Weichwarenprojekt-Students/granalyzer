@@ -9,6 +9,8 @@ import { HeatMapUtils } from "@/modules/editor/modules/heatmap/controls/HeatMapU
 import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 
+const unaffectedNodeColor = "#aaa";
+
 export class HeatMapState {
     /**
      * The labels of the diagram
@@ -32,9 +34,27 @@ export const heatMap = {
          */
         setHeatLabels(state: HeatMapState, labels: ApiLabel[]): void {
             labels.forEach((label) => {
-                label.attributes = label.attributes.filter((attr) => attr.datatype == ApiDatatype.NUMBER);
+                label.attributes = label.attributes.filter(
+                    (attr) => attr.datatype === ApiDatatype.NUMBER || attr.datatype === ApiDatatype.ENUM,
+                );
             });
             state.labels = labels;
+        },
+
+        /**
+         * Appends a new node to the list of all affected nodes by label
+         */
+        addAffectedNode(state: HeatMapState, node: ApiNode): void {
+            let affectedNodesByLabel = state.affectedNodesByLabel.get(node.label);
+            affectedNodesByLabel ? affectedNodesByLabel.push(node) : (affectedNodesByLabel = [node]);
+            state.affectedNodesByLabel.set(node.label, affectedNodesByLabel);
+        },
+
+        /**
+         * Drops all nodes with the given label from the affected nodes by label map
+         */
+        dropAffectedLabel(state: HeatMapState, labelName: string): void {
+            state.affectedNodesByLabel.delete(labelName);
         },
     },
     actions: {
@@ -47,8 +67,7 @@ export const heatMap = {
             const getter = context.rootGetters["editor/labels"];
             for (const label of getter) {
                 const res = await GET("/api/data-scheme/label/" + label);
-                const newVar: ApiLabel = await res.json();
-                labels.push(newVar);
+                labels.push((await res.json()) as ApiLabel);
             }
             context.commit("setHeatLabels", labels);
         },
@@ -77,8 +96,8 @@ export const heatMap = {
 
             // Return the affected nodes
             const affectedNodes: ApiNode[] = await (await Promise.allSettled(fetchNodePromises))
-                .filter((promise) => promise.status === "fulfilled")
-                .map((promise) => (promise as PromiseFulfilledResult<ApiNode>).value);
+                .filter((promise): promise is PromiseFulfilledResult<ApiNode> => promise.status === "fulfilled")
+                .map((promise) => promise.value);
 
             // Store the nodes
             context.state.affectedNodesByLabel.set(payload.labelName, affectedNodes);
@@ -96,6 +115,7 @@ export const heatMap = {
             const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
             if (!graphHandler) return;
 
+            // Set all nodes color back to the stored one
             for (const node of graphHandler.nodes) {
                 if (node.nodeInfo.label === heatMapAttribute.labelName) {
                     context.state.heatMapUtils.setNodeColor(node.jointElement, node.nodeInfo.color);
@@ -103,10 +123,10 @@ export const heatMap = {
             }
 
             graphHandler.dropHeatMapAttribute(heatMapAttribute);
-            context.state.affectedNodesByLabel.delete(heatMapAttribute.labelName);
+            context.commit("dropAffectedLabel", heatMapAttribute.labelName);
 
             if (graphHandler.getActiveHeatMapLabels().length === 0) {
-                await context.dispatch("resetUnaffectedNodesColor");
+                await context.dispatch("setUnaffectedNodesColor");
             }
         },
 
@@ -125,19 +145,19 @@ export const heatMap = {
             for (const node of graphHandler.nodes) {
                 // Filter all the nodes affected by the heatmap label name
                 if (node.nodeInfo.label === heatMapAttribute.labelName) {
-                    const nodeValue = affectedNodes.filter(
-                        (affectedNode) => affectedNode.nodeId === node.nodeInfo.ref.uuid,
-                    )[0].attributes[heatMapAttribute.selectedAttributeName as string];
+                    const nodeValue: string = affectedNodes
+                        .filter((affectedNode) => affectedNode.nodeId === node.nodeInfo.ref.uuid)[0]
+                        .attributes[heatMapAttribute.selectedAttribute?.name as string]?.toString();
 
                     // Get new color from gradient
                     const newColor =
-                        heatMapAttribute.selectedAttributeName && nodeValue != undefined
+                        heatMapAttribute.selectedAttribute && nodeValue != undefined
                             ? context.state.heatMapUtils.getLinearColor(
                                   heatMapAttribute.from ?? 0,
                                   heatMapAttribute.to ?? 0,
-                                  parseFloat(nodeValue.toString()),
+                                  context.state.heatMapUtils.parseNodeValueByDataType(heatMapAttribute, nodeValue),
                               )
-                            : "#aaa";
+                            : unaffectedNodeColor;
 
                     // Set new color to node
                     context.state.heatMapUtils.setNodeColor(node.jointElement, newColor);
@@ -146,37 +166,25 @@ export const heatMap = {
             // Save the heatmap attribute to be serialized
             graphHandler.setHeatMapAttribute(heatMapAttribute);
 
-            await context.dispatch("setUnaffectedNodesColor");
+            await context.dispatch("setUnaffectedNodesColor", unaffectedNodeColor);
         },
 
         /**
          * If at least one heatmap is active, all other nodes should be colored grey
          */
-        setUnaffectedNodesColor(context: ActionContext<HeatMapState, RootState>): Promise<void> | undefined {
+        setUnaffectedNodesColor(
+            context: ActionContext<HeatMapState, RootState>,
+            color?: string,
+        ): Promise<void> | undefined {
             const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
             if (!graphHandler) return;
 
             const heatMapLabels: string[] = graphHandler.getActiveHeatMapLabels();
 
+            // Loop over all unaffected nodes and set the given color, or restore the saved if color not set
             for (const node of graphHandler.nodes) {
                 if (!heatMapLabels.includes(node.nodeInfo.label)) {
-                    context.state.heatMapUtils.setNodeColor(node.jointElement, "#aaa");
-                }
-            }
-        },
-
-        /**
-         * Resets the color of all nodes which are not colored with a heatmap anymore
-         */
-        resetUnaffectedNodesColor(context: ActionContext<HeatMapState, RootState>): Promise<void> | undefined {
-            const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
-            if (!graphHandler) return;
-
-            const heatMapLabels: string[] = graphHandler.getActiveHeatMapLabels();
-
-            for (const node of graphHandler.nodes) {
-                if (!heatMapLabels.includes(node.nodeInfo.label)) {
-                    context.state.heatMapUtils.setNodeColor(node.jointElement, node.nodeInfo.color);
+                    context.state.heatMapUtils.setNodeColor(node.jointElement, color ?? node.nodeInfo.color);
                 }
             }
         },
@@ -189,8 +197,7 @@ export const heatMap = {
             labelName: string,
         ): HeatMapAttribute | null {
             const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
-            if (!graphHandler) return null;
-            return graphHandler.getHeatMapAttribute(labelName);
+            return !graphHandler ? null : graphHandler?.getHeatMapAttribute(labelName);
         },
 
         /**
@@ -199,23 +206,32 @@ export const heatMap = {
         async addNode(context: ActionContext<HeatMapState, RootState>, nodeInfo: NodeInfo): Promise<void> {
             const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
             if (!graphHandler) return;
+
+            // Exit if no heatmap is applied
             if (graphHandler?.getActiveHeatMapLabels().length == 0) return;
 
+            // Get the matching heat map attribute
             const heatMapAttribute = graphHandler.getHeatMapAttribute(nodeInfo.label);
+            if (!heatMapAttribute) return;
+
+            // Get the drawn element from joint.js
             const jointNode = graphHandler.nodes.getByReference(nodeInfo.ref.uuid, nodeInfo.ref.index) as Node;
+
+            // Get and add the specific node to the list of all affected nodes
             const apiNode = (await context.state.heatMapUtils.fetchNode(nodeInfo.ref.uuid)) as ApiNode;
-            let affectedNodesByLabel = context.state.affectedNodesByLabel.get(nodeInfo.label);
-            affectedNodesByLabel ? affectedNodesByLabel.push(apiNode) : (affectedNodesByLabel = [apiNode]);
-            context.state.affectedNodesByLabel.set(nodeInfo.label, affectedNodesByLabel);
-            const nodeValue = apiNode.attributes[heatMapAttribute?.selectedAttributeName as string];
-            const newColor =
-                heatMapAttribute && nodeValue
-                    ? context.state.heatMapUtils.getLinearColor(
-                          heatMapAttribute.from ?? 0,
-                          heatMapAttribute.to ?? 0,
-                          parseFloat(nodeValue.toString()),
-                      )
-                    : "#aaa";
+            context.commit("addAffectedNode", apiNode);
+
+            // Get the value of the nodes specific attribute which is selected for the heat map
+            const nodeValue = apiNode.attributes[heatMapAttribute.selectedAttribute?.name as string].toString();
+
+            // Determine the nodes new color
+            const newColor = nodeValue
+                ? context.state.heatMapUtils.getLinearColor(
+                      heatMapAttribute.from ?? 0,
+                      heatMapAttribute.to ?? 0,
+                      context.state.heatMapUtils.parseNodeValueByDataType(heatMapAttribute, nodeValue),
+                  )
+                : unaffectedNodeColor;
 
             // Set new color to node
             context.state.heatMapUtils.setNodeColor(jointNode?.jointElement, newColor);
