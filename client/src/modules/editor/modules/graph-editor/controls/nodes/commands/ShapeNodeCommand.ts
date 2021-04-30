@@ -26,14 +26,14 @@ export class ShapeNodeCommand implements ICommand {
     /**
      * Set the new shape
      */
-    async redo(): Promise<void> {
-        await this.graphHandler.nodes.setShape(this.node, this.newShape);
+    redo(): void {
+        this.graphHandler.nodes.setShape(this.node, this.newShape);
     }
 
     /**
      * Set the old shape
      */
-    async undo(): Promise<void> {
-        await this.graphHandler.nodes.setShape(this.node, this.oldShape);
+    undo(): void {
+        this.graphHandler.nodes.setShape(this.node, this.oldShape);
     }
 }

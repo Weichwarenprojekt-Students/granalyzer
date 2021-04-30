@@ -36,8 +36,8 @@ export class ResizeNodeCommand implements ICommand {
         // Set new size of node
         this.newSize = this.graphHandler.graph.sizeOf(this.node.joint);
 
-        // Any size couldn't be determined
-        if (!this.origSize || !this.newSize) return false;
+        // New size couldn't be determined
+        if (!this.newSize) return false;
 
         return !(this.origSize.width === this.newSize.width && this.origSize.height === this.newSize.height);
     }

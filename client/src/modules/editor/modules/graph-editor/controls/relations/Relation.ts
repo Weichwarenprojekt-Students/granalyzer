@@ -58,6 +58,20 @@ export class Relation {
     }
 
     /**
+     * True if the object is a node
+     */
+    public isNode(): this is Node {
+        return false;
+    }
+
+    /**
+     * True if the object is a relation
+     */
+    public isRelation(): this is Relation {
+        return true;
+    }
+
+    /**
      * The relation mode type of the relation
      * @private
      */

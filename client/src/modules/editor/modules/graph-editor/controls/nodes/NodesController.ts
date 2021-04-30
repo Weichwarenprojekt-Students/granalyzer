@@ -83,8 +83,7 @@ export default class NodesController extends NodesMap {
     /**
      * Update the joint element of a node
      */
-    public async setShape(node: Node, shape: string): Promise<void> {
-        await this.graphHandler.controls.resizeControls.deactivate();
+    public setShape(node: Node, shape: string): void {
         // Create the new joint element
         node.info.shape = shape;
         const newNode = parseNodeShape(node.info);
@@ -94,8 +93,5 @@ export default class NodesController extends NodesMap {
         this.remove(node);
         node.joint = newNode;
         this.add(node);
-
-        // Select the item
-        await this.graphHandler.controls.selectNode(this.graphHandler.graph.paper.findViewByModel(newNode));
     }
 }

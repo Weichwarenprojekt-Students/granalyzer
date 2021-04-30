@@ -201,7 +201,7 @@ export class GraphHandler {
      * Remove the focus of other ui fields (input fields etc.)
      * That's important for the toolbar shortcuts to work
      */
-    private removeInputFocus(): void {
+    private static removeInputFocus(): void {
         const input = document.activeElement as HTMLElement;
         if (input) input.blur();
     }
@@ -214,12 +214,15 @@ export class GraphHandler {
         this.graph.paper.on({
             // Reset selection when clicking on a blank paper space
             "blank:pointerclick": () => {
-                this.removeInputFocus();
-                this.controls.resetSelection();
+                GraphHandler.removeInputFocus();
+                // Resetting the selection can not, under any circumstances, be done by calling
+                // this.controls.resetSelection()! This leads to unexplainable error after changing the shape of
+                // an element.
+                this.store.commit("editor/resetSelection");
             },
             // Reset the focus of input fields if necessary
             "cell:pointerdown": () => {
-                this.removeInputFocus();
+                GraphHandler.removeInputFocus();
             },
             // Select node and begin registering a node movement
             "element:pointerdown": async (elementView) => {

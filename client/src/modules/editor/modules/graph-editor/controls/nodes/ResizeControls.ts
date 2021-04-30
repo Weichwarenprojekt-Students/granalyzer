@@ -244,14 +244,14 @@ export class ResizeControls {
      * @return The direction or undefined if element isn't a resize handle
      */
     private getDirectionOfClickedHandle(element: dia.Element): dia.Direction | undefined {
-        switch (element) {
-            case this.upperLeft:
+        switch (element.id) {
+            case this.upperLeft.id:
                 return "top-left";
-            case this.lowerLeft:
+            case this.lowerLeft.id:
                 return "bottom-left";
-            case this.upperRight:
+            case this.upperRight.id:
                 return "top-right";
-            case this.lowerRight:
+            case this.lowerRight.id:
                 return "bottom-right";
         }
         return undefined;

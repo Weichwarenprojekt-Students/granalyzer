@@ -43,6 +43,20 @@ export class Node {
     }
 
     /**
+     * True if the object is a node
+     */
+    public isNode(): this is Node {
+        return true;
+    }
+
+    /**
+     * True if the object is a relation
+     */
+    public isRelation(): this is Relation {
+        return false;
+    }
+
+    /**
      * The reference of the node containing uuid and index
      */
     public get reference(): NodeReference {

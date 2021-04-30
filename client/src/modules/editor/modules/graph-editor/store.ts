@@ -4,7 +4,7 @@ import { RootState } from "@/store";
 import { NodeInfo } from "./controls/nodes/models/NodeInfo";
 import { ApiDiagram } from "@/models/ApiDiagram";
 import { CreateNodeCommand } from "./controls/nodes/commands/CreateNodeCommand";
-import { g } from "jointjs";
+import { dia, g } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/RemoveNodeCommand";
 import { GET, PUT, randomRange } from "@/utility";
 import { RelationInfo } from "./controls/relations/models/RelationInfo";
@@ -67,7 +67,7 @@ export class GraphEditorState {
 async function getCreateNodeCommand(graphHandler: GraphHandler, nodeInfo: NodeInfo, labelColor?: string) {
     // Perform api request
     const res = await GET("/api/nodes/" + nodeInfo.ref.uuid + "/relations");
-    const newVar: ApiRelation[] = await res.json();
+    const newVar: ApiRelation[] = res.status === 200 ? await res.json() : [];
 
     // Transform relations from api into Relation objects
     const relations: RelationInfo[] = newVar.map((rel) => {
@@ -91,12 +91,11 @@ async function getCreateNodeCommand(graphHandler: GraphHandler, nodeInfo: NodeIn
 async function getUniqueNeighborIds(node: Node): Promise<Set<string> | undefined> {
     // Get all relations directly connected to the node
     const res = await GET("/api/nodes/" + node.reference.uuid + "/relations");
-    if (res.status !== 200) return;
 
     // Unique ids of new nodes
     const nodeIds = new Set<string>();
 
-    for (const rel of (await res.json()) as Array<ApiRelation>) {
+    for (const rel of (res.status === 200 ? await res.json() : []) as Array<ApiRelation>) {
         // Remove circle relations
         if (rel.from === rel.to) continue;
         // Add relation if other node not yet connected to this node
@@ -166,9 +165,9 @@ export const graphEditor = {
         /**
          * Remove a node or relation
          */
-        changeNodeShape(state: GraphEditorState, shape: string): void {
-            if (!state.graphHandler || !(state.selectedElement instanceof Node)) return;
-            state.graphHandler.addCommand(new ShapeNodeCommand(state.graphHandler, state.selectedElement, shape));
+        changeNodeShape(state: GraphEditorState, [shape, node]: [string, Node]): void {
+            if (!state.graphHandler) return;
+            state.graphHandler.addCommand(new ShapeNodeCommand(state.graphHandler, node, shape));
         },
         /**
          * Active/Deactivate the loading state
@@ -217,6 +216,12 @@ export const graphEditor = {
         updateRelatedNodesCount(state: GraphEditorState, relatedNodesAmount: number): void {
             // Write amount of loaded related nodes to member
             state.relatedNodesAmount = relatedNodesAmount;
+        },
+        /**
+         * Reset the selection in the graph editor
+         */
+        resetSelection(state: GraphEditorState): void {
+            state.graphHandler?.controls.resetSelection();
         },
     },
     actions: {
@@ -276,11 +281,25 @@ export const graphEditor = {
          * Change the shape of a node
          */
         async changeNodeShape(context: ActionContext<GraphEditorState, RootState>, shape: string): Promise<void> {
+            const node = context.state.selectedElement;
+            if (!node?.isNode()) return;
+
             context.commit("setEditorLoading", true);
-            context.commit("changeNodeShape", shape);
+
+            context.commit("resetSelection");
+            context.commit("changeNodeShape", [shape, node]);
+
             context.commit("setEditorLoading", false);
 
             await context.dispatch("saveChange");
+
+            // Select new shape
+            const model = context.state.graphHandler?.nodes.getByJointId(node.jointId);
+            if (model) {
+                const elementView = context.state.graphHandler?.graph.paper.findViewByModel(model.joint);
+                if (elementView instanceof dia.ElementView)
+                    await context.state.graphHandler?.controls.selectNode(elementView);
+            }
         },
 
         /**

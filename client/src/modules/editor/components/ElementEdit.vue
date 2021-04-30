@@ -85,7 +85,7 @@ export default defineComponent({
             return this.$store.state.editor.graphEditor.selectedElement instanceof Node;
         },
         /**
-         * @return True if the currently selected element is a node
+         * @return True if the currently selected element is a relation
          */
         isRelation(): boolean {
             return this.$store.state.editor.graphEditor.selectedElement instanceof Relation;
