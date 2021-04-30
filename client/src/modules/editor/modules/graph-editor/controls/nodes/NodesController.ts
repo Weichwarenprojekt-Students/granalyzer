@@ -2,7 +2,7 @@ import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/m
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 import { NodesMap } from "@/modules/editor/modules/graph-editor/controls/nodes/NodesMap";
-import { parseNodeShape } from "@/shared/NodeShapes";
+import { getStyledShape } from "@/shared/NodeShapes";
 
 /**
  * Controller for all nodes in the joint js graph
@@ -21,9 +21,8 @@ export default class NodesController extends NodesMap {
      * Create a new node and add it to the graph
      *
      * @param nodeInfo The node info from which to create the new node
-     * @param labelColor Color of the label of the node
      */
-    public new(nodeInfo: NodeInfo, labelColor?: string): Node {
+    public new(nodeInfo: NodeInfo): Node {
         // Get all nodes with the Uuid from the graph
         const existingNodesWithUuid = this.getByUuid(nodeInfo.ref.uuid);
 
@@ -31,8 +30,8 @@ export default class NodesController extends NodesMap {
         nodeInfo.ref.index = Math.max(-1, ...existingNodesWithUuid.keys()) + 1;
 
         // Create the node
-        nodeInfo.color = labelColor ?? nodeInfo.color ?? "#70FF87";
-        const shape = parseNodeShape(nodeInfo);
+        nodeInfo.labelColor = this.getLabelColor(nodeInfo.label);
+        const shape = getStyledShape(nodeInfo);
 
         // Create new node object
         const node = new Node(nodeInfo, shape);
@@ -88,12 +87,21 @@ export default class NodesController extends NodesMap {
     public setShape(node: Node, shape: string): void {
         // Create the new joint element
         node.info.shape = shape;
-        const newNode = parseNodeShape(node.info);
+        const newNode = getStyledShape(node.info);
 
         // Add the element and update the node reference
         newNode.addTo(this.graphHandler.graph.graph);
         this.remove(node);
         node.joint = newNode;
         this.add(node);
+    }
+
+    /**
+     * Get the color of a label
+     *
+     * @param label The label to get the color of
+     */
+    public getLabelColor(label: string): string | undefined {
+        return this.graphHandler.store.state.overview?.labelColor.get(label)?.color;
     }
 }

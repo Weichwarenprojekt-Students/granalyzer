@@ -36,7 +36,15 @@ export default defineComponent({
          * Start dragging in a new node
          */
         onNodeDrag(shape: string, evt: DragEvent): void {
-            this.$store.commit("editor/setDraggedNode", new NodeDrag(evt, "text", "#FFF", "#333", shape));
+            this.$store.commit("editor/setDraggedNode", {
+                evt,
+                name: "text",
+                color: "#FFF",
+                borderColor: "#333",
+                shape,
+                nodeId: "",
+                label: "",
+            } as NodeDrag);
         },
     },
 });

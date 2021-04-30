@@ -3,6 +3,8 @@ import { getFontColor } from "@/utility";
 import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 import { NodeDrag } from "@/shared/NodeDrag";
 
+const DEFAULT_COLOR = "#808080";
+
 /**
  * The possible shapes
  */
@@ -19,7 +21,7 @@ export enum NodeShapes {
  *
  * @param info The node info
  */
-export function parseNodeShape(info: NodeInfo): dia.Element {
+export function getStyledShape(info: NodeInfo): dia.Element {
     switch (info.shape) {
         case NodeShapes.TEXT:
             return getTextShape(info);
@@ -51,7 +53,7 @@ export function createDragNode(drag: NodeDrag, scale: number): void {
     ghostElement.style.position = "absolute";
     ghostElement.style.top = "-200px";
     ghostElement.style.left = "-200px";
-    ghostElement.style.color = getFontColor(drag.color);
+    ghostElement.style.color = getFontColor(drag.color ?? drag.labelColor ?? DEFAULT_COLOR);
     ghostElement.style.fontWeight = "bold";
 
     // Apply specific styles
@@ -88,7 +90,7 @@ const borderWidth = 2;
 /**
  * The label style
  */
-function getLabelStyle(info: NodeInfo) {
+function getLabelStyle(info: NodeInfo, forText = false) {
     return {
         ref: "body",
         fontSize: "20px",
@@ -97,7 +99,7 @@ function getLabelStyle(info: NodeInfo) {
         textVerticalAnchor: "middle",
         refX: "50%",
         refY: "50%",
-        fill: getFontColor(info.color),
+        fill: forText ? "#333" : getFontColor(info.color ?? info.labelColor ?? DEFAULT_COLOR),
         class: "node-text",
     };
 }
@@ -111,9 +113,9 @@ function getRectangleShape(info: NodeInfo): dia.Element {
         label: getLabelStyle(info),
         body: {
             ref: "label",
-            fill: info.color,
+            fill: info.color ?? info.labelColor ?? DEFAULT_COLOR,
             strokeWidth,
-            stroke: info.borderColor,
+            stroke: info.borderColor ?? info.labelColor ?? DEFAULT_COLOR,
             rx: 4,
             ry: 4,
             refWidth2: 32,
@@ -128,7 +130,7 @@ function getRectangleShape(info: NodeInfo): dia.Element {
  * Style the ghost element as a rectangle
  */
 function styleRectangle(ghostElement: HTMLElement, drag: NodeDrag, scale: number): void {
-    ghostElement.style.background = drag.color;
+    ghostElement.style.background = drag.color ?? drag.labelColor ?? DEFAULT_COLOR;
     ghostElement.style.borderRadius = `${4 * scale}px`;
     ghostElement.style.width = "fit-content";
     ghostElement.style.height = "fit-content";
@@ -142,7 +144,7 @@ function styleRectangle(ghostElement: HTMLElement, drag: NodeDrag, scale: number
 function getTextShape(info: NodeInfo): dia.Element {
     const shape = new shapes.standard.Rectangle();
     shape.attr({
-        label: getLabelStyle(info),
+        label: getLabelStyle(info, true),
         body: {
             ref: "label",
             // Use completely transparent color, so that highlighting works correctly
@@ -162,8 +164,8 @@ function getCircleShape(info: NodeInfo): dia.Element {
     shape.attr({
         label: getLabelStyle(info),
         body: {
-            fill: info.color,
-            stroke: info.borderColor,
+            fill: info.color ?? info.labelColor ?? DEFAULT_COLOR,
+            stroke: info.borderColor ?? info.labelColor ?? DEFAULT_COLOR,
             strokeWidth,
             class: "node",
         },
@@ -176,7 +178,7 @@ function getCircleShape(info: NodeInfo): dia.Element {
  * Style the ghost element as a circle
  */
 function styleCircle(ghostElement: HTMLElement, drag: NodeDrag, scale: number): void {
-    ghostElement.style.background = drag.color;
+    ghostElement.style.background = drag.color ?? drag.labelColor ?? DEFAULT_COLOR;
     ghostElement.style.borderRadius = `${50 * scale}px`;
     ghostElement.style.width = `${100 * scale}px`;
     ghostElement.style.height = `${100 * scale}px`;
@@ -194,8 +196,8 @@ function getDiamondShape(info: NodeInfo): dia.Element {
     shape.attr({
         label: getLabelStyle(info),
         body: {
-            fill: info.color,
-            stroke: info.borderColor,
+            fill: info.color ?? info.labelColor ?? DEFAULT_COLOR,
+            stroke: info.borderColor ?? info.labelColor ?? DEFAULT_COLOR,
             strokeWidth,
             refPoints: "0,10 10,0 20,10 10,20",
             class: "node-body",
@@ -225,15 +227,15 @@ function getCylinderShape(info: NodeInfo): dia.Element {
     shape.attr({
         label: getLabelStyle(info),
         top: {
-            stroke: info.borderColor,
+            stroke: info.borderColor ?? info.labelColor ?? DEFAULT_COLOR,
             strokeWidth,
-            fill: info.color,
+            fill: info.color ?? info.labelColor ?? DEFAULT_COLOR,
         },
         body: {
             refPoints: "0,10 10,0 20,10 10,20",
             class: "node-body",
-            fill: info.color,
-            stroke: info.borderColor,
+            fill: info.color ?? info.labelColor ?? DEFAULT_COLOR,
+            stroke: info.borderColor ?? info.labelColor ?? DEFAULT_COLOR,
             strokeWidth,
         },
     });

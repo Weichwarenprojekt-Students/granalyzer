@@ -1,24 +1,41 @@
-import { NodeShapes } from "@/shared/NodeShapes";
-
-export class NodeDrag {
+export interface NodeDrag {
     /**
-     * The data for a node drag event
-     *
-     * @param evt The actual drag event
-     * @param name Name of the node
-     * @param color Color of the node
-     * @param borderColor Border color of the node
-     * @param shape Shape of the node
-     * @param nodeId The uuid
-     * @param label The corresponding label
+     * The actual drag event
      */
-    constructor(
-        public evt: DragEvent,
-        public name = "",
-        public color = "#FFF",
-        public borderColor = "#333",
-        public shape: string = NodeShapes.RECTANGLE,
-        public nodeId: string = "",
-        public label: string = "",
-    ) {}
+    evt: DragEvent;
+
+    /**
+     * Name of the node
+     */
+    name: string;
+
+    /**
+     * Color of the node
+     */
+    color?: string;
+
+    /**
+     * Border color of the node
+     */
+    borderColor?: string;
+
+    /**
+     * The color of the node label
+     */
+    labelColor?: string;
+
+    /**
+     * Shape of the node
+     */
+    shape: string;
+
+    /**
+     * The uuid
+     */
+    nodeId: string;
+
+    /**
+     * The corresponding label
+     */
+    label: string;
 }

@@ -23,21 +23,15 @@ export class CreateNodeCommand implements ICommand {
      * @param graphHandler The graph handler instance
      * @param nodeInfo The node that shall be added
      * @param relations Relations to or from that node
-     * @param labelColor Color of the label of the node
      */
-    constructor(
-        private graphHandler: GraphHandler,
-        private nodeInfo: NodeInfo,
-        private relations: RelationInfo[],
-        private labelColor?: string,
-    ) {}
+    constructor(private graphHandler: GraphHandler, private nodeInfo: NodeInfo, private relations: RelationInfo[]) {}
 
     /**
      * The redo action which adds the node to the diagram
      */
     redo(): void {
         // Use existing node after first undo in order to keep the reference
-        if (this.node == null) this.node = this.graphHandler.nodes.new(this.nodeInfo, this.labelColor);
+        if (this.node == null) this.node = this.graphHandler.nodes.new(this.nodeInfo);
         else this.graphHandler.nodes.addExisting(this.node);
 
         if (this.existingRelations.length === 0) {

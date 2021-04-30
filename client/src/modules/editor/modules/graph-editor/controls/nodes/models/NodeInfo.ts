@@ -38,11 +38,15 @@ export interface NodeInfo {
      */
     shape: string;
     /**
+     * Color of the label
+     */
+    labelColor?: string;
+    /**
      * The color value
      */
-    color: string;
+    color?: string;
     /**
      * The color value for the border
      */
-    borderColor: string;
+    borderColor?: string;
 }

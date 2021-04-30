@@ -6,7 +6,6 @@ export default class ApiNode {
      * @param label Label the node is related to
      * @param nodeId Id of the node
      * @param attributes Additional attributes of the node
-     * @param color Color of the label type
      */
     constructor(
         public name: string = "",
@@ -15,6 +14,5 @@ export default class ApiNode {
         public attributes: {
             [key: string]: string | number;
         } = {},
-        public color: string = "#333",
     ) {}
 }

@@ -36,18 +36,14 @@ export default defineComponent({
          * Event function to start dragging elements
          */
         onNodeDrag(evt: DragEvent): void {
-            this.$emit(
-                "on-node-drag",
-                new NodeDrag(
-                    evt,
-                    this.node.name,
-                    this.color,
-                    this.color,
-                    NodeShapes.RECTANGLE,
-                    this.node.nodeId,
-                    this.node.label,
-                ),
-            );
+            this.$emit("on-node-drag", {
+                evt,
+                name: this.node.name,
+                labelColor: this.color,
+                shape: NodeShapes.RECTANGLE,
+                nodeId: this.node.nodeId,
+                label: this.node.label,
+            } as NodeDrag);
         },
     },
 });

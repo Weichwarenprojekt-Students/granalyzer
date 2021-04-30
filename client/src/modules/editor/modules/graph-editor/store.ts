@@ -62,9 +62,8 @@ export class GraphEditorState {
  *
  * @param graphHandler Instance of the graph handler
  * @param nodeInfo The node info of the node to create
- * @param labelColor The label color of the node
  */
-async function getCreateNodeCommand(graphHandler: GraphHandler, nodeInfo: NodeInfo, labelColor?: string) {
+async function getCreateNodeCommand(graphHandler: GraphHandler, nodeInfo: NodeInfo) {
     // Perform api request
     const res = await GET("/api/nodes/" + nodeInfo.ref.uuid + "/relations");
     const newVar: ApiRelation[] = res.status === 200 ? await res.json() : [];
@@ -80,7 +79,7 @@ async function getCreateNodeCommand(graphHandler: GraphHandler, nodeInfo: NodeIn
         } as RelationInfo;
     });
 
-    return new CreateNodeCommand(graphHandler, nodeInfo, relations, labelColor);
+    return new CreateNodeCommand(graphHandler, nodeInfo, relations);
 }
 
 /**
@@ -255,13 +254,7 @@ export const graphEditor = {
 
             context.commit("setEditorLoading", true);
 
-            const labelColor = context.rootState.overview?.labelColor.get(node.label)?.color;
-
-            const createNodeCommand: CreateNodeCommand = await getCreateNodeCommand(
-                context.state.graphHandler,
-                node,
-                labelColor,
-            );
+            const createNodeCommand: CreateNodeCommand = await getCreateNodeCommand(context.state.graphHandler, node);
 
             context.commit("setEditorLoading", false);
 
@@ -447,8 +440,7 @@ export const graphEditor = {
                             label: apiNode.label,
                             name: apiNode.name,
                             shape: NodeShapes.RECTANGLE,
-                            color: context.rootState.overview?.labelColor.get(apiNode.label)?.color ?? "#333",
-                            borderColor: context.rootState.overview?.labelColor.get(apiNode.label)?.color ?? "#333",
+                            labelColor: context.rootState.overview?.labelColor.get(apiNode.label)?.color,
                             size: { width: -1, height: -1 },
                         };
 

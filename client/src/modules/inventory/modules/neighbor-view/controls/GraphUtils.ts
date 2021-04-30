@@ -192,9 +192,9 @@ export class GraphUtils {
      * @param id Id of the node that is supposed to be in the graph
      * @private
      */
-    private getShapeById(id: string): dia.Cell | undefined {
+    private getShapeById(id: string): dia.Element | undefined {
         const shapeId = this.mappedNodes.get(id);
-        if (shapeId) return this.graph.graph.getCell(shapeId);
+        if (shapeId) return this.graph.graph.getCell(shapeId) as dia.Element;
         return undefined;
     }
 
@@ -252,6 +252,12 @@ export class GraphUtils {
             [this.store.state.inventory.selectedNode as ApiNode, ...this.store.state.inventory.neighbors],
             (node) => {
                 const diagEl = this.getShapeById(node.nodeId);
+
+                // Get color, size, and position of the diagram element
+                const color = this.store.state.overview?.labelColor.get(node.label)?.color;
+                const size = diagEl ? this.graph.sizeOf(diagEl) : { width: 200, height: 30 };
+                const pos = diagEl ? diagEl.position() : { x: 0, y: 0 };
+
                 return {
                     label: node.label,
                     ref: {
@@ -259,12 +265,11 @@ export class GraphUtils {
                         uuid: node.nodeId,
                     },
                     name: node.name,
-                    color: node.color,
-                    borderColor: node.color,
+                    labelColor: color,
                     shape: "rectangle",
-                    x: diagEl?.attributes.position.x,
-                    y: diagEl?.attributes.position.y,
-                    size: diagEl ? this.graph.sizeOf(diagEl) : { width: 100, height: 100 },
+                    x: pos.x - size.width / 2,
+                    y: pos.y - size.height / 2,
+                    size: size,
                 };
             },
         );
