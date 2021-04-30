@@ -1,13 +1,12 @@
 <template>
     <div class="heat-expanded heat-expanded-enum">
-        <ul id="enumList">
-            <li
-                class="heat-row"
-                v-for="entry in selectedAttribute.config"
-                :key="entry"
-                v-text="entry"
-                @change="onChange"
-            />
+        <ul id="enumList" ref="config-list">
+            <li class="heat-row" v-for="entry in config" :data-value="entry" :key="entry">
+                <svg>
+                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#menu`"></use>
+                </svg>
+                {{ entry }}
+            </li>
         </ul>
     </div>
 </template>
@@ -15,31 +14,46 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import Sortable from "sortablejs";
-import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
+import { EnumConfigElement } from "@/modules/schemes/models/EnumConfigElement";
+import { deepCopy } from "@/utility";
 
 export default defineComponent({
     name: "EnumConfigList",
     props: {
-        selectedAttribute: {
-            type: Object,
-            default: new ApiAttribute(),
+        config: {
+            type: Array,
+            default: [] as Array<EnumConfigElement>,
         },
     },
     data() {
         return {
-            sortable: {} as Sortable
-        }
+            sortable: {} as Sortable,
+            modifiedConfig: [] as Array<EnumConfigElement>,
+        };
+    },
+    created() {
+        this.modifiedConfig = deepCopy(this.config as Array<EnumConfigElement>);
     },
     mounted() {
         const el = document.getElementById("enumList");
-        if (el) this.sortable = Sortable.create(el, {
+        const options = {
+            onSort: () => {
+                this.onChange();
+            },
+        };
+        if (el) this.sortable = Sortable.create(el, options);
+    },
+    methods: {
+        onChange() {
+            let list: EnumConfigElement[] = [];
+            (this.$refs["config-list"] as HTMLElement)
+                .querySelectorAll("li")
+                ?.forEach((el) => list.push(el.dataset["value"] as string));
+            this.modifiedConfig = list;
 
-            // When a element is dropped at a new place in the list
-            onSort(evt:Event) {
-                console.log("Änderung");
-            }
-        });
-
+            this.$emit("update:config", this.modifiedConfig);
+            this.$emit("change");
+        },
     },
 });
 </script>
@@ -48,25 +62,22 @@ export default defineComponent({
 @import "~@/styles/global";
 
 .heat-row {
-    align-items: center;
     display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-    padding-left: 8px;
+    padding: 8px 0 10px 8px;
+    cursor: n-resize;
+    gap: 8px;
 
-    background-color: #ccc;
-    margin-bottom: 10px;
+    svg {
+        height: 16px;
+        width: 16px;
+        fill: #ccc;
+    }
 }
 
-.heat-expanded-enum .heat-row {
-    &:first-of-type {
-        border-top: 4px red solid;
-        padding-top: 4px;
-    }
-
-    &:last-of-type {
-        border-bottom: 4px green solid;
-        padding-bottom: 4px;
-    }
+#enumList {
+    border-top: 4px red solid;
+    border-bottom: 4px green solid;
+    padding-bottom: 4px;
+    padding-top: 4px;
 }
 </style>

@@ -8,7 +8,6 @@
                 class="dropdown"
                 :options="label.attributes"
                 optionLabel="name"
-                oprionValue="name"
                 v-model="selectedAttribute"
                 :showClear="!collapsed"
                 @change="onChange"
@@ -31,9 +30,7 @@
 
         <!-- The expandable content for enum attributes -->
         <div v-if="!collapsed && selectedAttribute.datatype === types.ENUM">
-            <EnumConfigList
-                :selected-attribute = "selectedAttribute"
-            />
+            <EnumConfigList v-model:config="selectedAttribute.config" @change="onChange" />
         </div>
     </div>
 </template>
@@ -215,6 +212,5 @@ export default defineComponent({
         border-bottom: 4px green solid;
         padding-bottom: 4px;
     }
-
 }
 </style>
