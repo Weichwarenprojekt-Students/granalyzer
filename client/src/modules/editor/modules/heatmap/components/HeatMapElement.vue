@@ -8,6 +8,7 @@
                 class="dropdown"
                 :options="label.attributes"
                 optionLabel="name"
+                oprionValue="name"
                 v-model="selectedAttribute"
                 :showClear="!collapsed"
                 @change="onChange"
@@ -16,7 +17,7 @@
             />
         </div>
 
-        <!-- The expandable content -->
+        <!-- The expandable content for number attributes -->
         <div class="heat-expanded" v-if="!collapsed && selectedAttribute?.datatype === types.NUMBER">
             <div class="heat-row red">
                 <label>From</label>
@@ -26,6 +27,13 @@
                 <label>To</label>
                 <InputNumber showButtons v-model="heatAttribute.to" />
             </div>
+        </div>
+
+        <!-- The expandable content for enum attributes -->
+        <div v-if="!collapsed && selectedAttribute.datatype === types.ENUM">
+            <EnumConfigList
+                :selected-attribute = "selectedAttribute"
+            />
         </div>
     </div>
 </template>
@@ -37,9 +45,11 @@ import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMa
 import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import ApiNode from "@/models/data-scheme/ApiNode";
+import EnumConfigList from "@/modules/editor/modules/heatmap/components/EnumConfigList.vue";
 
 export default defineComponent({
     name: "HeatMapElement",
+    components: { EnumConfigList },
     data() {
         return {
             heatAttribute: {} as HeatMapAttribute,
@@ -193,5 +203,18 @@ export default defineComponent({
     &.green {
         background-color: green;
     }
+}
+
+.heat-expanded-enum .heat-row {
+    &:first-of-type {
+        border-top: 4px red solid;
+        padding-top: 4px;
+    }
+
+    &:last-of-type {
+        border-bottom: 4px green solid;
+        padding-bottom: 4px;
+    }
+
 }
 </style>
