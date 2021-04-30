@@ -177,7 +177,7 @@ export class ResizeControls {
         if (!this.currentNode) return false;
 
         // Get current position and size of the node
-        const pos = this.currentNode.joint.position();
+        const pos = this.currentNode.position;
         const size = this.graphHandler.graph.sizeOf(this.currentNode.joint);
 
         // Set the positions of the handles to the four corners of the node, taking offsets into consideration
@@ -204,7 +204,7 @@ export class ResizeControls {
             this.blockResizing = true;
 
             // Get current position and size of the node
-            const pos = this.currentNode.joint.position();
+            const pos = this.currentNode.position;
             const size = this.graphHandler.graph.sizeOf(this.currentNode.joint);
 
             // Calculate width and height according to the direction in which to resize

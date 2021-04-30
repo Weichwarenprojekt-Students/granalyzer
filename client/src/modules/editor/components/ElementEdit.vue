@@ -51,8 +51,6 @@
 import { defineComponent } from "vue";
 import { NodeShapes } from "@/shared/NodeShapes";
 import ColorMultiInput from "@/components/ColorMultiInput.vue";
-import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
-import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 import { deepCopy } from "@/utility";
 
@@ -82,13 +80,13 @@ export default defineComponent({
          * @return True if the currently selected element is a node
          */
         isNode(): boolean {
-            return this.$store.state.editor.graphEditor.selectedElement instanceof Node;
+            return this.$store.state.editor.graphEditor.selectedElement?.isNode();
         },
         /**
          * @return True if the currently selected element is a relation
          */
         isRelation(): boolean {
-            return this.$store.state.editor.graphEditor.selectedElement instanceof Relation;
+            return this.$store.state.editor.graphEditor.selectedElement?.isRelation();
         },
     },
     watch: {

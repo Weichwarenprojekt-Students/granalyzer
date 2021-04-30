@@ -2,7 +2,7 @@ import { NodeReference } from "@/modules/editor/modules/graph-editor/controls/no
 import { JointID } from "@/shared/JointGraph";
 import { deepCopy } from "@/utility";
 import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
-import { dia } from "jointjs";
+import { dia, g } from "jointjs";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 
 export type NodeSize = { width: number; height: number };
@@ -84,7 +84,7 @@ export class Node {
      */
     public set joint(newElement: dia.Element) {
         // Set the bounds
-        newElement.position(this._joint.position().x, this._joint.position().y);
+        newElement.position(this.position.x, this.position.y);
 
         // Update the joint element and safe the old reference
         const oldElement = this._joint;
@@ -117,5 +117,21 @@ export class Node {
         // Resize element and persist new size
         this.joint.resize(width, height, { direction });
         this.info.size = { width, height };
+    }
+
+    /**
+     * Position of the node
+     */
+    public get position(): g.PlainPoint {
+        return this.joint.position();
+    }
+
+    /**
+     * Set position of the node
+     */
+    public set position({ x, y }: g.PlainPoint) {
+        this.joint.position(x, y);
+        this.info.x = x;
+        this.info.y = y;
     }
 }

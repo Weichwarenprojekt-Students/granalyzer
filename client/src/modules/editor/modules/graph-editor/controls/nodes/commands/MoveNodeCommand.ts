@@ -7,12 +7,12 @@ export class MoveNodeCommand implements ICommand {
     /**
      * The initial position
      */
-    private readonly startPos: g.Point;
+    private readonly startPos: g.PlainPoint;
 
     /**
      * The final position
      */
-    private stopPos?: g.Point;
+    private stopPos?: g.PlainPoint;
 
     /**
      * Constructor
@@ -21,30 +21,28 @@ export class MoveNodeCommand implements ICommand {
      * @param node The node that was moved
      */
     constructor(private graphHandler: GraphHandler, private node: Node) {
-        this.startPos = node.joint.position();
+        this.startPos = node.position;
     }
 
     /**
      * Check if the node actually changed its position
      */
     public positionChanged(): boolean {
-        this.stopPos = this.node.joint.position();
-        return !this.startPos.equals(this.stopPos);
+        this.stopPos = this.node.position;
+        return !(this.startPos.x === this.stopPos.x && this.startPos.y === this.stopPos.y);
     }
 
     /**
      * Move the node to the new position
      */
     redo(): void {
-        if (this.node && this.stopPos != null) this.node.joint.position(this.stopPos.x, this.stopPos.y);
+        if (this.node && this.stopPos != null) this.node.position = this.stopPos;
     }
 
     /**
      * Move the node to the old position
      */
     undo(): void {
-        if (this.node) {
-            this.node.joint.position(this.startPos.x, this.startPos.y);
-        }
+        if (this.node) this.node.position = this.startPos;
     }
 }

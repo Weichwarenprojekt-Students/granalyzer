@@ -155,9 +155,9 @@ export const graphEditor = {
          */
         removeNode(state: GraphEditorState): void {
             if (!state.graphHandler) return;
-            if (state.selectedElement instanceof Node)
+            if (state.selectedElement?.isNode())
                 state.graphHandler.addCommand(new RemoveNodeCommand(state.graphHandler, state.selectedElement));
-            else if (state.selectedElement instanceof Relation)
+            else if (state.selectedElement?.isRelation())
                 state.graphHandler.addCommand(new RemoveRelationCommand(state.graphHandler, state.selectedElement));
 
             state.graphHandler.controls.resetSelection();
@@ -400,7 +400,7 @@ export const graphEditor = {
             if (!context.state.graphHandler || !context.state.selectedElement) return;
 
             // Check if selected element is Node
-            if (!(context.state.selectedElement instanceof Node)) return;
+            if (!context.state.selectedElement?.isNode()) return;
 
             context.commit("setEditorLoading", true);
 
@@ -410,7 +410,7 @@ export const graphEditor = {
                 // Get array of create node commands
                 const commands: CreateNodeCommand[] = await context.dispatch("getNodeCommands", [
                     nodeIds,
-                    context.state.selectedElement.joint.position(),
+                    context.state.selectedElement.position,
                 ]);
 
                 // Dispatch all commands at once

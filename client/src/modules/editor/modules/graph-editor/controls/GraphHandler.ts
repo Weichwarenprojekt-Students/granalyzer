@@ -111,11 +111,8 @@ export class GraphHandler {
         // Prepare the serialization object for each node
         const nodes: Array<NodeInfo> = Array.from(this.nodes, (node) => {
             // Get current position of the element
-            const { x, y } = node.joint.position();
             return {
                 ...node.info,
-                x,
-                y,
                 z: node.joint.get("z"),
             } as NodeInfo;
         });

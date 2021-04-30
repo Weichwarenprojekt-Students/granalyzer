@@ -33,10 +33,12 @@ export default class NodesController extends NodesMap {
         // Create the node
         nodeInfo.color = labelColor ?? nodeInfo.color ?? "#70FF87";
         const shape = parseNodeShape(nodeInfo);
-        shape.position(nodeInfo.x, nodeInfo.y);
 
         // Create new node object
         const node = new Node(nodeInfo, shape);
+
+        // Set position of new node
+        node.position = { x: nodeInfo.x, y: nodeInfo.y };
 
         // Add it to the graph
         this.addExisting(node);

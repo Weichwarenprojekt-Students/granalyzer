@@ -97,7 +97,6 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 
 export default defineComponent({
     name: "Toolbar",
@@ -188,7 +187,7 @@ export default defineComponent({
         isNode(): boolean {
             return (
                 this.$store.getters["editor/itemSelected"] &&
-                this.$store.state.editor.graphEditor.selectedElement instanceof Node
+                this.$store.state.editor.graphEditor.selectedElement?.isNode()
             );
         },
     },
