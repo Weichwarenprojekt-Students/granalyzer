@@ -103,6 +103,7 @@ export const heatMap = {
             }
 
             graphHandler.dropHeatMapAttribute(heatMapAttribute);
+            context.state.affectedNodesByLabel.delete(heatMapAttribute.labelName);
 
             if (graphHandler.getActiveHeatMapLabels().length === 0) {
                 await context.dispatch("resetUnaffectedNodesColor");
@@ -203,6 +204,9 @@ export const heatMap = {
             const heatMapAttribute = graphHandler.getHeatMapAttribute(nodeInfo.label);
             const jointNode = graphHandler.nodes.getByReference(nodeInfo.ref.uuid, nodeInfo.ref.index) as Node;
             const apiNode = (await context.state.heatMapUtils.fetchNode(nodeInfo.ref.uuid)) as ApiNode;
+            let affectedNodesByLabel = context.state.affectedNodesByLabel.get(nodeInfo.label);
+            affectedNodesByLabel ? affectedNodesByLabel.push(apiNode) : (affectedNodesByLabel = [apiNode]);
+            context.state.affectedNodesByLabel.set(nodeInfo.label, affectedNodesByLabel);
             const nodeValue = apiNode.attributes[heatMapAttribute?.selectedAttributeName as string];
             const newColor =
                 heatMapAttribute && nodeValue
