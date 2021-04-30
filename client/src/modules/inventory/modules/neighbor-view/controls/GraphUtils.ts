@@ -220,8 +220,6 @@ export class GraphUtils {
             const node = await this.getNodeByShapeId(cell.model.id);
 
             this.store.commit("inventory/setSelectedNode", node);
-            this.store.commit("inventory/reset");
-            await this.store.dispatch("inventory/loadNeighbors", node);
         });
 
         // Make links selectable and show them in the inspector on click

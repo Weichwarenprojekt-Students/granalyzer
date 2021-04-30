@@ -86,14 +86,6 @@ export const inventory = {
         setGraphUtils(state: InventoryState, graphUtils: GraphUtils): void {
             state.graphUtils = graphUtils;
         },
-
-        /**
-         * Reset state for neighbor relations
-         */
-        reset(state: InventoryState): void {
-            state.relations.length = 0;
-            state.neighbors.length = 0;
-        },
     },
     actions: {
         /**
@@ -102,11 +94,6 @@ export const inventory = {
         async loadNeighbors(context: ActionContext<InventoryState, RootState>, node: ApiNode): Promise<void> {
             context.commit("setLoading", true);
 
-            // Ensure that a node is loaded and that it is up to date
-            node = node ?? context.state.selectedNode;
-            const nodeRes = await GET(`api/nodes/${node ? node.nodeId : ""}`);
-            node = nodeRes.status === 200 ? await nodeRes.json() : undefined;
-            context.commit("setSelectedNode", node);
             if (!node) {
                 context.commit("setLoading", false);
                 return;
@@ -203,6 +190,23 @@ export const inventory = {
                     ),
                 )
                 .map((entry) => entry.name);
+        },
+
+        /**
+         * Updates the neighbor view
+         */
+        async updateNeighborRelations(
+            context: ActionContext<InventoryState, RootState>,
+            rootNodeUpdated: boolean,
+        ): Promise<void> {
+            if (rootNodeUpdated) {
+                // Ensure that a node is loaded and that it is up to date
+                const res = await GET(`api/nodes/${context.state.selectedNode?.nodeId}`);
+                const node = res.status === 200 ? await res.json() : undefined;
+                context.commit("setSelectedNode", node);
+            } else {
+                await context.dispatch("loadNeighbors", context.state.selectedNode);
+            }
         },
 
         /**

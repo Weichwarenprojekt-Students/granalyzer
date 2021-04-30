@@ -59,6 +59,7 @@ export default defineComponent({
          */
         selectedNode(newValue) {
             if (!newValue) this.clearGraphAndSettings();
+            this.$store.dispatch("inventory/loadNeighbors", this.selectedNode);
         },
         /**
          * Display graph once all neighbors and relations are in the store

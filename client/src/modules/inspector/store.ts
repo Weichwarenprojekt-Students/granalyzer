@@ -121,6 +121,9 @@ export const inspector = {
         async updateNode(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
             const result = await PUT(`/api/nodes/${node.nodeId}`, JSON.stringify(node));
             if (isUnexpected(result)) return;
+            if (node.nodeId === context.rootState.inventory?.selectedNode?.nodeId)
+                await context.dispatch("inventory/updateNeighborRelations", true, { root: true });
+            else await context.dispatch("inventory/updateNeighborRelations", false, { root: true });
             context.commit("setAttributes", { item: Object.assign(new ApiNode(), await result.json()) });
             await context.dispatch("updateInspector");
         },
@@ -157,7 +160,9 @@ export const inspector = {
         async createNode(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
             const result = await POST(`/api/nodes`, JSON.stringify(node));
             if (isUnexpected(result)) return;
-            context.commit("setAttributes", { item: Object.assign(new ApiNode(), await result.json()) });
+            const data: ApiNode = await result.json();
+            await context.commit("inventory/setSelectedNode", data, { root: true });
+            context.commit("setAttributes", { item: Object.assign(new ApiNode(), data) });
             await context.dispatch("updateInspector");
         },
         /**
