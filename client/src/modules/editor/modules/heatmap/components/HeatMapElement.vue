@@ -2,17 +2,15 @@
     <div :class="['heat-view', { 'heat-view-expanded': !collapsed }]">
         <!-- The Header -->
         <div class="heat-header">
-            <svg class="heat-collapse-icon" @click="toggleCollapse">
-                <use :xlink:href="`${require('@/assets/img/icons.svg')}#arrow`"></use>
-            </svg>
             <label>{{ label.name }}</label>
             <div class="heat-spacer" />
             <Dropdown
+                class="dropdown"
                 :options="label.attributes"
                 optionLabel="name"
                 oprionValue="name"
                 v-model="selectedAttribute"
-                showClear
+                :showClear="!collapsed"
                 @change="onChange"
                 :placeholder="$t('global.dropdown.choose')"
                 :emptyMessage="$t('global.dropdown.empty')"
@@ -20,7 +18,7 @@
         </div>
 
         <!-- The expandable content -->
-        <div class="heat-expanded" v-if="selectedAttribute !== null && selectedAttribute.datatype === types.NUMBER">
+        <div class="heat-expanded" v-if="!collapsed && selectedAttribute.datatype === types.NUMBER">
             <div class="heat-row red">
                 <label>From</label>
                 <InputNumber showButtons v-model="heatAttribute.from" />
@@ -47,14 +45,14 @@ export default defineComponent({
         return {
             heatAttribute: {} as HeatMapAttribute,
             selectedAttribute: {} as ApiAttribute,
-            collapsed: false,
+            collapsed: true,
             types: ApiDatatype,
             affectedNodes: [] as Array<ApiNode>,
         };
     },
     props: {
         label: {
-            type: ApiLabel,
+            type: Object,
             default: new ApiLabel(),
         },
     },
@@ -66,9 +64,11 @@ export default defineComponent({
         );
         this.heatAttribute = heatMapAttribute ?? new HeatMapAttribute(this.label.name, null);
         if (this.heatAttribute.selectedAttributeName)
-            this.selectedAttribute = this.label.attributes.filter(
+            this.selectedAttribute = (this.label as ApiLabel).attributes.filter(
                 (attribute) => attribute.name === this.heatAttribute.selectedAttributeName,
             )[0];
+
+        this.collapsed = !this.heatAttribute.selectedAttributeName;
 
         // Fetch the nodes belonging to the specific label
         this.affectedNodes = await this.$store.dispatch("editor/heatMap/fetchAffectedNodes", this.heatAttribute);
@@ -84,10 +84,6 @@ export default defineComponent({
          * Check if the input fields are field with numbers
          */
         onChange() {
-            if (!this.selectedAttribute) {
-                this.collapsed = true;
-            }
-
             // Assign the min and max value of all nodes by default
             if (!this.heatAttribute.from || !this.heatAttribute.to) {
                 const selectedAttribute: number[] = this.affectedNodes
@@ -98,6 +94,8 @@ export default defineComponent({
             }
 
             this.heatAttribute.selectedAttributeName = this.selectedAttribute?.name;
+            this.collapsed = !this.heatAttribute.selectedAttributeName;
+
             this.$emit("change", this.heatAttribute);
         },
 
@@ -142,16 +140,10 @@ export default defineComponent({
     .heat-spacer {
         flex: 1 1 auto;
     }
-}
 
-.heat-collapse-icon {
-    line-height: inherit;
-    cursor: pointer;
-    width: 36px;
-    height: 36px;
-    padding: 12px;
-    fill: @dark;
-    transition: transform 400ms;
+    .dropdown {
+        margin-bottom: 4px;
+    }
 }
 
 .heat-name {
