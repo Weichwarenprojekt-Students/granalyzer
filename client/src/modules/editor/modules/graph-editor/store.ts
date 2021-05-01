@@ -19,6 +19,7 @@ import { ShapeNodeCommand } from "@/modules/editor/modules/graph-editor/controls
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { CompoundCommand } from "@/modules/editor/modules/graph-editor/controls/commands/CompoundCommand";
 import { NodeShapes } from "@/shared/NodeShapes";
+import { RestyleCommand } from "@/modules/editor/modules/graph-editor/controls/commands/RestyleCommand";
 
 export class GraphEditorState {
     /**
@@ -162,6 +163,13 @@ export const graphEditor = {
             state.graphHandler.controls.resetSelection();
         },
         /**
+         * Restyle a node or relation
+         */
+        restyleElement(state: GraphEditorState, restyleCommand: RestyleCommand): void {
+            if (!state.graphHandler) return;
+            state.graphHandler.addCommand(restyleCommand);
+        },
+        /**
          * Remove a node or relation
          */
         changeNodeShape(state: GraphEditorState, [shape, node]: [string, Node]): void {
@@ -267,7 +275,18 @@ export const graphEditor = {
             context.commit("setEditorLoading", true);
             context.commit("removeNode");
             context.commit("setEditorLoading", false);
-
+            await context.dispatch("saveChange");
+        },
+        /**
+         * Restyle a relation or node
+         */
+        async restyleElement(
+            context: ActionContext<GraphEditorState, RootState>,
+            restyleCommand: RestyleCommand,
+        ): Promise<void> {
+            context.commit("setEditorLoading", true);
+            context.commit("restyleElement", restyleCommand);
+            context.commit("setEditorLoading", false);
             await context.dispatch("saveChange");
         },
         /**
@@ -311,12 +330,19 @@ export const graphEditor = {
          * Set the relation edit mode to a certain value
          */
         async setRelationMode(context: ActionContext<GraphEditorState, RootState>, value: boolean): Promise<void> {
+            const oldValue = context.state.relationModeActive;
             context.commit("setSelectedElement", undefined);
 
             // Reset inspector selection
             context.commit("inspector/resetSelection", undefined, { root: true });
-
             context.commit("setRelationMode", value);
+
+            // Activate/Deactivate relation edit mode
+            if (value === oldValue) return;
+            context.commit("setEditorLoading", true);
+            if (context.state.relationModeActive) await context.state.graphHandler?.relationMode.enable();
+            else await context.state.graphHandler?.relationMode.disable();
+            context.commit("setEditorLoading", false);
         },
 
         /**

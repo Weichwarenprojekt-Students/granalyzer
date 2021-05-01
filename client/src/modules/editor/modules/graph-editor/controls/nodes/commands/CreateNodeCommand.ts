@@ -88,13 +88,7 @@ export class CreateNodeCommand implements ICommand {
                 else [sourceNode, targetNode] = [node, otherNode];
 
                 // Add new relation to graph
-                const newRelation = this.graphHandler.relations.new(
-                    sourceNode,
-                    targetNode,
-                    RelationModeType.NORMAL,
-                    rel.name,
-                    rel.uuid,
-                );
+                const newRelation = this.graphHandler.relations.new(rel, sourceNode, targetNode);
 
                 // Add new relation to existingRelations for a future redo
                 this.existingRelations.push(newRelation);

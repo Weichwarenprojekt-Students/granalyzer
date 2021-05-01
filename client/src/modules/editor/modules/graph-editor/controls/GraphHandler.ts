@@ -10,7 +10,6 @@ import { RelationModeControls } from "@/modules/editor/modules/graph-editor/cont
 import NodesController from "@/modules/editor/modules/graph-editor/controls/nodes/NodesController";
 import RelationsController from "@/modules/editor/modules/graph-editor/controls/relations/RelationsController";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
-import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
 
 export class GraphHandler {
     /**
@@ -85,14 +84,7 @@ export class GraphHandler {
 
             if (source && target) {
                 // If both source and target exist, create new relation
-                const newRel = this.relations.new(
-                    source,
-                    target,
-                    RelationModeType.NORMAL,
-                    relation.name,
-                    relation.uuid,
-                    relation.z,
-                );
+                const newRel = this.relations.new(relation, source, target);
 
                 // And set vertices of the new relation, if they were saved
                 if (relation.vertices != null) newRel.vertices = relation.vertices;

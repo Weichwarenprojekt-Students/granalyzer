@@ -151,6 +151,9 @@ export class JointGraph {
         this.deselectElements();
         highlighters.mask.add(cellView, "root", this.SELECTION_HIGHLIGHTER, {
             deep: true,
+            // Increase the size of the highlighting mask
+            // (Necessary to ensure that relation labels are always surrounded by the highlighting)
+            maskClip: 1000,
             attrs: {
                 stroke: "#FFB547",
                 "stroke-width": 4,

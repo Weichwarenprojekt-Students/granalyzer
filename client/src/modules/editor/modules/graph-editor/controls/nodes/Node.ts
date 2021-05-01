@@ -4,6 +4,7 @@ import { deepCopy } from "@/utility";
 import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 import { dia, g } from "jointjs";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
+import { updateShapeStyle } from "@/shared/NodeShapes";
 
 export type NodeSize = { width: number; height: number };
 
@@ -133,5 +134,20 @@ export class Node {
         this.joint.position(x, y);
         this.info.x = x;
         this.info.y = y;
+    }
+
+    /**
+     * Update the style of the node without updating the node info
+     *
+     * @param info The temporary used node info
+     * @param save True if the style shall be saved
+     */
+    public updateStyle(info: NodeInfo, save = false): void {
+        updateShapeStyle(this.joint, info);
+        if (save) {
+            this.info.name = info.name;
+            this.info.color = info.color;
+            this.info.borderColor = info.borderColor;
+        }
     }
 }

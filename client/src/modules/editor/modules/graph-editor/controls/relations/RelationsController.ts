@@ -51,30 +51,15 @@ export default class RelationsController extends RelationsMap {
     /**
      * Create a new relation and add it to the graph
      *
+     * @param info The relation info object
      * @param source The source node of the relation
      * @param target The target node of the relation
      * @param relationModeType The type of relation in relation mode, defaults to NORMAL
-     * @param name An optional text for the relation
-     * @param uuid An optional uuid for the relation
-     * @param z The z index of the relation
      */
-    public new(
-        source: Node,
-        target: Node,
-        relationModeType = RelationModeType.NORMAL,
-        name = "",
-        uuid?: string,
-        z?: number,
-    ): Relation {
+    public new(info: RelationInfo, source: Node, target: Node, relationModeType = RelationModeType.NORMAL): Relation {
         // Create new relation info
-        const relationInfo: RelationInfo = {
-            uuid: uuid ?? "",
-            from: source.reference,
-            to: target.reference,
-            color: Relation.NORMAL_RELATION_COLOR,
-            name,
-            z,
-        };
+        info.from = source.reference;
+        info.to = target.reference;
 
         // Create the link and connect it to source and target
         const link = new shapes.standard.Link();
@@ -82,20 +67,17 @@ export default class RelationsController extends RelationsMap {
         link.target(target.joint);
         link.attr({
             line: {
-                stroke: relationInfo.color,
                 strokeWidth: 4,
             },
         });
 
-        // Optionally set a label
-        if (name) link.appendLabel(Relation.makeLabel(name, relationModeType));
-
         // Create the relation and add it to the graph
-        const relation = new Relation(relationInfo, link, source, target, relationModeType);
+        const relation = new Relation(info, link, source, target, relationModeType);
+        relation.updateStyle(info);
         this.addExisting(relation);
 
         // Set z index
-        if (relationInfo.z != null) relation.joint.set("z", relationInfo.z);
+        if (info.z != null) relation.joint.set("z", info.z);
 
         return relation;
     }

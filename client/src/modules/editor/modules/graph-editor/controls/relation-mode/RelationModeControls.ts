@@ -7,6 +7,7 @@ import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/
 import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/EnableDbRelationCommand";
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
+import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationInfo";
 
 export class RelationModeControls {
     /**
@@ -67,6 +68,8 @@ export class RelationModeControls {
                     `${relation.uuid}-${relation.info.from.uuid}.${relation.info.from.index}` +
                         `-${relation.info.to.uuid}.${relation.info.to.index}`,
                 );
+                // Apply the color
+                relation.updateColor(true);
             } else {
                 // Else it's a visual relation
                 this.graphHandler.relations.switchToVisual(relation);
@@ -89,6 +92,7 @@ export class RelationModeControls {
             this.graphHandler.relations.removeExisting(faintRel);
         }
 
+        // Update the visual relations
         for (const visualRel of this.graphHandler.relations.visualRelations()) {
             const link = visualRel.joint;
 
@@ -104,6 +108,9 @@ export class RelationModeControls {
             // Switch relation to normally displayed relation
             this.graphHandler.relations.switchToNormal(visualRel);
         }
+
+        // Update the style of all relations
+        for (const normalRelation of this.graphHandler.relations.normalRelations()) normalRelation.updateColor();
     }
 
     /**
@@ -191,7 +198,11 @@ export class RelationModeControls {
                         )
                     ) {
                         // If the relation between fromNode and toNode is not yet present in the graph add it
-                        this.graphHandler.relations.new(fromNode, toNode, RelationModeType.FAINT, rel.type, id);
+                        const info = {
+                            name: rel.type,
+                            uuid: id,
+                        } as RelationInfo;
+                        this.graphHandler.relations.new(info, fromNode, toNode, RelationModeType.FAINT);
                         addedNewRelation = true;
                     }
                 }

@@ -4,6 +4,7 @@ import { JointID } from "@/shared/JointGraph";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
 import Anchors from "@/modules/editor/modules/graph-editor/controls/relations/models/Anchors";
+import { getFontColor } from "@/utility";
 
 /**
  * The data for a single relation
@@ -12,7 +13,7 @@ export class Relation {
     /**
      * Color for normal relations
      */
-    public static readonly NORMAL_RELATION_COLOR = "#333";
+    public static readonly NORMAL_RELATION_COLOR = "#333333";
 
     /**
      * Color for visual relations
@@ -22,7 +23,7 @@ export class Relation {
     /**
      * Color for faint DB relations
      */
-    public static readonly FAINT_RELATION_COLOR = "#bbb";
+    public static readonly FAINT_RELATION_COLOR = "#bbbbbb";
 
     /**
      * The corresponding relation info
@@ -91,12 +92,7 @@ export class Relation {
      */
     public set relationModeType(value: RelationModeType) {
         this._relationModeType = value;
-
-        // Change style of the link
-        this.joint.attr({ line: { stroke: Relation.getColorForRelationModeType(value) } });
-
-        // Change style of the label separately
-        this.joint.label(0, { attrs: { rect: { fill: Relation.getColorForRelationModeType(value) } } });
+        this.updateColor(true);
     }
 
     /**
@@ -240,17 +236,23 @@ export class Relation {
     /**
      * Generate label for a relation
      *
-     * @param labelText The text of the label
-     * @param relationModeType The relation type mode of the relation
+     * @param info The relation info
      * @return Label for adding to the joint js link
      */
-    public static makeLabel(labelText: string, relationModeType = RelationModeType.NORMAL): dia.Link.Label {
+    public static makeLabel(info: RelationInfo): dia.Link.Label {
+        const color = info.color ?? this.NORMAL_RELATION_COLOR;
         return {
             attrs: {
-                text: { text: labelText, textAnchor: "middle", textVerticalAnchor: "middle", fill: "#fff" },
+                text: {
+                    text: info.name,
+                    textAnchor: "middle",
+                    textVerticalAnchor: "middle",
+                    fill: getFontColor(color),
+                },
                 rect: {
+                    cursor: "pointer",
                     ref: "text",
-                    fill: this.getColorForRelationModeType(relationModeType),
+                    fill: color,
                     stroke: "#000",
                     strokeWidth: 0,
                     refWidth: 12,
@@ -278,5 +280,37 @@ export class Relation {
     public disconnect(): void {
         this.sourceNode.outgoingRelations.delete(this.jointId);
         this.targetNode.incomingRelations.delete(this.jointId);
+    }
+
+    /**
+     * Update the color of the relation depending on the type
+     *
+     * @param relationMode True if the relation mode is active
+     */
+    public updateColor(relationMode = false): void {
+        let color = this.info.color ?? Relation.NORMAL_RELATION_COLOR;
+        if (relationMode) color = Relation.getColorForRelationModeType(this.relationModeType);
+
+        // Change style of the link
+        this.joint.attr({ line: { stroke: color } });
+
+        // Change style of the label separately
+        this.joint.label(0, { attrs: { rect: { fill: color }, text: { fill: getFontColor(color) } } });
+    }
+
+    /**
+     * Update the style of the relation without updating the relation info
+     *
+     * @param info The temporary used node
+     * @param save True if the style shall be saved
+     */
+    public updateStyle(info: RelationInfo, save = false): void {
+        this.joint.attr("line/stroke", info.color ?? Relation.NORMAL_RELATION_COLOR);
+        this.joint.removeLabel();
+        if (info.name) this.joint.appendLabel(Relation.makeLabel(info));
+        if (save) {
+            this.info.name = info.name;
+            this.info.color = info.color;
+        }
     }
 }

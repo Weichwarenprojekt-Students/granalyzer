@@ -87,21 +87,6 @@ export default defineComponent({
 
         this.graph.centerContent();
     },
-    watch: {
-        /**
-         * Activate/Deactivate the relation edit mode
-         */
-        async "$store.state.editor.graphEditor.relationModeActive"() {
-            this.$store.commit("editor/setEditorLoading", true);
-
-            if (this.$store.state.editor.graphEditor.relationModeActive) {
-                await this.$store.state.editor.graphEditor.graphHandler.relationMode.enable();
-            } else {
-                await this.$store.state.editor.graphEditor.graphHandler.relationMode.disable();
-            }
-            this.$store.commit("editor/setEditorLoading", false);
-        },
-    },
     methods: {
         /**
          * Check if a node from the overview list was dropped

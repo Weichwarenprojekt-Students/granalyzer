@@ -1,13 +1,6 @@
 <template>
-    <div class="color-multi-input" @click="$refs.colorInput.click">
-        <input
-            @change="$emit('change')"
-            class="color-input"
-            ref="colorInput"
-            type="color"
-            v-model="color"
-            :disabled="disabled"
-        />
+    <div :class="['color-multi-input', { 'color-multi-input-disabled': disabled }]" @click="$refs.colorInput.click">
+        <input @change="$emit('change')" class="color-input" ref="colorInput" type="color" v-model="color" />
         <span class="color-preview" ref="colorPreview"></span>
         <div class="color-label">{{ color }}</div>
     </div>
@@ -18,6 +11,7 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
     name: "ColorPicker",
+    emits: ["change", "update:modelValue"],
     props: {
         // The v-model
         modelValue: {
@@ -70,6 +64,11 @@ export default defineComponent({
     overflow: hidden;
     gap: 12px;
     position: relative;
+}
+
+.color-multi-input-disabled {
+    pointer-events: none;
+    opacity: 0.6;
 }
 
 .color-input {

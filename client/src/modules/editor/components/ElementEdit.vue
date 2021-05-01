@@ -6,10 +6,15 @@
 
         <!-- The node text -->
         <div :class="['attribute-item', { 'attribute-item-disabled': !isNode && !isRelation }]">
-            <div class="attribute-key" :disabled="true">
+            <div class="attribute-key">
                 {{ $t("editor.nodeEdit.text") }}
             </div>
-            <input v-model="elementStyle.name" class="input text-input" :placeholder="$t('global.input.placeholder')" />
+            <input
+                @change="changeStyle"
+                v-model="elementStyle.name"
+                class="input text-input"
+                :placeholder="$t('global.input.placeholder')"
+            />
         </div>
 
         <!-- The node shape -->
@@ -32,33 +37,47 @@
         <!-- The fill color -->
         <div :class="['attribute-item', { 'attribute-item-disabled': !isNode && !isRelation }]">
             <div class="attribute-key">
-                {{ $t("editor.nodeEdit.color") }}
+                <Checkbox @change="changeStyle" class="attribute-checkbox" v-model="colorEnabled" :binary="true" />
+                <div :class="['attribute-key', { 'attribute-key-disabled': !colorEnabled }]">
+                    {{ $t("editor.nodeEdit.color") }}
+                </div>
             </div>
-            <ColorPicker v-model="elementStyle.color" />
+            <ColorPicker :disabled="!colorEnabled" @change="changeStyle" v-model="elementStyle.color" />
         </div>
 
         <!-- The border color -->
-        <div :class="['attribute-item', { 'attribute-item-disabled': !isNode && !isRelation }]">
+        <div :class="['attribute-item', { 'attribute-item-disabled': !isNode }]">
             <div class="attribute-key">
-                {{ $t("editor.nodeEdit.borderColor") }}
+                <Checkbox
+                    @change="changeStyle"
+                    class="attribute-checkbox"
+                    v-model="borderColorEnabled"
+                    :binary="true"
+                />
+                <div :class="['attribute-key', { 'attribute-key-disabled': !borderColorEnabled }]">
+                    {{ $t("editor.nodeEdit.borderColor") }}
+                </div>
             </div>
-            <ColorPicker v-model="elementStyle.borderColor" />
+            <ColorPicker :disabled="!borderColorEnabled" @change="changeStyle" v-model="elementStyle.borderColor" />
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { NodeShapes } from "@/shared/NodeShapes";
+import { DEFAULT_COLOR, NodeShapes } from "@/shared/NodeShapes";
 import ColorPicker from "@/components/ColorPicker.vue";
 import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
-import { deepCopy } from "@/utility";
+import { deepCopy, isEmpty } from "@/utility";
+import { RestyleCommand } from "@/modules/editor/modules/graph-editor/controls/commands/RestyleCommand";
 
 export default defineComponent({
     name: "ElementEdit",
     components: { ColorPicker },
     data() {
         return {
+            // The active restyle command
+            restyleCommand: {} as RestyleCommand,
             // The modified object
             elementStyle: {
                 name: "Name",
@@ -73,6 +92,14 @@ export default defineComponent({
                     value: shape,
                 };
             }),
+            // True if a style interval is active
+            styleIntervalActive: false,
+            // The style interval reference
+            styleInterval: 0,
+            // True if the color is enabled
+            colorEnabled: true,
+            // True if the border color is enabled
+            borderColorEnabled: true,
         };
     },
     computed: {
@@ -93,9 +120,52 @@ export default defineComponent({
         /**
          * Keep the shown element style updated
          */
-        "$store.state.editor.graphEditor.selectedElement"(): void {
-            if (this.$store.state.editor.graphEditor.selectedElement)
-                this.elementStyle = deepCopy(this.$store.state.editor.graphEditor.selectedElement.info);
+        "$store.state.editor.graphEditor.selectedElement.info": {
+            handler() {
+                // Reset the update interval and the color flags
+                clearInterval(this.styleInterval);
+                this.colorEnabled = false;
+                this.borderColorEnabled = false;
+
+                // Check if an element was selected
+                const newElement = this.$store.state.editor.graphEditor.selectedElement;
+                if (newElement) {
+                    this.colorEnabled = !!newElement.info.color;
+                    this.borderColorEnabled = !!newElement.info.borderColor;
+                    this.restyleCommand = new RestyleCommand(newElement);
+                    this.elementStyle = deepCopy(newElement.info);
+                } else this.restyleCommand = {} as RestyleCommand;
+
+                // Ensure that there are color values given
+                this.elementStyle.color = this.elementStyle.color ?? DEFAULT_COLOR;
+                this.elementStyle.borderColor = this.elementStyle.borderColor ?? DEFAULT_COLOR;
+            },
+            deep: true,
+        },
+        /**
+         * Apply the live update for the node style
+         */
+        elementStyle: {
+            handler() {
+                // Check if the update routine is already running
+                if (this.styleIntervalActive) return;
+                this.styleIntervalActive = true;
+
+                // Start the interval for live updating
+                this.styleInterval = setInterval(() => {
+                    const updatedStyle = deepCopy(this.elementStyle);
+                    if (!this.colorEnabled) updatedStyle.color = undefined;
+                    if (!this.borderColorEnabled) updatedStyle.borderColor = undefined;
+                    this.$store.state.editor.graphEditor.selectedElement?.updateStyle(updatedStyle);
+                }, 100);
+
+                // Stop the interval after 1s
+                setTimeout(() => {
+                    clearInterval(this.styleInterval);
+                    this.styleIntervalActive = false;
+                }, 200);
+            },
+            deep: true,
         },
     },
     methods: {
@@ -110,6 +180,22 @@ export default defineComponent({
          */
         hide(): void {
             (document.activeElement as HTMLElement).blur();
+        },
+        /**
+         * Add the change style command
+         */
+        changeStyle(): void {
+            if (isEmpty(this.restyleCommand)) return;
+
+            // Update the colors
+            const newStyle = deepCopy(this.elementStyle);
+            if (!this.colorEnabled) newStyle.color = undefined;
+            if (!this.borderColorEnabled) newStyle.borderColor = undefined;
+
+            // Apply the new style
+            this.restyleCommand.setNewStyle(newStyle);
+            this.$store.dispatch("editor/restyleElement", this.restyleCommand);
+            this.restyleCommand = new RestyleCommand(this.$store.state.editor.graphEditor.selectedElement);
         },
     },
 });
@@ -142,6 +228,13 @@ export default defineComponent({
 
 .attribute-key {
     font-weight: bold;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.attribute-key-disabled {
+    text-decoration: line-through;
 }
 
 .attribute-value {
