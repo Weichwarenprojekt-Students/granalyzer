@@ -203,7 +203,7 @@ describe("RelationsController", () => {
             const validStartNode = new Node("validStartNode", validStartNodeLabel.name, {});
             validStartNode.nodeId = (await nodesController.createNode(validStartNode)).nodeId;
 
-            const validEndNode = new Node("valdidEndNode", validEndNodeLabel.name, {});
+            const validEndNode = new Node("validEndNode", validEndNodeLabel.name, {});
             validEndNode.nodeId = (await nodesController.createNode(validEndNode)).nodeId;
 
             // Write the relation
@@ -255,7 +255,7 @@ describe("RelationsController", () => {
             const validStartNode = new Node("validStartNode", validStartNodeLabel.name, {});
             validStartNode.nodeId = (await nodesController.createNode(validStartNode)).nodeId;
 
-            const validEndNode = new Node("valdidEndNode", validEndNodeLabel.name, {});
+            const validEndNode = new Node("validEndNode", validEndNodeLabel.name, {});
             validEndNode.nodeId = (await nodesController.createNode(validEndNode)).nodeId;
 
             // Write the relation
@@ -288,7 +288,7 @@ describe("RelationsController", () => {
             const validStartNode = new Node("validStartNode", validStartNodeLabel.name, {});
             validStartNode.nodeId = (await nodesController.createNode(validStartNode)).nodeId;
 
-            const validEndNode = new Node("valdidEndNode", validEndNodeLabel.name, {});
+            const validEndNode = new Node("validEndNode", validEndNodeLabel.name, {});
             validEndNode.nodeId = (await nodesController.createNode(validEndNode)).nodeId;
 
             // Write the relation
@@ -327,7 +327,7 @@ describe("RelationsController", () => {
             const validStartNode = new Node("validStartNode", validStartNodeLabel.name, {});
             validStartNode.nodeId = (await nodesController.createNode(validStartNode)).nodeId;
 
-            const validEndNode = new Node("valdidEndNode", validEndNodeLabel.name, {});
+            const validEndNode = new Node("validEndNode", validEndNodeLabel.name, {});
             validEndNode.nodeId = (await nodesController.createNode(validEndNode)).nodeId;
 
             // Write the relation
@@ -365,7 +365,7 @@ describe("RelationsController", () => {
             const validStartNode = new Node("validStartNode", validStartNodeLabel.name, {});
             validStartNode.nodeId = (await nodesController.createNode(validStartNode)).nodeId;
 
-            const validEndNode = new Node("valdidEndNode", validEndNodeLabel.name, {});
+            const validEndNode = new Node("validEndNode", validEndNodeLabel.name, {});
             validEndNode.nodeId = (await nodesController.createNode(validEndNode)).nodeId;
 
             // Write the relation
@@ -416,7 +416,7 @@ describe("RelationsController", () => {
             const validStartNode = new Node("validStartNode", validStartNodeLabel.name, {});
             validStartNode.nodeId = (await nodesController.createNode(validStartNode)).nodeId;
 
-            const validEndNode = new Node("valdidEndNode", validEndNodeLabel.name, {});
+            const validEndNode = new Node("validEndNode", validEndNodeLabel.name, {});
             validEndNode.nodeId = (await nodesController.createNode(validEndNode)).nodeId;
 
             // Write the relation
@@ -473,7 +473,7 @@ describe("RelationsController", () => {
             const validStartNode = new Node("validStartNode", validStartNodeLabel.name, {});
             validStartNode.nodeId = (await nodesController.createNode(validStartNode)).nodeId;
 
-            const validEndNode = new Node("valdidEndNode", validEndNodeLabel.name, {});
+            const validEndNode = new Node("validEndNode", validEndNodeLabel.name, {});
             validEndNode.nodeId = (await nodesController.createNode(validEndNode)).nodeId;
 
             // Write the relation
@@ -514,7 +514,7 @@ describe("RelationsController", () => {
             const validStartNode = new Node("validStartNode", validStartNodeLabel.name, {});
             validStartNode.nodeId = (await nodesController.createNode(validStartNode)).nodeId;
 
-            const validEndNode = new Node("valdidEndNode", validEndNodeLabel.name, {});
+            const validEndNode = new Node("validEndNode", validEndNodeLabel.name, {});
             validEndNode.nodeId = (await nodesController.createNode(validEndNode)).nodeId;
 
             // Write the relation
@@ -567,7 +567,7 @@ describe("RelationsController", () => {
             const validStartNode = new Node("validStartNode", validStartNodeLabel.name, {});
             validStartNode.nodeId = (await nodesController.createNode(validStartNode)).nodeId;
 
-            const validEndNode = new Node("valdidEndNode", validEndNodeLabel.name, {});
+            const validEndNode = new Node("validEndNode", validEndNodeLabel.name, {});
             validEndNode.nodeId = (await nodesController.createNode(validEndNode)).nodeId;
 
             // Write the relation

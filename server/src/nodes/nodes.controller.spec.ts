@@ -128,7 +128,7 @@ describe("NodesController", () => {
             await expect(pipeline.transform(newNode, metadata)).rejects.toThrow();
         });
 
-        it("throws an exception because the attributes are not a object", async () => {
+        it("throws an exception because the attributes are not an object", async () => {
             const newNode = {
                 name: "Name",
                 label: 123,
@@ -194,7 +194,7 @@ describe("NodesController", () => {
             expect(actualNode.attributes.stringAttr).toBeUndefined();
         });
 
-        it("returns default value because value is not set, the attribute is mandatory and includefault is true", async () => {
+        it("returns default value because value is not set, the attribute is mandatory and includeDefaults is true", async () => {
             // Write the label scheme
             const movieLabel = new LabelScheme("Movie", "#EEE", [
                 new StringAttribute("stringAttr", true, "TestString"),
@@ -212,7 +212,7 @@ describe("NodesController", () => {
             expect(actualNode.attributes.stringAttr).toBe("TestString");
         });
 
-        it("returns undefined value because value is not set, the attribute is mandatory and includefault is false", async () => {
+        it("returns undefined value because value is not set, the attribute is mandatory and includeDefault is false", async () => {
             // Write the label scheme
             const movieLabel = new LabelScheme("Movie", "#EEE", [
                 new StringAttribute("stringAttr", true, "TestString"),
@@ -262,7 +262,7 @@ describe("NodesController", () => {
             expect(actualNode.attributes.enumAttr).toBeUndefined();
         });
 
-        it("returns default value if the value cannot be parsed, includefault is true and attribute is mandatory", async () => {
+        it("returns default value if the value cannot be parsed, includeDefault is true and attribute is mandatory", async () => {
             // Write the label scheme
             const movieLabel = new LabelScheme("Movie", "#EEE", [
                 new StringAttribute("stringAttr", true, "TestString"),
@@ -294,7 +294,7 @@ describe("NodesController", () => {
             expect(actualNode.attributes.enumAttr).toBe("true");
         });
 
-        it("returns undefined value if the value cannot be parsed, includefault is false and attribute is mandatory", async () => {
+        it("returns undefined value if the value cannot be parsed, includeDefault is false and attribute is mandatory", async () => {
             // Write the label scheme
             const movieLabel = new LabelScheme("Movie", "#EEE", [
                 new StringAttribute("stringAttr", true, "TestString"),
@@ -969,7 +969,7 @@ describe("NodesController", () => {
         async function writeFullTextScheme() {
             // language=cypher
             const cypher = `
-              CALL db.index.fulltext.createNodeIndex("allNodesIndex", $labels, $indexedAttrs)
+              CALL db.index.fulltext.createNodeIndex('allNodesIndex', $labels, $indexedAttrs)
             `;
 
             const params = {
@@ -979,6 +979,7 @@ describe("NodesController", () => {
 
             return neo4jService.write(cypher, params, process.env.DB_CUSTOMER).catch(databaseUtil.catchDbError);
         }
+
         /**
          * Drop the fullTextScheme allNodesIndex
          */
