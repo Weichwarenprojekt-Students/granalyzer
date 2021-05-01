@@ -26,7 +26,7 @@ export function getFontColor(color: string): string {
     const brightness = (1 - alpha) * 255 + (red * 0.299 + green * 0.587 + blue * 0.114);
 
     // Determine whether font should be white
-    return brightness > 170 ? "#333" : "#FFF";
+    return brightness > 128 ? "#333" : "#FFF";
 }
 
 /**
@@ -261,4 +261,33 @@ export function randomRange(min: number, max: number): number {
     }
 
     return rand;
+}
+
+/**
+ * Clamp a number between a minimum and a maximum
+ *
+ * @param num The number
+ * @param min The minimum
+ * @param max The maximum
+ */
+export function clamp(num: number, min: number, max: number): number {
+    return num <= min ? min : num >= max ? max : num;
+}
+
+/**
+ * Convert hue, saturation, and value from HSV colors to RGB
+ *
+ * See: https://stackoverflow.com/a/54024653/15087314
+ */
+export function hsv2rgb(h: number, s: number, v: number): [number, number, number] {
+    const f = (n: number, k = (n + h / 60) % 6) => v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
+    return [Math.round(f(5) * 255), Math.round(f(3) * 255), Math.round(f(1) * 255)];
+}
+
+/**
+ * Convert a number to a hex string of length 2 with leading 0
+ */
+export function toPaddedHex(num: number): string {
+    const hex = num.toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
 }

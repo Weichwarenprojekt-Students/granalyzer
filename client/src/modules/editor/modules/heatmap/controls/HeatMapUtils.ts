@@ -1,53 +1,36 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
-import { GET, getFontColor, isUnexpected } from "@/utility";
+import { clamp, GET, getFontColor, hsv2rgb, isUnexpected, toPaddedHex } from "@/utility";
 import { dia } from "jointjs";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 
 export class HeatMapUtils {
     /**
-     * Gets the color according a linear gradient red-yellow-green
+     * Get the color on a linear HSV gradient, clamped if value is outside of interval
+     *
+     * @param min The min value
+     * @param max The max value
+     * @param value The value to get the color on the gradient for
      */
-    getLinearColor(start: number, stop: number, value: number): string {
-        // Start and stop boundaries of the gradient
-        const startColor = "#F00";
-        const endColor = "#0F0";
+    getLinearColor(min: number, max: number, value: number): string {
+        // Min and max value of the hue in HSV colors
+        // The gradient is just calculated from a linear hue, which goes from red at 0 over yellow to green at 120.
+        // It can go even further all the way around to red again over cyan, blue, and purple, each in steps of 60.
+        const hueMin = 0;
+        const hueMax = 120;
 
-        // Check if value is outside the given interval
-        const outsideBoundaries = this.isOutsideBoundaries(start, stop, value);
-        if (outsideBoundaries === 1) return endColor;
-        else if (outsideBoundaries === -1) return startColor;
+        // Calculate m and t for linear function y = m * x + t
+        const m = (hueMax - hueMin) / (max - min);
+        const t = hueMin - m * min;
 
-        // Calculate the position of the value on the gradient
-        const delta = value >= start ? value - start : value - stop;
-        const stepSize = (Math.abs(start - stop) + 1) / 512;
-        const amountSteps = Math.floor(delta / stepSize);
+        // Calculate the hue on the gradient for the value and clamp it between min and max hue
+        const gradientHue = clamp(m * value + t, hueMin, hueMax);
 
-        // Helper to fill each hex value to two chars
-        const padHex = (hex: string) => (hex.length === 1 ? "0" + hex : hex);
+        // Calculate HSV to RGB colors
+        const [r, g, b] = hsv2rgb(gradientHue, 1, 0.9);
 
-        // Get the according red and green values
-        const g = amountSteps > 255 ? "FF" : padHex(amountSteps.toString(16));
-        const r = amountSteps > 255 ? padHex((255 - (amountSteps - 256)).toString(16)) : "FF";
-
-        // Concat to final color
-        return "#" + r + g + "00";
-    }
-
-    /**
-     * Returns 1 if outside stop boundary, and -1 if outside start boundary.
-     * 0 is returned if inside the interval
-     */
-    isOutsideBoundaries(start: number, stop: number, value: number): number {
-        if (start < stop) {
-            if (value < start) return -1;
-            if (value > stop) return 1;
-        } else {
-            if (value > start) return -1;
-            if (value < stop) return 1;
-        }
-
-        return 0;
+        // Return color as hex code
+        return "#" + toPaddedHex(r) + toPaddedHex(g) + toPaddedHex(b);
     }
 
     async fetchNode(uuid: string): Promise<ApiNode | undefined> {
