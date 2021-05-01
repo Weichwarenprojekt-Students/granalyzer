@@ -134,10 +134,12 @@ export function DELETE(path: string): Promise<Response> {
  * Check if a response is unexpected
  *
  * @param response The response that shall be checked
+ * @param displayToast True if a toast should be displayed
  */
-export function isUnexpected(response: Response): boolean {
+export function isUnexpected(response: Response, displayToast = true): boolean {
     if (response.status >= 300) {
-        errorToast(i18n.global.t("global.unexpected.title"), i18n.global.t("global.unexpected.description"));
+        if (displayToast)
+            errorToast(i18n.global.t("global.unexpected.title"), i18n.global.t("global.unexpected.description"));
         return true;
     }
     return false;

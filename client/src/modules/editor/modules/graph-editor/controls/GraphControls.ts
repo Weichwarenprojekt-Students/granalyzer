@@ -53,6 +53,9 @@ export class GraphControls {
             this.graphHandler.store.commit("editor/setSelectedElement", node);
             await this.graphHandler.store.dispatch("inspector/selectNode", node?.reference.uuid);
 
+            // Remove selection from overview list
+            this.graphHandler.store.commit("editor/setSelectedNode", undefined);
+
             // Load amount of related nodes to display in toolbar
             await this.graphHandler.store.dispatch("editor/updateRelatedNodesCount", node);
         }
@@ -76,6 +79,9 @@ export class GraphControls {
             this.graphHandler.store.commit("editor/setSelectedElement", relation);
             await this.graphHandler.store.dispatch("inspector/selectRelation", relation?.uuid);
 
+            // Remove selection from overview list
+            this.graphHandler.store.commit("editor/setSelectedNode", undefined);
+
             // Set Related nodes amount to 0
             await this.graphHandler.store.dispatch("editor/updateRelatedNodesCount");
         }
@@ -87,6 +93,9 @@ export class GraphControls {
     public resetSelection(): void {
         this.graphHandler.graph.deselectElements();
         this.graphHandler.store.commit("editor/setSelectedElement", undefined);
+
+        // Remove selection from overview list
+        this.graphHandler.store.commit("editor/setSelectedNode", undefined);
 
         // Deactivate resizing handles
         this.resizeControls.deactivate();

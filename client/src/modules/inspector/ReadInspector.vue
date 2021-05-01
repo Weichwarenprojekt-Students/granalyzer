@@ -40,7 +40,7 @@
             ></ReadAttribute>
         </ScrollPanel>
     </div>
-    <DefaultInspector v-else :title="false" />
+    <DefaultInspector v-else :title="false" :visual-info="$store.state.inspector.visualSelection" />
 </template>
 
 <script lang="ts">

@@ -26,6 +26,11 @@ export class InspectorState {
      * The different labels (for creating)
      */
     public types?: Array<ApiLabel> = [];
+
+    /**
+     * True if the selection was reset, because a visual element was selected
+     */
+    public visualSelection = false;
 }
 
 export const inspector = {
@@ -35,9 +40,10 @@ export const inspector = {
         /**
          * Reset the current selection
          */
-        resetSelection(state: InspectorState): void {
+        resetSelection(state: InspectorState, visualSelection = false): void {
             state.attributes = [];
             state.element = undefined;
+            state.visualSelection = visualSelection;
         },
         /**
          * Set the inspector items for nodes
@@ -83,11 +89,19 @@ export const inspector = {
          * Set the clicked node
          */
         async selectNode(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
-            if (!uuid) return;
+            if (!uuid) {
+                // Reset for visual selection
+                context.commit("resetSelection", true);
+                return;
+            }
 
             // Fetch node data
             let result = await GET(`/api/nodes/${uuid}?includeDefaults=false`);
-            if (isUnexpected(result)) return;
+            if (isUnexpected(result, false)) {
+                // Reset for visual selection
+                context.commit("resetSelection", true);
+                return;
+            }
             const node: ApiNode = await result.json();
 
             // Fetch scheme for the label of this node
@@ -101,11 +115,19 @@ export const inspector = {
          * Set the clicked relation
          */
         async selectRelation(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
-            if (!uuid) return;
+            if (!uuid) {
+                // Reset for visual selection
+                context.commit("resetSelection", true);
+                return;
+            }
 
             // Fetch the relation data
             let result = await GET(`/api/relations/${uuid}?includeDefaults=false`);
-            if (isUnexpected(result)) return;
+            if (isUnexpected(result, false)) {
+                // Reset for visual selection
+                context.commit("resetSelection", true);
+                return;
+            }
             const relation: ApiRelation = await result.json();
 
             // Fetch scheme for the type of this relation
