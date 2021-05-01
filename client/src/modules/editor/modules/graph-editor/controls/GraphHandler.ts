@@ -10,6 +10,7 @@ import { RelationModeControls } from "@/modules/editor/modules/graph-editor/cont
 import NodesController from "@/modules/editor/modules/graph-editor/controls/nodes/NodesController";
 import RelationsController from "@/modules/editor/modules/graph-editor/controls/relations/RelationsController";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
+import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 
 export class GraphHandler {
     /**
@@ -40,6 +41,11 @@ export class GraphHandler {
      * The undo stack
      */
     private undoStack = new Array<ICommand>();
+
+    /**
+     * Label-name, HeatMapAttribute
+     */
+    private heatMapAttributes = new Map<string, HeatMapAttribute>();
 
     /**
      * Constructor
@@ -252,5 +258,32 @@ export class GraphHandler {
                 await this.relationMode.connectRelation(linkView);
             },
         });
+    }
+
+    // TODO: docstrings
+    setHeatMapAttribute(heatMapAttribute: HeatMapAttribute): void {
+        this.heatMapAttributes.set(heatMapAttribute.labelName, heatMapAttribute);
+    }
+
+    dropHeatMapAttribute(heatMapAttribute: HeatMapAttribute): void {
+        this.heatMapAttributes.delete(heatMapAttribute.labelName);
+    }
+
+    /**
+     * Returns all label names which are listed as an heatmap attribute
+     */
+    getActiveHeatMapLabels(): string[] {
+        const labels: string[] = [];
+        this.heatMapAttributes.forEach((heatMapAttribute: HeatMapAttribute) => labels.push(heatMapAttribute.labelName));
+        return labels;
+    }
+
+    /**
+     * Returns a specifig heatmap attribute or null if it is not set yet
+     */
+    getHeatMapAttribute(labelName: string): HeatMapAttribute | null {
+        return this.heatMapAttributes.has(labelName)
+            ? (this.heatMapAttributes.get(labelName) as HeatMapAttribute)
+            : null;
     }
 }

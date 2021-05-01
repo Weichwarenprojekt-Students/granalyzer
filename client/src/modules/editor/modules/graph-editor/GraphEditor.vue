@@ -46,8 +46,6 @@ export default defineComponent({
         };
     },
     async mounted(): Promise<void> {
-        // Show the loading bar
-        this.$store.commit("editor/setEditorLoading", true);
         this.$store.dispatch("editor/setRelationMode", false);
 
         // Load the currently opened diagram from REST backend
@@ -81,6 +79,15 @@ export default defineComponent({
             for (const link of this.graph.graph.getLinks()) {
                 this.graph.paper.findViewByModel(link)?.hideTools();
             }
+        });
+
+        // TODO: is loading heatmap correct here?
+        // Initial dispatch at the start of the editor
+        await this.$store.dispatch("editor/heatMap/getHeatLabels");
+
+        // Register event for added and removed nodes in the editor
+        this.graph.graph.on("add remove", async () => {
+            await this.$store.dispatch("editor/heatMap/getHeatLabels");
         });
 
         this.$store.commit("editor/setEditorLoading", false);
@@ -157,7 +164,7 @@ export default defineComponent({
 
 #joint {
     > svg {
-        background: @light_grey;
+        background: #f2f2f2;
     }
 }
 </style>

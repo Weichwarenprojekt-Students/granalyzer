@@ -5,6 +5,7 @@ import { GET } from "@/utility";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
 import { NodeDrag } from "@/shared/NodeDrag";
+import { heatMap, HeatMapState } from "@/modules/editor/modules/heatmap/store";
 
 /**
  * The local storage key for the opened diagram in the editor
@@ -36,6 +37,11 @@ export class EditorState {
      * Graph editor state
      */
     public graphEditor?: GraphEditorState;
+
+    /**
+     * Heat map state
+     */
+    public heatMap?: HeatMapState;
 }
 
 export const editor = {
@@ -97,5 +103,6 @@ export const editor = {
     },
     modules: {
         graphEditor,
+        heatMap,
     },
 };

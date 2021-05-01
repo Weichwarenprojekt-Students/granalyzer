@@ -43,5 +43,9 @@
   },
   "visualElements": {
     "title": "Visuelle Elemente"
+  },
+  "heatMap": {
+    "title": "Heat View",
+    "name": "Name:"
   }
 }
