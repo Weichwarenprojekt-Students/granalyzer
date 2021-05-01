@@ -249,17 +249,6 @@ describe("DataSchemeController", () => {
     });
 
     describe("updateLabelScheme", () => {
-        it("updates one Label with the same values", async () => {
-            // Write the label
-            const movieLabel = new LabelScheme("Movie", "#666", [
-                new StringAttribute("attrOne", true, "unknown"),
-                new NumberAttribute("attrTwo"),
-            ]);
-            await schemeController.addLabelScheme(movieLabel);
-
-            expect(await schemeController.updateLabelScheme(movieLabel.name, movieLabel, false)).toEqual(movieLabel);
-        });
-
         it("updates one label", async () => {
             // Write the label
             const movieLabel = new LabelScheme("Movie", "#666", [
@@ -473,33 +462,6 @@ describe("DataSchemeController", () => {
     });
 
     describe("updateRelationType", () => {
-        it("updates one relation with the same values", async () => {
-            // Write the labels
-            const movieLabel = new LabelScheme("Movie", "#666", [
-                new StringAttribute("attrOne", true, "unknown"),
-                new NumberAttribute("attrTwo"),
-            ]);
-            await schemeController.addLabelScheme(movieLabel);
-
-            const personLabel = new LabelScheme("Person", "#420", [
-                new StringAttribute("attrOne", true, "Done Default"),
-                new ColorAttribute("attrTwo"),
-            ]);
-            await schemeController.addLabelScheme(personLabel);
-
-            // Write the relation type
-            const actedInRelation = new RelationType(
-                "ACTED_IN",
-                [new StringAttribute("attrOne", false)],
-                [new Connection("Person", "Movie")],
-            );
-            await schemeController.addRelationType(actedInRelation);
-
-            expect(await schemeController.updateRelationType(actedInRelation.name, actedInRelation, false)).toEqual(
-                actedInRelation,
-            );
-        });
-
         it("updates one relation", async () => {
             // Write the labels
             const movieLabel = new LabelScheme("Movie", "#666", [
