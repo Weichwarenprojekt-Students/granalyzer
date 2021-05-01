@@ -477,7 +477,7 @@ export const graphEditor = {
          */
         async updateRelatedNodesCount(context: ActionContext<GraphEditorState, RootState>, node?: Node): Promise<void> {
             if (!context.state.graphHandler) return;
-            if (!node) {
+            if (!node || !node.reference.uuid) {
                 context.commit("updateRelatedNodesCount", 0);
                 return;
             }
