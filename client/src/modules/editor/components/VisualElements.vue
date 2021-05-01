@@ -39,8 +39,8 @@ export default defineComponent({
             this.$store.commit("editor/setDraggedNode", {
                 evt,
                 name: "text",
-                color: "#FFF",
-                borderColor: "#333",
+                color: "#FFFFFF",
+                borderColor: "#333333",
                 shape,
                 nodeId: "",
                 label: "",

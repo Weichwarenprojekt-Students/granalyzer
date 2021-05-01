@@ -92,10 +92,10 @@ export default defineComponent({
                     value: shape,
                 };
             }),
-            // True if a style interval is active
-            styleIntervalActive: false,
-            // The style interval reference
-            styleInterval: 0,
+            // True if a style timeout is active
+            styleTimeoutActive: false,
+            // The style timeout reference
+            styleTimeout: 0,
             // True if the color is enabled
             colorEnabled: true,
             // True if the border color is enabled
@@ -120,27 +120,8 @@ export default defineComponent({
         /**
          * Keep the shown element style updated
          */
-        "$store.state.editor.graphEditor.selectedElement.info": {
-            handler() {
-                // Reset the update interval and the color flags
-                clearInterval(this.styleInterval);
-                this.colorEnabled = false;
-                this.borderColorEnabled = false;
-
-                // Check if an element was selected
-                const newElement = this.$store.state.editor.graphEditor.selectedElement;
-                if (newElement) {
-                    this.colorEnabled = !!newElement.info.color;
-                    this.borderColorEnabled = !!newElement.info.borderColor;
-                    this.restyleCommand = new RestyleCommand(newElement);
-                    this.elementStyle = deepCopy(newElement.info);
-                } else this.restyleCommand = {} as RestyleCommand;
-
-                // Ensure that there are color values given
-                this.elementStyle.color = this.elementStyle.color ?? DEFAULT_COLOR;
-                this.elementStyle.borderColor = this.elementStyle.borderColor ?? DEFAULT_COLOR;
-            },
-            deep: true,
+        "$store.state.editor.graphEditor.selectedElement"() {
+            this.updateSelectedElement();
         },
         /**
          * Apply the live update for the node style
@@ -148,27 +129,51 @@ export default defineComponent({
         elementStyle: {
             handler() {
                 // Check if the update routine is already running
-                if (this.styleIntervalActive) return;
-                this.styleIntervalActive = true;
-
-                // Start the interval for live updating
-                this.styleInterval = setInterval(() => {
-                    const updatedStyle = deepCopy(this.elementStyle);
-                    if (!this.colorEnabled) updatedStyle.color = undefined;
-                    if (!this.borderColorEnabled) updatedStyle.borderColor = undefined;
-                    this.$store.state.editor.graphEditor.selectedElement?.updateStyle(updatedStyle);
-                }, 100);
+                if (this.styleTimeoutActive) return;
+                this.styleTimeoutActive = true;
+                this.styleLiveUpdate();
 
                 // Stop the interval after 1s
                 setTimeout(() => {
-                    clearInterval(this.styleInterval);
-                    this.styleIntervalActive = false;
-                }, 200);
+                    this.styleLiveUpdate();
+                    this.styleTimeoutActive = false;
+                }, 100);
             },
             deep: true,
         },
     },
     methods: {
+        /**
+         * Update the selected element
+         */
+        updateSelectedElement(): void {
+            // Reset the update interval and the color flags
+            clearInterval(this.styleTimeout);
+            this.colorEnabled = false;
+            this.borderColorEnabled = false;
+
+            // Check if an element was selected
+            const newElement = this.$store.state.editor.graphEditor.selectedElement;
+            if (newElement) {
+                this.colorEnabled = !!newElement.info.color;
+                this.borderColorEnabled = !!newElement.info.borderColor;
+                this.restyleCommand = new RestyleCommand(newElement);
+                this.elementStyle = deepCopy(newElement.info);
+            } else this.restyleCommand = {} as RestyleCommand;
+
+            // Ensure that there are color values given
+            this.elementStyle.color = this.elementStyle.color ?? DEFAULT_COLOR;
+            this.elementStyle.borderColor = this.elementStyle.borderColor ?? DEFAULT_COLOR;
+        },
+        /**
+         * Execute a live style update
+         */
+        styleLiveUpdate(): void {
+            const updatedStyle = deepCopy(this.elementStyle);
+            if (!this.colorEnabled) updatedStyle.color = undefined;
+            if (!this.borderColorEnabled) updatedStyle.borderColor = undefined;
+            this.$store.state.editor.graphEditor.selectedElement?.updateStyle(updatedStyle);
+        },
         /**
          * Change the shape of the selected node
          */
@@ -195,6 +200,7 @@ export default defineComponent({
             // Apply the new style
             this.restyleCommand.setNewStyle(newStyle);
             this.$store.dispatch("editor/restyleElement", this.restyleCommand);
+            this.updateSelectedElement();
             this.restyleCommand = new RestyleCommand(this.$store.state.editor.graphEditor.selectedElement);
         },
     },
