@@ -4,7 +4,7 @@ import { RootState } from "@/store";
 import { NodeInfo } from "./controls/nodes/models/NodeInfo";
 import { ApiDiagram } from "@/models/ApiDiagram";
 import { CreateNodeCommand } from "./controls/nodes/commands/CreateNodeCommand";
-import { dia, g } from "jointjs";
+import { g } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/RemoveNodeCommand";
 import { GET, PUT, randomRange } from "@/utility";
 import { RelationInfo } from "./controls/relations/models/RelationInfo";
@@ -287,12 +287,9 @@ export const graphEditor = {
             await context.dispatch("saveChange");
 
             // Select new shape
-            const model = context.state.graphHandler?.nodes.getByJointId(node.jointId);
-            if (model) {
-                const elementView = context.state.graphHandler?.graph.paper.findViewByModel(model.joint);
-                if (elementView instanceof dia.ElementView)
-                    await context.state.graphHandler?.controls.selectNode(elementView);
-            }
+            await context.state.graphHandler?.controls.selectNode(
+                context.state.graphHandler?.graph.paper.findViewByModel(node.joint),
+            );
         },
 
         /**
