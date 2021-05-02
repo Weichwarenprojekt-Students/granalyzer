@@ -120,6 +120,7 @@ export class JointGraph {
         const xMiddle = area.x + area.width / 2;
         const yMiddle = area.y + area.height / 2;
         this.zoom(-1, xMiddle, yMiddle);
+        while (this.paper.scale().sx > 1.5) this.zoom(-1, xMiddle, yMiddle);
     }
 
     /**
@@ -384,7 +385,7 @@ export class JointGraph {
         // Calculate the new scale and check if it is in bounds
         const oldScale = this.paper.scale().sx;
         const nextScale = 1.1 ** delta * oldScale;
-        if ((nextScale < 0.1 && nextScale < oldScale) || nextScale > 10) return;
+        if ((nextScale < 0.1 && nextScale < oldScale) || (nextScale > 10 && nextScale > oldScale)) return;
 
         // Adjust the translation of the paper so that the zoom actually
         // centers with the mouse
