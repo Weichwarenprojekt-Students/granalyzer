@@ -75,8 +75,8 @@ export default defineComponent({
 }
 
 #enumList {
-    border-top: 4px red solid;
-    border-bottom: 4px green solid;
+    border-top: 4px @heat_from solid;
+    border-bottom: 4px @heat_to solid;
     padding-bottom: 4px;
     padding-top: 4px;
 }

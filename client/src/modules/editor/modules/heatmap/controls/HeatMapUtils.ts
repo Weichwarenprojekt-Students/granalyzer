@@ -1,19 +1,19 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
-import { clamp, GET, getFontColor, hsv2rgb, isUnexpected, toPaddedHex } from "@/utility";
+import { clamp, GET, getFontColor, hsl2rgb, isUnexpected, toPaddedHex } from "@/utility";
 import { dia } from "jointjs";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
 
 export class HeatMapUtils {
     /**
-     * Get the color on a linear HSV gradient, clamped if value is outside of interval
+     * Get the color on a linear HSL gradient, clamped if value is outside of interval
      *
      * @param min The min value
      * @param max The max value
      * @param value The value to get the color on the gradient for
      */
     getLinearColor(min: number, max: number, value: number): string {
-        // Min and max value of the hue in HSV colors
+        // Min and max value of the hue in HSL colors. If you change these values, you MUST also update global.less!
         // The gradient is just calculated from a linear hue, which goes from red at 0 over yellow to green at 120.
         // It can go even further all the way around to red again over cyan, blue, and purple, each in steps of 60.
         const hueMin = 0;
@@ -26,8 +26,9 @@ export class HeatMapUtils {
         // Calculate the hue on the gradient for the value and clamp it between min and max hue
         const gradientHue = clamp(m * value + t, hueMin, hueMax);
 
-        // Calculate HSV to RGB colors
-        const [r, g, b] = hsv2rgb(gradientHue, 1, 0.9);
+        // Calculate HSL to RGB colors
+        // If you change any of these values, you MUST also update them in the global.less file!
+        const [r, g, b] = hsl2rgb(gradientHue, 0.8, 0.5);
 
         // Return color as hex code
         return "#" + toPaddedHex(r) + toPaddedHex(g) + toPaddedHex(b);

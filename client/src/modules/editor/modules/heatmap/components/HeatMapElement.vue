@@ -181,11 +181,11 @@ export default defineComponent({
     padding-left: 8px;
 
     &.red {
-        border-left: 4px red solid;
+        border-left: 4px @heat_from solid;
     }
 
     &.green {
-        border-left: 4px green solid;
+        border-left: 4px @heat_to solid;
     }
 }
 
@@ -194,22 +194,22 @@ export default defineComponent({
     height: 8px;
 
     &.red {
-        background-color: red;
+        background-color: @heat_from;
     }
 
     &.green {
-        background-color: green;
+        background-color: @heat_to;
     }
 }
 
 .heat-expanded-enum .heat-row {
     &:first-of-type {
-        border-top: 4px red solid;
+        border-top: 4px @heat_from solid;
         padding-top: 4px;
     }
 
     &:last-of-type {
-        border-bottom: 4px green solid;
+        border-bottom: 4px @heat_to solid;
         padding-bottom: 4px;
     }
 }

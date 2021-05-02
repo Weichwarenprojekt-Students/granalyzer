@@ -275,13 +275,16 @@ export function clamp(num: number, min: number, max: number): number {
 }
 
 /**
- * Convert hue, saturation, and value from HSV colors to RGB
+ * Convert hue, saturation, and lightness from HSL colors to RGB
  *
- * See: https://stackoverflow.com/a/54024653/15087314
+ * input: h in [0,360] and s,v in [0,1] - output: r,g,b in [0,255]
+ * See: https://stackoverflow.com/a/54014428/15087314
+ *
  */
-export function hsv2rgb(h: number, s: number, v: number): [number, number, number] {
-    const f = (n: number, k = (n + h / 60) % 6) => v - v * s * Math.max(Math.min(k, 4 - k, 1), 0);
-    return [Math.round(f(5) * 255), Math.round(f(3) * 255), Math.round(f(1) * 255)];
+export function hsl2rgb(h: number, s: number, l: number): [number, number, number] {
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
 }
 
 /**
