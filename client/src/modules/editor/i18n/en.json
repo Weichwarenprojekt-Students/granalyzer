@@ -1,7 +1,7 @@
 {
   "title": "Here you are in the editor!",
   "nothing-loaded": "Please load a diagram",
-  "exportDiagram": "Export Diagram",
+  "exportDiagram": "Export diagram",
   "toolbar": {
     "center": "Center (C)",
     "undo": "Undo (Ctrl + Z)",

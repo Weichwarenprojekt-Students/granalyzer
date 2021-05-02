@@ -1,5 +1,5 @@
 {
-    "title": "Hier bist du im Editor!",
+    "title": "Hier sind Sie im Editor!",
     "nothing-loaded": "Bitte laden Sie ein Diagramm",
     "exportDiagram": "Diagramm exportieren",
     "toolbar": {
@@ -18,7 +18,7 @@
         "description": "Keine Einträge gefunden!"
     },
     "relationModeToast": {
-        "title": "Beziehungsmodus is aktiv!",
+        "title": "Beziehungsmodus ist aktiv!",
         "description": "Im Beziehungsmodus können keine neuen Nodes hinzugefügt werden"
     },
     "toolbox": "Toolbox",
