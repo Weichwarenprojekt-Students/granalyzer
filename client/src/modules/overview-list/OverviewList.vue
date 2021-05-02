@@ -7,7 +7,7 @@
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#plus-bold`"></use>
                 </svg>
-                Add Node
+                {{ $t("overviewList.addNode") }}
             </button>
         </div>
 

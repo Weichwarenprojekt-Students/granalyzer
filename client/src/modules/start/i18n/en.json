@@ -21,9 +21,14 @@
     "addDiagram": "Add diagram",
     "renameItem": "Rename {item}",
     "copyItem": "Copy of {item}",
-    "deleteItem": {
+    "deletion": {
       "title": "Delete {item}",
-      "description": "Are you sure you want to delete the selected item?"
+      "deleteItem": {
+        "description": "Are you sure you want to delete the selected item?"
+      },
+      "deleteFolder": {
+        "description": "The folder contains {num} item(s)."
+      }
     },
     "noSelection": {
       "title": "No item selected",

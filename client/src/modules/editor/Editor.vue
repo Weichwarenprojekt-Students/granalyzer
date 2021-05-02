@@ -8,7 +8,13 @@
         ></OverviewList>
         <div class="center">
             <EditorHeader class="header"></EditorHeader>
-            <GraphEditor class="editor"></GraphEditor>
+            <GraphEditor v-if="$store.state.editor.diagram" class="editor"></GraphEditor>
+            <div v-else class="empty-warning">
+                <svg>
+                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
+                </svg>
+                <div class="message">{{ $t("editor.nothing-loaded") }}</div>
+            </div>
         </div>
         <div class="editor-tools">
             <!-- The tabs -->
