@@ -1,5 +1,6 @@
 import { ToastServiceMethods } from "primevue/toastservice";
 import i18n from "@/i18n";
+import { firaSansSVGStyle } from "@/assets/fonts/firasans/FiraSans-Bold-SVG";
 
 /**
  * The route names of the three main modules
@@ -130,6 +131,25 @@ export function DELETE(path: string): Promise<Response> {
         headers,
         method: "DELETE",
     });
+}
+
+/**
+ * Converts a SVG DOM element to a downloadable binary blob svg
+ * @param svg The DOM element to be converted
+ * @returns Returns the binary svg data
+ */
+export function diagramToSVG(svg: HTMLElement): Blob {
+    // Perform a deep copy of the DOM element
+    const svgCopy = <HTMLElement>svg.cloneNode(true);
+
+    // Embed the FiraSans Bold font into the SVG file
+    const styleElement: SVGStyleElement = document.createElementNS("http://www.w3.org/2000/svg", "style");
+    styleElement.type = "text/css";
+    styleElement.textContent = firaSansSVGStyle;
+    svgCopy.appendChild(styleElement);
+
+    const xmlSvg = new XMLSerializer().serializeToString(svgCopy);
+    return new Blob([xmlSvg], { type: "image/svg+xml;charset=utf-8" });
 }
 
 /**
