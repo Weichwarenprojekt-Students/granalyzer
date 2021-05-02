@@ -167,7 +167,7 @@ export class EnumAttribute extends Attribute {
     readonly datatype = Datatype.ENUM;
 
     /**
-     * List of all values
+     * List of all specified enumerals
      */
     config: string[] = [];
 

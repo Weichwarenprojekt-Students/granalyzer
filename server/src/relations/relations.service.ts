@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { DataSchemeUtil } from "../util/data-scheme.util";
 import { DatabaseUtil } from "../util/database.util";
@@ -119,7 +119,11 @@ export class RelationsService {
         const params = { id };
 
         // Callback which parses the received data
-        const resolveRead = async (res) => await this.dataSchemeUtil.parseRelation(res.records[0], includeDefaults);
+        const resolveRead = async (res) => {
+            const relation = await this.dataSchemeUtil.parseRelation(res.records[0], includeDefaults);
+            if (relation) return relation;
+            else throw new NotFoundException("No results to return");
+        };
 
         return this.neo4jService
             .read(query, params, this.database)
@@ -136,7 +140,7 @@ export class RelationsService {
           MATCH(startNode)-[relation]->(endNode)
           WITH startNode.nodeId AS from,
                endNode.nodeId AS to, relation
-          RETURN relation {. *, type:type(relation), FROM:from, to:to} AS relation;`;
+          RETURN relation {. *, type:type(relation), from:from, to:to} AS relation;`;
         const params = {};
 
         // Callback which is applied on the database response
