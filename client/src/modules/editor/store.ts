@@ -5,7 +5,7 @@ import { GET } from "@/utility";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
 import { NodeDrag } from "@/shared/NodeDrag";
-import { heatMap, HeatMapState } from "@/modules/editor/modules/heatmap/store";
+import { heatMap, HeatMapState } from "@/modules/editor/modules/heat-map/store";
 
 /**
  * The local storage key for the opened diagram in the editor

@@ -10,7 +10,7 @@ import { RelationModeControls } from "@/modules/editor/modules/graph-editor/cont
 import NodesController from "@/modules/editor/modules/graph-editor/controls/nodes/NodesController";
 import RelationsController from "@/modules/editor/modules/graph-editor/controls/relations/RelationsController";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
-import { HeatMapAttribute } from "@/modules/editor/modules/heatmap/models/HeatMapAttribute";
+import { HeatConfig } from "@/modules/editor/modules/heat-map/models/HeatConfig";
 
 export class GraphHandler {
     /**
@@ -30,10 +30,6 @@ export class GraphHandler {
      */
     public relationMode: RelationModeControls;
     /**
-     * The actual graph object from joint
-     */
-    public readonly graph: JointGraph;
-    /**
      *  The redo stack
      */
     private redoStack = new Array<ICommand>();
@@ -43,9 +39,9 @@ export class GraphHandler {
     private undoStack = new Array<ICommand>();
 
     /**
-     * Label-name, HeatMapAttribute
+     * The heat configurations (Format: <Label>-<AttributeName>, HeatMapAttribute)
      */
-    private heatMapAttributes = new Map<string, HeatMapAttribute>();
+    public heatConfigs = new Map<string, HeatConfig>();
 
     /**
      * Constructor
@@ -53,9 +49,7 @@ export class GraphHandler {
      * @param store The vuex store
      * @param graph The joint graph object
      */
-    constructor(public store: Store<RootState>, graph: JointGraph) {
-        this.graph = graph;
-
+    constructor(public store: Store<RootState>, public readonly graph: JointGraph) {
         this.relations = new RelationsController(this);
 
         this.controls = new GraphControls(this);
@@ -123,6 +117,7 @@ export class GraphHandler {
         });
 
         // Compose the serializable graph and return the JSON string
+        // TODO: persistence of heatConfigs
         return JSON.stringify({
             nodes,
             relations,
@@ -258,32 +253,5 @@ export class GraphHandler {
                 await this.relationMode.connectRelation(linkView);
             },
         });
-    }
-
-    // TODO: docstrings
-    setHeatMapAttribute(heatMapAttribute: HeatMapAttribute): void {
-        this.heatMapAttributes.set(heatMapAttribute.labelName, heatMapAttribute);
-    }
-
-    dropHeatMapAttribute(heatMapAttribute: HeatMapAttribute): void {
-        this.heatMapAttributes.delete(heatMapAttribute.labelName);
-    }
-
-    /**
-     * Returns all label names which are listed as an heatmap attribute
-     */
-    getActiveHeatMapLabels(): string[] {
-        const labels: string[] = [];
-        this.heatMapAttributes.forEach((heatMapAttribute: HeatMapAttribute) => labels.push(heatMapAttribute.labelName));
-        return labels;
-    }
-
-    /**
-     * Returns a specifig heatmap attribute or null if it is not set yet
-     */
-    getHeatMapAttribute(labelName: string): HeatMapAttribute | null {
-        return this.heatMapAttributes.has(labelName)
-            ? (this.heatMapAttributes.get(labelName) as HeatMapAttribute)
-            : null;
     }
 }

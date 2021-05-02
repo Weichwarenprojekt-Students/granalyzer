@@ -48,7 +48,7 @@
 import { defineComponent } from "vue";
 import DefaultInspector from "@/modules/inspector/components/DefaultInspector.vue";
 import ReadAttribute from "@/modules/inspector/components/ReadAttribute.vue";
-import HeatMap from "@/modules/editor/modules/heatmap/HeatMap.vue";
+import HeatMap from "@/modules/editor/modules/heat-map/HeatMap.vue";
 
 export default defineComponent({
     name: "ReadInspector",

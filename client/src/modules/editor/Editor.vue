@@ -32,7 +32,7 @@
                 <ScrollPanel class="toolbox-scroll">
                     <NodeEdit class="toolbox-item" />
                     <VisualElements class="toolbox-item" />
-                      <HeatMap class="toolbox-item"/>
+                    <HeatMap class="toolbox-item" />
                 </ScrollPanel>
             </div>
             <ReadInspector v-else></ReadInspector>
@@ -51,7 +51,7 @@ import VisualElements from "@/modules/editor/components/VisualElements.vue";
 import { NodeDrag } from "@/shared/NodeDrag";
 import NodeEdit from "@/modules/editor/components/ElementEdit.vue";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
-import HeatMap from "@/modules/editor/modules/heatmap/HeatMap.vue";
+import HeatMap from "@/modules/editor/modules/heat-map/HeatMap.vue";
 
 export default defineComponent({
     name: "Editor",

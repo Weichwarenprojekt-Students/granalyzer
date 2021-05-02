@@ -81,14 +81,8 @@ export default defineComponent({
             }
         });
 
-        // TODO: is loading heatmap correct here?
         // Initial dispatch at the start of the editor
-        await this.$store.dispatch("editor/heatMap/getHeatLabels");
-
-        // Register event for added and removed nodes in the editor
-        this.graph.graph.on("add remove", async () => {
-            await this.$store.dispatch("editor/heatMap/getHeatLabels");
-        });
+        await this.$store.dispatch("editor/getHeatLabels");
 
         this.$store.commit("editor/setEditorLoading", false);
 

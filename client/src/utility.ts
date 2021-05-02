@@ -279,7 +279,6 @@ export function clamp(num: number, min: number, max: number): number {
  *
  * input: h in [0,360] and s,v in [0,1] - output: r,g,b in [0,255]
  * See: https://stackoverflow.com/a/54014428/15087314
- *
  */
 export function hsl2rgb(h: number, s: number, l: number): [number, number, number] {
     const a = s * Math.min(l, 1 - l);

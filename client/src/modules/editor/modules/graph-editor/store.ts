@@ -242,6 +242,8 @@ export const graphEditor = {
             context.commit("setEditorLoading", false);
 
             await context.dispatch("saveChange");
+
+            await context.dispatch("editor/updateHeatMap", undefined, { root: true });
         },
         /**
          * Redo a change
@@ -253,6 +255,8 @@ export const graphEditor = {
             context.commit("setEditorLoading", false);
 
             await context.dispatch("saveChange");
+
+            await context.dispatch("editor/updateHeatMap", undefined, { root: true });
         },
         /**
          * Add a node with its relations
@@ -268,9 +272,7 @@ export const graphEditor = {
 
             await context.dispatch("addCommand", createNodeCommand);
 
-            // TODO: correct place?
-            // Apply heatmap on the new node
-            await context.dispatch("heatMap/addNode", node);
+            await context.dispatch("editor/updateHeatMap", undefined, { root: true });
         },
         /**
          * Remove a node
@@ -280,6 +282,8 @@ export const graphEditor = {
             context.commit("removeNode");
             context.commit("setEditorLoading", false);
             await context.dispatch("saveChange");
+
+            await context.dispatch("editor/updateHeatMap", undefined, { root: true });
         },
         /**
          * Restyle a relation or node
@@ -292,6 +296,8 @@ export const graphEditor = {
             context.commit("restyleElement", restyleCommand);
             context.commit("setEditorLoading", false);
             await context.dispatch("saveChange");
+
+            await context.dispatch("editor/updateHeatMap", undefined, { root: true });
         },
         /**
          * Change the shape of a node
