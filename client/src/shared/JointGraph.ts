@@ -87,32 +87,40 @@ export class JointGraph {
         this.paper.scaleContentToFit();
 
         // Get range of y values
+        const xRange: { min: number; max: number } = { min: Number.MAX_VALUE, max: Number.MIN_VALUE };
         const yRange: { min: number; max: number } = { min: Number.MAX_VALUE, max: Number.MIN_VALUE };
         let averageElementHeight = 0;
+        let averageElementWidth = 0;
 
         elements
             .map((el) => document.querySelector(`[model-id="${el.id}"]`)?.getBoundingClientRect())
             .forEach((element: DOMRect | undefined) => {
                 if (!element) return;
                 const y = element.y > 0 ? element.top : element.bottom;
+                const x = element.x > 0 ? element.right : element.left;
                 if (y > yRange.max) yRange.max = y;
                 if (y < yRange.min) yRange.min = y;
+                if (x > xRange.max) xRange.max = x;
+                if (x < xRange.min) xRange.min = x;
                 averageElementHeight += element.height;
+                averageElementWidth += element.width;
             });
 
         // Translate graph to fit the bounding box
         averageElementHeight /= elements.length;
+        averageElementWidth /= elements.length;
         const bBoxMiddle = this.paper.clientToLocalPoint({
-            x: 0,
+            x: (xRange.min + xRange.max - averageElementWidth) / 2,
             y: (yRange.min + yRange.max + averageElementHeight) / 2,
         });
-        this.centerGraph({ x: 0, y: bBoxMiddle.y });
+        this.centerGraph({ x: bBoxMiddle.x, y: bBoxMiddle.y });
 
         // Extra margin
         const area = this.paper.getArea();
         const xMiddle = area.x + area.width / 2;
         const yMiddle = area.y + area.height / 2;
         this.zoom(-1, xMiddle, yMiddle);
+        while (this.paper.scale().sx > 1.5) this.zoom(-1, xMiddle, yMiddle);
     }
 
     /**
@@ -377,7 +385,7 @@ export class JointGraph {
         // Calculate the new scale and check if it is in bounds
         const oldScale = this.paper.scale().sx;
         const nextScale = 1.1 ** delta * oldScale;
-        if ((nextScale < 0.1 && nextScale < oldScale) || nextScale > 10) return;
+        if ((nextScale < 0.1 && nextScale < oldScale) || (nextScale > 10 && nextScale > oldScale)) return;
 
         // Adjust the translation of the paper so that the zoom actually
         // centers with the mouse
