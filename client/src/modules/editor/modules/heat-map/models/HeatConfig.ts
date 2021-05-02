@@ -1,5 +1,7 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
 
+type SerializableHeatConfig = new () => { readonly type: string };
+
 /**
  * The different possible heat configuration types
  */
@@ -14,10 +16,13 @@ export enum HeatConfigType {
  */
 export abstract class HeatConfig {
     /**
+     * Type registry for reviving heat configs from json strings
+     */
+    private static readonly typeRegistry: Record<string, SerializableHeatConfig> = {};
+    /**
      * The attribute name
      */
     public readonly attrName: string;
-
     /**
      * The config type
      */
@@ -31,6 +36,23 @@ export abstract class HeatConfig {
     protected constructor(attrName: string) {
         this.attrName = attrName;
     }
+
+    /**
+     * Decorator for adding classes to the typeRegistry
+     */
+    static serializable<T extends SerializableHeatConfig>(constructor: T): T {
+        HeatConfig.typeRegistry[new constructor().type] = constructor;
+        return constructor;
+    }
+
+    /**
+     * Reviver that restores the correct heat config instance
+     */
+    // eslint-disable-next-line
+    static readonly reviver = (k: string, v: any): any =>
+        typeof v === "object" && "type" in v && v.type in HeatConfig.typeRegistry
+            ? Object.assign(new HeatConfig.typeRegistry[v.type](), v)
+            : v;
 
     /**
      * Get the matching color for a given node

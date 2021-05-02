@@ -3,6 +3,7 @@ import { DEFAULT_COLOR, getLinearColor } from "@/modules/editor/modules/heat-map
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { isNumber } from "class-validator";
 
+@HeatConfig.serializable
 export class HeatNumberConfig extends HeatConfig {
     /**
      * The config type
@@ -23,7 +24,7 @@ export class HeatNumberConfig extends HeatConfig {
      * @param attrName The name of the config attribute
      * @param nodes The
      */
-    constructor(attrName: string, nodes: Array<ApiNode>) {
+    constructor(attrName = "", nodes: Array<ApiNode> = []) {
         super(attrName);
 
         // Initialize the from and to values

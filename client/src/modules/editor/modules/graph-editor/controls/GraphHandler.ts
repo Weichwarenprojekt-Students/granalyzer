@@ -66,7 +66,7 @@ export class GraphHandler {
     public fromJSON(jsonString: string): void {
         if (!jsonString || jsonString === "{}") return;
 
-        const { nodes, relations }: SerializableGraph = JSON.parse(jsonString);
+        const { nodes, relations, heatConfigs }: SerializableGraph = JSON.parse(jsonString);
 
         nodes.forEach((node) => {
             // Set default size for diagrams that don't have a saved size
@@ -91,6 +91,12 @@ export class GraphHandler {
                 if (relation.anchors != null) newRel.anchors = relation.anchors;
             }
         });
+
+        // Restore saved heat configs
+        if (heatConfigs)
+            Object.entries(heatConfigs).forEach(([key, value]) =>
+                this.heatConfigs.set(key, JSON.parse(JSON.stringify(value), HeatConfig.reviver)),
+            );
     }
 
     /**
@@ -116,11 +122,15 @@ export class GraphHandler {
             } as RelationInfo;
         });
 
+        // Save heat configs to json object
+        const heatConfigs: { [key: string]: HeatConfig } = {};
+        this.heatConfigs.forEach((value, key) => (heatConfigs[key] = value));
+
         // Compose the serializable graph and return the JSON string
-        // TODO: persistence of heatConfigs
         return JSON.stringify({
             nodes,
             relations,
+            heatConfigs,
         } as SerializableGraph);
     }
 

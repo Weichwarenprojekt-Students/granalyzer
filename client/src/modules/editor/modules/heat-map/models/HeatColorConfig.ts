@@ -3,6 +3,7 @@ import { DEFAULT_COLOR } from "@/modules/editor/modules/heat-map/utility";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { isHexColor } from "class-validator";
 
+@HeatConfig.serializable
 export class HeatColorConfig extends HeatConfig {
     /**
      * The config type
@@ -14,7 +15,7 @@ export class HeatColorConfig extends HeatConfig {
      *
      * @param attrName The name of the config attribute
      */
-    constructor(attrName: string) {
+    constructor(attrName = "") {
         super(attrName);
     }
 

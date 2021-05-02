@@ -82,7 +82,7 @@ export default defineComponent({
         });
 
         // Initial dispatch at the start of the editor
-        await this.$store.dispatch("editor/getHeatLabels");
+        await this.$store.dispatch("editor/updateHeatLabels");
 
         this.$store.commit("editor/setEditorLoading", false);
 

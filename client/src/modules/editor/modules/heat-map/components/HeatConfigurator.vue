@@ -28,13 +28,6 @@ import ApiLabel from "../../../../../models/data-scheme/ApiLabel";
 import { HeatConfig, HeatConfigType } from "@/modules/editor/modules/heat-map/models/HeatConfig";
 import HeatNumber from "@/modules/editor/modules/heat-map/components/HeatNumber.vue";
 import HeatEnum from "@/modules/editor/modules/heat-map/components/HeatEnum.vue";
-import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
-import { HeatNumberConfig } from "@/modules/editor/modules/heat-map/models/HeatNumberConfig";
-import { allFulfilledPromises } from "@/utility";
-import { HeatColorConfig } from "@/modules/editor/modules/heat-map/models/HeatColorConfig";
-import { HeatEnumConfig } from "@/modules/editor/modules/heat-map/models/HeatEnumConfig";
-import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
-import ApiNode from "@/models/data-scheme/ApiNode";
 
 export default defineComponent({
     name: "HeatConfigurator",
@@ -54,7 +47,17 @@ export default defineComponent({
             heatConfigTypes: HeatConfigType,
             // The current config for the label
             heatConfig: {} as HeatConfig,
+            // Update timeout active
+            saveChangeTimeoutActive: false,
         };
+    },
+    mounted() {
+        // Restore currently active heat config
+        const heatConfig = this.$store.state.editor.heatMap.labelConfigs.get(this.label.name);
+        if (heatConfig) {
+            this.heatConfig = heatConfig;
+            this.selectedAttribute = heatConfig.attrName;
+        }
     },
     watch: {
         /**
@@ -63,6 +66,15 @@ export default defineComponent({
         heatConfig: {
             async handler() {
                 await this.$store.dispatch("editor/updateHeatColors");
+
+                // Only save changes once ever 0.5 seconds
+                if (!this.saveChangeTimeoutActive) {
+                    this.saveChangeTimeoutActive = true;
+                    setTimeout(async () => {
+                        this.saveChangeTimeoutActive = false;
+                        await this.$store.dispatch("editor/saveChange");
+                    }, 500);
+                }
             },
             deep: true,
         },
@@ -70,55 +82,19 @@ export default defineComponent({
          * Check if the user selected a new attribute for the label
          */
         async selectedAttribute() {
-            // TODO: comments
-            const foundAttr = this.label.attributes.find((attr: ApiAttribute) => attr.name === this.selectedAttribute);
-            const newType = foundAttr?.datatype;
-            console.log(this.label, this.selectedAttribute, foundAttr);
-            const graphHandler: GraphHandler | undefined = this.$store.state.editor.graphEditor.graphHandler;
+            // Set heat config in store
+            await this.$store.dispatch("editor/setHeatConfig", {
+                labelName: this.label.name,
+                attributeName: this.selectedAttribute,
+            });
 
-            if (newType == null || !graphHandler) {
-                this.heatConfig = {} as HeatConfig;
-                await this.$store.dispatch("editor/deleteHeatConfig", this.label.name);
-                return;
-            }
+            // Get heat config that was set in previous step
+            const heatConfig = this.$store.state.editor.heatMap.labelConfigs.get(this.label.name);
+            if (heatConfig) this.heatConfig = heatConfig;
+            else this.heatConfig = {} as HeatConfig;
 
-            const cachedConfig = graphHandler.heatConfigs.get(`${this.label.name}-${this.selectedAttribute}`);
-            if (cachedConfig) {
-                this.heatConfig = cachedConfig;
-                await this.$store.dispatch("editor/setHeatConfig", { label: this.label.name, config: this.heatConfig });
-                return;
-            }
-
-            switch (newType) {
-                case HeatConfigType.NUMBER: {
-                    const nodes = (
-                        await allFulfilledPromises(
-                            [...graphHandler.nodes]
-                                .filter((node) => node.info.label === this.label.name)
-                                .map((node) => this.$store.state.editor.heatMap.nodeCache.fetch(node.reference.uuid)),
-                        )
-                    ).filter((node): node is ApiNode => !!node);
-
-                    this.heatConfig = new HeatNumberConfig(this.selectedAttribute, nodes);
-                    break;
-                }
-                case HeatConfigType.ENUM: {
-                    const enumValues: Array<string> | undefined = this.label.attributes.find(
-                        (attr: ApiAttribute) => attr.name === this.selectedAttribute,
-                    )?.config;
-                    if (!enumValues) return;
-                    this.heatConfig = new HeatEnumConfig(this.selectedAttribute, enumValues);
-                    break;
-                }
-                case HeatConfigType.COLOR:
-                    this.heatConfig = new HeatColorConfig(this.selectedAttribute);
-                    break;
-                default:
-                    return;
-            }
-
-            graphHandler.heatConfigs.set(`${this.label.name}-${this.selectedAttribute}`, this.heatConfig);
-            await this.$store.dispatch("editor/setHeatConfig", { label: this.label.name, config: this.heatConfig });
+            // Save changes
+            await this.$store.dispatch("editor/saveChange");
         },
     },
 });

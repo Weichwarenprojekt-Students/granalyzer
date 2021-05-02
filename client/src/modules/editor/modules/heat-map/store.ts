@@ -1,11 +1,16 @@
 import ApiLabel from "@/models/data-scheme/ApiLabel";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { deepCopy, GET, isUnexpected } from "@/utility";
+import { allFulfilledPromises, deepCopy, GET, isUnexpected } from "@/utility";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import ApiNode from "@/models/data-scheme/ApiNode";
-import { HeatConfig } from "@/modules/editor/modules/heat-map/models/HeatConfig";
+import { HeatConfig, HeatConfigType } from "@/modules/editor/modules/heat-map/models/HeatConfig";
 import { DEFAULT_COLOR } from "@/modules/editor/modules/heat-map/utility";
+import { ApiAttribute } from "@/models/data-scheme/ApiAttribute";
+import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
+import { HeatNumberConfig } from "@/modules/editor/modules/heat-map/models/HeatNumberConfig";
+import { HeatEnumConfig } from "@/modules/editor/modules/heat-map/models/HeatEnumConfig";
+import { HeatColorConfig } from "@/modules/editor/modules/heat-map/models/HeatColorConfig";
 
 export class HeatMapState {
     /**
@@ -13,10 +18,13 @@ export class HeatMapState {
      */
     public labels: ApiLabel[] = [];
     /**
+     * All labels from the data scheme
+     */
+    public labelCache: LabelCache = new LabelCache();
+    /**
      * The heat configurations for each label
      */
     public labelConfigs: Map<string, HeatConfig> = new Map<string, HeatConfig>();
-
     /**
      * Cache for storing node information
      */
@@ -44,7 +52,27 @@ class NodeCache {
         if (isUnexpected(result, false)) return undefined;
         const newNode = (await result.json()) as ApiNode;
         if (newNode) this.apiNodes.set(uuid, newNode);
+
         return newNode;
+    }
+}
+
+class LabelCache {
+    /**
+     * Cached labels
+     */
+    private labels: Array<ApiLabel> = new Array<ApiLabel>();
+
+    /**
+     * Get all labels
+     */
+    public async get(): Promise<Array<ApiLabel>> {
+        if (this.labels.length < 1) {
+            const res = await GET("/api/data-scheme/label");
+            this.labels = (await res.json()) as ApiLabel[];
+        }
+
+        return this.labels;
     }
 }
 
@@ -83,31 +111,98 @@ export const heatMap = {
          * Update heat map
          */
         async updateHeatMap(context: ActionContext<HeatMapState, RootState>): Promise<void> {
-            await context.dispatch("getHeatLabels");
+            await context.dispatch("updateHeatLabels");
             await context.dispatch("updateHeatColors");
         },
         /**
          * Get all labels which are in the diagram
          */
-        async getHeatLabels(context: ActionContext<HeatMapState, RootState>): Promise<void> {
-            // TODO: refactor with cache
-            const labels: ApiLabel[] = [];
-            const getter = context.rootGetters["editor/labels"];
-            for (const label of getter) {
-                const res = await GET("/api/data-scheme/label/" + label);
-                labels.push((await res.json()) as ApiLabel);
-            }
-            context.commit("setHeatLabels", labels);
+        async updateHeatLabels(context: ActionContext<HeatMapState, RootState>): Promise<void> {
+            const allLabels = await context.state.labelCache.get();
+            const editorLabels: Set<string> = context.rootGetters["editor/labels"];
+
+            context.commit(
+                "setHeatLabels",
+                allLabels.filter((lab) => editorLabels.has(lab.name)),
+            );
         },
         /**
-         * Set an active heat config
+         * Set the heat config for a label
          */
         async setHeatConfig(
             context: ActionContext<HeatMapState, RootState>,
-            payload: { label: string; config: HeatConfig },
+            { labelName, attributeName }: { labelName: string; attributeName: string },
         ): Promise<void> {
-            context.commit("setHeatConfig", payload);
+            // Get label model
+            const label = context.state.labels.find((lab) => lab.name === labelName);
+            if (!label) {
+                context.commit("deleteHeatConfig", labelName);
+                return;
+            }
+
+            // Get attribute model and graph handler
+            const attribute = label.attributes.find((attr: ApiAttribute) => attr.name === attributeName);
+            const graphHandler: GraphHandler | undefined = context.rootState.editor?.graphEditor?.graphHandler;
+            if (attribute == null || !graphHandler) {
+                context.commit("deleteHeatConfig", labelName);
+                return;
+            }
+
+            // If a heat config is present in the graph handler, use it
+            const cachedConfig = graphHandler.heatConfigs.get(`${labelName}-${attributeName}`);
+            if (cachedConfig) {
+                context.commit("setHeatConfig", { label: labelName, config: cachedConfig });
+                return;
+            }
+
+            // Else create a new heat config
+            const heatConfig = await context.dispatch("newHeatConfig", { labelName, attribute, graphHandler });
+            if (!heatConfig) {
+                context.commit("deleteHeatConfig", labelName);
+                return;
+            }
+
+            // Set the new heat config
+            graphHandler.heatConfigs.set(`${labelName}-${attributeName}`, heatConfig);
+            context.commit("setHeatConfig", { label: labelName, config: heatConfig });
+
+            // Trigger update
             await context.dispatch("updateHeatColors");
+        },
+        /**
+         * Generate a new heat config object
+         */
+        async newHeatConfig(
+            context: ActionContext<HeatMapState, RootState>,
+            {
+                labelName,
+                attribute,
+                graphHandler,
+            }: { labelName: string; attribute: ApiAttribute; graphHandler: GraphHandler },
+        ): Promise<HeatConfig | undefined> {
+            switch (attribute.datatype) {
+                case HeatConfigType.NUMBER: {
+                    // Get all nodes in the diagram for determining min and max values
+                    const nodes = (
+                        await allFulfilledPromises(
+                            [...graphHandler.nodes]
+                                .filter((node) => node.info.label === labelName)
+                                .map((node) => context.state.nodeCache.fetch(node.reference.uuid)),
+                        )
+                    ).filter((node): node is ApiNode => !!node);
+
+                    return new HeatNumberConfig(attribute.name, nodes);
+                }
+                case HeatConfigType.ENUM: {
+                    // Get the possible enum values
+                    const enumValues: Array<string> | undefined = attribute.config;
+                    if (!enumValues) return;
+
+                    return new HeatEnumConfig(attribute.name, enumValues);
+                }
+                case HeatConfigType.COLOR:
+                    return new HeatColorConfig(attribute.name);
+            }
         },
         /**
          * Delete active heat config for labels
