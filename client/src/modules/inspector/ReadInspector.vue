@@ -1,5 +1,5 @@
 <template>
-    <div v-if="$store.getters['inspector/isLoaded']" class="content nested-content">
+    <div v-if="$store.getters['inspector/isLoaded']" class="inspector">
         <ScrollPanel class="scroll-panel">
             <!-- The label -->
             <div v-if="$store.getters['inspector/isNode']" class="attribute-item">
@@ -38,22 +38,19 @@
                 :key="attribute.name"
                 :attribute="attribute"
             ></ReadAttribute>
-            <HeatMap />
         </ScrollPanel>
     </div>
-    <DefaultInspector v-else :title="false" :visual-info="$store.state.inspector.visualSelection" />
+    <DefaultInspector v-else :title="false" class="inspector" :visual-info="$store.state.inspector.visualSelection" />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import DefaultInspector from "@/modules/inspector/components/DefaultInspector.vue";
 import ReadAttribute from "@/modules/inspector/components/ReadAttribute.vue";
-import HeatMap from "@/modules/editor/modules/heat-map/HeatMap.vue";
 
 export default defineComponent({
     name: "ReadInspector",
     components: {
-        HeatMap,
         DefaultInspector,
         ReadAttribute,
     },
@@ -63,8 +60,9 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "styles/inspector";
 
-.content {
+.inspector {
     border: 0;
     padding: 0;
+    width: 100%;
 }
 </style>

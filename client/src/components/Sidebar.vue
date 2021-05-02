@@ -86,7 +86,6 @@ export default defineComponent({
 @icon_size: 28px;
 
 .sidebar {
-    position: fixed;
     width: @navbar_width;
     height: 100vh;
     background: white;
@@ -117,6 +116,7 @@ export default defineComponent({
     width: @icon_size;
     margin: @padding;
     height: @icon_size;
+    flex: 0 0 auto;
 }
 
 nav {

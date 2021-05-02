@@ -1,5 +1,5 @@
 <template>
-    <div class="content">
+    <div class="conflict-view">
         <div class="underlined-title">{{ $t("schemes.conflictView.title") }}</div>
         <ScrollPanel class="scroll-panel">
             <ConflictCard
@@ -24,11 +24,10 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
-.content {
+.conflict-view {
     height: 100%;
-    border-left: 1px solid @grey;
     padding: 0 16px;
-
+    width: @side_panel_width;
     display: flex;
     flex-flow: column;
 }

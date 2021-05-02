@@ -1,5 +1,5 @@
 <template>
-    <div v-if="$store.getters['inspector/isLoaded']" class="content" @keydown="keydown">
+    <div v-if="$store.getters['inspector/isLoaded']" class="inspector" @keydown="keydown">
         <!-- The dialog for deleting a node -->
         <ConfirmDialog
             @confirm="deleteItem"
@@ -90,7 +90,7 @@
             </div>
         </ScrollPanel>
     </div>
-    <DefaultInspector v-else />
+    <DefaultInspector v-else class="inspector" />
 </template>
 
 <script lang="ts">

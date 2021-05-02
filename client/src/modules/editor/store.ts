@@ -14,6 +14,11 @@ const currentDiagramKey = "current-diag-id";
 
 export class EditorState {
     /**
+     * True if the panels (overview list and tools) shall be hidden
+     */
+    public hidePanels = false;
+
+    /**
      * True if the toolbox is open (inspector otherwise)
      */
     public toolsOpen = true;
@@ -53,7 +58,10 @@ export const editor = {
          */
         setActiveDiagram(state: EditorState, diagram?: ApiDiagram): void {
             state.diagram = diagram;
-            if (diagram) localStorage.setItem(currentDiagramKey, diagram.diagramId);
+            if (diagram) {
+                localStorage.setItem(currentDiagramKey, diagram.diagramId);
+                state.hidePanels = false;
+            } else state.hidePanels = true;
         },
         /**
          * Set selected item
@@ -84,7 +92,10 @@ export const editor = {
         async fetchActiveDiagram(context: ActionContext<EditorState, RootState>): Promise<void> {
             // Get active diagram ID
             const id = localStorage.getItem(currentDiagramKey);
-            if (!id) return;
+            if (!id) {
+                context.commit("setActiveDiagram");
+                return;
+            }
 
             // Fetch the diagram model from the REST backend
             const result = await GET(`/api/diagrams/${id}`);

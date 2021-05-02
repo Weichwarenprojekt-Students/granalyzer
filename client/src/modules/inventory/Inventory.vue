@@ -1,17 +1,20 @@
 <template>
-    <div class="content">
-        <OverviewList
-            :selectedItemId="$store.state.inventory.selectedNode?.nodeId"
-            :create="true"
-            class="overview"
-            @on-node-clicked="onNodeClicked"
-            @on-node-drag="onNodeDrag"
-        ></OverviewList>
+    <div class="inventory">
+        <CollapsablePanel :left="true">
+            <OverviewList
+                :selectedItemId="$store.state.inventory.selectedNode?.nodeId"
+                :create="true"
+                @on-node-clicked="onNodeClicked"
+                @on-node-drag="onNodeDrag"
+            ></OverviewList>
+        </CollapsablePanel>
         <div class="center">
             <InventoryHeader class="header"></InventoryHeader>
             <NeighborView class="editor" :selectedNode="$store.state.inventory.selectedNode"></NeighborView>
         </div>
-        <WriteInspector class="inspector" />
+        <CollapsablePanel :left="false">
+            <WriteInspector class="inspector" />
+        </CollapsablePanel>
     </div>
 </template>
 
@@ -24,10 +27,12 @@ import ApiNode from "@/models/data-scheme/ApiNode";
 import WriteInspector from "@/modules/inspector/WriteInspector.vue";
 import { NodeDrag } from "@/shared/NodeDrag";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
+import CollapsablePanel from "@/components/CollapsablePanel.vue";
 
 export default defineComponent({
     name: "Inventory",
     components: {
+        CollapsablePanel,
         WriteInspector,
         OverviewList,
         NeighborView,
@@ -67,18 +72,12 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
-.content {
+.inventory {
+    overflow: hidden;
     width: 100%;
     height: 100%;
     background: @light_grey;
     display: flex;
-}
-
-.overview {
-    width: @inventory_width;
-    height: 100vh;
-    flex: 0 0 auto;
-    background: white;
 }
 
 .center {
@@ -96,12 +95,5 @@ export default defineComponent({
 
 .editor {
     flex: 1 1 auto;
-}
-
-.inspector {
-    width: @inspector_width;
-    height: 100vh;
-    flex: 0 0 auto;
-    background: white;
 }
 </style>

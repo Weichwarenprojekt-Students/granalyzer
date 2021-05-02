@@ -1,5 +1,5 @@
 <template>
-    <div class="content">
+    <div class="overview-list">
         <!-- Title -->
         <div class="underlined-title">
             {{ $t("overviewList.title") }}
@@ -144,11 +144,10 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
-.content {
+.overview-list {
     height: 100%;
-    border-right: 1px solid @grey;
     padding: 0 16px;
-
+    width: @side_panel_width;
     display: flex;
     flex-flow: column;
 }

@@ -1,42 +1,45 @@
 <template>
     <div class="content main-content">
-        <OverviewList
-            :selectedItemId="$store.state.editor.selectedNode?.nodeId"
-            class="overview"
-            @on-node-clicked="onNodeClicked"
-            @on-node-drag="onNodeDrag"
-        ></OverviewList>
+        <CollapsablePanel :left="true" :force-collapse="$store.state.editor.hidePanels">
+            <OverviewList
+                :selectedItemId="$store.state.editor.selectedNode?.nodeId"
+                @on-node-clicked="onNodeClicked"
+                @on-node-drag="onNodeDrag"
+            ></OverviewList>
+        </CollapsablePanel>
         <div class="center">
             <EditorHeader class="header"></EditorHeader>
             <GraphEditor class="editor"></GraphEditor>
         </div>
-        <div class="editor-tools">
-            <!-- The tabs -->
-            <div class="tabs">
-                <div
-                    @click="$store.commit('editor/openTools', true)"
-                    :class="{ 'selected-tab': $store.state.editor.toolsOpen }"
-                >
-                    {{ $t("editor.toolbox") }}
+        <CollapsablePanel :left="false" :force-collapse="$store.state.editor.hidePanels">
+            <div class="editor-tools">
+                <!-- The tabs -->
+                <div class="tabs">
+                    <div
+                        @click="$store.commit('editor/openTools', true)"
+                        :class="{ 'selected-tab': $store.state.editor.toolsOpen }"
+                    >
+                        {{ $t("editor.toolbox") }}
+                    </div>
+                    <div
+                        @click="$store.commit('editor/openTools', false)"
+                        :class="{ 'selected-tab': !$store.state.editor.toolsOpen }"
+                    >
+                        {{ $t("editor.inspector") }}
+                    </div>
                 </div>
-                <div
-                    @click="$store.commit('editor/openTools', false)"
-                    :class="{ 'selected-tab': !$store.state.editor.toolsOpen }"
-                >
-                    {{ $t("editor.inspector") }}
-                </div>
-            </div>
 
-            <!-- The content -->
-            <div v-if="$store.state.editor.toolsOpen" class="toolbox">
-                <ScrollPanel class="toolbox-scroll">
-                    <NodeEdit class="toolbox-item" />
-                    <VisualElements class="toolbox-item" />
-                    <HeatMap class="toolbox-item" />
-                </ScrollPanel>
+                <!-- The content -->
+                <div v-if="$store.state.editor.toolsOpen" class="toolbox">
+                    <ScrollPanel class="toolbox-scroll">
+                        <NodeEdit class="toolbox-item" />
+                        <VisualElements class="toolbox-item" />
+                        <HeatMap class="toolbox-item" />
+                    </ScrollPanel>
+                </div>
+                <ReadInspector v-else></ReadInspector>
             </div>
-            <ReadInspector v-else></ReadInspector>
-        </div>
+        </CollapsablePanel>
     </div>
 </template>
 
@@ -52,10 +55,12 @@ import { NodeDrag } from "@/shared/NodeDrag";
 import NodeEdit from "@/modules/editor/components/ElementEdit.vue";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
 import HeatMap from "@/modules/editor/modules/heat-map/HeatMap.vue";
+import CollapsablePanel from "@/components/CollapsablePanel.vue";
 
 export default defineComponent({
     name: "Editor",
     components: {
+        CollapsablePanel,
         NodeEdit,
         VisualElements,
         HeatMap,
@@ -96,21 +101,11 @@ export default defineComponent({
     display: flex;
 }
 
-.overview {
-    width: @inventory_width;
-    height: 100vh;
-    flex: 0 0 auto;
-    background: white;
-}
-
 .editor-tools {
-    width: @inspector_width;
+    width: @side_panel_width;
     height: 100vh;
-    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
-    background: white;
-    border-left: 1px solid @grey;
     padding: 0 16px;
 }
 

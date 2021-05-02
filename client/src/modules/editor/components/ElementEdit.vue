@@ -134,7 +134,7 @@ export default defineComponent({
                 this.styleLiveUpdate();
 
                 // Stop the interval after 1s
-                setTimeout(() => {
+                this.styleTimeout = setTimeout(() => {
                     this.styleLiveUpdate();
                     this.styleTimeoutActive = false;
                 }, 100);
@@ -147,8 +147,8 @@ export default defineComponent({
          * Update the selected element
          */
         updateSelectedElement(): void {
-            // Reset the update interval and the color flags
-            clearInterval(this.styleTimeout);
+            // Reset the update timeout and the color flags
+            clearTimeout(this.styleTimeout);
             this.colorEnabled = false;
             this.borderColorEnabled = false;
 
