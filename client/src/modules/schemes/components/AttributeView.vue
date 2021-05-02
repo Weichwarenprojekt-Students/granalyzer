@@ -47,6 +47,7 @@
             <div class="attribute-modification-row">
                 <span>{{ $t("schemes.attribute.default") }}</span>
                 <DynamicInput
+                    class="attribute-default-input"
                     v-model="modifiedAttribute.defaultValue"
                     :config="modifiedAttribute.config"
                     :type="modifiedAttribute.datatype"
@@ -249,5 +250,9 @@ export default defineComponent({
     height: @attribute_edit_height;
     display: flex;
     justify-content: space-between;
+}
+
+.attribute-default-input {
+    width: @input_width;
 }
 </style>

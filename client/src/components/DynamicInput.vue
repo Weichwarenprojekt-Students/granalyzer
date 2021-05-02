@@ -102,10 +102,6 @@ export default defineComponent({
 <style lang="less">
 @import "~@/styles/global.less";
 
-.attribute-value {
-    text-align: start;
-}
-
 .text-input {
     padding: 6px 12px;
     background: @light_grey;

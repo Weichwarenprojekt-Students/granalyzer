@@ -1,14 +1,8 @@
 <template>
-    <ul ref="enumList">
-        <li
-            v-for="entry in config.values"
-            :key="entry"
-            class="heat-row"
-            :style="{ 'border-left': `4px ${config.valueColors.get(entry)} solid` }"
-            :data-value="entry"
-        >
-            <svg>
-                <use :xlink:href="`${require('@/assets/img/icons.svg')}#menu`"></use>
+    <ul class="heat-enum" ref="enumList">
+        <li v-for="entry in config.values" :key="entry" class="heat-row" :data-value="entry">
+            <svg :style="{ 'border-right': `4px ${config.valueColors.get(entry)} solid` }">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#drag`"></use>
             </svg>
             {{ entry }}
         </li>
@@ -17,7 +11,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Sortable from "sortablejs";
+import Sortable, { SortableEvent } from "sortablejs";
 import { HeatEnumConfig } from "@/modules/editor/modules/heat-map/models/HeatEnumConfig";
 
 export default defineComponent({
@@ -36,6 +30,10 @@ export default defineComponent({
     mounted() {
         // Create the sortable list
         Sortable.create(this.$refs.enumList as HTMLElement, {
+            sort: true,
+            animation: 300,
+            ghostClass: "heat-ghost-class",
+            dragClass: "heat-drag",
             onSort: (evt) => this.onSort(evt),
         });
 
@@ -54,9 +52,14 @@ export default defineComponent({
         /**
          * Handle drag events
          */
-        // eslint-disable-next-line
-        onSort(evt: any) {
-            console.log(evt);
+        onSort(evt: SortableEvent) {
+            // Swap the elements
+            if (evt.newIndex === undefined || evt.oldIndex === undefined) return;
+            [this.config.values[evt.oldIndex], this.config.values[evt.newIndex]] = [
+                this.config.values[evt.newIndex],
+                this.config.values[evt.oldIndex],
+            ];
+            // Update the colors and the v model
             this.config.updateColors();
             this.$emit("update:modelValue", this.config);
         },
@@ -67,16 +70,32 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global";
 
+.heat-enum {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .heat-row {
     align-items: center;
     display: flex;
-    justify-content: space-between;
-    margin-top: 8px;
-    padding-left: 8px;
+    cursor: grab;
+    background: white;
 
     svg {
-        width: 24px;
-        height: 24px;
+        width: 34px;
+        padding: 4px 8px 4px 0;
+        height: 30px;
+        fill: @dark;
+        margin-right: 8px;
     }
+}
+
+.heat-drag {
+    opacity: 1;
+}
+
+.heat-ghost-class {
+    opacity: 0;
 }
 </style>

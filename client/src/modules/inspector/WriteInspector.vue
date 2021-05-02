@@ -288,4 +288,8 @@ export default defineComponent({
     text-overflow: ellipsis;
     overflow: hidden;
 }
+
+.attribute-value {
+    text-align: start;
+}
 </style>

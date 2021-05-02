@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="heat-number">
         <div class="heat-row red">
             <label>From</label>
             <InputNumber showButtons v-model="config.from" />
@@ -54,11 +54,16 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global";
 
+.heat-number {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .heat-row {
     align-items: center;
     display: flex;
     justify-content: space-between;
-    margin-top: 8px;
     padding-left: 8px;
 
     &.red {

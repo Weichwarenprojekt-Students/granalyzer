@@ -17,8 +17,8 @@
         </div>
 
         <!-- The configuration areas -->
-        <HeatEnum v-if="heatConfig.type === heatConfigTypes.ENUM" v-model="heatConfig" />
-        <HeatNumber v-else-if="heatConfig.type === heatConfigTypes.NUMBER" v-model="heatConfig" />
+        <HeatEnum v-if="heatConfig.type === heatConfigTypes.ENUM" v-model="heatConfig" class="heat-expand" />
+        <HeatNumber v-else-if="heatConfig.type === heatConfigTypes.NUMBER" v-model="heatConfig" class="heat-expand" />
     </div>
 </template>
 
@@ -104,25 +104,25 @@ export default defineComponent({
 @import "~@/styles/global";
 
 .heat-view {
-    margin-bottom: 8px;
     margin-top: 8px;
     overflow: hidden;
     transition: height 400ms;
 }
 
 .heat-header {
-    padding-left: 4px;
-    padding-right: 16px;
     align-items: center;
+    padding: 8px 16px;
     display: flex;
     border-bottom: 1px solid @grey;
+    justify-content: space-between;
 
-    .heat-spacer {
-        flex: 1 1 auto;
+    label {
+        font-weight: bold;
     }
+}
 
-    .dropdown {
-        margin-bottom: 4px;
-    }
+.heat-expand {
+    border-bottom: 1px solid @grey;
+    padding: 8px 16px;
 }
 </style>
