@@ -19,6 +19,9 @@ export class HeatMapUtils {
         const hueMin = 0;
         const hueMax = 120;
 
+        // Fix color generation for equaling min and max values, they should appear as the middle color
+        if (min === max) [min, max] = [min - 1.0e-6, max + 1.0e-6];
+
         // Calculate m and t for linear function y = m * x + t
         const m = (hueMax - hueMin) / (max - min);
         const t = hueMin - m * min;
