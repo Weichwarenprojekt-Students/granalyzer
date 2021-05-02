@@ -198,6 +198,16 @@ export const start = {
             }
         },
         /**
+         * Checks how many items are contained in a folder
+         */
+        async checkFolder(context: ActionContext<StartState, RootState>, folderId: number): Promise<number> {
+            const resFolders = await GET(`/api/folders/${folderId}/diagrams`);
+            const resDiagrams = await GET(`/api/folders/${folderId}/folders`);
+            if (!isUnexpected(resFolders) && !isUnexpected(resDiagrams))
+                return (await resFolders.json()).length + (await resDiagrams.json()).length;
+            return 0;
+        },
+        /**
          * Change the name of a diagram
          */
         async editDiagram(context: ActionContext<StartState, RootState>, diagram: ApiDiagram): Promise<void> {
