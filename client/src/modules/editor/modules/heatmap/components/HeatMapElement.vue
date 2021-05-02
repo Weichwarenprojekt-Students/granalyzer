@@ -94,10 +94,10 @@ export default defineComponent({
             this.collapsed = !this.heatAttribute.selectedAttribute;
 
             // Assign the min and max value of all nodes by default
-            if (!this.collapsed && (!this.heatAttribute.from || !this.heatAttribute.to)) {
+            if (!this.collapsed && (this.heatAttribute.from == null || this.heatAttribute.to == null)) {
                 const [min, max] = this.getMaxMinOfHeatAttribute();
-                if (!this.heatAttribute.from) this.heatAttribute.from = min;
-                if (!this.heatAttribute.to) this.heatAttribute.to = max;
+                if (this.heatAttribute.from == null) this.heatAttribute.from = min;
+                if (this.heatAttribute.to == null) this.heatAttribute.to = max;
             }
 
             this.$emit("change", this.heatAttribute);
@@ -115,7 +115,9 @@ export default defineComponent({
                 default:
                     attributeValues = this.affectedNodes
                         .map((node) => node.attributes[this.selectedAttribute.name])
-                        .filter((attribute): attribute is number => !!attribute);
+                        .filter((attribute): attribute is number => {
+                            return attribute != null;
+                        });
                     return [Math.min(...attributeValues), Math.max(...attributeValues)];
             }
         },
