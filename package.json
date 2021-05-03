@@ -4,12 +4,10 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "file-saver": "^2.0.5",
     "prettier": "^2.2.1"
   },
   "devDependencies": {
-    "@types/backbone": "^1.4.10",
-    "@types/file-saver": "^2.0.2"
+    "@types/backbone": "^1.4.10"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

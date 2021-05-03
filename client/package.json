@@ -12,6 +12,7 @@
   "dependencies": {
     "class-validator": "^0.13.1",
     "core-js": "^3.6.5",
+    "file-saver": "^2.0.5",
     "hex-rgb": "^4.3.0",
     "jointjs": "^3.3.1",
     "prettier": "^2.2.1",
