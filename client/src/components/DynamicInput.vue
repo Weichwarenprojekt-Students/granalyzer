@@ -1,9 +1,7 @@
 <template>
-    <InputNumber
+    <NumberInput
         v-if="type === datatype.NUMBER"
         v-model="value"
-        showButtons
-        class="input"
         :placeholder="$t('global.input.placeholder')"
         :disabled="disabled"
     />
@@ -24,10 +22,11 @@ import { defineComponent } from "vue";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 import { isHexColor, isNumber } from "class-validator";
 import ColorPicker from "@/components/ColorPicker.vue";
+import NumberInput from "@/components/NumberInput.vue";
 
 export default defineComponent({
     name: "DynamicInput",
-    components: { ColorPicker },
+    components: { NumberInput, ColorPicker },
     props: {
         // The v-model
         modelValue: {

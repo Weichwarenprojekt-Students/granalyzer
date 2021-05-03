@@ -11,6 +11,7 @@ export class RootState {
      * The short form of the currently set language
      */
     public locale: string = navigator.language.split("-")[0];
+
     /**
      * True if the sidebar is minimized
      */

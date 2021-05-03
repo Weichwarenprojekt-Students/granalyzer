@@ -258,7 +258,13 @@
         <!-- #drag: Used to mark sortable elements -->
         <symbol viewBox="0 0 24 24" id="drag" aria-labelledby="drag-title">
             <title id="drag-title">icon drag</title>
-            <path d="M20,9H4v2h16V9z M4,15h16v-2H4V15z"/>
+            <path d="M24,7.5H0v3H24Zm-24,9H24v-3H0Z"/>
+        </symbol>
+
+        <!-- #triangle: Used for number inputs -->
+        <symbol viewBox="0 0 24 24" id="triangle" aria-labelledby="triangle-title">
+            <title id="triangle-title">icon triangle</title>
+            <path d="M24 22h-24l12-20z"/>
         </symbol>
     </defs>
 </svg>

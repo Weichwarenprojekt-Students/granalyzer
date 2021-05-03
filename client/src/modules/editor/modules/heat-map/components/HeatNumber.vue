@@ -2,11 +2,11 @@
     <div class="heat-number">
         <div class="heat-row red">
             <label>From</label>
-            <InputNumber showButtons v-model="config.from" />
+            <NumberInput v-model="config.from" :placeholder="$t('global.input.placeholder')" />
         </div>
         <div class="heat-row green">
             <label>To</label>
-            <InputNumber showButtons v-model="config.to" />
+            <NumberInput v-model="config.to" :placeholder="$t('global.input.placeholder')" />
         </div>
     </div>
 </template>
@@ -14,9 +14,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { HeatNumberConfig } from "@/modules/editor/modules/heat-map/models/HeatNumberConfig";
+import NumberInput from "@/components/NumberInput.vue";
 
 export default defineComponent({
     name: "HeatMapElement",
+    components: { NumberInput },
     props: {
         modelValue: {
             type: Object,

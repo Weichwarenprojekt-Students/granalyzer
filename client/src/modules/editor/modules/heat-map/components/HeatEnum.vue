@@ -83,8 +83,8 @@ export default defineComponent({
     background: white;
 
     svg {
-        width: 34px;
-        padding: 4px 8px 4px 0;
+        width: 26px;
+        padding: 8px 8px 8px 0;
         height: 30px;
         fill: @dark;
         margin-right: 8px;
