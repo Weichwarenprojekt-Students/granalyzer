@@ -427,6 +427,7 @@ export class DataSchemeService {
         const params = {
             labelName,
         };
+        // language=Cypher
         const cypher = attributeExists
             ? `MATCH (node:${labelName})
                     WHERE exists(node.\`${attributeName}\`)
@@ -457,6 +458,7 @@ export class DataSchemeService {
         const params = {
             relationTypeName,
         };
+        // language=Cypher
         const cypher = attributeExists
             ? `MATCH ()-[rel:${relationTypeName}]-()
                 WHERE exists(rel.\`${attributeName}\`)

@@ -188,7 +188,7 @@ export class NodesService {
             filter += nameFilter ? "AND " : "WHERE ";
             filter += "(";
             labelFilter.forEach((label, index) => {
-                filter += index == labelFilter.length - 1 ? `n:${label}) ` : `n:${label} OR `;
+                filter += index == labelFilter.length - 1 ? `n:\`${label}\`) ` : `n:\`${label}\` OR `;
             });
         }
         return filter;
