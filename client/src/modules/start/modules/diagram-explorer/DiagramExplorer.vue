@@ -13,8 +13,17 @@
         @input-confirm="renameItem"
         @cancel="renameItemDialog = false"
         :show="renameItemDialog"
-        :image-src="require('@/assets/img/icons.svg') + '#editor-thin'"
+        :image-src="`${require(`@/assets/img/icons.svg`)}#editor-thin`"
         :title="$t('start.diagrams.renameItem', { item: selectedItemName })"
+    ></InputDialog>
+
+    <!-- The dialog for copying a diagram -->
+    <InputDialog
+        @input-confirm="copyDiagram"
+        @cancel="diagramCopyDialog = false"
+        :show="diagramCopyDialog"
+        :image-src="`${require(`@/assets/img/icons.svg`)}#circle-plus`"
+        :title="$t('start.diagrams.copyItem', { item: selectedItemName })"
     ></InputDialog>
 
     <!-- The dialog for deleting a diagram -->
@@ -40,15 +49,49 @@
         <h2 class="title">{{ $t("start.diagrams.title") }}</h2>
         <h2 v-show="$store.state.start.parent.name" class="title-minus">&#8212;</h2>
         <h2 v-show="$store.state.start.parent.name" class="title-folder">{{ $store.state.start.parent.name }}</h2>
-        <svg class="add-folder explorer-button" @click="addFolderDialog = true">
-            <use xlink:href="~@/assets/img/icons.svg#add-folder"></use>
-        </svg>
-        <svg v-show="isItemSelected" class="explorer-button" @click="renameItemDialog = true">
-            <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
-        </svg>
-        <svg v-show="isItemSelected" class="explorer-button" @click="deleteDialog">
-            <use :xlink:href="`${require('@/assets/img/icons.svg')}#trash`"></use>
-        </svg>
+
+        <!-- Add Folder -->
+        <div class="tooltip" v-tooltip.bottom="$t('start.tooltip.newFolder')" @click="addFolderDialog = true">
+            <svg class="explorer-button">
+                <use xlink:href="~@/assets/img/icons.svg#add-folder"></use>
+            </svg>
+        </div>
+
+        <!-- Copy Diagram -->
+        <div
+            v-show="Object.keys(selectedDiagram).length > 0"
+            class="tooltip"
+            v-tooltip.bottom="$t('start.tooltip.copy')"
+            @click="diagramCopyDialog = true"
+        >
+            <svg class="explorer-button">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#copy`"></use>
+            </svg>
+        </div>
+
+        <!-- Edit Item -->
+        <div
+            v-show="isItemSelected"
+            class="tooltip"
+            v-tooltip.bottom="$t('start.tooltip.rename')"
+            @click="renameItemDialog = true"
+        >
+            <svg class="explorer-button">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
+            </svg>
+        </div>
+
+        <!-- Delete Item -->
+        <div
+            v-show="isItemSelected"
+            class="tooltip"
+            v-tooltip.bottom="$t('start.tooltip.delete')"
+            @click="deleteDialog"
+        >
+            <svg class="explorer-button">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#trash`"></use>
+            </svg>
+        </div>
     </div>
 
     <!-- The explorer content -->
@@ -122,14 +165,16 @@ export default defineComponent({
         return {
             // True if the add folder dialog should be shown
             addFolderDialog: false,
-            // True if the rename dialog should be shown
+            // True if the rename dialog should be visible
             renameItemDialog: false,
-            // True if the delete dialog should be shown
+            // True if the delete dialog should be visible
             deleteDiagramDialog: false,
             // True if a folder is deleted
             deleteFolderDialog: false,
             // Amount of items in a folder for deletion warning
             nItemsInFolder: 0,
+            // True, if the copying dialog should be visible
+            diagramCopyDialog: false,
             // The selected folder (empty if no folder is selected)
             selectedFolder: {} as ApiFolder,
             // The selected diagram (empty if no diagram is selected)
@@ -140,10 +185,10 @@ export default defineComponent({
         // Load the items
         this.loadItems();
         // Handle shortcuts
-        window.addEventListener("keyup", this.onKeyUp);
+        window.addEventListener("keydown", this.onKeyDown);
     },
     unmounted() {
-        window.removeEventListener("keyup", this.onKeyUp);
+        window.removeEventListener("keydown", this.onKeyDown);
     },
     watch: {
         $route(to) {
@@ -184,9 +229,13 @@ export default defineComponent({
         /**
          * Handle keyup events
          */
-        onKeyUp(e: KeyboardEvent): void {
-            if (e.key !== "Delete") return;
-            if (!isEmpty(this.selectedDiagram) || !isEmpty(this.selectedFolder)) this.deleteDialog();
+        onKeyDown(e: KeyboardEvent): void {
+            if (e.key == "Delete" && (!isEmpty(this.selectedDiagram) || !isEmpty(this.selectedFolder)))
+                this.deleteDialog();
+            else if (e.key == "d" && e.ctrlKey && !isEmpty(this.selectedDiagram)) {
+                e.preventDefault();
+                this.diagramCopyDialog = true;
+            }
         },
         /**
          * Add an empty folder
@@ -255,6 +304,15 @@ export default defineComponent({
                     this.deleteDiagramDialog = false;
                     break;
             }
+        },
+        /**
+         * Makes a copy of a diagram
+         */
+        copyDiagram(newName: string) {
+            this.diagramCopyDialog = false;
+            const newDiagram = new ApiDiagram(newName);
+            newDiagram.serialized = this.selectedDiagram.serialized;
+            this.$store.dispatch("start/addDiagram", newDiagram);
         },
         /**
          * Show a selection error
@@ -335,10 +393,6 @@ export default defineComponent({
     overflow: hidden;
 }
 
-.add-folder {
-    margin-left: 32px;
-}
-
 .title-minus {
     margin: 0 12px;
 }
@@ -347,13 +401,18 @@ export default defineComponent({
     font-style: italic;
 }
 
-.explorer-button {
-    cursor: pointer;
+.tooltip {
     margin-left: 16px;
-    border-bottom: 2px solid transparent;
-    padding: 0 2px 2px 2px;
     height: 28px;
     width: 28px;
+}
+
+.explorer-button {
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    padding: 0 2px 2px 2px;
+    height: inherit;
+    width: inherit;
     fill: @dark;
 
     &:hover {

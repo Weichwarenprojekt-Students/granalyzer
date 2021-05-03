@@ -37,84 +37,98 @@ export const start = {
         setLoadingState(state: StartState, loading: boolean): void {
             state.loading = loading;
         },
+
         /*+
          * (De-)activate the dragging state
          */
         setDraggingState(state: StartState, dragging: boolean): void {
             state.dragging = dragging;
         },
+
         /**
          * Sort the diagrams
          */
         sortDiagrams(state: StartState): void {
             state.diagrams.sort((first, second) => first.name.localeCompare(second.name));
         },
+
         /**
          * Sort the folders
          */
         sortFolders(state: StartState): void {
             state.folders.sort((first, second) => first.name.localeCompare(second.name));
         },
+
         /**
          * Add a diagram
          */
         addDiagram(state: StartState, diagram: ApiDiagram): void {
             state.diagrams.push(diagram);
         },
+
         /**
          * Add a folder
          */
         addFolder(state: StartState, folder: ApiFolder): void {
             state.folders.push(folder);
         },
+
         /**
          * Move a diagram
          */
         moveDiagram(state: StartState, diagramId: string): void {
             state.diagrams = state.diagrams.filter((item) => item.diagramId !== diagramId);
         },
+
         /**
          * Move a folder
          */
         moveFolder(state: StartState, folderId: string): void {
             state.folders = state.folders.filter((item) => item.folderId !== folderId);
         },
+
         /**
          * Delete a diagram
          */
         deleteDiagram(state: StartState, diagram: ApiDiagram): void {
             state.diagrams = state.diagrams.filter((item) => item.diagramId != diagram.diagramId);
         },
+
         /**
          * Delete a folder
          */
         deleteFolder(state: StartState, folder: ApiFolder): void {
             state.folders = state.folders.filter((item) => item.folderId != folder.folderId);
         },
+
         /**
          * Edit a diagram and updates the name
          */
         editDiagram(state: StartState, diagram: ApiDiagram): void {
             state.diagrams = state.diagrams.map((item) => (item.diagramId === diagram.diagramId ? diagram : item));
         },
+
         /**
          * Edit a folder and updates the name
          */
         editFolder(state: StartState, folder: ApiFolder): void {
             state.folders = state.folders.map((item) => (item.folderId === folder.folderId ? folder : item));
         },
+
         /**
          * Load the folders for the current parent folder
          */
         loadFolders(state: StartState, folders: ApiFolder[]): void {
             state.folders = folders;
         },
+
         /**
          * Load the root diagrams into the diagram state
          */
         loadDiagrams(state: StartState, diagrams: ApiDiagram[]): void {
             state.diagrams = diagrams;
         },
+
         /**
          * Load the parent folder
          */
@@ -135,6 +149,7 @@ export const start = {
             } else isUnexpected(res);
             return ret;
         },
+
         /**
          * Add a folder to the tool-database
          */
@@ -149,6 +164,7 @@ export const start = {
                 context.commit("sortFolders");
             } else isUnexpected(res);
         },
+
         /**
          * Move a diagram into a folder
          */
@@ -163,6 +179,7 @@ export const start = {
 
             if (!isUnexpected(res)) context.commit("moveDiagram", payload.diagramId);
         },
+
         /**
          * Move a folder into a folder
          */
@@ -177,6 +194,7 @@ export const start = {
 
             if (!isUnexpected(res)) context.commit("moveFolder", payload.folderId);
         },
+
         /**
          * Delete a diagram
          */
@@ -187,6 +205,7 @@ export const start = {
                 context.commit("sortDiagrams");
             }
         },
+
         /**
          * Delete a folder
          */
@@ -197,6 +216,7 @@ export const start = {
                 context.commit("sortFolders");
             }
         },
+
         /**
          * Checks how many items are contained in a folder
          */
@@ -217,6 +237,7 @@ export const start = {
                 context.commit("sortDiagrams");
             }
         },
+
         /**
          * Change the name of a folder
          */
@@ -227,6 +248,7 @@ export const start = {
                 context.commit("sortFolders");
             }
         },
+
         /**
          * Load the folders and items for the current folder
          */
