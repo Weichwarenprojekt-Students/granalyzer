@@ -32,7 +32,7 @@ export class ApiAttribute {
             first.name === second.name &&
             first.mandatory === second.mandatory &&
             first.defaultValue === second.defaultValue &&
-            JSON.stringify(first.config) === JSON.stringify(second.config)
+            (first.datatype !== ApiDatatype.ENUM || JSON.stringify(first.config) === JSON.stringify(second.config))
         );
     }
 }
