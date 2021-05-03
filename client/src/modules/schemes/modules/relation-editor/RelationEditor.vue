@@ -17,7 +17,7 @@
             <div class="main-attribute">
                 <span>{{ $t("schemes.relationEditor.name") }}</span>
                 <input v-if="createMode" id="relation-name-input" v-model="modifiedRelation.name" />
-                <span v-else> {{ modifiedRelation.name }}</span>
+                <div v-else>{{ modifiedRelation.name }}</div>
             </div>
 
             <!-- The optional parameters -->

@@ -31,11 +31,19 @@
   margin-top: 16px;
   padding: 0 16px;
   width: 300px;
+  gap: 12px;
 
   span {
-    width: 64px;
+    flex: 0 0 auto;
     height: @line_height;
     line-height: @line_height;
+  }
+
+  div {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
@@ -43,8 +51,8 @@
  * Background for inputs
  */
 input {
-  width: 100px;
-  padding: 8px 12px;
+  width: @input_width;
+  padding: 6px 12px;
   height: 30px;
   background: @light_grey;
   border: 0;

@@ -59,11 +59,24 @@ export default defineComponent({
     align-items: center;
     border-bottom: 1px solid @grey;
     cursor: pointer;
+    gap: 12px;
+
+    p {
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 
     .label {
+        flex: 0 0 auto;
         font-size: @description;
         padding: 4px 8px;
         border-radius: @border_radius;
+        max-width: @key_width;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     &:hover {

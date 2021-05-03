@@ -17,7 +17,7 @@
             <div class="main-attribute">
                 <span>{{ $t("schemes.labelEditor.name") }}</span>
                 <input v-if="createMode" id="label-name-input" v-model="modifiedLabel.name" />
-                <span v-else> {{ modifiedLabel.name }}</span>
+                <div v-else>{{ modifiedLabel.name }}</div>
             </div>
             <div class="main-attribute">
                 <span>{{ $t("schemes.labelEditor.color") }}</span>

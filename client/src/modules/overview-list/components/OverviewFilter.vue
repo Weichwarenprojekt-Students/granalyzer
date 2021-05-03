@@ -85,6 +85,7 @@ export default defineComponent({
     display: flex;
     align-items: center;
     flex-direction: row;
+    overflow: hidden;
 }
 
 .label {
@@ -93,12 +94,19 @@ export default defineComponent({
     padding: 10px 0;
     cursor: pointer;
     width: 100%;
+    overflow: hidden;
 
     .labelName {
         font-size: 14px;
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding-right: 16px;
     }
 
     .color {
+        flex: 0 0 auto;
         margin: 0 8px;
         border-radius: 4px;
         width: 16px;

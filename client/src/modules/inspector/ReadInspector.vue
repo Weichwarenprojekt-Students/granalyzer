@@ -6,7 +6,7 @@
                 <div class="attribute-key">
                     {{ $t("inspector.name") }}
                 </div>
-                <div>{{ $store.getters["inspector/getName"] }}</div>
+                <div class="attribute-general">{{ $store.getters["inspector/getName"] }}</div>
             </div>
 
             <!-- The label -->
@@ -14,13 +14,13 @@
                 <div class="attribute-key">
                     {{ $t("inspector.label") }}
                 </div>
-                <div>{{ $store.state.inspector.element.label }}</div>
+                <div class="attribute-general">{{ $store.state.inspector.element.label }}</div>
             </div>
             <div v-else class="attribute-item">
                 <div class="attribute-key">
                     {{ $t("inspector.relationType") }}
                 </div>
-                <div>{{ $store.state.inspector.element.type }}</div>
+                <div class="attribute-general">{{ $store.state.inspector.element.type }}</div>
             </div>
 
             <!-- The attributes -->

@@ -227,6 +227,9 @@ export default defineComponent({
     border-bottom: 1px solid @grey;
     padding: 12px 24px 12px 16px;
     cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
     &:hover {
         background: @accent_color;

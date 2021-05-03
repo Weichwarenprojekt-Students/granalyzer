@@ -38,13 +38,13 @@
                 <div class="attribute-key">
                     {{ $t("inspector.label") }}
                 </div>
-                <div>{{ element.label }}</div>
+                <div class="attribute-general">{{ element.label }}</div>
             </div>
             <div v-else class="attribute-item">
                 <div class="attribute-key">
                     {{ $t("inspector.relationType") }}
                 </div>
-                <div>{{ element.type }}</div>
+                <div class="attribute-general">{{ element.type }}</div>
             </div>
 
             <!-- The attributes -->
@@ -283,10 +283,15 @@ export default defineComponent({
 }
 
 .attribute-key {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     min-width: 0;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
+}
+
+.attributes-key {
+    flex: 1 1 auto;
 }
 
 .attribute-value {
