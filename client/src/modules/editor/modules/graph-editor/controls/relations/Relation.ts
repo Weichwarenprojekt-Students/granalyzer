@@ -234,39 +234,6 @@ export class Relation {
     }
 
     /**
-     * Generate label for a relation
-     *
-     * @param info The relation info
-     * @return Label for adding to the joint js link
-     */
-    public static makeLabel(info: RelationInfo): dia.Link.Label {
-        const color = info.color ?? this.NORMAL_RELATION_COLOR;
-        return {
-            attrs: {
-                text: {
-                    text: info.name,
-                    textAnchor: "middle",
-                    textVerticalAnchor: "middle",
-                    fill: getFontColor(color),
-                },
-                rect: {
-                    cursor: "pointer",
-                    ref: "text",
-                    fill: color,
-                    stroke: "#000",
-                    strokeWidth: 0,
-                    refWidth: 12,
-                    refHeight: 2,
-                    refX: -6,
-                    refY: -1,
-                    rx: 0,
-                    ry: 0,
-                },
-            },
-        };
-    }
-
-    /**
      * Register the relation on the source and target nodes
      */
     public reconnect(): void {
@@ -305,12 +272,45 @@ export class Relation {
      * @param save True if the style shall be saved
      */
     public updateStyle(info: RelationInfo, save = false): void {
-        this.joint.attr("line/stroke", info.color ?? Relation.NORMAL_RELATION_COLOR);
+        this.joint.attr("line/stroke", info.color ?? Relation.getColorForRelationModeType(this.relationModeType));
         this.joint.removeLabel();
-        if (info.name) this.joint.appendLabel(Relation.makeLabel(info));
+        if (info.name) this.joint.appendLabel(this.makeLabel(info));
         if (save) {
             this.info.name = info.name;
             this.info.color = info.color;
         }
+    }
+
+    /**
+     * Generate label for a relation
+     *
+     * @param info The relation info
+     * @return Label for adding to the joint js link
+     */
+    public makeLabel(info: RelationInfo): dia.Link.Label {
+        const color = info.color ?? Relation.getColorForRelationModeType(this.relationModeType);
+        return {
+            attrs: {
+                text: {
+                    text: info.name,
+                    textAnchor: "middle",
+                    textVerticalAnchor: "middle",
+                    fill: getFontColor(color),
+                },
+                rect: {
+                    cursor: "pointer",
+                    ref: "text",
+                    fill: color,
+                    stroke: "#000",
+                    strokeWidth: 0,
+                    refWidth: 12,
+                    refHeight: 2,
+                    refX: -6,
+                    refY: -1,
+                    rx: 0,
+                    ry: 0,
+                },
+            },
+        };
     }
 }
