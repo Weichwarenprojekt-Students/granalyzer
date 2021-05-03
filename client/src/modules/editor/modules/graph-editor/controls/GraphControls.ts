@@ -51,7 +51,10 @@ export class GraphControls {
             // Set the currently selected node for inspector
             const node = this.graphHandler.nodes.getByJointId(elementView.model.id);
             this.graphHandler.store.commit("editor/setSelectedElement", node);
-            await this.graphHandler.store.dispatch("inspector/selectNode", node?.reference.uuid);
+            await this.graphHandler.store.dispatch("inspector/selectNode", {
+                uuid: node?.reference.uuid,
+                includeDefaults: true,
+            });
 
             // Remove selection from overview list
             this.graphHandler.store.commit("editor/setSelectedNode", undefined);
@@ -77,7 +80,10 @@ export class GraphControls {
             // Set the currently selected relation for inspector
             const relation = this.graphHandler.relations.getByJointId(linkView.model.id);
             this.graphHandler.store.commit("editor/setSelectedElement", relation);
-            await this.graphHandler.store.dispatch("inspector/selectRelation", relation?.uuid);
+            await this.graphHandler.store.dispatch("inspector/selectRelation", {
+                uuid: relation?.uuid,
+                includeDefaults: true,
+            });
 
             // Remove selection from overview list
             this.graphHandler.store.commit("editor/setSelectedNode", undefined);

@@ -137,7 +137,7 @@ export default defineComponent({
             width: 16px;
             padding: 2px;
             cursor: pointer;
-            fill: white;
+            fill: @light_grey;
         }
     }
 }

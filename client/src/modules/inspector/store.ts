@@ -13,10 +13,12 @@ export class InspectorState {
      *  The currently listed attribute items in inspector
      */
     public attributes = new Array<InspectorAttribute>();
+
     /**
      * The name of the currently displayed node or relation
      */
     public element?: ApiRelation | ApiNode;
+
     /**
      * The current type
      */
@@ -88,15 +90,18 @@ export const inspector = {
         /**
          * Set the clicked node
          */
-        async selectNode(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
-            if (!uuid) {
+        async selectNode(
+            context: ActionContext<InspectorState, RootState>,
+            payload: { uuid?: string; includeDefaults: boolean },
+        ): Promise<void> {
+            if (!payload.uuid) {
                 // Reset for visual selection
                 context.commit("resetSelection", true);
                 return;
             }
 
             // Fetch node data
-            let result = await GET(`/api/nodes/${uuid}?includeDefaults=false`);
+            let result = await GET(`/api/nodes/${payload.uuid}?includeDefaults=${payload.includeDefaults}`);
             if (isUnexpected(result, false)) {
                 // Reset for visual selection
                 context.commit("resetSelection", true);
@@ -114,15 +119,18 @@ export const inspector = {
         /**
          * Set the clicked relation
          */
-        async selectRelation(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
-            if (!uuid) {
+        async selectRelation(
+            context: ActionContext<InspectorState, RootState>,
+            payload: { uuid?: string; includeDefaults: boolean },
+        ): Promise<void> {
+            if (!payload.uuid) {
                 // Reset for visual selection
                 context.commit("resetSelection", true);
                 return;
             }
 
             // Fetch the relation data
-            let result = await GET(`/api/relations/${uuid}?includeDefaults=false`);
+            let result = await GET(`/api/relations/${payload.uuid}?includeDefaults=${payload.includeDefaults}`);
             if (isUnexpected(result, false)) {
                 // Reset for visual selection
                 context.commit("resetSelection", true);

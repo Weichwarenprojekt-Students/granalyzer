@@ -46,7 +46,10 @@ export default defineComponent({
         // Restore last selection if revisiting
         if (this.$store.state.inventory.selectedNode) {
             this.$store.dispatch("inventory/loadNeighbors", this.$store.state.inventory.selectedNode);
-            this.$store.dispatch("inspector/selectNode", this.$store.state.inventory.selectedNode.nodeId);
+            this.$store.dispatch("inspector/selectNode", {
+                uuid: this.$store.state.inventory.selectedNode.nodeId,
+                includeDefaults: false,
+            });
         }
     },
     methods: {
@@ -56,7 +59,10 @@ export default defineComponent({
         onNodeClicked(node: ApiNode): void {
             if (this.$store.state.inventory.selectedNode?.nodeId === node.nodeId || this.$store.state.inventory.loading)
                 return;
-            this.$store.dispatch("inspector/selectNode", node.nodeId);
+            this.$store.dispatch("inspector/selectNode", {
+                uuid: node.nodeId,
+                includeDefaults: false,
+            });
             this.$store.commit("inventory/setSelectedNode", node);
         },
         /**

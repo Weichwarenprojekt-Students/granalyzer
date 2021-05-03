@@ -237,7 +237,10 @@ export class GraphUtils {
         this.graph.paper.on("link:pointerdown", async (cell) => {
             const relationId = [...this.mappedRelations].find(([, value]) => value === cell.model.id);
             if (relationId) {
-                await this.store.dispatch("inspector/selectRelation", relationId[0]);
+                await this.store.dispatch("inspector/selectRelation", {
+                    uuid: relationId[0],
+                    includeDefaults: false,
+                });
                 this.graph.selectElement(cell);
             }
         });
@@ -246,7 +249,10 @@ export class GraphUtils {
         this.graph.paper.on("element:pointerdown", async (cell) => {
             const nodeId = [...this.mappedNodes].find(([, value]) => value === cell.model.id);
             if (nodeId) {
-                await this.store.dispatch("inspector/selectNode", nodeId[0]);
+                await this.store.dispatch("inspector/selectNode", {
+                    uuid: nodeId[0],
+                    includeDefaults: false,
+                });
                 this.graph.selectElement(cell);
             }
         });
