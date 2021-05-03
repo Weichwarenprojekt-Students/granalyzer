@@ -81,12 +81,15 @@ export default defineComponent({
             }
         });
 
-        // Initial dispatch at the start of the editor
+        // Initialize heat map
         await this.$store.dispatch("editor/updateHeatLabels");
 
         this.$store.commit("editor/setEditorLoading", false);
 
         this.graph.centerContent();
+    },
+    unmounted() {
+        this.$store.commit("editor/resetHeatMap");
     },
     methods: {
         /**

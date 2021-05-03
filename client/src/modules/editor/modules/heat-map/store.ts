@@ -55,6 +55,13 @@ class NodeCache {
 
         return newNode;
     }
+
+    /**
+     * Clear the cache
+     */
+    public clear(): void {
+        this.apiNodes.clear();
+    }
 }
 
 class LabelCache {
@@ -73,6 +80,13 @@ class LabelCache {
         }
 
         return this.labels;
+    }
+
+    /**
+     * Clear the cache
+     */
+    public clear(): void {
+        this.labels = [];
     }
 }
 
@@ -104,6 +118,14 @@ export const heatMap = {
          */
         deleteHeatConfig(state: HeatMapState, label: string): void {
             state.labelConfigs.delete(label);
+        },
+        /**
+         * Clear cache and active heat configs
+         */
+        resetHeatMap(state: HeatMapState): void {
+            state.nodeCache.clear();
+            state.labelCache.clear();
+            state.labelConfigs.clear();
         },
     },
     actions: {
