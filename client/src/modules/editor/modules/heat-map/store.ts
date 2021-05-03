@@ -22,10 +22,6 @@ export class HeatMapState {
      */
     public labelCache: LabelCache = new LabelCache();
     /**
-     * The heat configurations for each label
-     */
-    public labelConfigs: Map<string, HeatConfig> = new Map<string, HeatConfig>();
-    /**
      * Cache for storing node information
      */
     public nodeCache: NodeCache = new NodeCache();
@@ -108,24 +104,12 @@ export const heatMap = {
             state.labels = labels;
         },
         /**
-         * Set an active heat config
-         */
-        setHeatConfig(state: HeatMapState, { label, config }: { label: string; config: HeatConfig }): void {
-            state.labelConfigs.set(label, config);
-        },
-        /**
-         * Delete active heat config for labels
-         */
-        deleteHeatConfig(state: HeatMapState, label: string): void {
-            state.labelConfigs.delete(label);
-        },
-        /**
          * Clear cache and active heat configs
          */
-        resetHeatMap(state: HeatMapState): void {
-            state.nodeCache.clear();
-            state.labelCache.clear();
-            state.labelConfigs.clear();
+        resetHeatMap(state: RootState): void {
+            state.editor?.heatMap?.nodeCache.clear();
+            state.editor?.heatMap?.labelCache.clear();
+            state.editor?.graphEditor?.graphHandler?.heatConfigs.clear();
         },
     },
     actions: {
@@ -149,6 +133,56 @@ export const heatMap = {
             );
         },
         /**
+         * Init the heat configs
+         */
+        async initHeatMap(context: ActionContext<HeatMapState, RootState>): Promise<void> {
+            const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
+            if (!graphHandler) return;
+
+            let labelName: string, heatConfig: HeatConfig;
+            for ([labelName, heatConfig] of graphHandler.heatConfigs) {
+                const label = context.state.labels.find((lab) => lab.name === labelName);
+                const attribute = label?.attributes.find((attr) => attr.name === heatConfig.attrName);
+
+                // If label or attribute don't exist, delete the config
+                if (!label || !attribute) {
+                    context.commit("editor/deleteHeatConfig", labelName, { root: true });
+                    continue;
+                }
+
+                // For enums check if the values have changed in the data scheme
+                if (heatConfig.type === HeatConfigType.ENUM) {
+                    // Generate symmetric difference between enum values
+                    const configSet = new Set((heatConfig as HeatEnumConfig).values);
+                    const attrSet = new Set(attribute.config);
+                    if (
+                        [...configSet, ...attrSet].filter((x) => {
+                            return !(attrSet.has(x) && configSet.has(x));
+                        }).length !== 0
+                    ) {
+                        // If they differ, generate new heat config for this attribute
+                        const newHeatConfig = await context.dispatch("newHeatConfig", {
+                            labelName,
+                            attribute,
+                            graphHandler,
+                        });
+                        if (newHeatConfig)
+                            // If the attribute could be created, use it
+                            context.commit(
+                                "editor/setHeatConfig",
+                                { label: labelName, config: heatConfig },
+                                { root: true },
+                            );
+                        // If it couldn't, just delete the previous one
+                        else context.commit("editor/deleteHeatConfig", labelName, { root: true });
+                    }
+                }
+            }
+
+            // Update colors of heatmap
+            await context.dispatch("updateHeatColors");
+        },
+        /**
          * Set the heat config for a label
          */
         async setHeatConfig(
@@ -158,7 +192,7 @@ export const heatMap = {
             // Get label model
             const label = context.state.labels.find((lab) => lab.name === labelName);
             if (!label) {
-                context.commit("deleteHeatConfig", labelName);
+                context.commit("editor/deleteHeatConfig", labelName, { root: true });
                 return;
             }
 
@@ -166,27 +200,23 @@ export const heatMap = {
             const attribute = label.attributes.find((attr: ApiAttribute) => attr.name === attributeName);
             const graphHandler: GraphHandler | undefined = context.rootState.editor?.graphEditor?.graphHandler;
             if (attribute == null || !graphHandler) {
-                context.commit("deleteHeatConfig", labelName);
+                context.commit("editor/deleteHeatConfig", labelName, { root: true });
                 return;
             }
 
-            // If a heat config is present in the graph handler, use it
-            const cachedConfig = graphHandler.heatConfigs.get(`${labelName}-${attributeName}`);
-            if (cachedConfig) {
-                context.commit("setHeatConfig", { label: labelName, config: cachedConfig });
-                return;
-            }
+            // If a valid heat config was passed, use it
+            const existingHeatConf = context.rootState.editor?.graphEditor?.graphHandler?.heatConfigs.get(labelName);
+            if (existingHeatConf && existingHeatConf.attrName === attributeName) return;
 
             // Else create a new heat config
-            const heatConfig = await context.dispatch("newHeatConfig", { labelName, attribute, graphHandler });
-            if (!heatConfig) {
-                context.commit("deleteHeatConfig", labelName);
+            const newHeatConfig = await context.dispatch("newHeatConfig", { labelName, attribute, graphHandler });
+            if (!newHeatConfig) {
+                context.commit("editor/deleteHeatConfig", labelName, { root: true });
                 return;
             }
 
             // Set the new heat config
-            graphHandler.heatConfigs.set(`${labelName}-${attributeName}`, heatConfig);
-            context.commit("setHeatConfig", { label: labelName, config: heatConfig });
+            context.commit("editor/setHeatConfig", { label: labelName, config: newHeatConfig }, { root: true });
 
             // Trigger update
             await context.dispatch("updateHeatColors");
@@ -220,7 +250,7 @@ export const heatMap = {
                     const enumValues: Array<string> | undefined = attribute.config;
                     if (!enumValues) return;
 
-                    return new HeatEnumConfig(attribute.name, enumValues);
+                    return new HeatEnumConfig(attribute.name, deepCopy(enumValues));
                 }
                 case HeatConfigType.COLOR:
                     return new HeatColorConfig(attribute.name);
@@ -230,25 +260,24 @@ export const heatMap = {
          * Delete active heat config for labels
          */
         async deleteHeatConfig(context: ActionContext<HeatMapState, RootState>, label: string): Promise<void> {
-            context.commit("deleteHeatConfig", label);
+            context.commit("editor/deleteHeatConfig", label, { root: true });
             await context.dispatch("updateHeatColors");
         },
         /**
          * Set colors of the heat map according to the current heat configs
          */
         async updateHeatColors(context: ActionContext<HeatMapState, RootState>): Promise<void> {
+            const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
+
             // Don't color nodes if heat map is disabled
-            if (context.state.labelConfigs.size === 0) {
+            if (!graphHandler || graphHandler.heatConfigs.size === 0) {
                 await context.dispatch("resetHeatColors");
                 return;
             }
 
-            const nodes = context.rootState.editor?.graphEditor?.graphHandler?.nodes;
-            if (!nodes) return;
-
-            for (const node of nodes) {
+            for (const node of graphHandler.nodes) {
                 // Get the config for the label of the node
-                const config = context.state.labelConfigs.get(node.info.label);
+                const config = graphHandler.heatConfigs.get(node.info.label);
 
                 let color;
                 if (config) {

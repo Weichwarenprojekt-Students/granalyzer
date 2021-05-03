@@ -58,6 +58,9 @@ export default defineComponent({
         const graphHandler = new GraphHandler(this.$store, this.graph);
         this.$store.commit("editor/setGraphHandler", graphHandler);
 
+        // Reset heat map
+        this.$store.commit("editor/resetHeatMap");
+
         // Generate the active diagram if available
         if (this.$store.state.editor.diagram)
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
@@ -78,13 +81,11 @@ export default defineComponent({
 
         // Initialize heat map
         await this.$store.dispatch("editor/updateHeatLabels");
+        await this.$store.dispatch("editor/initHeatMap");
 
         this.$store.commit("editor/setEditorLoading", false);
 
         graphHandler.controls.centerContent();
-    },
-    unmounted() {
-        this.$store.commit("editor/resetHeatMap");
     },
     methods: {
         /**

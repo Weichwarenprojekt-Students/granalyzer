@@ -53,7 +53,7 @@ export default defineComponent({
     },
     mounted() {
         // Restore currently active heat config
-        const heatConfig = this.$store.state.editor.heatMap.labelConfigs.get(this.label.name);
+        const heatConfig = this.$store.state.editor.graphEditor.graphHandler?.heatConfigs.get(this.label.name);
         if (heatConfig) {
             this.heatConfig = heatConfig;
             this.selectedAttribute = heatConfig.attrName;
@@ -89,7 +89,7 @@ export default defineComponent({
             });
 
             // Get heat config that was set in previous step
-            const heatConfig = this.$store.state.editor.heatMap.labelConfigs.get(this.label.name);
+            const heatConfig = this.$store.state.editor.graphEditor.graphHandler?.heatConfigs.get(this.label.name);
             if (heatConfig) this.heatConfig = heatConfig;
             else this.heatConfig = {} as HeatConfig;
 

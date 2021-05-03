@@ -20,6 +20,7 @@ import ApiNode from "@/models/data-scheme/ApiNode";
 import { CompoundCommand } from "@/modules/editor/modules/graph-editor/controls/commands/CompoundCommand";
 import { NodeShapes } from "@/shared/NodeShapes";
 import { RestyleCommand } from "@/modules/editor/modules/graph-editor/controls/commands/RestyleCommand";
+import { HeatConfig } from "@/modules/editor/modules/heat-map/models/HeatConfig";
 
 export class GraphEditorState {
     /**
@@ -229,6 +230,18 @@ export const graphEditor = {
          */
         resetSelection(state: GraphEditorState): void {
             state.graphHandler?.controls.resetSelection();
+        },
+        /**
+         * Set an active heat config
+         */
+        setHeatConfig(state: GraphEditorState, { label, config }: { label: string; config: HeatConfig }): void {
+            state.graphHandler?.heatConfigs.set(label, config);
+        },
+        /**
+         * Delete active heat config for labels
+         */
+        deleteHeatConfig(state: GraphEditorState, label: string): void {
+            state.graphHandler?.heatConfigs.delete(label);
         },
     },
     actions: {
