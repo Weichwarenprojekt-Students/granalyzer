@@ -29,14 +29,14 @@ export class DataSchemeService {
     /**
      * Fetch all entries of the scheme
      */
-    async getScheme(): Promise<Scheme> {
+    public async getScheme(): Promise<Scheme> {
         return new Scheme(await this.getAllLabelSchemes(), await this.getAllRelationTypes());
     }
 
     /**
      * Fetch all labels of the scheme
      */
-    async getAllLabelSchemes(): Promise<Array<LabelScheme>> {
+    public async getAllLabelSchemes(): Promise<Array<LabelScheme>> {
         // language=cypher
         const cypher = `
           MATCH (ls:LabelScheme)
@@ -55,14 +55,14 @@ export class DataSchemeService {
     /**
      * Fetch the label with specific name
      */
-    async getLabelScheme(name: string): Promise<LabelScheme> {
+    public async getLabelScheme(name: string): Promise<LabelScheme> {
         return this.dataSchemeUtil.getLabelScheme(name);
     }
 
     /**
      * Adds a new label scheme to the db
      */
-    async addLabelScheme(label: LabelScheme): Promise<LabelScheme> {
+    public async addLabelScheme(label: LabelScheme): Promise<LabelScheme> {
         // language=Cypher
         const cypher = `
           CREATE (ls:LabelScheme {name: $name, color: $color, attributes: $attributes})
@@ -90,7 +90,7 @@ export class DataSchemeService {
     /**
      * Removes the old allNodesIndex and adds it with the labels stored in the data-scheme
      */
-    private async updateFullTextScheme(labelName: string) {
+    private async updateFullTextScheme(labelName: string): Promise<void> {
         // language=cypher
         const cypherTool = `
           MATCH (ls:LabelScheme)
@@ -137,7 +137,7 @@ export class DataSchemeService {
     /**
      * Updates a label scheme
      */
-    async updateLabelScheme(name: string, label: LabelScheme, force: boolean): Promise<LabelScheme> {
+    public async updateLabelScheme(name: string, label: LabelScheme, force: boolean): Promise<LabelScheme> {
         // language=Cypher
         const cypher = `
           MATCH (ls:LabelScheme {name: $name})
@@ -167,7 +167,7 @@ export class DataSchemeService {
      * Deletes a label scheme from the db. Automatically removes all relation type connections
      * which become invalid
      */
-    async deleteLabelScheme(name: string): Promise<LabelScheme> {
+    public async deleteLabelScheme(name: string): Promise<LabelScheme> {
         // language=cypher
         const cypher = `
           MATCH (ls:LabelScheme {name: $name})
@@ -202,7 +202,7 @@ export class DataSchemeService {
     /**
      * Fetch all relations
      */
-    async getAllRelationTypes(): Promise<Array<RelationType>> {
+    public async getAllRelationTypes(): Promise<Array<RelationType>> {
         // language=cypher
         const cypher = "MATCH (rt:RelationType) RETURN rt {.*} AS dataScheme";
         const params = {};
@@ -226,7 +226,7 @@ export class DataSchemeService {
     /**
      * Adds a new relation type
      */
-    async addRelationType(relationType: RelationType): Promise<RelationType> {
+    public async addRelationType(relationType: RelationType): Promise<RelationType> {
         // Check if there is any connection which has an invalid node label
         try {
             await Promise.all(
@@ -263,7 +263,7 @@ export class DataSchemeService {
     /**
      * Updates a relation type
      */
-    async updateRelationType(name: string, relationType: RelationType, force: boolean): Promise<LabelScheme> {
+    public async updateRelationType(name: string, relationType: RelationType, force: boolean): Promise<LabelScheme> {
         // Check if there is any connection which has an invalid node label
         try {
             await Promise.all(
@@ -302,7 +302,7 @@ export class DataSchemeService {
     /**
      * Deletes a relation type from the db
      */
-    async deleteRelationType(name: string): Promise<Relation> {
+    public async deleteRelationType(name: string): Promise<Relation> {
         // language=cypher
         const cypher = `
           MATCH (rt:RelationType {name: $name})
@@ -333,11 +333,11 @@ export class DataSchemeService {
      * @param label The label scheme
      * @throws ConflictException when any conflict is found and sends the type and amount of conflicting nodes
      */
-    private async schemeHasConflicts(label: LabelScheme | RelationType) {
+    private async schemeHasConflicts(label: LabelScheme | RelationType): Promise<boolean> {
         const [addedAttr, changedAttr] = await this.getChangedAttrs(label);
 
         let missingConflicts = 0;
-        let diffConflicts = 0;
+        let parseConflicts = 0;
 
         if (addedAttr.length) {
             for (const element of addedAttr) {
@@ -347,22 +347,22 @@ export class DataSchemeService {
         }
 
         for (const element of changedAttr) {
-            const exists: Node[] = await this.getEntityAttrDependant(element["name"], label, true);
-
             if (element.mandatory)
                 missingConflicts += (await this.getEntityAttrDependant(element.name, label, false)).length;
+
+            const exists: Node[] | Relation[] = await this.getEntityAttrDependant(element["name"], label, true);
             exists.forEach((node) => {
                 const attribute = node.attributes[element.name];
-                diffConflicts += !!this.dataSchemeUtil.applyOnElement(element, attribute, false) ? 0 : 1;
+                parseConflicts += this.dataSchemeUtil.applyOnElement(element, attribute, false) === undefined ? 1 : 0;
             });
         }
 
         const err = {
             missingError: missingConflicts,
-            parseError: diffConflicts,
+            parseError: parseConflicts,
         };
 
-        if (missingConflicts > 0 || diffConflicts > 0) {
+        if (missingConflicts > 0 || parseConflicts > 0) {
             throw new ConflictException(err);
         } else return false;
     }
@@ -373,7 +373,7 @@ export class DataSchemeService {
      * @param scheme The scheme which has to be checked against the database label
      * @return Tuple At [0] the newly added attributes, at [1] the changed attributes
      */
-    private async getChangedAttrs(scheme: LabelScheme | RelationType) {
+    private async getChangedAttrs(scheme: LabelScheme | RelationType): Promise<[Attribute[], Attribute[]]> {
         const oldAttrs =
             scheme instanceof LabelScheme
                 ? (await this.dataSchemeUtil.getLabelScheme(scheme.name)).attributes
@@ -406,7 +406,7 @@ export class DataSchemeService {
         attributeName: string,
         scheme: LabelScheme | RelationType,
         attributeExists: boolean,
-    ) {
+    ): Promise<Node[] | Relation[]> {
         return scheme instanceof LabelScheme
             ? this.getNodesAttrDependant(attributeName, scheme.name, attributeExists)
             : this.getRelationsAttrDependant(attributeName, scheme.name, attributeExists);
@@ -419,16 +419,20 @@ export class DataSchemeService {
      * @param labelName The name of the label the attribute holding element has
      * @param attributeExists True if the attribute that is being searched should exist
      */
-    private async getNodesAttrDependant(attributeName: string, labelName: string, attributeExists: boolean) {
+    private async getNodesAttrDependant(
+        attributeName: string,
+        labelName: string,
+        attributeExists: boolean,
+    ): Promise<Node[]> {
         const params = {
             labelName,
         };
         const cypher = attributeExists
             ? `MATCH (node:${labelName})
-                    WHERE exists(node.${attributeName})
+                    WHERE exists(node.\`${attributeName}\`)
                   RETURN node {.*, label: $labelName} AS node`
             : `MATCH (node:${labelName})
-                    WHERE NOT exists(node.${attributeName})
+                    WHERE NOT exists(node.\`${attributeName}\`)
                   RETURN node {.*, label: $labelName} AS node`;
 
         const resolveRead = (result) => Promise.all(result.records.map((el) => this.dataSchemeUtil.parseNode(el)));
@@ -445,16 +449,20 @@ export class DataSchemeService {
      * @param relationTypeName The name of the relation the attribute holding element has
      * @param attributeExists True if the attribute that is being searched should exist
      */
-    private async getRelationsAttrDependant(attributeName: string, relationTypeName: string, attributeExists: boolean) {
+    private async getRelationsAttrDependant(
+        attributeName: string,
+        relationTypeName: string,
+        attributeExists: boolean,
+    ): Promise<Relation[]> {
         const params = {
             relationTypeName,
         };
         const cypher = attributeExists
             ? `MATCH ()-[rel:${relationTypeName}]-()
-                WHERE exists(rel.${attributeName})
+                WHERE exists(rel.\`${attributeName}\`)
                 RETURN DISTINCT rel {.*, type: $relationTypeName} AS relation`
             : `MATCH ()-[rel:${relationTypeName}]-()
-                WHERE NOT exists(rel.${attributeName})
+                WHERE NOT exists(rel.\`${attributeName}\`)
                 RETURN DISTINCT rel {.*, type: $relationTypeName} AS relation`;
 
         const resolveRead = (result) => Promise.all(result.records.map((el) => this.dataSchemeUtil.parseRelation(el)));
