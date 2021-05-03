@@ -1,15 +1,20 @@
 <template>
     <div class="attribute-item no-border">
-        <svg v-if="attribute.datatype === types.STRING" class="attribute-icon">
-            <use :xlink:href="require('@/assets/img/icons.svg') + '#text'"></use>
-        </svg>
-        <svg v-else-if="attribute.datatype === types.NUMBER" class="attribute-icon">
-            <use :xlink:href="require('@/assets/img/icons.svg') + '#number'"></use>
-        </svg>
-        <svg v-else-if="attribute.datatype === types.COLOR" class="attribute-icon">
-            <circle r="6" :fill="attribute.value" cx="6" cy="6" />
-        </svg>
-        <div class="attribute-key attributes-key">{{ attribute.name }}</div>
+        <div class="attribute-key">
+            <svg v-if="attribute.datatype === types.STRING" class="attribute-icon">
+                <use :xlink:href="require('@/assets/img/icons.svg') + '#text'"></use>
+            </svg>
+            <svg v-else-if="attribute.datatype === types.NUMBER" class="attribute-icon">
+                <use :xlink:href="require('@/assets/img/icons.svg') + '#number'"></use>
+            </svg>
+            <svg v-else-if="attribute.datatype === types.ENUM" class="attribute-icon">
+                <use :xlink:href="require('@/assets/img/icons.svg') + '#enum'"></use>
+            </svg>
+            <svg v-else-if="attribute.datatype === types.COLOR" class="attribute-icon">
+                <circle r="7" :fill="attribute.value" cx="7" cy="7" />
+            </svg>
+            <div class="attributes-key">{{ attribute.name }}</div>
+        </div>
         <div class="attribute-value">
             {{ attribute.value }}
         </div>
@@ -40,17 +45,30 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "../styles/inspector.less";
 
+.attribute-item {
+    align-items: start;
+}
+
 .attribute-icon {
-    width: 12px;
-    height: 12px;
-    margin-top: 2px;
+    width: 14px;
+    height: 14px;
     flex: 0 0 auto;
+    fill: @dark;
 }
 
 .attribute-key {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
     overflow: hidden;
-    max-width: 100px;
-    text-overflow: ellipsis;
+    width: @key_width;
+    flex: 0 0 auto;
+
+    div {
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
 }
 
 .attribute-value {
