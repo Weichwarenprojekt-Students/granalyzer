@@ -9,7 +9,13 @@
         </CollapsablePanel>
         <div class="center">
             <EditorHeader class="header"></EditorHeader>
-            <GraphEditor class="editor"></GraphEditor>
+            <GraphEditor v-if="$store.state.editor.diagram" class="editor"></GraphEditor>
+            <div v-else class="empty-warning">
+                <svg>
+                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#info`"></use>
+                </svg>
+                <div class="message">{{ $t("editor.nothing-loaded") }}</div>
+            </div>
         </div>
         <CollapsablePanel :left="false" :force-collapse="$store.state.editor.hidePanels">
             <div class="editor-tools">
@@ -69,8 +75,9 @@ export default defineComponent({
         OverviewList,
         ReadInspector,
     },
-    beforeCreate() {
+    async beforeCreate() {
         this.$store.commit("inspector/resetSelection");
+        await this.$store.dispatch("editor/fetchActiveDiagram");
     },
     methods: {
         /**

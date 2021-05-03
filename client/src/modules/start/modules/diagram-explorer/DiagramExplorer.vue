@@ -8,22 +8,40 @@
         :title="$t('start.diagrams.addFolder')"
     ></InputDialog>
 
-    <!-- The dialog for renaming a folder -->
+    <!-- The dialog for renaming an item -->
     <InputDialog
         @input-confirm="renameItem"
         @cancel="renameItemDialog = false"
         :show="renameItemDialog"
-        :image-src="require('@/assets/img/icons.svg') + '#editor-thin'"
+        :image-src="`${require(`@/assets/img/icons.svg`)}#editor-thin`"
         :title="$t('start.diagrams.renameItem', { item: selectedItemName })"
     ></InputDialog>
 
-    <!-- The dialog for removing a folder -->
+    <!-- The dialog for copying a diagram -->
+    <InputDialog
+        @input-confirm="copyDiagram"
+        @cancel="diagramCopyDialog = false"
+        :show="diagramCopyDialog"
+        :image-src="`${require(`@/assets/img/icons.svg`)}#circle-plus`"
+        :title="$t('start.diagrams.copyItem', { item: selectedItemName })"
+    ></InputDialog>
+
+    <!-- The dialog for deleting a diagram -->
     <ConfirmDialog
-        @confirm="deleteItem"
-        @cancel="deleteItemDialog = false"
-        :show="deleteItemDialog"
-        :title="$t('start.diagrams.deleteItem.title', { item: selectedItemName })"
-        :description="$t('start.diagrams.deleteItem.description')"
+        @confirm="deleteItem('diagram')"
+        @cancel="deleteDiagramDialog = false"
+        :show="deleteDiagramDialog"
+        :title="$t('start.diagrams.deletion.title', { item: selectedItemName })"
+        :description="$t('start.diagrams.deletion.deleteItem.description')"
+    ></ConfirmDialog>
+
+    <!-- The dialog for deleting a non-empty folder -->
+    <ConfirmDialog
+        @confirm="deleteItem('folder')"
+        @cancel="deleteFolderDialog = false"
+        :show="deleteFolderDialog"
+        :title="$t('start.diagrams.deletion.title', { item: selectedItemName })"
+        :description="$t('start.diagrams.deletion.deleteFolder.description', { num: nItemsInFolder })"
     ></ConfirmDialog>
 
     <!-- The explorer toolbar -->
@@ -31,15 +49,49 @@
         <h2 class="title">{{ $t("start.diagrams.title") }}</h2>
         <h2 v-show="$store.state.start.parent.name" class="title-extra">&#8212;</h2>
         <h2 v-show="$store.state.start.parent.name" class="title-extra">{{ $store.state.start.parent.name }}</h2>
-        <svg class="add-folder explorer-button" @click="addFolderDialog = true">
-            <use xlink:href="~@/assets/img/icons.svg#add-folder"></use>
-        </svg>
-        <svg v-show="isItemSelected" class="explorer-button" @click="renameItemDialog = true">
-            <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
-        </svg>
-        <svg v-show="isItemSelected" class="explorer-button" @click="deleteItemDialog = true">
-            <use :xlink:href="`${require('@/assets/img/icons.svg')}#trash`"></use>
-        </svg>
+
+        <!-- Add Folder -->
+        <div class="tooltip" v-tooltip.bottom="$t('start.tooltip.newFolder')" @click="addFolderDialog = true">
+            <svg class="explorer-button">
+                <use xlink:href="~@/assets/img/icons.svg#add-folder"></use>
+            </svg>
+        </div>
+
+        <!-- Copy Diagram -->
+        <div
+            v-show="Object.keys(selectedDiagram).length > 0"
+            class="tooltip"
+            v-tooltip.bottom="$t('start.tooltip.copy')"
+            @click="diagramCopyDialog = true"
+        >
+            <svg class="explorer-button">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#copy`"></use>
+            </svg>
+        </div>
+
+        <!-- Edit Item -->
+        <div
+            v-show="isItemSelected"
+            class="tooltip"
+            v-tooltip.bottom="$t('start.tooltip.rename')"
+            @click="renameItemDialog = true"
+        >
+            <svg class="explorer-button">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#editor`"></use>
+            </svg>
+        </div>
+
+        <!-- Delete Item -->
+        <div
+            v-show="isItemSelected"
+            class="tooltip"
+            v-tooltip.bottom="$t('start.tooltip.delete')"
+            @click="deleteDialog"
+        >
+            <svg class="explorer-button">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#trash`"></use>
+            </svg>
+        </div>
     </div>
 
     <!-- The explorer content -->
@@ -113,10 +165,16 @@ export default defineComponent({
         return {
             // True if the add folder dialog should be shown
             addFolderDialog: false,
-            // True if the rename dialog should be shown
+            // True if the rename dialog should be visible
             renameItemDialog: false,
-            // True if the delete dialog should be shown
-            deleteItemDialog: false,
+            // True if the delete dialog should be visible
+            deleteDiagramDialog: false,
+            // True if a folder is deleted
+            deleteFolderDialog: false,
+            // Amount of items in a folder for deletion warning
+            nItemsInFolder: 0,
+            // True, if the copying dialog should be visible
+            diagramCopyDialog: false,
             // The selected folder (empty if no folder is selected)
             selectedFolder: {} as ApiFolder,
             // The selected diagram (empty if no diagram is selected)
@@ -127,10 +185,10 @@ export default defineComponent({
         // Load the items
         this.loadItems();
         // Handle shortcuts
-        window.addEventListener("keyup", this.onKeyUp);
+        window.addEventListener("keydown", this.onKeyDown);
     },
     unmounted() {
-        window.removeEventListener("keyup", this.onKeyUp);
+        window.removeEventListener("keydown", this.onKeyDown);
     },
     watch: {
         $route(to) {
@@ -171,9 +229,13 @@ export default defineComponent({
         /**
          * Handle keyup events
          */
-        onKeyUp(e: KeyboardEvent) {
-            if (e.key !== "Delete") return;
-            if (!isEmpty(this.selectedDiagram) || !isEmpty(this.selectedFolder)) this.deleteItemDialog = true;
+        onKeyDown(e: KeyboardEvent): void {
+            if (e.key == "Delete" && (!isEmpty(this.selectedDiagram) || !isEmpty(this.selectedFolder)))
+                this.deleteDialog();
+            else if (e.key == "d" && e.ctrlKey && !isEmpty(this.selectedDiagram)) {
+                e.preventDefault();
+                this.diagramCopyDialog = true;
+            }
         },
         /**
          * Add an empty folder
@@ -197,7 +259,7 @@ export default defineComponent({
          *
          * @param newName The new name of the item
          */
-        renameItem(newName: string) {
+        renameItem(newName: string): void {
             if (!newName) {
                 errorToast(this.$t("start.newFolder.empty.title"), this.$t("start.newFolder.empty.description"));
                 return;
@@ -215,18 +277,42 @@ export default defineComponent({
             this.renameItemDialog = false;
         },
         /**
-         * Delete an item
+         * Activate the correct dialog for folder/ diagram deletion or delete empty folders without dialog
          */
-        async deleteItem() {
+        async deleteDialog(): Promise<void> {
             if (!isEmpty(this.selectedFolder)) {
-                await this.$store.dispatch("start/deleteFolder", this.selectedFolder);
-                this.loadItems();
+                this.nItemsInFolder = await this.$store.dispatch("start/checkFolder", this.selectedFolder.folderId);
+                if (this.nItemsInFolder === 0) this.deleteItem("folder");
+                else this.deleteFolderDialog = true;
             } else if (!isEmpty(this.selectedDiagram)) {
-                this.$store.dispatch("start/deleteDiagram", this.selectedDiagram);
+                this.deleteDiagramDialog = true;
             } else this.showSelectionError();
-
-            this.deleteItemDialog = false;
-            this.clearSelection();
+        },
+        /**
+         * Delete a folder or diagram
+         */
+        deleteItem(deletionType: string): void {
+            switch (deletionType) {
+                case "folder":
+                    this.$store.dispatch("start/deleteFolder", this.selectedFolder);
+                    this.clearSelection();
+                    this.deleteFolderDialog = false;
+                    break;
+                case "diagram":
+                    this.$store.dispatch("start/deleteDiagram", this.selectedDiagram);
+                    this.clearSelection();
+                    this.deleteDiagramDialog = false;
+                    break;
+            }
+        },
+        /**
+         * Makes a copy of a diagram
+         */
+        copyDiagram(newName: string) {
+            this.diagramCopyDialog = false;
+            const newDiagram = new ApiDiagram(newName);
+            newDiagram.serialized = this.selectedDiagram.serialized;
+            this.$store.dispatch("start/addDiagram", newDiagram);
         },
         /**
          * Show a selection error
@@ -316,13 +402,18 @@ export default defineComponent({
     font-style: italic;
 }
 
-.explorer-button {
-    cursor: pointer;
+.tooltip {
     margin-left: 16px;
-    border-bottom: 2px solid transparent;
-    padding: 0 2px 2px 2px;
     height: 28px;
     width: 28px;
+}
+
+.explorer-button {
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    padding: 0 2px 2px 2px;
+    height: inherit;
+    width: inherit;
     fill: @dark;
 
     &:hover {

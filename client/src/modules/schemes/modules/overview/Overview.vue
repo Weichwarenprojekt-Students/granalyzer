@@ -12,7 +12,7 @@
 
         <!-- The labels tab -->
         <div v-if="labelsOpen" class="tab-content">
-            <Searchbar v-model="labelFilter" />
+            <Searchbar v-model="labelFilter" :show-filter="false" />
 
             <!-- The warning if there are no labels -->
             <div v-if="labels.length === 0" class="empty-warning">
@@ -44,7 +44,7 @@
 
         <!-- The relations tab -->
         <div v-if="!labelsOpen" class="tab-content">
-            <Searchbar v-model="relationFilter" />
+            <Searchbar v-model="relationFilter" :show-filter="false" />
 
             <!-- The warning if there are no relations -->
             <div v-if="relations.length === 0" class="empty-warning">

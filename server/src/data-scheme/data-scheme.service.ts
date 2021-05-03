@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { Neo4jService } from "nest-neo4j/dist";
 import { Scheme } from "./data-scheme.model";
 import { RelationType } from "./models/relation-type.model";
@@ -135,7 +135,7 @@ export class DataSchemeService {
     }
 
     /**
-     * Adds a new label scheme to the db
+     * Updates a label scheme
      */
     async updateLabelScheme(name: string, label: LabelScheme, force: boolean): Promise<LabelScheme> {
         // language=Cypher
@@ -164,7 +164,8 @@ export class DataSchemeService {
     }
 
     /**
-     * Deletes a label scheme from the db
+     * Deletes a label scheme from the db. Automatically removes all relation type connections
+     * which become invalid
      */
     async deleteLabelScheme(name: string): Promise<LabelScheme> {
         // language=cypher
@@ -179,12 +180,20 @@ export class DataSchemeService {
         };
 
         // Callback function which is applied on the neo4j response
-        const resolveWrite = (res) => {
+        const resolveWrite = async (res) => {
             if (!res.records[0]) throw new NotFoundException(`The label ${name} has not been found`);
+
+            // Delete all relation type connections which include the deleted label
+            const relationTypes = await this.getAllRelationTypes();
+            for (const relationType of relationTypes) {
+                relationType.connections = relationType.connections.filter(
+                    (connection) => !(connection.from == name || connection.to == name),
+                );
+                await this.updateRelationType(relationType.name, relationType, true);
+            }
             return this.dataSchemeUtil.parseLabelScheme(res.records[0]);
         };
-
-        return this.neo4jService
+        return await this.neo4jService
             .write(cypher, params, this.database)
             .then(resolveWrite)
             .catch(this.databaseUtil.catchDbError);
@@ -218,6 +227,17 @@ export class DataSchemeService {
      * Adds a new relation type
      */
     async addRelationType(relationType: RelationType): Promise<RelationType> {
+        // Check if there is any connection which has an invalid node label
+        try {
+            await Promise.all(
+                relationType.connections.map((connection) =>
+                    Promise.all([this.getLabelScheme(connection.from), this.getLabelScheme(connection.to)]),
+                ),
+            );
+        } catch (ex) {
+            throw new BadRequestException("One of the connections has an invalid node label!");
+        }
+
         // language=Cypher
         const cypher = `
           CREATE (rt:RelationType {name: $name, attributes: $attributes, connections: $connections})
@@ -241,9 +261,20 @@ export class DataSchemeService {
     }
 
     /**
-     * Adds a new label scheme to the db
+     * Updates a relation type
      */
     async updateRelationType(name: string, relationType: RelationType, force: boolean): Promise<LabelScheme> {
+        // Check if there is any connection which has an invalid node label
+        try {
+            await Promise.all(
+                relationType.connections.map((connection) =>
+                    Promise.all([this.getLabelScheme(connection.from), this.getLabelScheme(connection.to)]),
+                ),
+            );
+        } catch (ex) {
+            throw new BadRequestException("One of the connections has an invalid node label!");
+        }
+
         // language=Cypher
         const cypher = `
           MATCH (rt:RelationType {name: $name})

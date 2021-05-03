@@ -19,10 +19,16 @@
     "title": "Ihre Diagramme",
     "addFolder": "Ordner hinzufügen",
     "addDiagram": "Diagramm hinzufügen",
-    "renameItem": "{item} umbenennen",
-    "deleteItem": {
-      "title": "{item} löschen",
-      "description": "Wollen Sie das ausgewählte Element löschen?"
+    "renameItem": "\"{item}\" umbenennen",
+    "copyItem": "Kopie von \"{item}\"",
+    "deletion": {
+      "title": "\"{item}\" löschen",
+      "deleteItem": {
+        "description": "Wollen Sie das ausgewählte Element löschen?"
+      },
+      "deleteFolder": {
+        "description": "Der Ordner enthält {num} Element(e)."
+      }
     },
     "noSelection": {
       "title": "Kein Element ausgewählt",
@@ -34,5 +40,11 @@
       "title": "Name ist leer",
       "description": "Bitte geben Sie einen Namen ein!"
     }
+  },
+  "tooltip": {
+    "newFolder": "Neuer Ordner",
+    "rename": "Umbenennen",
+    "delete": "Löschen (Entf)",
+    "copy": "Kopieren (Strg + D)"
   }
 }

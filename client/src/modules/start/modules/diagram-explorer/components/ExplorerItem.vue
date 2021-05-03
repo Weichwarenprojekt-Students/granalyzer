@@ -1,6 +1,10 @@
 <template>
     <div
-        :class="['diagram-item', { selected: isSelected }, { 'enable-hovering': !$store.state.start.dragging }]"
+        :class="[
+            'diagram-item',
+            { selected: isSelected },
+            { 'enable-hovering': !$store.state.start.dragging && !isSelected },
+        ]"
         draggable="true"
         @dragstart="startDrag"
         @dragend="endDrag"
@@ -22,10 +26,15 @@ import { ItemDragEvent } from "../models/ItemDragEvent";
 export default defineComponent({
     name: "ExplorerItem",
     props: {
+        // Id of the svg to be used
         iconId: String,
+        // Name of the item
         title: String,
+        // True, if the item is currently selected
         isSelected: Boolean,
+        // True, if item is a folder
         isFolder: Boolean,
+        // Id of the diagram/ folder that is represented
         itemId: String,
     },
     methods: {

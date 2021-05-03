@@ -1,53 +1,50 @@
 <svg xmlns="http://www.w3.org/2000/svg" version="1.1" style="width:0; height:0; position:absolute; overflow:hidden;">
     <defs>
         <!-- #add-folder: Folder "+" Icon -->
-        <symbol viewBox="0 0 24 24" id="add-folder" aria-labelledby="add-folder-title">
-            <title id="add-folder-title">icon add-folder</title>
+        <symbol viewBox="0 0 24 24" id="add-folder">
             <path d="M24 17h-3v-3h-2v3h-3v2h3v3h2v-3h3v-2zm-10 5h-14v-20h7c1.695 1.942 2.371 3 4 3h13v7h-2v-5h-11c-2.34 0-3.537-1.388-4.916-3h-4.084v16h12v2z"/>
         </symbol>
 
         <!-- #arrow: Arrow Right Icon -->
-        <symbol viewBox="0 0 24 24" id="arrow" aria-labelledby="arrow-title" fill-rule="evenodd" clip-rule="evenodd">
-            <title id="arrow-title">icon arrow</title>
+        <symbol viewBox="0 0 24 24" id="arrow" fill-rule="evenodd" clip-rule="evenodd">
             <path d="M5 3l3.057-3 11.943 12-11.943 12-3.057-3 9-9z"/>
         </symbol>
 
         <!-- #center: Center Content Icon -->
-        <symbol viewBox="0 0 24 24" id="center" aria-labelledby="center-title" fill-rule="evenodd" clip-rule="evenodd">
-            <title id="center-title">icon center</title>
+        <symbol viewBox="0 0 24 24" id="center" fill-rule="evenodd" clip-rule="evenodd">
             <path d="M13 3h2l-3 3-3-3h2v-2h2v2zm-2 18h-2l3-3 3 3h-2v2h-2v-2zm-9-10v-2l3 3-3 3v-2h-2v-2h2zm20 2v2l-3-3 3-3v2h2v2h-2zm-5-5h-10v8h10v-8z"/>
         </symbol>
 
         <!-- #check: Checkmark Icon -->
-        <symbol viewBox="0 0 24 24" id="check" aria-labelledby="check-title" fill-rule="evenodd" clip-rule="evenodd">
-            <title id="check-title">icon check</title>
+        <symbol viewBox="0 0 24 24" id="check" fill-rule="evenodd" clip-rule="evenodd">
             <path d="M20.285 2l-11.285 11.567-5.286-5.011-3.714 3.716 9 8.728 15-15.285z"/>
         </symbol>
 
         <!-- #circle-plus: Circled "+" Icon -->
-        <symbol viewBox="0 0 24 24" id="circle-plus" aria-labelledby="circle-plus-title" fill-rule="evenodd"
+        <symbol viewBox="0 0 24 24" id="circle-plus" fill-rule="evenodd"
                 clip-rule="evenodd">
-            <title id="circle-plus-title">icon circle-plus</title>
             <path d="M11.5 0c6.347 0 11.5 5.153 11.5 11.5s-5.153 11.5-11.5 11.5-11.5-5.153-11.5-11.5 5.153-11.5 11.5-11.5zm0 1c5.795 0 10.5 4.705 10.5 10.5s-4.705 10.5-10.5 10.5-10.5-4.705-10.5-10.5 4.705-10.5 10.5-10.5zm.5 10h6v1h-6v6h-1v-6h-6v-1h6v-6h1v6z"/>
         </symbol>
 
+        <!-- #copy: Copy Icon -->
+        <symbol viewBox="0 0 24 24" id="copy" fill-rule="evenodd"
+                clip-rule="evenodd">
+            <path d="M13.508 11.504l.93-2.494 2.998 6.268-6.31 2.779.894-2.478s-8.271-4.205-7.924-11.58c2.716 5.939 9.412 7.505 9.412 7.505zm7.492-9.504v-2h-21v21h2v-19h19zm-14.633 2c.441.757.958 1.422 1.521 2h14.112v16h-16v-8.548c-.713-.752-1.4-1.615-2-2.576v13.124h20v-20h-17.633z"/>
+        </symbol>
+
         <!-- #delete: "X" Icon -->
-        <symbol viewBox="0 0 24 24" id="delete" aria-labelledby="delete-title" fill-rule="evenodd" clip-rule="evenodd">
-            <title id="delete-title">icon delete</title>
+        <symbol viewBox="0 0 24 24" id="delete" fill-rule="evenodd" clip-rule="evenodd">
             <path d="M23.954 21.03l-9.184-9.095 9.092-9.174-2.832-2.807-9.09 9.179-9.176-9.088-2.81 2.81 9.186 9.105-9.095 9.184 2.81 2.81 9.112-9.192 9.18 9.1z"/>
         </symbol>
 
         <!-- #diagram: 3 Connected Nodes Icon -->
-        <symbol viewBox="0 0 24 24" id="diagram" aria-labelledby="diagram-title" fill-rule="evenodd"
+        <symbol viewBox="0 0 24 24" id="diagram" fill-rule="evenodd"
                 clip-rule="evenodd">
-            <title id="diagram-title">icon diagram</title>
             <path d="M16.272 5.451c-.176-.45-.272-.939-.272-1.451 0-2.208 1.792-4 4-4s4 1.792 4 4-1.792 4-4 4c-1.339 0-2.525-.659-3.251-1.67l-7.131 3.751c.246.591.382 1.239.382 1.919 0 .681-.136 1.33-.384 1.922l7.131 3.751c.726-1.013 1.913-1.673 3.253-1.673 2.208 0 4 1.792 4 4s-1.792 4-4 4-4-1.792-4-4c0-.51.096-.999.27-1.447l-7.129-3.751c-.9 1.326-2.419 2.198-4.141 2.198-2.76 0-5-2.24-5-5s2.24-5 5-5c1.723 0 3.243.873 4.143 2.201l7.129-3.75zm3.728 11.549c1.656 0 3 1.344 3 3s-1.344 3-3 3-3-1.344-3-3 1.344-3 3-3zm-15-9c2.208 0 4 1.792 4 4s-1.792 4-4 4-4-1.792-4-4 1.792-4 4-4zm15-7c1.656 0 3 1.344 3 3s-1.344 3-3 3-3-1.344-3-3 1.344-3 3-3z"/>
         </symbol>
 
         <!-- #diagram: 3 Bold Connected Nodes Icon -->
-        <symbol viewBox="0 0 24 24" id="bold-diagram" aria-labelledby="bold-diagram-title" fill-rule="evenodd"
-                clip-rule="evenodd">
-            <title id="bold-diagram-title">bold icon diagram</title>
+        <symbol viewBox="0 0 24 24" id="bold-diagram" fill-rule="evenodd" clip-rule="evenodd">
             <path d="M18.5,14.9c-1.3,0-2.5,0.6-3.3,1.5L9.5,13c0.1-0.4,0.2-0.9,0.2-1.3c0-0.4-0.1-0.8-0.2-1.2l5.9-3
                     c0.8,1,2.1,1.7,3.5,1.7c2.5,0,4.5-2,4.5-4.5s-2-4.5-4.5-4.5s-4.5,2-4.5,4.5c0,0.4,0.1,0.8,0.2,1.2l-5.9,3c-0.8-1-2.1-1.7-3.5-1.7
                     c-2.5,0-4.5,2-4.5,4.5s2,4.5,4.5,4.5c1.4,0,2.5-0.6,3.4-1.5l5.7,3.3c-0.1,0.4-0.2,0.9-0.2,1.4c0,2.5,2,4.5,4.5,4.5s4.5-2,4.5-4.5
@@ -58,45 +55,44 @@
         </symbol>
 
         <!-- #dropdown: Dropdown Arrow Icon -->
-        <symbol viewBox="0 0 24 24" id="dropdown" aria-labelledby="dropdown-title" fill-rule="evenodd"
+        <symbol viewBox="0 0 24 24" id="dropdown" fill-rule="evenodd"
                 clip-rule="evenodd">
-            <title id="dropdown-title">icon dropdown</title>
             <path d="M12 21l-12-18h24z"/>
         </symbol>
 
         <!-- #editor: Pencil Icon -->
-        <symbol viewBox="0 0 24 24" id="editor" aria-labelledby="editor-title">
-            <title id="editor-title">icon editor</title>
+        <symbol viewBox="0 0 24 24" id="editor">
             <path d="M1.439 16.873l-1.439 7.127 7.128-1.437 16.873-16.872-5.69-5.69-16.872 16.872zm4.702 3.848l-3.582.724.721-3.584 2.861 2.86zm15.031-15.032l-13.617 13.618-2.86-2.861 10.825-10.826 2.846 2.846 1.414-1.414-2.846-2.846 1.377-1.377 2.861 2.86z"/>
         </symbol>
 
         <!-- #editor-thin: Thin Pencil Icon -->
-        <symbol viewBox="0 0 24 24" id="editor-thin" aria-labelledby="editor-thin-title">
-            <title id="editor-thin-title">icon editor-thin</title>
+        <symbol viewBox="0 0 24 24" id="editor-thin">
             <path d="M8.071 21.586l-7.071 1.414 1.414-7.071 14.929-14.929 5.657 5.657-14.929 14.929zm-.493-.921l-4.243-4.243-1.06 5.303 5.303-1.06zm9.765-18.251l-13.3 13.301 4.242 4.242 13.301-13.3-4.243-4.243z"/>
         </symbol>
 
+        <!-- #export-bold: Diagram Export Icon -->
+        <symbol viewBox="0 0 24 24" id="export-bold" aria-labelledby="export-bold-title">
+            <title id="export-bold-title">icon export bold</title>
+            <path d="M14 9l-2.519 4-2.481-1.96-5 6.96h16l-6-9zm8-5v16h-20v-16h20zm2-2h-24v20h24v-20zm-20 6c0-1.104.896-2 2-2s2 .896 2 2c0 1.105-.896 2-2 2s-2-.895-2-2z"/>
+        </symbol>
+
         <!-- #filter: Equalizer Icon -->
-        <symbol viewBox="0 0 24 24" id="filter" aria-labelledby="filter-title">
-            <title id="filter-title">icon filter</title>
+        <symbol viewBox="0 0 24 24" id="filter">
             <path d="M6 18h-2v5h-2v-5h-2v-3h6v3zm-2-17h-2v12h2v-12zm11 7h-6v3h2v12h2v-12h2v-3zm-2-7h-2v5h2v-5zm11 14h-6v3h2v5h2v-5h2v-3zm-2-14h-2v12h2v-12z"/>
         </symbol>
 
         <!-- #folder: Thin Folder Icon -->
-        <symbol viewBox="0 0 24 24" id="folder" aria-labelledby="folder-title">
-            <title id="folder-title">icon folder</title>
+        <symbol viewBox="0 0 24 24" id="folder">
             <path d="M11 5h13v17h-24v-20h8l3 3zm-10-2v18h22v-15h-12.414l-3-3h-6.586z"/>
         </symbol>
 
         <!-- #folder-grey: Grey Folder Icon -->
-        <symbol fill="#808080" viewBox="0 0 24 24" id="folder-grey" aria-labelledby="folder-grey-title">
-            <title id="-title">icon folder-grey</title>
+        <symbol fill="#808080" viewBox="0 0 24 24" id="folder-grey">
             <path d="M11 5h13v17h-24v-20h8l3 3zm-10-2v18h22v-15h-12.414l-3-3h-6.586z"/>
         </symbol>
 
         <!-- #from-diagram: "Create Diagram From Node" Icon -->
-        <symbol fill="#333333" viewBox="0 0 408.93 407.81" id="from-diagram" aria-labelledby="from-diagram-title">
-            <title id="from-diagram-title">icon from-diagram</title>
+        <symbol fill="#333333" viewBox="0 0 408.93 407.81" id="from-diagram">
             <rect fill="#333" x="335.7" y="314.76" width="154.63" height="17"
                   transform="translate(-295.53 40.47) rotate(-28.14)"/>
             <rect fill="#333" x="404.95" y="391.56" width="17" height="154.55"
@@ -113,51 +109,43 @@
         </symbol>
 
         <!-- #info: Info Icon -->
-        <symbol viewBox="0 0 24 24" id="info" aria-labelledby="info-title">
-            <title id="info-title">icon info</title>
+        <symbol viewBox="0 0 24 24" id="info">
             <path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-.001 5.75c.69 0 1.251.56 1.251 1.25s-.561 1.25-1.251 1.25-1.249-.56-1.249-1.25.559-1.25 1.249-1.25zm2.001 12.25h-4v-1c.484-.179 1-.201 1-.735v-4.467c0-.534-.516-.618-1-.797v-1h3v6.265c0 .535.517.558 1 .735v.999z"/>
         </symbol>
 
         <!-- #inventory: Drawer Icon -->
-        <symbol viewBox="0 0 24 24" id="inventory" aria-labelledby="inventory-title">
-            <title id="inventory-title">icon inventory</title>
+        <symbol viewBox="0 0 24 24" id="inventory">
             <path d="M6.689 5h10.622l.333 1h-11.289l.334-1zm-1 3h12.622l-.333-1h-11.957l-.332 1zm1.666-5l-.332 1h9.955l-.334-1h-9.289zm-3.248 5l2-6h11.785l2 6h2.108l-2.666-8h-14.668l-2.666 8h2.107zm17.419 11l-.644 3h-17.765l-.644-3h19.053zm2.474-2h-24l1.5 7h21l1.5-7zm-10-4h-4v1h4v-1zm0 7h-4v1h4v-1zm-10.883-5l-.644-3h19.053l-.644 3h2.046l1.072-5h-24l1.071 5h2.046z"/>
         </symbol>
 
         <!-- #not-found: 3-Dot-Lens Icon -->
-        <symbol viewBox="0 0 24 24" id="not-found" aria-labelledby="not-found-title">
-            <title id="not-found-title">icon not-found</title>
+        <symbol viewBox="0 0 24 24" id="not-found">
             <path d="M21.172 24l-7.387-7.387c-1.388.874-3.024 1.387-4.785 1.387-4.971 0-9-4.029-9-9s4.029-9 9-9 9 4.029 9 9c0 1.761-.514 3.398-1.387 4.785l7.387 7.387-2.828 2.828zm-12.172-8c3.859 0 7-3.14 7-7s-3.141-7-7-7-7 3.14-7 7 3.141 7 7 7zm-3-8c.552 0 1 .448 1 1s-.448 1-1 1-1-.448-1-1 .448-1 1-1zm3 0c.552 0 1 .448 1 1s-.448 1-1 1-1-.448-1-1 .448-1 1-1zm3 0c.552 0 1 .448 1 1s-.448 1-1 1-1-.448-1-1 .448-1 1-1z"/>
         </symbol>
 
         <!-- #number: "#" Number Icon -->
-        <symbol viewBox="0 0 24 24" id="number" aria-labelledby="number-title">
-            <title id="number-title">icon number</title>
+        <symbol viewBox="0 0 24 24" id="number">
             <path d="M22.548 9l.452-2h-5.364l1.364-6h-2l-1.364 6h-5l1.364-6h-2l-1.364 6h-6.184l-.452 2h6.182l-1.364 6h-5.36l-.458 2h5.364l-1.364 6h2l1.364-6h5l-1.364 6h2l1.364-6h6.185l.451-2h-6.182l1.364-6h5.366zm-8.73 6h-5l1.364-6h5l-1.364 6z"/>
         </symbol>
 
         <!-- #plus: Thin "+" Icon -->
-        <symbol viewBox="0 0 24 24" id="plus" aria-labelledby="plus-title">
-            <title id="plus-title">icon plus</title>
+        <symbol viewBox="0 0 24 24" id="plus">
             <path d="M11 11v-11h1v11h11v1h-11v11h-1v-11h-11v-1h11z"/>
         </symbol>
 
         <!-- #plus-bold: Bold "+" Icon -->
-        <symbol viewBox="0 0 24 24" id="plus-bold" aria-labelledby="plus-bold-title" fill-rule="evenodd"
+        <symbol viewBox="0 0 24 24" id="plus-bold" fill-rule="evenodd"
                 clip-rule="evenodd">
-            <title id="plus-bold-title">icon plus-bold</title>
             <path d="M24 10h-10v-10h-4v10h-10v4h10v10h4v-10h10z"/>
         </symbol>
 
         <!-- #redo: Redo Icon -->
-        <symbol viewBox="0 0 24 24" id="redo" aria-labelledby="redo-title">
-            <title id="redo">icon redo</title>
+        <symbol viewBox="0 0 24 24" id="redo">
             <path d="M12 0c3.31 0 6.291 1.353 8.459 3.522l2.48-2.48 1.061 7.341-7.437-.966 2.489-2.489c-1.808-1.807-4.299-2.928-7.052-2.928-5.514 0-10 4.486-10 10s4.486 10 10 10c3.872 0 7.229-2.216 8.89-5.443l1.717 1.046c-2.012 3.803-6.005 6.397-10.607 6.397-6.627 0-12-5.373-12-12s5.373-12 12-12z"/>
         </symbol>
 
         <!-- #relation: Relation Icon -->
-        <symbol viewBox="0 0 24 24" id="relation" aria-labelledby="relation-title">
-            <title id="relation-edit-mode-title">icon relation</title>
+        <symbol viewBox="0 0 24 24" id="relation">
             <g transform="translate(0, 24) scale(1, -1)">
                 <circle cx="4" cy="4" r="2.5" fill="#fff0" stroke="#333" stroke-width="1"/>
                 <circle cx="20" cy="20" r="2.5" fill="#fff0" stroke="#333" stroke-width="1"/>
@@ -166,104 +154,92 @@
         </symbol>
 
         <!-- #reload: Reload Icon -->
-        <symbol viewBox="0 0 24 24" id="reload" aria-labelledby="reload-title">
-            <title id="redo">icon reload</title>
+        <symbol viewBox="0 0 24 24" id="reload">
             <path d="M5 10v7h10.797l1.594 2h-14.391v-9h-3l4-5 4 5h-3zm14 4v-7h-10.797l-1.594-2h14.391v9h3l-4 5-4-5h3z"/>
         </symbol>
 
         <!-- #revert: Undo Icon -->
-        <symbol viewBox="0 0 24 24" id="revert" aria-labelledby="revert-title" fill-rule="evenodd" clip-rule="evenodd">
-            <title id="revert-title">icon revert</title>
+        <symbol viewBox="0 0 24 24" id="revert" fill-rule="evenodd" clip-rule="evenodd">
             <path d="M13.427 3.021h-7.427v-3.021l-6 5.39 6 5.61v-3h7.427c3.071 0 5.561 2.356 5.561 5.427 0 3.071-2.489 5.573-5.561 5.573h-7.427v5h7.427c5.84 0 10.573-4.734 10.573-10.573s-4.733-10.406-10.573-10.406z"/>
         </symbol>
 
         <!-- #schemes: Blueprint Icon -->
-        <symbol viewBox="0 0 24 24" id="schemes" aria-labelledby="schemes-title">
-            <title id="schemes-title">icon schemes</title>
+        <symbol viewBox="0 0 24 24" id="schemes">
             <path d="M24 23h-20c-2.208 0-4-1.792-4-4v-15.694c.313-1.071 1.285-2.306 3-2.306 1.855 0 2.769 1.342 2.995 2.312l.005 1.688h18v18zm-2-16h-16v11s-.595-1-1.922-1c-1.104 0-2.078.896-2.078 2s.896 2 2 2h18v-14zm-2 12h-12v-10h12v10zm-8-9h-3v8h10v-4h-2v3h-1v-3h-3v3h-1v-7zm-8-6.339c-.233-.921-1.807-.917-2 0v11.997c.408-.421 1.383-.724 2-.658v-11.339zm9 6.339v3h6v-3h-6z"/>
         </symbol>
 
         <!-- #start: House Icon -->
-        <symbol viewBox="0 0 24 24" id="start" aria-labelledby="start-title">
-            <title id="start-title">icon start</title>
+        <symbol viewBox="0 0 24 24" id="start">
             <path d="M20 7.093v-5.093h-3v2.093l3 3zm4 5.907l-12-12-12 12h3v10h7v-5h4v5h7v-10h3zm-5 8h-3v-5h-8v5h-3v-10.26l7-6.912 7 6.99v10.182z"/>
         </symbol>
 
+        <!-- #text: "T" Text Icon -->
+        <symbol viewBox="0 0 24 24" id="text">
+            <path d="M22 0h-20v6h1.999c0-1.174.397-3 2.001-3h4v16.874c0 1.174-.825 2.126-2 2.126h-1v2h9.999v-2h-.999c-1.174 0-2-.952-2-2.126v-16.874h4c1.649 0 2.02 1.826 2.02 3h1.98v-6z"/>
+        </symbol>
+
         <!-- #trash: Recycle Bin Icon -->
-        <symbol viewBox="0 0 24 24" id="trash" aria-labelledby="trash-title">
-            <title id="trash-title">icon trash</title>
+        <symbol viewBox="0 0 24 24" id="trash">
             <path d="M12 0c-4.992 0-10 1.242-10 3.144 0 .406 3.556 18.488 3.633 18.887 1.135 1.313 3.735 1.969 6.334 1.969 2.601 0 5.199-.656 6.335-1.969.081-.404 3.698-18.468 3.698-18.882 0-2.473-7.338-3.149-10-3.149zm0 1.86c4.211 0 7.625.746 7.625 1.667 0 .92-3.414 1.667-7.625 1.667s-7.625-.746-7.625-1.667 3.414-1.667 7.625-1.667zm4.469 19.139c-.777.532-2.418 1.001-4.502 1.001-2.081 0-3.721-.467-4.498-.998l-.004-.021c-1.552-7.913-2.414-12.369-2.894-14.882 3.55 1.456 11.304 1.455 14.849-.002-.868 4.471-2.434 12.322-2.951 14.902zm-7.872-7.418l-.492-.323 1.824-.008.78 1.667-.506-.32c-.723 1.146-1.027 1.764-.796 2.481-1.823-1.798-1.622-2.182-.81-3.497zm.622-1.304l.781-1.418c.195-.38 1.251-.075 1.688.899l-.797 1.445-1.672-.926zm2.673 5.175h-1.729c-.427.013-.672-1.061-.031-1.915h1.761v1.915zm.058-4.886l.524-.289c-.652-1.188-1.044-1.753-1.781-1.898 2.451-.729 2.593-.41 3.445.981l.521-.275-.79 1.654-1.919-.173zm3.059.005l.911 1.474c.236.355-.546 1.129-1.607 1.035l-.928-1.501 1.624-1.008zm-1.549 4.846l-.004.583-1.028-1.616 1.054-1.47-.006.6c1.354.011 2.037-.055 2.524-.63-.565 2.5-.942 2.533-2.54 2.533z"/>
         </symbol>
 
         <!-- #undo: Undo Icon -->
-        <symbol viewBox="0 0 24 24" id="undo" aria-labelledby="undo-title">
-            <title id="undo">icon undo</title>
+        <symbol viewBox="0 0 24 24" id="undo">
             <path d="M12 0c-3.31 0-6.291 1.353-8.459 3.522l-2.48-2.48-1.061 7.341 7.437-.966-2.489-2.488c1.808-1.808 4.299-2.929 7.052-2.929 5.514 0 10 4.486 10 10s-4.486 10-10 10c-3.872 0-7.229-2.216-8.89-5.443l-1.717 1.046c2.012 3.803 6.005 6.397 10.607 6.397 6.627 0 12-5.373 12-12s-5.373-12-12-12z"/>
         </symbol>
 
         <!-- #warning: Warning Triangle Icon -->
-        <symbol viewBox="0 0 24 24" id="warning" aria-labelledby="warning-title">
-            <title id="warning-title">icon warning</title>
+        <symbol viewBox="0 0 24 24" id="warning">
             <path d="M24 23h-24l12-22 12 22zm-22.315-1h20.63l-10.315-18.912-10.315 18.912zm10.315-2c.466 0 .845-.378.845-.845 0-.466-.379-.844-.845-.844-.466 0-.845.378-.845.844 0 .467.379.845.845.845zm.5-11v8h-1v-8h1z"/>
         </symbol>
 
         <!-- #text: "T" Text Icon -->
-        <symbol viewBox="0 0 24 24" id="text" aria-labelledby="text-title">
-            <title id="text-title">icon text</title>
+        <symbol viewBox="0 0 24 24" id="text">
             <path d="M22 0h-20v6h1.999c0-1.174.397-3 2.001-3h4v16.874c0 1.174-.825 2.126-2 2.126h-1v2h9.999v-2h-.999c-1.174 0-2-.952-2-2.126v-16.874h4c1.649 0 2.02 1.826 2.02 3h1.98v-6z"/>
         </symbol>
 
         <!-- #rectangle: Rectangle Icon -->
-        <symbol viewBox="0 0 24 24" id="rectangle" aria-labelledby="rectangle-title">
-            <title id="rectangle">icon rectangle</title>
+        <symbol viewBox="0 0 24 24" id="rectangle">
             <path d="M22 2v20h-20v-20h20zm2-2h-24v24h24v-24z"/>
         </symbol>
 
         <!-- #circle: Circle Icon -->
-        <symbol viewBox="0 0 24 24" id="circle" aria-labelledby="circle-title">
-            <title id="circle">icon circle</title>
+        <symbol viewBox="0 0 24 24" id="circle">
             <path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"/>
         </symbol>
 
         <!-- #diamond: Diamond Icon -->
-        <symbol viewBox="0 0 24 24" id="diamond" aria-labelledby="diamond-title">
-            <title id="diamond">icon diamond</title>
+        <symbol viewBox="0 0 24 24" id="diamond">
             <path d="M12 0l-12 12.001 12 11.999 12.001-11.999-12.001-12.001zm-9.171 12.001l9.171-9.172 9.172 9.172-9.172 9.172-9.171-9.172z"/>
         </symbol>
 
         <!-- #cylinder: Cylinder Icon -->
-        <symbol viewBox="0 0 24 24" id="cylinder" aria-labelledby="cylinder-title">
-            <title id="cylinder">icon cylinder</title>
+        <symbol viewBox="0 0 24 24" id="cylinder">
             <path d="M12.004 6c-4.226 0-10.004.953-10.004 4.15v4.701c0 3.197 6.204 4.149 10.004 4.149 3.785 0 9.996-.952 9.996-4.149v-4.701c0-3.198-5.967-4.15-9.996-4.15zm0 1.903c3.64 0 7.995.865 7.995 2.247 0 1.505-5.106 2.247-7.995 2.247-3.414 0-8.011-.861-8.011-2.247 0-1.507 4.814-2.247 8.011-2.247zm7.995 6.707c0 1.666-5.106 2.487-7.995 2.487-3.414 0-8.011-.954-8.011-2.487v-1.94c2.118 1.276 5.172 1.694 8.011 1.694 2.83 0 5.878-.418 7.995-1.694v1.94z"/>
         </symbol>
 
         <!-- #to-front: To Front Icon -->
-        <symbol viewBox="0 0 24 24" id="to-front" aria-labelledby="to-front">
-            <title id="to-front">to front</title>
+        <symbol viewBox="0 0 24 24" id="to-front">
             <path d="M18 8v-2h-2v2h-10v16h18v-16h-6zm4 14h-14v-12h14v12zm-6-20h-3v-2h5v4h-2v-2zm-14 8h-2v-4h2v4zm9-8h-4v-2h4v2zm-11-2h5v2h-3v2h-2v-4zm2 14h3v2h-5v-4h2v2z"/>
         </symbol>
 
         <!-- #to-back: To Back Icon -->
-        <symbol viewBox="0 0 24 24" id="to-back" aria-labelledby="to-back">
-            <title id="to-back">to back</title>
+        <symbol viewBox="0 0 24 24" id="to-back">
             <path d="M8 12h-2v-4h5v2h-3v2zm11-4v2h3v2h2v-4h-5zm-11 12h-2v4h5v-2h-3v-2zm5 4h4v-2h-4v2zm9-6h2v-4h-2v4zm0 4h-3v2h5v-4h-2v2zm-14-4v-4h-6v-12h14v6h-3v2h5v-10h-18v16h6v2h2z"/>
         </symbol>
 
         <!-- #visual: Visual Element Icon -->
-        <symbol viewBox="0 0 24 24" id="visual" aria-labelledby="visual">
-            <title id="visual">visual</title>
+        <symbol viewBox="0 0 24 24" id="visual">
             <path d="M21.143 9.667c-.733-1.392-1.914-3.05-3.617-4.753-2.977-2.978-5.478-3.914-6.785-3.914-.414 0-.708.094-.86.246l-1.361 1.36c-1.899-.236-3.42.106-4.294.983-.876.875-1.164 2.159-.792 3.523.492 1.806 2.305 4.049 5.905 5.375.038.323.157.638.405.885.588.588 1.535.586 2.121 0s.588-1.533.002-2.119c-.588-.587-1.537-.588-2.123-.001l-.17.256c-2.031-.765-3.395-1.828-4.232-2.9l3.879-3.875c.496 2.73 6.432 8.676 9.178 9.178l-7.115 7.107c-.234.153-2.798-.316-6.156-3.675-3.393-3.393-3.175-5.271-3.027-5.498l1.859-1.856c-.439-.359-.925-1.103-1.141-1.689l-2.134 2.131c-.445.446-.685 1.064-.685 1.82 0 1.634 1.121 3.915 3.713 6.506 2.764 2.764 5.58 4.243 7.432 4.243.648 0 1.18-.195 1.547-.562l8.086-8.078c.91.874-.778 3.538-.778 4.648 0 1.104.896 1.999 2 1.999 1.105 0 2-.896 2-2 0-3.184-1.425-6.81-2.857-9.34zm-16.209-5.371c.527-.53 1.471-.791 2.656-.761l-3.209 3.206c-.236-.978-.049-1.845.553-2.445zm9.292 4.079l-.03-.029c-1.292-1.292-3.803-4.356-3.096-5.063.715-.715 3.488 1.521 5.062 3.096.862.862 2.088 2.247 2.937 3.458-1.717-1.074-3.491-1.469-4.873-1.462z"/>
         </symbol>
 
         <!-- #drag: Used to mark sortable elements -->
-        <symbol viewBox="0 0 24 24" id="drag" aria-labelledby="drag-title">
-            <title id="drag-title">icon drag</title>
+        <symbol viewBox="0 0 24 24" id="drag">
             <path d="M24,7.5H0v3H24Zm-24,9H24v-3H0Z"/>
         </symbol>
 
         <!-- #triangle: Used for number inputs -->
-        <symbol viewBox="0 0 24 24" id="triangle" aria-labelledby="triangle-title">
-            <title id="triangle-title">icon triangle</title>
+        <symbol viewBox="0 0 24 24" id="triangle">
             <path d="M24 22h-24l12-20z"/>
         </symbol>
     </defs>

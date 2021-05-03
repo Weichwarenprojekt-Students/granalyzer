@@ -22,68 +22,6 @@ export class DataSchemeUtil {
     constructor(private readonly neo4jService: Neo4jService, private readonly databaseUtil: DatabaseUtil) {}
 
     /**
-     * Converts an element according to a given label or relation scheme
-     *
-     * @param attribute The attribute scheme
-     * @param element The attribute to be converted
-     * @param includeDefaults True if the transformation should automatically place the defaults
-     */
-    public applyOnElement(attribute: Attribute, element: any, includeDefaults: boolean): string | number | undefined {
-        if (!element && !attribute.mandatory) return undefined;
-
-        // Check if element is a neo4j integer and try to parse
-        if (element && element.low !== undefined && element.high !== undefined)
-            element = neo4j.integer.toNumber(element);
-
-        // Ensure the type is right
-        switch (attribute.datatype) {
-            case Datatype.NUMBER:
-                if (isString(element)) element = parseFloat(element);
-                if (!isNumber(element)) element = undefined;
-                break;
-            case Datatype.COLOR:
-                if (!isHexColor(element)) element = undefined;
-                break;
-            case Datatype.STRING:
-                if (element) element = element.toString();
-        }
-
-        // Insert the attribute's default value if necessary
-        if (!element && attribute.mandatory && includeDefaults) return attribute["defaultValue"];
-
-        return element;
-    }
-
-    /**
-     * Parses the record to labels
-     *
-     * @param record Single record response from db
-     */
-    public parseLabelScheme(record: Record<any, any>): LabelScheme {
-        const l = {
-            ...record.get("dataScheme"),
-        };
-        l.attributes = JSON.parse(l.attributes, Attribute.reviver);
-        return Object.assign(new LabelScheme(), l);
-    }
-
-    /**
-     * Parses the record to relationTypes
-     *
-     * @param record Single record response from db
-     */
-    public parseRelationType(record: Record<any, any>): RelationType {
-        const l = {
-            ...record.get("dataScheme"),
-        };
-
-        l.attributes = JSON.parse(l.attributes, Attribute.reviver);
-        l.connections = JSON.parse(l.connections).map((conn) => Object.assign(new Connection(), conn));
-
-        return Object.assign(new RelationType(), l);
-    }
-
-    /**
      * Parse the db response into a Node
      *
      * @param record Single record response from db
@@ -146,6 +84,10 @@ export class DataSchemeUtil {
 
             // Try to get the labels for the connected nodes
             [from, to] = await this.getLabelsForRelation(relation);
+
+            // Throws exception if node labels are not in data scheme
+            await this.getLabelScheme(from);
+            await this.getLabelScheme(to);
         } catch {
             return;
         }
@@ -160,6 +102,25 @@ export class DataSchemeUtil {
         // Parse attributes which are contained in the scheme of the relation type
         relation.attributes = this.transformAttributes(relationType, relationAttributes, includeDefaults);
         return relation;
+    }
+
+    /**
+     * Get Labels of the start and end nodes of a relation
+     *
+     * @param relation The relation
+     */
+    private async getLabelsForRelation(relation: Relation): Promise<[string, string]> {
+        // language=cypher
+        const cypher = "MATCH (s)-[r]->(e) WHERE r.relationId = $id RETURN s, e";
+        const params = {
+            id: relation.relationId,
+        };
+
+        const result = await this.neo4jService.read(cypher, params, process.env.DB_CUSTOMER);
+        if (!result.records.length)
+            throw new NotFoundException("Could not fetch the node labels of relation " + relation.type);
+
+        return [result.records[0].get("s").labels[0], result.records[0].get("e").labels[0]];
     }
 
     /**
@@ -238,21 +199,65 @@ export class DataSchemeUtil {
     }
 
     /**
-     * Get Labels of the start and end nodes of a relation
+     * Converts an element according to a given label or relation scheme
      *
-     * @param relation The relation
+     * @param attribute The attribute scheme
+     * @param element The attribute to be converted
+     * @param includeDefaults True if the transformation should automatically place the defaults
      */
-    private async getLabelsForRelation(relation: Relation): Promise<[string, string]> {
-        // language=cypher
-        const cypher = "MATCH (s)-[r]->(e) WHERE r.relationId = $id RETURN s, e";
-        const params = {
-            id: relation.relationId,
+    public applyOnElement(attribute: Attribute, element: any, includeDefaults: boolean): string | number | undefined {
+        if (element === undefined && !attribute.mandatory) return undefined;
+
+        // Check if element is a neo4j integer and try to parse
+        if (element !== undefined && element.low !== undefined && element.high !== undefined)
+            element = neo4j.integer.toNumber(element);
+
+        // Ensure the type is right
+        switch (attribute.datatype) {
+            case Datatype.NUMBER:
+                if (isString(element)) element = parseFloat(element);
+                if (!isNumber(element)) element = undefined;
+                break;
+            case Datatype.COLOR:
+                if (!isHexColor(element)) element = undefined;
+                break;
+            case Datatype.STRING:
+                if (!isString(element)) element = JSON.stringify(element);
+                break;
+            case Datatype.ENUM:
+                if (attribute.config === undefined || !attribute.config.includes(element)) element = undefined;
+        }
+        // Insert the attribute's default value if necessary
+        if (element === undefined && attribute.mandatory && includeDefaults) return attribute["defaultValue"];
+        return element;
+    }
+
+    /**
+     * Parses the record to labels
+     *
+     * @param record Single record response from db
+     */
+    public parseLabelScheme(record: Record<any, any>): LabelScheme {
+        const l = {
+            ...record.get("dataScheme"),
+        };
+        l.attributes = JSON.parse(l.attributes, Attribute.reviver);
+        return Object.assign(new LabelScheme(), l);
+    }
+
+    /**
+     * Parses the record to relationTypes
+     *
+     * @param record Single record response from db
+     */
+    public parseRelationType(record: Record<any, any>): RelationType {
+        const l = {
+            ...record.get("dataScheme"),
         };
 
-        const result = await this.neo4jService.read(cypher, params, process.env.DB_CUSTOMER);
-        if (!result.records.length)
-            throw new NotFoundException("Could not fetch the node labels of relation " + relation.type);
+        l.attributes = JSON.parse(l.attributes, Attribute.reviver);
+        l.connections = JSON.parse(l.connections).map((conn) => Object.assign(new Connection(), conn));
 
-        return [result.records[0].get("s").labels[0], result.records[0].get("e").labels[0]];
+        return Object.assign(new RelationType(), l);
     }
 }

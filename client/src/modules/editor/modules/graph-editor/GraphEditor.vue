@@ -28,7 +28,7 @@ import { defineComponent } from "vue";
 import { GraphHandler } from "./controls/GraphHandler";
 import Toolbar from "./components/Toolbar.vue";
 import { JointGraph } from "@/shared/JointGraph";
-import { errorToast, infoToast } from "@/utility";
+import { infoToast } from "@/utility";
 import InputDialog from "@/components/dialog/InputDialog.vue";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
 import { NodeDrag } from "@/shared/NodeDrag";
@@ -48,9 +48,6 @@ export default defineComponent({
     async mounted(): Promise<void> {
         this.$store.dispatch("editor/setRelationMode", false);
 
-        // Load the currently opened diagram from REST backend
-        await this.$store.dispatch("editor/fetchActiveDiagram");
-
         // Load the labels with the first load of matching nodes
         await this.$store.dispatch("overview/loadLabelsAndNodes", new NodeFilter());
 
@@ -61,11 +58,8 @@ export default defineComponent({
         this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
 
         // Generate the active diagram if available
-        if (!this.$store.state.editor.diagram) {
-            errorToast(this.$t("editor.noDiagram.title"), this.$t("editor.noDiagram.description"));
-        } else {
+        if (this.$store.state.editor.diagram)
             this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
-        }
 
         // Force the paper to update the DOM
         this.graph.paper.updateViews();

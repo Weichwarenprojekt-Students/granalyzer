@@ -19,10 +19,16 @@
     "title": "Your Diagrams",
     "addFolder": "Add folder",
     "addDiagram": "Add diagram",
-    "renameItem": "Rename {item}",
-    "deleteItem": {
-      "title": "Delete {item}",
-      "description": "Are you sure you want to delete the selected item?"
+    "renameItem": "Rename \"{item}\"",
+    "copyItem": "Copy of \"{item}\"",
+    "deletion": {
+      "title": "Delete \"{item}\"",
+      "deleteItem": {
+        "description": "Are you sure you want to delete the selected item?"
+      },
+      "deleteFolder": {
+        "description": "The folder contains {num} item(s)."
+      }
     },
     "noSelection": {
       "title": "No item selected",
@@ -34,5 +40,11 @@
       "title": "Name is empty",
       "description": "Please specify a name!"
     }
+  },
+  "tooltip": {
+    "newFolder": "New Folder",
+    "rename": "Rename",
+    "delete": "Delete (Del)",
+    "copy": "Copy (Ctrl + D)"
   }
 }
