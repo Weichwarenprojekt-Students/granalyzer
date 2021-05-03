@@ -86,7 +86,10 @@ export default defineComponent({
         onNodeClicked(node: ApiNode): void {
             this.$store.commit("overview/updateFilter", new NodeFilter());
             this.$store.commit("editor/setSelectedNode", node);
-            this.$store.dispatch("inspector/selectNode", node.nodeId);
+            this.$store.dispatch("inspector/selectNode", {
+                uuid: node.nodeId,
+                includeDefaults: true,
+            });
         },
         /**
          * Store dragged node
