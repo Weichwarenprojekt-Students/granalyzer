@@ -92,52 +92,6 @@ export class JointGraph {
     }
 
     /**
-     * Centers the content of the graph
-     */
-    public centerContent(): void {
-        const elements = this.graph.getElements();
-        if (elements.length === 0) return;
-
-        this.paper.scaleContentToFit();
-
-        // Get range of y values
-        const xRange: { min: number; max: number } = { min: Number.MAX_VALUE, max: Number.MIN_VALUE };
-        const yRange: { min: number; max: number } = { min: Number.MAX_VALUE, max: Number.MIN_VALUE };
-        let averageElementHeight = 0;
-        let averageElementWidth = 0;
-
-        elements
-            .map((el) => document.querySelector(`[model-id="${el.id}"]`)?.getBoundingClientRect())
-            .forEach((element: DOMRect | undefined) => {
-                if (!element) return;
-                const y = element.y > 0 ? element.top : element.bottom;
-                const x = element.x > 0 ? element.right : element.left;
-                if (y > yRange.max) yRange.max = y;
-                if (y < yRange.min) yRange.min = y;
-                if (x > xRange.max) xRange.max = x;
-                if (x < xRange.min) xRange.min = x;
-                averageElementHeight += element.height;
-                averageElementWidth += element.width;
-            });
-
-        // Translate graph to fit the bounding box
-        averageElementHeight /= elements.length;
-        averageElementWidth /= elements.length;
-        const bBoxMiddle = this.paper.clientToLocalPoint({
-            x: (xRange.min + xRange.max - averageElementWidth) / 2,
-            y: (yRange.min + yRange.max + averageElementHeight) / 2,
-        });
-        this.centerGraph({ x: bBoxMiddle.x, y: bBoxMiddle.y });
-
-        // Extra margin
-        const area = this.paper.getArea();
-        const xMiddle = area.x + area.width / 2;
-        const yMiddle = area.y + area.height / 2;
-        this.zoom(-1, xMiddle, yMiddle);
-        while (this.paper.scale().sx > 1.5) this.zoom(-1, xMiddle, yMiddle);
-    }
-
-    /**
      * Move the diagram paper
      */
     // eslint-disable-next-line
@@ -214,6 +168,73 @@ export class JointGraph {
         uniqueNeighborIds.forEach((neighborId) => {
             this.adjustSiblingRelations(neighborId, element.id.toString(), rearrangeAll);
         });
+    }
+
+    /**
+     * Zoom the diagram paper
+     * https://github.com/clientIO/joint/issues/1027
+     *
+     * @param delta The amount the mousewheel has changed
+     * @param x The x coordinate of the mousewheel event
+     * @param y The y coordinate of the mousewheel event
+     */
+    public zoom(delta: number, x: number, y: number): void {
+        // Calculate the new scale and check if it is in bounds
+        const oldScale = this.paper.scale().sx;
+        const nextScale = 1.1 ** delta * oldScale;
+        if ((nextScale < 0.01 && nextScale < oldScale) || (nextScale > 10 && nextScale > oldScale)) return;
+
+        // Adjust the translation of the paper so that the zoom actually
+        // centers with the mouse
+        const currentScale = this.paper.scale().sx;
+        const beta = currentScale / nextScale;
+        const ax = x - x * beta;
+        const ay = y - y * beta;
+
+        const translate = this.paper.translate();
+        const nextTx = translate.tx - ax * nextScale;
+        const nextTy = translate.ty - ay * nextScale;
+
+        this.paper.translate(nextTx, nextTy);
+        this.paper.scale(nextScale);
+    }
+
+    /**
+     * Get the size of a node
+     *
+     * @param node The node of which to get the size from
+     * @return Size of the node or undefined, if size can't be determined
+     */
+    public sizeOf(node: dia.Cell): { width: number; height: number } {
+        // Get size directly from jointJs and if it's set correctly (!= 1) return it
+        const jointSize = node.getBBox();
+        if (jointSize.width !== 1 && jointSize.height !== 1) return jointSize;
+
+        // Otherwise get the dimensions of the rendered element from the DOM
+        const domElement = document.querySelector(`.joint-cells-layer > [model-id="${node.id}"] > rect`);
+        const boundingClientRect = domElement?.getBoundingClientRect();
+
+        // Couldn't get bounding box
+        if (boundingClientRect == null) return { width: 200, height: 30 };
+
+        // Get coordinates of opposite corners on the joint js paper
+        const upperLeft = this.paper.clientToLocalPoint(boundingClientRect.left, boundingClientRect.top);
+        const lowerRight = this.paper.clientToLocalPoint(boundingClientRect.right, boundingClientRect.bottom);
+
+        return {
+            width: lowerRight.x - upperLeft.x,
+            height: lowerRight.y - upperLeft.y,
+        };
+    }
+
+    /**
+     * Prepare a drag image that is matching the current paper zoom
+     * and the node's shape
+     *
+     * @param drag The node drag event
+     */
+    public createDragNode(drag: NodeDrag): void {
+        createDragNode(drag, this.paper.scale().sx);
     }
 
     /**
@@ -370,72 +391,5 @@ export class JointGraph {
 
         // Zoom the paper while over blank space
         this.paper.on("blank:mousewheel", (evt, x, y, delta) => this.zoom(delta, x, y));
-    }
-
-    /**
-     * Zoom the diagram paper
-     * https://github.com/clientIO/joint/issues/1027
-     *
-     * @param delta The amount the mousewheel has changed
-     * @param x The x coordinate of the mousewheel event
-     * @param y The y coordinate of the mousewheel event
-     */
-    private zoom(delta: number, x: number, y: number): void {
-        // Calculate the new scale and check if it is in bounds
-        const oldScale = this.paper.scale().sx;
-        const nextScale = 1.1 ** delta * oldScale;
-        if ((nextScale < 0.01 && nextScale < oldScale) || (nextScale > 10 && nextScale > oldScale)) return;
-
-        // Adjust the translation of the paper so that the zoom actually
-        // centers with the mouse
-        const currentScale = this.paper.scale().sx;
-        const beta = currentScale / nextScale;
-        const ax = x - x * beta;
-        const ay = y - y * beta;
-
-        const translate = this.paper.translate();
-        const nextTx = translate.tx - ax * nextScale;
-        const nextTy = translate.ty - ay * nextScale;
-
-        this.paper.translate(nextTx, nextTy);
-        this.paper.scale(nextScale);
-    }
-
-    /**
-     * Get the size of a node
-     *
-     * @param node The node of which to get the size from
-     * @return Size of the node or undefined, if size can't be determined
-     */
-    public sizeOf(node: dia.Cell): { width: number; height: number } {
-        // Get size directly from jointJs and if it's set correctly (!= 1) return it
-        const jointSize = node.getBBox();
-        if (jointSize.width !== 1 && jointSize.height !== 1) return jointSize;
-
-        // Otherwise get the dimensions of the rendered element from the DOM
-        const domElement = document.querySelector(`.joint-cells-layer > [model-id="${node.id}"] > rect`);
-        const boundingClientRect = domElement?.getBoundingClientRect();
-
-        // Couldn't get bounding box
-        if (boundingClientRect == null) return { width: 200, height: 30 };
-
-        // Get coordinates of opposite corners on the joint js paper
-        const upperLeft = this.paper.clientToLocalPoint(boundingClientRect.left, boundingClientRect.top);
-        const lowerRight = this.paper.clientToLocalPoint(boundingClientRect.right, boundingClientRect.bottom);
-
-        return {
-            width: lowerRight.x - upperLeft.x,
-            height: lowerRight.y - upperLeft.y,
-        };
-    }
-
-    /**
-     * Prepare a drag image that is matching the current paper zoom
-     * and the node's shape
-     *
-     * @param drag The node drag event
-     */
-    public createDragNode(drag: NodeDrag): void {
-        createDragNode(drag, this.paper.scale().sx);
     }
 }

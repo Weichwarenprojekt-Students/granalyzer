@@ -55,7 +55,8 @@ export default defineComponent({
         this.graph = new JointGraph("joint", true);
         this.graph.paper.freeze();
         this.graph.centerGraph();
-        this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
+        const graphHandler = new GraphHandler(this.$store, this.graph);
+        this.$store.commit("editor/setGraphHandler", graphHandler);
 
         // Generate the active diagram if available
         if (this.$store.state.editor.diagram)
@@ -80,7 +81,7 @@ export default defineComponent({
 
         this.$store.commit("editor/setEditorLoading", false);
 
-        this.graph.centerContent();
+        graphHandler.controls.centerContent();
     },
     unmounted() {
         this.$store.commit("editor/resetHeatMap");

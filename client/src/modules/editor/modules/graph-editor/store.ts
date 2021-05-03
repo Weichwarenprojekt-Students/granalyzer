@@ -135,7 +135,7 @@ export const graphEditor = {
          * Centers the content of the graph
          */
         centerContent(state: GraphEditorState): void {
-            state.graphHandler?.graph.centerContent();
+            state.graphHandler?.controls.centerContent();
         },
 
         /**
