@@ -66,7 +66,7 @@ export default defineComponent({
     align-items: center;
     display: flex;
     justify-content: space-between;
-    padding-left: 8px;
+    padding-left: 16px;
 
     &.red {
         border-left: 4px @heat_from solid;

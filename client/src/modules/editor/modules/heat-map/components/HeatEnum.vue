@@ -1,12 +1,21 @@
 <template>
-    <ul class="heat-enum" ref="enumList">
-        <li v-for="entry in config.values" :key="entry" class="heat-row" :data-value="entry">
-            <svg :style="{ 'border-right': `4px ${config.valueColors.get(entry)} solid` }">
-                <use :xlink:href="`${require('@/assets/img/icons.svg')}#drag`"></use>
-            </svg>
-            {{ entry }}
-        </li>
-    </ul>
+    <div class="heat-enum">
+        <div class="heat-color-preview">
+            <div
+                v-for="entry in config.values"
+                :key="entry"
+                :style="{ 'border-right': `4px ${config.valueColors.get(entry)} solid` }"
+            />
+        </div>
+        <ul class="heat-list" ref="enumList">
+            <li v-for="entry in config.values" :key="entry" :data-value="entry">
+                <svg>
+                    <use :xlink:href="`${require('@/assets/img/icons.svg')}#drag`"></use>
+                </svg>
+                {{ entry }}
+            </li>
+        </ul>
+    </div>
 </template>
 
 <script lang="ts">
@@ -30,7 +39,6 @@ export default defineComponent({
     mounted() {
         // Create the sortable list
         Sortable.create(this.$refs.enumList as HTMLElement, {
-            sort: true,
             animation: 300,
             ghostClass: "heat-ghost-class",
             dragClass: "heat-drag",
@@ -55,10 +63,9 @@ export default defineComponent({
         onSort(evt: SortableEvent) {
             // Swap the elements
             if (evt.newIndex === undefined || evt.oldIndex === undefined) return;
-            [this.config.values[evt.oldIndex], this.config.values[evt.newIndex]] = [
-                this.config.values[evt.newIndex],
-                this.config.values[evt.oldIndex],
-            ];
+            const draggedValue = this.config.values.splice(evt.oldIndex, 1)[0];
+            this.config.values.splice(evt.newIndex, 0, draggedValue);
+
             // Update the colors and the v model
             this.config.updateColors();
             this.$emit("update:modelValue", this.config);
@@ -70,24 +77,42 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global";
 
+@row_height: 30px;
+
 .heat-enum {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+}
+
+.heat-color-preview {
     display: flex;
     flex-direction: column;
     gap: 8px;
+
+    div {
+        height: @row_height;
+    }
 }
 
-.heat-row {
-    align-items: center;
+.heat-list {
     display: flex;
-    cursor: grab;
-    background: white;
+    flex-direction: column;
+    gap: 8px;
 
-    svg {
-        width: 26px;
-        padding: 8px 8px 8px 0;
-        height: 30px;
-        fill: @dark;
-        margin-right: 8px;
+    li {
+        align-items: center;
+        display: flex;
+        cursor: grab;
+        background: white;
+        height: @row_height;
+        gap: 12px;
+
+        svg {
+            width: 14px;
+            height: 14px;
+            fill: @dark;
+        }
     }
 }
 
