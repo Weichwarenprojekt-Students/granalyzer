@@ -243,6 +243,12 @@ export const graphEditor = {
         deleteHeatConfig(state: GraphEditorState, label: string): void {
             state.graphHandler?.heatConfigs.delete(label);
         },
+        /**
+         * Clear all active heat configs
+         */
+        clearHeatConfigs(state: GraphEditorState): void {
+            state.graphHandler?.heatConfigs.clear();
+        },
     },
     actions: {
         /**

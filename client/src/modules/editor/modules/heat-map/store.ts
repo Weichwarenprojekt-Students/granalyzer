@@ -106,10 +106,9 @@ export const heatMap = {
         /**
          * Clear cache and active heat configs
          */
-        resetHeatMap(state: RootState): void {
-            state.editor?.heatMap?.nodeCache.clear();
-            state.editor?.heatMap?.labelCache.clear();
-            state.editor?.graphEditor?.graphHandler?.heatConfigs.clear();
+        resetHeatMap(state: HeatMapState): void {
+            state.nodeCache.clear();
+            state.labelCache.clear();
         },
     },
     actions: {
@@ -170,7 +169,7 @@ export const heatMap = {
                             // If the attribute could be created, use it
                             context.commit(
                                 "editor/setHeatConfig",
-                                { label: labelName, config: heatConfig },
+                                { label: labelName, config: newHeatConfig },
                                 { root: true },
                             );
                         // If it couldn't, just delete the previous one

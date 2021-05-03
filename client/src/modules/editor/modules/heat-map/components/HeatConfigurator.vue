@@ -87,14 +87,22 @@ export default defineComponent({
                 labelName: this.label.name,
                 attributeName: this.selectedAttribute,
             });
+        },
+        /**
+         * Check if the heat configs have changed
+         */
+        "$store.state.editor.graphEditor.graphHandler.heatConfigs": {
+            async handler() {
+                // Get changed heat config
+                const heatConfig = this.$store.state.editor.graphEditor.graphHandler?.heatConfigs.get(this.label.name);
+                if (heatConfig) {
+                    this.heatConfig = heatConfig;
+                } else this.heatConfig = {} as HeatConfig;
 
-            // Get heat config that was set in previous step
-            const heatConfig = this.$store.state.editor.graphEditor.graphHandler?.heatConfigs.get(this.label.name);
-            if (heatConfig) this.heatConfig = heatConfig;
-            else this.heatConfig = {} as HeatConfig;
-
-            // Save changes
-            await this.$store.dispatch("editor/saveChange");
+                // Save changes
+                await this.$store.dispatch("editor/saveChange");
+            },
+            deep: true,
         },
     },
 });

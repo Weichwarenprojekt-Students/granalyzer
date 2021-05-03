@@ -59,6 +59,7 @@ export default defineComponent({
         this.$store.commit("editor/setGraphHandler", graphHandler);
 
         // Reset heat map
+        this.$store.commit("editor/clearHeatConfigs");
         this.$store.commit("editor/resetHeatMap");
 
         // Generate the active diagram if available
