@@ -101,6 +101,17 @@ export class GraphUtils {
     }
 
     /**
+     * Sets the focus on the node which is currently edited in the inspector
+     */
+    public setEditedNodeFocus(): void {
+        const editedNode = this.store.state.inspector?.element;
+        if (editedNode && editedNode instanceof ApiNode) {
+            const shapeID = this.mappedNodes.get(editedNode.nodeId);
+            if (shapeID) this.graph.selectElement(this.graph.paper.findViewByModel(shapeID));
+        }
+    }
+
+    /**
      * Transforms an ApiRelation to a node, creates a link and places it in the graph
      *
      * @param apiRelation Relation to be placed in the diagram

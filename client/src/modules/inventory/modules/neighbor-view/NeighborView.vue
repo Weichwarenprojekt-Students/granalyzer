@@ -111,6 +111,9 @@ export default defineComponent({
             // Neighbor nodes
             for (const apiNode of neighbors) this.graphUtils.addNodeToDiagram(apiNode);
 
+            // Set the focus on the currently edited node
+            this.graphUtils.setEditedNodeFocus();
+
             // Neighbor relations
             for (const apiRelation of relations) this.graphUtils.addRelationToDiagram(apiRelation);
 
