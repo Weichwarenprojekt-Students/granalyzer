@@ -1,18 +1,20 @@
 <template>
-    <div v-show="show" class="background" @click="$emit('cancel')">
-        <Dialog :visible="show">
-            <!-- Insert customized content -->
-            <slot></slot>
+    <Dialog :visible="show">
+        <div class="dialog-background" @click="$emit('cancel')">
+            <div class="dialog-content">
+                <!-- Insert customized content -->
+                <slot></slot>
 
-            <!-- The bottom action bar -->
-            <div class="bottom-section">
-                <button @click="$emit('cancel')" class="btn btn-normal">{{ $t("global.dialog.cancel") }}</button>
-                <button @click="$emit('confirm')" class="confirm-button btn btn-primary">
-                    {{ $t("global.dialog.confirm") }}
-                </button>
+                <!-- The bottom action bar -->
+                <div class="dialog-footer">
+                    <button @click="$emit('cancel')" class="btn btn-normal">{{ $t("global.dialog.cancel") }}</button>
+                    <button @click="$emit('confirm')" class="confirm-button btn btn-primary">
+                        {{ $t("global.dialog.confirm") }}
+                    </button>
+                </div>
             </div>
-        </Dialog>
-    </div>
+        </div>
+    </Dialog>
 </template>
 
 <script lang="ts">
@@ -52,17 +54,7 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global";
 
-.background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 400;
-}
-
-.bottom-section {
+.dialog-footer {
     padding: 8px 24px;
     background: @light_grey;
     display: flex;
@@ -71,5 +63,18 @@ export default defineComponent({
     button {
         margin: 8px;
     }
+}
+
+.dialog-background {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.dialog-content {
+    background: white;
 }
 </style>
