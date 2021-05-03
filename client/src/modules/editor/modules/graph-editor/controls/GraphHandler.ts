@@ -224,6 +224,9 @@ export class GraphHandler {
                 // this.controls.resetSelection()! This leads to unexplainable error after changing the shape of
                 // an element.
                 this.store.commit("editor/resetSelection");
+
+                // Interrupt drawing visual relations
+                this.relationMode.cancelRelationDrawing();
             },
             // Reset the focus of input fields if necessary
             "cell:pointerdown": () => {
@@ -249,6 +252,9 @@ export class GraphHandler {
             },
             // Select relation or switch it, depending on the state of the relation mode
             "link:pointerdown": async (linkView) => {
+                // Interrupt drawing visual relations
+                this.relationMode.cancelRelationDrawing();
+
                 await this.controls.selectRelation(linkView);
 
                 await this.relationMode.switchRelation(linkView);

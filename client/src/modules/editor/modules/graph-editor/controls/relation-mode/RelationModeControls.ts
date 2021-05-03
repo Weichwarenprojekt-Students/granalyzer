@@ -157,6 +157,13 @@ export class RelationModeControls {
     }
 
     /**
+     * Cancel the drawing of visual relations
+     */
+    public cancelRelationDrawing(): void {
+        this.visualRelationControls.cancelDrawing();
+    }
+
+    /**
      * Mousemove callback
      */
     // eslint-disable-next-line
