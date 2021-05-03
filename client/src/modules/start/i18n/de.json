@@ -19,10 +19,10 @@
     "title": "Ihre Diagramme",
     "addFolder": "Ordner hinzufügen",
     "addDiagram": "Diagramm hinzufügen",
-    "renameItem": "{item} umbenennen",
+    "renameItem": "\"{item}\" umbenennen",
     "copyItem": "Kopie von \"{item}\"",
     "deletion": {
-      "title": "{item} löschen",
+      "title": "\"{item}\" löschen",
       "deleteItem": {
         "description": "Wollen Sie das ausgewählte Element löschen?"
       },
@@ -45,6 +45,6 @@
     "newFolder": "Neuer Ordner",
     "rename": "Umbenennen",
     "delete": "Löschen (Entf)",
-    "copy": "Kopieren (Strg + C)"
+    "copy": "Kopieren (Strg + D)"
   }
 }

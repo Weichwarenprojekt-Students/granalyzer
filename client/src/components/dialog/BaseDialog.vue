@@ -30,16 +30,16 @@ export default defineComponent({
         },
     },
     mounted() {
-        if (this.bindKeyEvents) window.addEventListener("keyup", this.onKeyUp);
+        if (this.bindKeyEvents) window.addEventListener("keyup", this.onKeyDown);
     },
     unmounted() {
-        if (this.bindKeyEvents) window.removeEventListener("keyup", this.onKeyUp);
+        if (this.bindKeyEvents) window.removeEventListener("keyup", this.onKeyDown);
     },
     methods: {
         /**
          * Handle the key events (for shortcuts)
          */
-        onKeyUp(e: KeyboardEvent) {
+        onKeyDown(e: KeyboardEvent) {
             if (this.show) {
                 if (e.key == "Escape") this.$emit("cancel");
                 else if (e.key == "Enter") this.$emit("confirm");

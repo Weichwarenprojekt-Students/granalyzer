@@ -57,6 +57,18 @@
             </svg>
         </div>
 
+        <!-- Copy Diagram -->
+        <div
+            v-show="Object.keys(selectedDiagram).length > 0"
+            class="tooltip"
+            v-tooltip.bottom="$t('start.tooltip.copy')"
+            @click="diagramCopyDialog = true"
+        >
+            <svg class="explorer-button">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#copy`"></use>
+            </svg>
+        </div>
+
         <!-- Edit Item -->
         <div
             v-show="isItemSelected"
@@ -78,18 +90,6 @@
         >
             <svg class="explorer-button">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#trash`"></use>
-            </svg>
-        </div>
-
-        <!-- Copy Diagram -->
-        <div
-            v-show="Object.keys(selectedDiagram).length > 0"
-            class="tooltip"
-            v-tooltip.bottom="$t('start.tooltip.copy')"
-            @click="diagramCopyDialog = true"
-        >
-            <svg class="explorer-button">
-                <use :xlink:href="`${require('@/assets/img/icons.svg')}#copy`"></use>
             </svg>
         </div>
     </div>
@@ -185,10 +185,10 @@ export default defineComponent({
         // Load the items
         this.loadItems();
         // Handle shortcuts
-        window.addEventListener("keyup", this.onKeyUp);
+        window.addEventListener("keydown", this.onKeyDown);
     },
     unmounted() {
-        window.removeEventListener("keyup", this.onKeyUp);
+        window.removeEventListener("keydown", this.onKeyDown);
     },
     watch: {
         $route(to) {
@@ -229,10 +229,13 @@ export default defineComponent({
         /**
          * Handle keyup events
          */
-        onKeyUp(e: KeyboardEvent): void {
+        onKeyDown(e: KeyboardEvent): void {
             if (e.key == "Delete" && (!isEmpty(this.selectedDiagram) || !isEmpty(this.selectedFolder)))
                 this.deleteDialog();
-            else if (e.key == "c" && e.ctrlKey && !isEmpty(this.selectedDiagram)) this.diagramCopyDialog = true;
+            else if (e.key == "d" && e.ctrlKey && !isEmpty(this.selectedDiagram)) {
+                e.preventDefault();
+                this.diagramCopyDialog = true;
+            }
         },
         /**
          * Add an empty folder
