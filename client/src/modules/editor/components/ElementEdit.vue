@@ -100,6 +100,8 @@ export default defineComponent({
             colorEnabled: true,
             // True if the border color is enabled
             borderColorEnabled: true,
+            // True if the style update shall be skipped once
+            skipStyleUpdate: false,
         };
     },
     computed: {
@@ -128,6 +130,12 @@ export default defineComponent({
          */
         elementStyle: {
             handler() {
+                // Check if the update shall be skipped once
+                if (this.skipStyleUpdate) {
+                    this.skipStyleUpdate = false;
+                    return;
+                }
+
                 // Check if the update routine is already running
                 if (this.styleTimeoutActive) return;
                 this.styleTimeoutActive = true;
@@ -164,6 +172,9 @@ export default defineComponent({
             // Ensure that there are color values given
             this.elementStyle.color = this.elementStyle.color ?? DEFAULT_COLOR;
             this.elementStyle.borderColor = this.elementStyle.borderColor ?? DEFAULT_COLOR;
+
+            // Prevent the node from being restyled directly
+            this.skipStyleUpdate = true;
         },
         /**
          * Execute a live style update
