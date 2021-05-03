@@ -10,7 +10,7 @@ import { RelationModeControls } from "@/modules/editor/modules/graph-editor/cont
 import NodesController from "@/modules/editor/modules/graph-editor/controls/nodes/NodesController";
 import RelationsController from "@/modules/editor/modules/graph-editor/controls/relations/RelationsController";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
-import { HeatConfig } from "@/modules/editor/modules/heat-map/models/HeatConfig";
+import { HeatConfig, HeatConfigType } from "@/modules/editor/modules/heat-map/models/HeatConfig";
 
 export class GraphHandler {
     /**
@@ -94,9 +94,17 @@ export class GraphHandler {
 
         // Restore saved heat configs
         if (heatConfigs)
-            Object.entries(heatConfigs).forEach(([key, value]) =>
-                this.heatConfigs.set(key, JSON.parse(JSON.stringify(value), HeatConfig.reviver)),
-            );
+            Object.entries(heatConfigs).forEach(([key, value]) => {
+                const newHeatConfig = JSON.parse(JSON.stringify(value), HeatConfig.reviver);
+
+                // Restore the color map of heat enum config
+                if (newHeatConfig.type === HeatConfigType.ENUM) {
+                    newHeatConfig.valueColors = new Map<string, string>();
+                    newHeatConfig.updateColors();
+                }
+
+                return this.heatConfigs.set(key, newHeatConfig);
+            });
     }
 
     /**
