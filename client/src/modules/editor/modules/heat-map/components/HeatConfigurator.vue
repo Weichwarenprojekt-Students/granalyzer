@@ -115,9 +115,15 @@ export default defineComponent({
     display: flex;
     border-bottom: 1px solid @grey;
     justify-content: space-between;
+    gap: 12px;
 
     label {
         font-weight: bold;
+        flex: 1 1 auto;
+        width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
 

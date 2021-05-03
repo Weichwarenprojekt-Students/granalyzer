@@ -42,7 +42,7 @@
                     {{ $t("editor.nodeEdit.color") }}
                 </div>
             </div>
-            <ColorPicker :disabled="!colorEnabled" @change="changeStyle" v-model="elementStyle.color" />
+            <ColorPicker @change="changeColor" v-model="elementStyle.color" />
         </div>
 
         <!-- The border color -->
@@ -58,7 +58,7 @@
                     {{ $t("editor.nodeEdit.borderColor") }}
                 </div>
             </div>
-            <ColorPicker :disabled="!borderColorEnabled" @change="changeStyle" v-model="elementStyle.borderColor" />
+            <ColorPicker @change="changeBorderColor" v-model="elementStyle.borderColor" />
         </div>
     </div>
 </template>
@@ -196,6 +196,20 @@ export default defineComponent({
          */
         hide(): void {
             (document.activeElement as HTMLElement).blur();
+        },
+        /**
+         * Activate the color if value is changed
+         */
+        changeColor(): void {
+            this.colorEnabled = true;
+            this.changeStyle();
+        },
+        /**
+         * Activate the border color if value is changed
+         */
+        changeBorderColor(): void {
+            this.borderColorEnabled = true;
+            this.changeStyle();
         },
         /**
          * Add the change style command

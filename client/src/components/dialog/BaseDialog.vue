@@ -1,7 +1,7 @@
 <template>
     <Dialog :visible="show">
         <div class="dialog-background" @click="$emit('cancel')">
-            <div class="dialog-content">
+            <div class="dialog-content" @click.stop>
                 <!-- Insert customized content -->
                 <slot></slot>
 

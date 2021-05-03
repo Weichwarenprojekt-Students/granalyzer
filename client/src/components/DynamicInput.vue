@@ -5,7 +5,14 @@
         :placeholder="$t('global.input.placeholder')"
         :disabled="disabled"
     />
-    <Dropdown v-else-if="type === datatype.ENUM" :options="config" v-model="value" :disabled="disabled" />
+    <Dropdown
+        v-else-if="type === datatype.ENUM"
+        :options="config"
+        v-model="value"
+        :disabled="disabled"
+        :placeholder="$t('global.dropdown.choose')"
+        :emptyMessage="$t('global.dropdown.empty')"
+    />
     <ColorPicker v-else-if="type === datatype.COLOR" v-model="value" :disabled="disabled" />
     <label v-else>
         <input

@@ -93,6 +93,7 @@ export default defineComponent({
             let number = parseFloat(this.value);
             number = isNaN(number) ? 0 : number + 1;
             this.value = number.toString();
+            this.$emit("change");
         },
         /**
          * Decrease the value
@@ -101,6 +102,7 @@ export default defineComponent({
             let number = parseFloat(this.value);
             number = isNaN(number) ? 0 : number - 1;
             this.value = number.toString();
+            this.$emit("change");
         },
     },
 });

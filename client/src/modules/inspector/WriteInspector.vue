@@ -71,7 +71,7 @@
                         v-model="attribute.value"
                         :type="attribute.datatype"
                         :config="attribute.config"
-                        :disabled="!attribute.active"
+                        @change="attribute.active = true"
                     />
                 </div>
             </div>
