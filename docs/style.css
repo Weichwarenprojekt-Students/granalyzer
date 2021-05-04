@@ -30,7 +30,8 @@ body {
 }
 
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
-     font-weight: 400;
+    font-weight: 400;
+    margin-bottom: 1.5rem;
 }
 
 /* Links */
@@ -38,22 +39,26 @@ a {
     text-decoration: none;
     color: var(--prime-3);
 }
+
 a:hover {
     color: var(--prime-3);
 }
 
 /* Buttons */
 .bg-primary {
-     background-color: var(--prime-3) !important;
- }
+    background-color: var(--prime-3) !important;
+}
+
 .btn {
     border-radius: 0;
 }
+
 .btn-primary {
     background-color: var(--prime-2);
     border-color: var(--prime-2);
     color: var(--text);
 }
+
 .btn-primary:hover,
 .btn-primary:active,
 .btn-primary:focus,
@@ -129,6 +134,13 @@ section:last-of-type .container-md {
 .logo-box p {
     text-align: left;
     padding: 0 16px;
+}
+
+/* Change the order of the flex box elements */
+@media screen and (max-width: 1199px) {
+    .put-below {
+        order: 1;
+    }
 }
 
 /**
