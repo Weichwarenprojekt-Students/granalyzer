@@ -34,7 +34,7 @@ a {
 
 
 section .container-md {
-    padding: 80px 0;
+    padding: 64px 0;
     border-bottom: 1px solid var(--prime-3);
 }
 
@@ -50,6 +50,10 @@ section:last-of-type .container-md {
 
 .assembus-logo {
     height: 30px;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: var(--text);
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
@@ -339,7 +343,7 @@ button.pronounce {
 }
 
 section#manual {
-    padding: 64px 0;
+    padding: 0;
 }
 
 .assembus-doc-nav {
@@ -357,6 +361,7 @@ hr {
 
 .sticky-top {
     top: calc(64px + var(--header-height));
+    padding: 8px 0;
 }
 
 :target {
@@ -413,64 +418,16 @@ hr {
     }
 }
 
-
-/**
- *
- * Download specific
- *
- */
-
-section#download {
-    padding: 96px 0;
-}
-
-.jumbo-logo-container img {
-    width: 90%;
-    height: auto;
-    max-width: 250px;
-    margin: 24px auto;
-}
-
-.jumbo-logo-container {
-    text-align: center;
-}
-
-.download-button a {
-    display: none;
-}
-
-.download-icon {
-    margin-right: 8px;
-    height: 24px;
-    margin-bottom: 1px;
-}
-
-@media all and (max-width: 991px) {
-    #download .jumbotron {
-        order: 2;
-    }
-
-    #download * {
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-    }
-
-    .general-download {
-        display: none;
-    }
-}
-
-.download-title {
-    margin-top: 32px;
-}
-
-.download-buttons {
-    margin-top: 16px;
-    margin-bottom: 32px;
-}
-
 span.manual-teaser {
     display: inline-block;
     margin-top: 16px;
+}
+
+* {
+    color: var(--text);
+    font-size: var(--text);
+    font-family: "Fira Sans", normal, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-weight: normal;
 }
