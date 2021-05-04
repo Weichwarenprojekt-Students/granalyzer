@@ -40,7 +40,8 @@
       "rectangle": "Rechteck",
       "circle": "Kreis",
       "diamond": "Diamand",
-      "cylinder": "Zylinder"
+      "cylinder": "Zylinder",
+      "cloud": "Wolke"
     }
   },
   "visualElements": {

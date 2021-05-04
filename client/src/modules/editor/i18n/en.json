@@ -40,7 +40,8 @@
       "rectangle": "Rectangle",
       "circle": "Circle",
       "diamond": "Diamond",
-      "cylinder": "Cylinder"
+      "cylinder": "Cylinder",
+      "cloud": "Cloud"
     }
   },
   "visualElements": {
