@@ -1,17 +1,20 @@
 <template>
-    <div class="content">
-        <OverviewList
-            :selectedItemId="$store.state.inventory.selectedNode?.nodeId"
-            :create="true"
-            class="overview"
-            @clicked-on-node="clickedOnNode"
-            @dragging-node="draggingNode"
-        ></OverviewList>
+    <div class="inventory">
+        <CollapsablePanel :left="true">
+            <OverviewList
+                :selectedItemId="$store.state.inventory.selectedNode?.nodeId"
+                :create="true"
+                @on-node-clicked="onNodeClicked"
+                @on-node-drag="onNodeDrag"
+            ></OverviewList>
+        </CollapsablePanel>
         <div class="center">
             <InventoryHeader class="header"></InventoryHeader>
             <NeighborView class="editor" :selectedNode="$store.state.inventory.selectedNode"></NeighborView>
         </div>
-        <WriteInspector class="inspector" />
+        <CollapsablePanel :left="false">
+            <WriteInspector class="inspector" />
+        </CollapsablePanel>
     </div>
 </template>
 
@@ -22,10 +25,14 @@ import InventoryHeader from "@/modules/inventory/components/InventoryHeader.vue"
 import NeighborView from "@/modules/inventory/modules/neighbor-view/NeighborView.vue";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import WriteInspector from "@/modules/inspector/WriteInspector.vue";
+import { NodeDrag } from "@/shared/NodeDrag";
+import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
+import CollapsablePanel from "@/components/CollapsablePanel.vue";
 
 export default defineComponent({
     name: "Inventory",
     components: {
+        CollapsablePanel,
         WriteInspector,
         OverviewList,
         NeighborView,
@@ -33,28 +40,35 @@ export default defineComponent({
     },
     beforeCreate() {
         // Load the labels with the first load of matching nodes
+        this.$store.commit("overview/updateFilter", new NodeFilter());
         this.$store.dispatch("overview/loadLabelsAndNodes");
 
         // Restore last selection if revisiting
         if (this.$store.state.inventory.selectedNode) {
             this.$store.dispatch("inventory/loadNeighbors", this.$store.state.inventory.selectedNode);
-            this.$store.dispatch("inspector/selectNode", this.$store.state.inventory.selectedNode.nodeId);
+            this.$store.dispatch("inspector/selectNode", {
+                uuid: this.$store.state.inventory.selectedNode.nodeId,
+                includeDefaults: false,
+            });
         }
     },
     methods: {
         /**
          * Store node that was selected
          */
-        clickedOnNode(node: ApiNode): void {
-            this.$store.dispatch("inspector/selectNode", node.nodeId);
+        onNodeClicked(node: ApiNode): void {
             if (this.$store.state.inventory.selectedNode?.nodeId === node.nodeId || this.$store.state.inventory.loading)
                 return;
-            this.$store.dispatch("inventory/loadNeighbors", node);
+            this.$store.dispatch("inspector/selectNode", {
+                uuid: node.nodeId,
+                includeDefaults: false,
+            });
+            this.$store.commit("inventory/setSelectedNode", node);
         },
         /**
          * Store dragged node
          */
-        draggingNode(node: ApiNode): void {
+        onNodeDrag(node: NodeDrag): void {
             this.$store.commit("inventory/setDraggedNode", node);
         },
     },
@@ -64,18 +78,12 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
-.content {
+.inventory {
+    overflow: hidden;
     width: 100%;
     height: 100%;
     background: @light_grey;
     display: flex;
-}
-
-.overview {
-    width: @inventory_width;
-    height: 100vh;
-    flex: 0 0 auto;
-    background: white;
 }
 
 .center {
@@ -93,12 +101,5 @@ export default defineComponent({
 
 .editor {
     flex: 1 1 auto;
-}
-
-.inspector {
-    width: @inspector_width;
-    height: 100vh;
-    flex: 0 0 auto;
-    background: white;
 }
 </style>

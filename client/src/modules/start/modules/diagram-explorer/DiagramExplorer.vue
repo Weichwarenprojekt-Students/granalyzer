@@ -47,8 +47,8 @@
     <!-- The explorer toolbar -->
     <div class="explorer-header">
         <h2 class="title">{{ $t("start.diagrams.title") }}</h2>
-        <h2 v-show="$store.state.start.parent.name" class="title-minus">&#8212;</h2>
-        <h2 v-show="$store.state.start.parent.name" class="title-folder">{{ $store.state.start.parent.name }}</h2>
+        <h2 v-show="$store.state.start.parent.name" class="title-extra">&#8212;</h2>
+        <h2 v-show="$store.state.start.parent.name" class="title-extra">{{ $store.state.start.parent.name }}</h2>
 
         <!-- Add Folder -->
         <div class="tooltip" v-tooltip.bottom="$t('start.tooltip.newFolder')" @click="addFolderDialog = true">
@@ -191,8 +191,10 @@ export default defineComponent({
         window.removeEventListener("keydown", this.onKeyDown);
     },
     watch: {
+        /**
+         * Check if items have to be reloaded
+         */
         $route(to) {
-            // Check if the items have to be reloaded
             if (to.path.startsWith(routeNames.start)) this.loadItems();
         },
     },
@@ -393,11 +395,12 @@ export default defineComponent({
     overflow: hidden;
 }
 
-.title-minus {
-    margin: 0 12px;
+.add-folder {
+    margin-left: 32px;
 }
 
-.title-folder {
+.title-extra {
+    margin-left: 12px;
     font-style: italic;
 }
 

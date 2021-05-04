@@ -4,6 +4,7 @@
             @input-confirm="createDiagram"
             @cancel="dialogAddDiagram = false"
             :show="dialogAddDiagram"
+            :default="$store.state.inventory.selectedNode?.name"
             :image-src="require('@/assets/img/icons.svg') + '#circle-plus'"
             :title="$t('inventory.createDiagram')"
         ></InputDialog>
@@ -76,5 +77,10 @@ export default defineComponent({
 button {
     position: absolute;
     right: 16px;
+}
+
+.title-extra {
+    margin-left: 12px;
+    font-style: italic;
 }
 </style>

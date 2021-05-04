@@ -3,8 +3,6 @@ import { dia, linkTools, shapes } from "jointjs";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
-import { RootState } from "@/store";
-import { Store } from "vuex";
 import { RemoveRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/RemoveRelationCommand";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
 import { RelationsMap } from "@/modules/editor/modules/graph-editor/controls/relations/RelationsMap";
@@ -17,9 +15,8 @@ export default class RelationsController extends RelationsMap {
      * Constructor
      *
      * @param graphHandler Instance of the graph handler
-     * @param store
      */
-    constructor(private readonly graphHandler: GraphHandler, private store: Store<RootState>) {
+    constructor(private readonly graphHandler: GraphHandler) {
         super();
     }
 
@@ -54,45 +51,33 @@ export default class RelationsController extends RelationsMap {
     /**
      * Create a new relation and add it to the graph
      *
+     * @param info The relation info object
      * @param source The source node of the relation
      * @param target The target node of the relation
      * @param relationModeType The type of relation in relation mode, defaults to NORMAL
-     * @param labelText An optional text for the relation
-     * @param uuid An optional uuid for the relation
      */
-    public new(
-        source: Node,
-        target: Node,
-        relationModeType = RelationModeType.NORMAL,
-        labelText?: string,
-        uuid?: string,
-    ): Relation {
+    public new(info: RelationInfo, source: Node, target: Node, relationModeType = RelationModeType.NORMAL): Relation {
         // Create new relation info
-        const relationInfo: RelationInfo = {
-            uuid: uuid ?? "unknown",
-            from: source.reference,
-            to: target.reference,
-        };
+        info.from = source.reference;
+        info.to = target.reference;
 
         // Create the link and connect it to source and target
         const link = new shapes.standard.Link();
-        link.source(source.jointElement);
-        link.target(target.jointElement);
+        link.source(source.joint);
+        link.target(target.joint);
         link.attr({
             line: {
                 strokeWidth: 4,
             },
         });
 
-        // Optionally set a label
-        if (labelText) {
-            link.appendLabel(Relation.makeLabel(labelText, relationModeType));
-            relationInfo.label = labelText;
-        }
-
         // Create the relation and add it to the graph
-        const relation = new Relation(relationInfo, link, source, target, relationModeType);
+        const relation = new Relation(info, link, source, target, relationModeType);
+        relation.updateStyle(info);
         this.addExisting(relation);
+
+        // Set z index
+        if (info.z != null) relation.joint.set("z", info.z);
 
         return relation;
     }
@@ -108,7 +93,7 @@ export default class RelationsController extends RelationsMap {
 
         // Add relation to RelationsMap and to the joint js graph
         this.add(relation);
-        relation.jointLink.addTo(this.graphHandler.graph.graph);
+        relation.joint.addTo(this.graphHandler.graph.graph);
 
         // Register the relation on the source and target nodes
         relation.reconnect();
@@ -118,7 +103,7 @@ export default class RelationsController extends RelationsMap {
 
     public removeExisting(relation: Relation): void {
         this.remove(relation);
-        relation.jointLink.remove();
+        relation.joint.remove();
 
         // Remove relation from source and target nodes
         relation.disconnect();
@@ -131,7 +116,7 @@ export default class RelationsController extends RelationsMap {
      */
     public setLinkTools(relation: Relation): void {
         // Remove all existing tools
-        const link = relation.jointLink;
+        const link = relation.joint;
         const linkView = link.findView(this.graphHandler.graph.paper);
         linkView.removeTools();
 
@@ -149,10 +134,7 @@ export default class RelationsController extends RelationsMap {
                     action: async (evt, linkView) => {
                         const rel = this.graphHandler.relations.getByJointId(linkView.model.id);
                         if (rel)
-                            await this.store.dispatch(
-                                "editor/addCommand",
-                                new RemoveRelationCommand(this.graphHandler, rel),
-                            );
+                            await this.graphHandler.dispatchCommand(new RemoveRelationCommand(this.graphHandler, rel));
                     },
                 });
 

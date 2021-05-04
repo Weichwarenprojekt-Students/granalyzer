@@ -1,6 +1,8 @@
 <template>
     <div class="content">
-        <Overview class="overview" />
+        <CollapsablePanel :left="true">
+            <Overview />
+        </CollapsablePanel>
         <div class="mid-content">
             <LabelEditor
                 v-if="$store.state.schemes.selectedLabel"
@@ -19,7 +21,9 @@
                 <div class="message">{{ $t("schemes.nothing-selected") }}</div>
             </div>
         </div>
-        <ConflictView class="conflict-view" />
+        <CollapsablePanel :left="false">
+            <ConflictView />
+        </CollapsablePanel>
     </div>
 </template>
 
@@ -29,10 +33,11 @@ import Overview from "@/modules/schemes/modules/overview/Overview.vue";
 import LabelEditor from "@/modules/schemes/modules/label-editor/LabelEditor.vue";
 import ConflictView from "@/modules/schemes/modules/conflict-view/ConflictView.vue";
 import RelationEditor from "@/modules/schemes/modules/relation-editor/RelationEditor.vue";
+import CollapsablePanel from "@/components/CollapsablePanel.vue";
 
 export default defineComponent({
     name: "Schemes",
-    components: { RelationEditor, ConflictView, LabelEditor, Overview },
+    components: { CollapsablePanel, RelationEditor, ConflictView, LabelEditor, Overview },
 });
 </script>
 
@@ -45,21 +50,10 @@ export default defineComponent({
     width: 100%;
 }
 
-.overview {
-    width: @inventory_width;
-    height: 100%;
-    flex: 0 0 auto;
-}
-
 .mid-content {
     flex: 1 1 auto;
     padding: 0 16px;
     display: flex;
     justify-content: center;
-}
-
-.conflict-view {
-    width: @inventory_width;
-    flex: 0 0 auto;
 }
 </style>

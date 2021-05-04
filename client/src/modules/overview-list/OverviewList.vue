@@ -1,5 +1,5 @@
 <template>
-    <div class="content">
+    <div class="overview-list">
         <!-- Title -->
         <div class="underlined-title">
             {{ $t("overviewList.title") }}
@@ -14,8 +14,8 @@
         <!-- Search bar + Filter -->
         <Searchbar v-model="filter.nameFilter" @show-filter="showLabelFilter = !showLabelFilter" />
         <OverviewFilter
-            v-show="showLabelFilter"
             v-model="filter.labelFilter"
+            :expanded="showLabelFilter"
             :labels="$store.state.overview.labels"
             :labelColors="$store.state.overview.labelColor"
         />
@@ -38,8 +38,8 @@
                 :color="$store.state.overview.labelColor.get(node.label).color"
                 :font-color="$store.state.overview.labelColor.get(node.label).fontColor"
                 :isSelected="node.nodeId === selectedItemId"
-                @clicked-on-node="clickedOnNode"
-                @dragging-node="draggingNode"
+                @on-node-clicked="onNodeClicked"
+                @on-node-drag="onNodeDrag"
             />
         </ScrollPanel>
     </div>
@@ -52,11 +52,12 @@ import ApiNode from "@/models/data-scheme/ApiNode";
 import Searchbar from "@/components/Searchbar.vue";
 import OverviewFilter from "@/modules/overview-list/components/OverviewFilter.vue";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter.ts";
+import { NodeDrag } from "@/shared/NodeDrag";
 
 export default defineComponent({
     name: "OverviewList",
     components: { OverviewFilter, Searchbar, OverviewItem },
-    emits: ["clicked-on-node", "dragging-node"],
+    emits: ["on-node-clicked", "on-node-drag"],
     props: {
         // Id of the item that is selected in the overview
         selectedItemId: String,
@@ -115,14 +116,14 @@ export default defineComponent({
         /**
          * Emit the selected node to the editor/inventory
          */
-        clickedOnNode(node: ApiNode) {
-            this.$emit("clicked-on-node", node);
+        onNodeClicked(node: ApiNode) {
+            this.$emit("on-node-clicked", node);
         },
         /**
          *  Emit the dragged node to the editor/inventory
          */
-        draggingNode(node: ApiNode) {
-            this.$emit("dragging-node", node);
+        onNodeDrag(node: NodeDrag) {
+            this.$emit("on-node-drag", node);
         },
         /**
          * Filter nodes by labels
@@ -143,11 +144,10 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
-.content {
+.overview-list {
     height: 100%;
-    border-right: 1px solid @grey;
     padding: 0 16px;
-
+    width: @side_panel_width;
     display: flex;
     flex-flow: column;
 }

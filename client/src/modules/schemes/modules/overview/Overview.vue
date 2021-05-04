@@ -1,5 +1,5 @@
 <template>
-    <div class="content">
+    <div class="overview">
         <!-- The navigation bar -->
         <div class="tabs">
             <div @click="labelsOpen = true" :class="{ 'selected-tab': labelsOpen }">
@@ -188,11 +188,10 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
-.content {
+.overview {
     height: 100%;
-    border-right: 1px solid @grey;
     padding: 0 16px;
-
+    width: @side_panel_width;
     display: flex;
     flex-flow: column;
     position: relative;
@@ -228,6 +227,9 @@ export default defineComponent({
     border-bottom: 1px solid @grey;
     padding: 12px 24px 12px 16px;
     cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
     &:hover {
         background: @accent_color;

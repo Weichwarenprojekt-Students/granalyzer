@@ -1,14 +1,13 @@
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
-import { Store } from "vuex";
-import { RootState } from "@/store";
-import { GET } from "@/utility";
+import { allFulfilledPromises, GET } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { dia } from "jointjs";
 import { VisualRelationControls } from "@/modules/editor/modules/graph-editor/controls/relation-mode/VisualRelationControls";
 import { DisableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/DisableDbRelationCommand";
 import { EnableDbRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/EnableDbRelationCommand";
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
+import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationInfo";
 
 export class RelationModeControls {
     /**
@@ -21,17 +20,16 @@ export class RelationModeControls {
      * Constructor
      *
      * @param graphHandler The graph handler object
-     * @param store The vuex store
      */
-    constructor(private graphHandler: GraphHandler, private store: Store<RootState>) {
-        this.visualRelationControls = new VisualRelationControls(this.graphHandler, store);
+    constructor(private graphHandler: GraphHandler) {
+        this.visualRelationControls = new VisualRelationControls(this.graphHandler);
     }
 
     /**
      * True if the relation mode is active
      */
     public get active(): boolean {
-        return !!this.store.state.editor?.graphEditor?.relationModeActive;
+        return !!this.graphHandler.store.state.editor?.graphEditor?.relationModeActive;
     }
 
     /**
@@ -46,7 +44,7 @@ export class RelationModeControls {
         );
 
         // Send api requests all at once to get all relations directly connected to all nodes
-        const apiRelations = await Promise.all(
+        const apiRelations: ApiRelation[] = await allFulfilledPromises(
             [...uniqueNodeIds].map(
                 async (id) => (await (await GET(`/api/nodes/${id}/relations`)).json()) as ApiRelation,
             ),
@@ -64,16 +62,14 @@ export class RelationModeControls {
         for (const relation of this.graphHandler.relations) {
             const apiRel = relationMap.get(relation.uuid);
 
-            if (
-                apiRel &&
-                apiRel.from === relation.relationInfo.from.uuid &&
-                apiRel.to === relation.relationInfo.to.uuid
-            ) {
+            if (apiRel && apiRel.from === relation.info.from.uuid && apiRel.to === relation.info.to.uuid) {
                 // If the api relation with the same uuid has the same start and end node, register it as found db relation
                 alreadyPresentRelations.add(
-                    `${relation.uuid}-${relation.relationInfo.from.uuid}.${relation.relationInfo.from.index}` +
-                        `-${relation.relationInfo.to.uuid}.${relation.relationInfo.to.index}`,
+                    `${relation.uuid}-${relation.info.from.uuid}.${relation.info.from.index}` +
+                        `-${relation.info.to.uuid}.${relation.info.to.index}`,
                 );
+                // Apply the color
+                relation.updateColor(true);
             } else {
                 // Else it's a visual relation
                 this.graphHandler.relations.switchToVisual(relation);
@@ -96,21 +92,25 @@ export class RelationModeControls {
             this.graphHandler.relations.removeExisting(faintRel);
         }
 
+        // Update the visual relations
         for (const visualRel of this.graphHandler.relations.visualRelations()) {
-            const link = visualRel.jointLink;
+            const link = visualRel.joint;
 
             // Get IDs of source and target elements, if either is not an element but a point, id is undefined
             const [sourceId, targetId] = [link.source()?.id, link.target()?.id];
 
             if (sourceId == null || targetId == null) {
                 // One or both endpoints are not connected to an element, relation should be reset
-                visualRel.jointLink.source(visualRel.sourceNode.jointElement);
-                visualRel.jointLink.target(visualRel.targetNode.jointElement);
+                visualRel.joint.source(visualRel.sourceNode.joint);
+                visualRel.joint.target(visualRel.targetNode.joint);
             }
 
             // Switch relation to normally displayed relation
             this.graphHandler.relations.switchToNormal(visualRel);
         }
+
+        // Update the style of all relations
+        for (const normalRelation of this.graphHandler.relations.normalRelations()) normalRelation.updateColor();
     }
 
     /**
@@ -120,7 +120,7 @@ export class RelationModeControls {
      */
     public async switchRelation(linkView: dia.LinkView): Promise<void> {
         // Only switch when relation mode is active
-        if (this.store.state.editor?.graphEditor?.relationModeActive) {
+        if (this.active) {
             // Get the corresponding relation to the link, if there isn't one cancel
             const relation = this.graphHandler.relations.getByJointId(linkView.model.id);
             if (relation == null) return;
@@ -134,7 +134,7 @@ export class RelationModeControls {
                 command = new EnableDbRelationCommand(this.graphHandler, relation);
             } else return;
 
-            await this.store.dispatch("editor/addCommand", command);
+            await this.graphHandler.dispatchCommand(command);
         }
     }
 
@@ -154,6 +154,13 @@ export class RelationModeControls {
             // Else end drawing the current visual relation
             await this.visualRelationControls.endDrawing(elementView);
         }
+    }
+
+    /**
+     * Cancel the drawing of visual relations
+     */
+    public cancelRelationDrawing(): void {
+        this.visualRelationControls.cancelDrawing();
     }
 
     /**
@@ -198,14 +205,17 @@ export class RelationModeControls {
                         )
                     ) {
                         // If the relation between fromNode and toNode is not yet present in the graph add it
-                        this.graphHandler.relations.new(fromNode, toNode, RelationModeType.FAINT, rel.type, id);
+                        const info = {
+                            name: rel.type,
+                            uuid: id,
+                        } as RelationInfo;
+                        this.graphHandler.relations.new(info, fromNode, toNode, RelationModeType.FAINT);
                         addedNewRelation = true;
                     }
                 }
 
                 // Rearrange overlapping relations if it has a added sibling and is not yet manually positioned
-                if (addedNewRelation)
-                    this.graphHandler.graph.rearrangeOverlappingRelations(fromNode.jointElement, false);
+                if (addedNewRelation) this.graphHandler.graph.rearrangeOverlappingRelations(fromNode.joint, false);
             }
         });
     }

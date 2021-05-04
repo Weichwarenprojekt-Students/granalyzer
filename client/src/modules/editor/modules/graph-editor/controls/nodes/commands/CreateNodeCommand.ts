@@ -1,5 +1,5 @@
 import { NodeInfo } from "../models/NodeInfo";
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { GraphHandler } from "@/modules/editor/modules/graph-editor/controls/GraphHandler";
 import { RelationInfo } from "../../relations/models/RelationInfo";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
@@ -23,21 +23,15 @@ export class CreateNodeCommand implements ICommand {
      * @param graphHandler The graph handler instance
      * @param nodeInfo The node that shall be added
      * @param relations Relations to or from that node
-     * @param labelColor Color of the label of the node
      */
-    constructor(
-        private graphHandler: GraphHandler,
-        private nodeInfo: NodeInfo,
-        private relations: RelationInfo[],
-        private labelColor?: string,
-    ) {}
+    constructor(private graphHandler: GraphHandler, private nodeInfo: NodeInfo, private relations: RelationInfo[]) {}
 
     /**
      * The redo action which adds the node to the diagram
      */
     redo(): void {
         // Use existing node after first undo in order to keep the reference
-        if (this.node == null) this.node = this.graphHandler.nodes.new(this.nodeInfo, this.labelColor);
+        if (this.node == null) this.node = this.graphHandler.nodes.new(this.nodeInfo);
         else this.graphHandler.nodes.addExisting(this.node);
 
         if (this.existingRelations.length === 0) {
@@ -51,7 +45,7 @@ export class CreateNodeCommand implements ICommand {
         }
 
         // Rearrange any straight relations, so that they don't overlap
-        this.graphHandler.graph.rearrangeOverlappingRelations(this.node.jointElement, false);
+        this.graphHandler.graph.rearrangeOverlappingRelations(this.node.joint, false);
     }
 
     /**
@@ -94,13 +88,7 @@ export class CreateNodeCommand implements ICommand {
                 else [sourceNode, targetNode] = [node, otherNode];
 
                 // Add new relation to graph
-                const newRelation = this.graphHandler.relations.new(
-                    sourceNode,
-                    targetNode,
-                    RelationModeType.NORMAL,
-                    rel.label,
-                    rel.uuid,
-                );
+                const newRelation = this.graphHandler.relations.new(rel, sourceNode, targetNode);
 
                 // Add new relation to existingRelations for a future redo
                 this.existingRelations.push(newRelation);

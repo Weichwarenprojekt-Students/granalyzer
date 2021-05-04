@@ -45,6 +45,7 @@ export default defineComponent({
     name: "ConflictCard",
     components: { ConfirmDialog },
     props: {
+        // Type of conflict
         conflict: {
             type: Object,
             default: new Conflict(),
@@ -79,6 +80,15 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
+.conflict-card {
+    padding: 24px 16px;
+    border-bottom: 1px solid @grey;
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    margin-right: 18px;
+}
+
 .conflict-icon {
     width: 64px;
     height: 64px;
@@ -87,21 +97,17 @@ export default defineComponent({
     flex: 0 0 auto;
 }
 
-.conflict-card {
-    padding: 24px 16px;
-    border-bottom: 1px solid @grey;
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-}
-
 .conflict-content {
     display: flex;
     flex-direction: column;
+    flex: 1 1 auto;
+    overflow: hidden;
 }
 
 .conflict-title {
     font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .conflict-actions {

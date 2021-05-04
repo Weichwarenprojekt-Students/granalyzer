@@ -561,15 +561,8 @@ describe("DataSchemeController", () => {
             relation2.relationId = (await relationsController.createRelation(relation2)).relationId;
 
             const body = new RelationType(
-                "ACTED_IN",
-                [
-                    {
-                        datatype: "number",
-                        name: "attrOne",
-                        mandatory: false,
-                        defaultValue: "",
-                    },
-                ],
+                actedInRelation.name,
+                [new NumberAttribute("attrOne", false, 0)],
                 [new Connection("Person", "Movie")],
             );
             await expect(schemeController.updateRelationType(actedInRelation.name, body, false)).rejects.toThrowError(

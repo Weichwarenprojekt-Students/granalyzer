@@ -27,7 +27,7 @@ export class DataSchemeUtil {
      * @param record Single record response from db
      * @param includeDefaults True if the transformation should automatically place the defaults
      */
-    public async parseNode(record: Record, includeDefaults = true): Promise<Node> {
+    public async parseNode(record: Record, includeDefaults = true): Promise<Node | undefined> {
         // Throw exception if there is no such node in DB
         if (!record) throw new NotFoundException("No results to return");
 
@@ -46,11 +46,12 @@ export class DataSchemeUtil {
         try {
             label = await this.getLabelScheme(node.label);
         } catch {
-            return;
+            return undefined;
         }
 
         // Parse attributes which are contained in the scheme of the node label
         node.attributes = this.transformAttributes(label, node.attributes, includeDefaults);
+
         return node;
     }
 
@@ -60,7 +61,7 @@ export class DataSchemeUtil {
      * @param record Single record response from db
      * @param includeDefaults True if the transformation should automatically place the defaults
      */
-    async parseRelation(record: Record, includeDefaults = true): Promise<Relation> {
+    async parseRelation(record: Record, includeDefaults = true): Promise<Relation | undefined> {
         // Throw exception if there is no such relation in DB
         if (!record) throw new NotFoundException("No results to return");
 
@@ -88,12 +89,12 @@ export class DataSchemeUtil {
             await this.getLabelScheme(from);
             await this.getLabelScheme(to);
         } catch {
-            return;
+            return undefined;
         }
 
         // Check if the relation has a valid connection according to the scheme of the relation type
         const hasValidConnection = relationType.connections.some((conn) => conn.from === from && conn.to === to);
-        if (!hasValidConnection) return;
+        if (!hasValidConnection) return undefined;
 
         // Deep copy of attributes
         const relationAttributes = JSON.parse(JSON.stringify(relation.attributes));
@@ -125,7 +126,7 @@ export class DataSchemeUtil {
     /**
      * Fetch the relation with specific name
      */
-    async getRelationType(name: string): Promise<RelationType> {
+    public async getRelationType(name: string): Promise<RelationType> {
         // language=cypher
         const cypher = `
           MATCH (rt:RelationType)
@@ -151,7 +152,7 @@ export class DataSchemeUtil {
     /**
      * Fetch the label with specific name
      */
-    async getLabelScheme(name: string): Promise<LabelScheme> {
+    public async getLabelScheme(name: string): Promise<LabelScheme> {
         // language=cypher
         const cypher = `
           MATCH (ls:LabelScheme)
@@ -185,7 +186,7 @@ export class DataSchemeUtil {
         scheme: LabelScheme | RelationType,
         originalAttributes: Attribute[],
         includeDefaults = true,
-    ) {
+    ): any {
         const attributes = {};
         scheme.attributes.forEach((attribute) => {
             attributes[attribute.name] = this.applyOnElement(

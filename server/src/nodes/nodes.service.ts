@@ -149,7 +149,7 @@ export class NodesService {
           WITH labels(n) AS lbls, n
           UNWIND lbls AS label
           RETURN n {. *, label:label} AS node
-            ORDER BY n.name
+            ORDER BY toLower(n.name)
             SKIP $offset
             LIMIT $limit`;
         const params = {
@@ -188,7 +188,7 @@ export class NodesService {
             filter += nameFilter ? "AND " : "WHERE ";
             filter += "(";
             labelFilter.forEach((label, index) => {
-                filter += index == labelFilter.length - 1 ? `n:${label}) ` : `n:${label} OR `;
+                filter += index == labelFilter.length - 1 ? `n:\`${label}\`) ` : `n:\`${label}\` OR `;
             });
         }
         return filter;

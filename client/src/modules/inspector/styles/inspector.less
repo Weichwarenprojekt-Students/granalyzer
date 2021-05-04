@@ -1,11 +1,11 @@
 @import "~@/styles/global.less";
 
-.content {
+.inspector {
   display: flex;
   flex-flow: column;
-
+  background: white;
+  width: @side_panel_width;
   height: 100%;
-  border-left: 1px solid @grey;
   padding: 0 16px;
 }
 
@@ -36,10 +36,21 @@
 
 .attribute-key {
   font-weight: bold;
+  flex: 0 0 auto;
+}
+
+.attribute-general {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: end;
 }
 
 .attributes-key {
   font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .attribute-value {

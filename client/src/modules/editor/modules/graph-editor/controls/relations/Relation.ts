@@ -4,6 +4,7 @@ import { JointID } from "@/shared/JointGraph";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
 import Anchors from "@/modules/editor/modules/graph-editor/controls/relations/models/Anchors";
+import { getFontColor } from "@/utility";
 
 /**
  * The data for a single relation
@@ -12,7 +13,7 @@ export class Relation {
     /**
      * Color for normal relations
      */
-    public static readonly NORMAL_RELATION_COLOR = "#333";
+    public static readonly NORMAL_RELATION_COLOR = "#333333";
 
     /**
      * Color for visual relations
@@ -22,17 +23,29 @@ export class Relation {
     /**
      * Color for faint DB relations
      */
-    public static readonly FAINT_RELATION_COLOR = "#bbb";
+    public static readonly FAINT_RELATION_COLOR = "#bbbbbb";
 
     /**
      * The corresponding relation info
      */
-    public readonly relationInfo: RelationInfo;
+    public readonly info: RelationInfo;
 
     /**
      * The joint link
      */
-    public readonly jointLink: dia.Link;
+    public readonly joint: dia.Link;
+
+    /**
+     * Reference to the source node
+     * @private
+     */
+    private _sourceNode?: Node;
+
+    /**
+     * The relation mode type of the relation
+     * @private
+     */
+    private _relationModeType: RelationModeType = RelationModeType.NORMAL;
 
     /**
      * Constructor
@@ -50,18 +63,26 @@ export class Relation {
         targetNode: Node,
         relationModeType = RelationModeType.NORMAL,
     ) {
-        this.relationInfo = relation;
-        this.jointLink = jointLink;
+        this.info = relation;
+        this.joint = jointLink;
         this.sourceNode = sourceNode;
         this.targetNode = targetNode;
         this.relationModeType = relationModeType;
     }
 
     /**
-     * The relation mode type of the relation
-     * @private
+     * True if the object is a node
      */
-    private _relationModeType: RelationModeType = RelationModeType.NORMAL;
+    public isNode(): this is Node {
+        return false;
+    }
+
+    /**
+     * True if the object is a relation
+     */
+    public isRelation(): this is Relation {
+        return true;
+    }
 
     /**
      * The relation mode type of the relation
@@ -77,19 +98,8 @@ export class Relation {
      */
     public set relationModeType(value: RelationModeType) {
         this._relationModeType = value;
-
-        // Change style of the link
-        this.jointLink.attr({ line: { stroke: Relation.getColorForRelationModeType(value) } });
-
-        // Change style of the label separately
-        this.jointLink.label(0, { attrs: { rect: { fill: Relation.getColorForRelationModeType(value) } } });
+        this.updateColor(true);
     }
-
-    /**
-     * Reference to the source node
-     * @private
-     */
-    private _sourceNode?: Node;
 
     /**
      * Reference to the source node
@@ -107,13 +117,13 @@ export class Relation {
      */
     public set sourceNode(newNode: Node) {
         if (this._sourceNode != null)
-            if (this.relationModeType === RelationModeType.VISUAL)
-                // If source node is already set, only allow changing it for visual relations
-                // In this case, deregister the relation from the old node
-                this._sourceNode.outgoingRelations.delete(this.jointId);
-            else return;
+            // If source node is already set, deregister the relation from the old node
+            this._sourceNode.outgoingRelations.delete(this.jointId);
 
         this._sourceNode = newNode;
+        this.joint.source(newNode.joint);
+
+        this.info.from = newNode.reference;
 
         // Register the relation on the new node
         this._sourceNode.outgoingRelations.set(this.jointId, this);
@@ -141,13 +151,13 @@ export class Relation {
      */
     public set targetNode(newNode: Node) {
         if (this._targetNode != null)
-            if (this.relationModeType === RelationModeType.VISUAL)
-                // If target node is already set, only allow changing it for visual relations
-                // In this case, deregister the relation from the old node
-                this._targetNode.incomingRelations.delete(this.jointId);
-            else return;
+            // If target node is already set, deregister the relation from the old node
+            this._targetNode.incomingRelations.delete(this.jointId);
 
         this._targetNode = newNode;
+        this.joint.target(newNode.joint);
+
+        this.info.to = newNode.reference;
 
         // Register the relation on the new node
         this._targetNode.incomingRelations.set(this.jointId, this);
@@ -157,21 +167,21 @@ export class Relation {
      * The backend uuid of the relation
      */
     public get uuid(): string {
-        return this.relationInfo.uuid;
+        return this.info.uuid;
     }
 
     /**
      * The joint js uuid
      */
     public get jointId(): JointID {
-        return this.jointLink.id;
+        return this.joint.id;
     }
 
     /**
      * Vertices of the joint js link
      */
     public get vertices(): Array<dia.Link.Vertex> {
-        return this.jointLink.vertices();
+        return this.joint.vertices();
     }
 
     /**
@@ -181,15 +191,15 @@ export class Relation {
      */
     public set vertices(vertices: Array<dia.Link.Vertex>) {
         // Update relation info as well
-        this.relationInfo.vertices = vertices;
-        this.jointLink.vertices(vertices);
+        this.info.vertices = vertices;
+        this.joint.vertices(vertices);
     }
 
     /**
      * Anchors of the joint link
      */
     public get anchors(): Anchors {
-        return { sourceAnchor: this.jointLink.source().anchor, targetAnchor: this.jointLink.target().anchor };
+        return { sourceAnchor: this.joint.source().anchor, targetAnchor: this.joint.target().anchor };
     }
 
     /**
@@ -201,8 +211,8 @@ export class Relation {
         const { sourceAnchor, targetAnchor } = anchors;
 
         // Set new anchors, if any are undefined, just set the center anchor
-        this.jointLink.source({ ...this.jointLink.source(), anchor: sourceAnchor ?? { name: "center" } });
-        this.jointLink.target({ ...this.jointLink.target(), anchor: targetAnchor ?? { name: "center" } });
+        this.joint.source({ ...this.joint.source(), anchor: sourceAnchor ?? { name: "center" } });
+        this.joint.target({ ...this.joint.target(), anchor: targetAnchor ?? { name: "center" } });
     }
 
     /**
@@ -224,33 +234,6 @@ export class Relation {
     }
 
     /**
-     * Generate label for a relation
-     *
-     * @param labelText The text of the label
-     * @param relationModeType The relation type mode of the relation
-     * @return Label for adding to the joint js link
-     */
-    public static makeLabel(labelText: string, relationModeType = RelationModeType.NORMAL): dia.Link.Label {
-        return {
-            attrs: {
-                text: { text: labelText, textAnchor: "middle", textVerticalAnchor: "middle", fill: "#fff" },
-                rect: {
-                    ref: "text",
-                    fill: this.getColorForRelationModeType(relationModeType),
-                    stroke: "#000",
-                    strokeWidth: 0,
-                    refWidth: 12,
-                    refHeight: 2,
-                    refX: -6,
-                    refY: -1,
-                    rx: 0,
-                    ry: 0,
-                },
-            },
-        };
-    }
-
-    /**
      * Register the relation on the source and target nodes
      */
     public reconnect(): void {
@@ -264,5 +247,70 @@ export class Relation {
     public disconnect(): void {
         this.sourceNode.outgoingRelations.delete(this.jointId);
         this.targetNode.incomingRelations.delete(this.jointId);
+    }
+
+    /**
+     * Update the color of the relation depending on the type
+     *
+     * @param relationMode True if the relation mode is active
+     */
+    public updateColor(relationMode = false): void {
+        let color = this.info.color ?? Relation.NORMAL_RELATION_COLOR;
+        if (relationMode) color = Relation.getColorForRelationModeType(this.relationModeType);
+
+        // Change style of the link
+        this.joint.attr({ line: { stroke: color } });
+
+        // Change style of the label separately
+        this.joint.label(0, { attrs: { rect: { fill: color }, text: { fill: getFontColor(color) } } });
+    }
+
+    /**
+     * Update the style of the relation without updating the relation info
+     *
+     * @param info The temporary used node
+     * @param save True if the style shall be saved
+     */
+    public updateStyle(info: RelationInfo, save = false): void {
+        this.joint.attr("line/stroke", info.color ?? Relation.getColorForRelationModeType(this.relationModeType));
+        this.joint.removeLabel();
+        if (info.name) this.joint.appendLabel(this.makeLabel(info));
+        if (save) {
+            this.info.name = info.name;
+            this.info.color = info.color;
+        }
+    }
+
+    /**
+     * Generate label for a relation
+     *
+     * @param info The relation info
+     * @return Label for adding to the joint js link
+     */
+    public makeLabel(info: RelationInfo): dia.Link.Label {
+        const color = info.color ?? Relation.getColorForRelationModeType(this.relationModeType);
+        return {
+            attrs: {
+                text: {
+                    text: info.name,
+                    textAnchor: "middle",
+                    textVerticalAnchor: "middle",
+                    fill: getFontColor(color),
+                },
+                rect: {
+                    cursor: "pointer",
+                    ref: "text",
+                    fill: color,
+                    stroke: "#000",
+                    strokeWidth: 0,
+                    refWidth: 12,
+                    refHeight: 2,
+                    refX: -6,
+                    refY: -1,
+                    rx: 0,
+                    ry: 0,
+                },
+            },
+        };
     }
 }

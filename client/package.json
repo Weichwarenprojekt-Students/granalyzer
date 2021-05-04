@@ -12,10 +12,13 @@
   "dependencies": {
     "class-validator": "^0.13.1",
     "core-js": "^3.6.5",
+    "file-saver": "^2.0.5",
+    "hex-rgb": "^4.3.0",
     "jointjs": "^3.3.1",
     "prettier": "^2.2.1",
     "primeicons": "^4.1.0",
     "primevue": "^3.3.5",
+    "sortablejs": "^1.13.0",
     "vue": "^3.0.0",
     "vue-i18n": "^9.0.0",
     "vue-router": "^4.0.0-0",
@@ -24,6 +27,7 @@
   "devDependencies": {
     "@types/backbone": "^1.4.10",
     "@types/jest": "^24.0.19",
+    "@types/sortablejs": "^1.10.6",
     "@typescript-eslint/eslint-plugin": "^4.19.0",
     "@typescript-eslint/parser": "^4.19.0",
     "@vue/cli-plugin-babel": "~4.5.0",

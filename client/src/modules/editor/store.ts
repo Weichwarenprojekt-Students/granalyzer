@@ -4,6 +4,8 @@ import { RootState } from "@/store";
 import { GET } from "@/utility";
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-editor/store";
+import { NodeDrag } from "@/shared/NodeDrag";
+import { heatMap, HeatMapState } from "@/modules/editor/modules/heat-map/store";
 
 /**
  * The local storage key for the opened diagram in the editor
@@ -11,6 +13,11 @@ import { graphEditor, GraphEditorState } from "@/modules/editor/modules/graph-ed
 const currentDiagramKey = "current-diag-id";
 
 export class EditorState {
+    /**
+     * True if the panels (overview list and tools) shall be hidden
+     */
+    public hidePanels = false;
+
     /**
      * True if the toolbox is open (inspector otherwise)
      */
@@ -27,14 +34,19 @@ export class EditorState {
     public selectedNode?: ApiNode;
 
     /**
-     * Replication of the overview item that is dragged into the diagram
+     * The dragged node (important for adding new nodes/shapes)
      */
-    public draggedNode?: ApiNode;
+    public draggedNode?: NodeDrag;
 
     /**
      * Graph editor state
      */
     public graphEditor?: GraphEditorState;
+
+    /**
+     * Heat map state
+     */
+    public heatMap?: HeatMapState;
 }
 
 export const editor = {
@@ -46,20 +58,27 @@ export const editor = {
          */
         setActiveDiagram(state: EditorState, diagram?: ApiDiagram): void {
             state.diagram = diagram;
-            if (diagram) localStorage.setItem(currentDiagramKey, diagram.diagramId);
+            if (diagram) {
+                localStorage.setItem(currentDiagramKey, diagram.diagramId);
+                state.hidePanels = false;
+            } else state.hidePanels = true;
         },
+
         /**
          * Set selected item
          */
         setSelectedNode(state: EditorState, node?: ApiNode): void {
             state.selectedNode = node;
         },
+
         /**
          * Set dragged item
          */
-        setDraggedNode(state: EditorState, node?: ApiNode): void {
+        setDraggedNode(state: EditorState, node?: NodeDrag): void {
             state.draggedNode = node;
+            if (node) state.graphEditor?.graphHandler?.graph.createDragNode(node);
         },
+
         /**
          * Open either the toolbox or the inspector
          */
@@ -76,7 +95,10 @@ export const editor = {
         async fetchActiveDiagram(context: ActionContext<EditorState, RootState>): Promise<void> {
             // Get active diagram ID
             const id = localStorage.getItem(currentDiagramKey);
-            if (!id) return;
+            if (!id) {
+                context.commit("setActiveDiagram");
+                return;
+            }
 
             // Fetch the diagram model from the REST backend
             const result = await GET(`/api/diagrams/${id}`);
@@ -95,5 +117,6 @@ export const editor = {
     },
     modules: {
         graphEditor,
+        heatMap,
     },
 };

@@ -7,7 +7,15 @@
             </svg>
             <div class="input-wrap">
                 <label for="name-input">{{ title }}</label>
-                <input tabindex="0" class="input-large" v-model="name" type="text" id="name-input" placeholder="Name" />
+                <input
+                    tabindex="0"
+                    class="input-large"
+                    v-model="name"
+                    type="text"
+                    id="name-input"
+                    placeholder="Name"
+                    autocomplete="off"
+                />
             </div>
         </div>
     </BaseDialog>
@@ -29,12 +37,25 @@ export default defineComponent({
         title: String,
         // The image source
         imageSrc: String,
+        // Default value
+        default: {
+            type: String,
+            default: "",
+        },
     },
     data() {
         return {
             // The value of the input field
             name: "",
         };
+    },
+    mounted() {
+        this.name = this.default;
+    },
+    watch: {
+        default() {
+            this.name = this.default;
+        },
     },
     updated() {
         // Auto focus the input field
@@ -73,6 +94,11 @@ export default defineComponent({
             display: inline-block;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        input {
+            border-bottom: 1px solid @grey;
+            width: auto;
         }
     }
 }

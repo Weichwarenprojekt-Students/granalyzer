@@ -1,9 +1,9 @@
 <template>
     <!-- The extra divs are necessary for the tooltips to work -->
-    <div class="container">
+    <div class="toolbar-container">
         <!-- Relation Edit Mode -->
         <div
-            :class="['item', $store.state.editor.graphEditor.relationModeActive ? 'selected' : '']"
+            :class="['item-relation-mode', $store.state.editor.graphEditor.relationModeActive ? 'selected' : '']"
             v-tooltip.bottom="$t('editor.toolbar.relation')"
             @click="toggleRelationMode"
         >
@@ -13,6 +13,44 @@
             <span class="addon" v-show="$store.state.editor.graphEditor.relationModeActive">
                 {{ $t("editor.toolbar.active") }}
             </span>
+        </div>
+
+        <!-- Add Related Nodes -->
+        <div
+            :class="['item', canAddNeighbors ? '' : 'item-disabled']"
+            v-tooltip.bottom="
+                $t('editor.toolbar.related', { amount: $store.state.editor.graphEditor.relatedNodesAmount })
+            "
+            @click="addRelatedNodes"
+        >
+            <svg class="icon">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#bold-diagram`"></use>
+            </svg>
+            <p v-if="isNode" class="related-nodes-number">
+                {{ $store.state.editor.graphEditor.relatedNodesAmount }}
+            </p>
+        </div>
+
+        <!-- To Front -->
+        <div
+            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            @click="toFront"
+            v-tooltip.bottom="$t('editor.toolbar.front')"
+        >
+            <svg class="icon">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#to-front`"></use>
+            </svg>
+        </div>
+
+        <!-- To Back -->
+        <div
+            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            @click="toBack"
+            v-tooltip.bottom="$t('editor.toolbar.back')"
+        >
+            <svg class="icon">
+                <use :xlink:href="`${require('@/assets/img/icons.svg')}#to-back`"></use>
+            </svg>
         </div>
 
         <!-- Center -->
@@ -73,11 +111,18 @@ export default defineComponent({
          * Handle the key events
          */
         handleKeys(e: KeyboardEvent): void {
-            if (e.key == "Delete" && this.$store.getters["editor/itemSelected"]) this.remove();
+            // Check if some input or something else is currently selected
+            if (document.activeElement !== document.body) return;
+
+            // Find the right shortcut
+            if (e.key == "r") this.toggleRelationMode();
+            else if (e.key == "a" && this.canAddNeighbors) this.addRelatedNodes();
+            else if (e.key == "f" && this.$store.getters["editor/itemSelected"]) this.toFront();
+            else if (e.key == "b" && this.$store.getters["editor/itemSelected"]) this.toBack();
+            else if (e.key == "c") this.centerContent();
             else if (e.key == "z" && e.ctrlKey && this.$store.getters["editor/undoAvailable"]) this.undo();
             else if (e.key == "y" && e.ctrlKey && this.$store.getters["editor/redoAvailable"]) this.redo();
-            else if (e.key == "r") this.toggleRelationMode();
-            else if (e.key == "c") this.centerContent();
+            else if (e.key == "Delete" && this.$store.getters["editor/itemSelected"]) this.remove();
         },
         /**
          * Remove the last selected node
@@ -109,6 +154,42 @@ export default defineComponent({
         toggleRelationMode(): void {
             this.$store.dispatch("editor/toggleRelationMode");
         },
+        /**
+         * Add related nodes to last selected node
+         */
+        addRelatedNodes(): void {
+            this.$store.dispatch("editor/addRelatedNodes");
+            this.$store.dispatch("editor/updateRelatedNodesCount");
+        },
+        /**
+         * Bring selected element to the front
+         */
+        toFront(): void {
+            this.$store.dispatch("editor/addZIndexCommand", true);
+        },
+        /**
+         * Bring selected element to the back
+         */
+        toBack(): void {
+            this.$store.dispatch("editor/addZIndexCommand", false);
+        },
+    },
+    computed: {
+        /**
+         * @return True if the currently selected node has neighbors to add
+         */
+        canAddNeighbors(): boolean {
+            return this.isNode && this.$store.state.editor.graphEditor.relatedNodesAmount > 0;
+        },
+        /**
+         * @return True if the currently selected element is a node
+         */
+        isNode(): boolean {
+            return (
+                this.$store.getters["editor/itemSelected"] &&
+                this.$store.state.editor.graphEditor.selectedElement?.isNode()
+            );
+        },
     },
 });
 </script>
@@ -116,7 +197,7 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "~@/styles/global.less";
 
-.container {
+.toolbar-container {
     display: flex;
     background: white;
     border-radius: @border_radius;
@@ -128,10 +209,10 @@ export default defineComponent({
 }
 
 .item {
+    position: relative;
+
     height: 40px;
-    width: auto;
-    min-width: 48px;
-    display: flex;
+    width: 48px;
     cursor: pointer;
     border-radius: @border_radius;
 
@@ -145,18 +226,36 @@ export default defineComponent({
         padding: 8px 0;
     }
 
-    .addon {
-        line-height: 40px;
-        padding-right: 8px;
-        width: auto;
-    }
-
     &.selected {
         background: @secondary_color;
 
         &:hover {
             background: @secondary_color;
         }
+    }
+
+    .related-nodes-number {
+        position: absolute;
+        bottom: 6px;
+        right: 10px;
+        border-radius: 4px;
+        background: @dark;
+        color: white;
+        padding: 1px 4px 0 4px;
+        font-size: 9px;
+    }
+}
+
+.item-relation-mode {
+    .item();
+    width: auto;
+    min-width: 48px;
+    display: flex;
+
+    .addon {
+        line-height: 40px;
+        padding-right: 8px;
+        width: auto;
     }
 }
 
@@ -169,6 +268,10 @@ export default defineComponent({
         &:hover {
             background: transparent;
         }
+    }
+
+    .related-nodes-number {
+        background: @dark_accent;
     }
 }
 </style>

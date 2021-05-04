@@ -1,7 +1,7 @@
 <template>
-    <Sidebar />
-    <div :class="['main-content', $store.state.sidebarMinimized ? 'main-content-minimized' : 'main-content-expanded']">
-        <router-view />
+    <div class="granalyzer">
+        <Sidebar class="sidebar" />
+        <router-view class="main-content" />
     </div>
     <Toast position="bottom-center" />
 </template>
@@ -25,17 +25,17 @@ export default defineComponent({
 <style lang="less">
 @import "~@/styles/styles.less";
 
+.granalyzer {
+    display: flex;
+}
+
+.sidebar {
+    flex: 0 0 auto;
+}
+
 .main-content {
     height: 100vh;
     transition: margin @navbar_animation_time;
-    overflow: auto;
-}
-
-.main-content-expanded {
-    margin-left: @navbar_width;
-}
-
-.main-content-minimized {
-    margin-left: @navbar_width_collapsed;
+    flex: 1 1 auto;
 }
 </style>

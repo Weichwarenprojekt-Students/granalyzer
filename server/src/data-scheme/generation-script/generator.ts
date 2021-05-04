@@ -195,15 +195,15 @@ export class SchemeGenerator {
         // Create UUID's on existing elements
         // language=cypher
         const createNodeUuidQuery = `
-          MATCH (node:${labelScheme.name})
+          MATCH (node:\`${labelScheme.name}\`)
             WHERE NOT exists(node.nodeId)
           SET node.nodeId = apoc.create.uuid()
         `;
         await session.run(createNodeUuidQuery, {}).catch(console.error);
 
         // Create the unique constraints for the specific label
-        const createConstraintQuery = `CREATE CONSTRAINT ${labelScheme.name}Key IF NOT exists
-        ON (n:${labelScheme.name})
+        const createConstraintQuery = `CREATE CONSTRAINT \`${labelScheme.name}Key\` IF NOT exists
+        ON (n:\`${labelScheme.name}\`)
         ASSERT (n.nodeId) IS NODE KEY`;
         await session.run(createConstraintQuery).catch(console.error);
     }
@@ -252,7 +252,7 @@ export class SchemeGenerator {
         // Create UUID for each relation
         // language=cypher
         const createRelationUuidQuery = `
-          MATCH ()-[rel:${relationType.name}]-()
+          MATCH ()-[rel:\`${relationType.name}\`]-()
             WHERE NOT exists(rel.relationId)
           SET rel.relationId = apoc.create.uuid()
         `;
@@ -260,8 +260,8 @@ export class SchemeGenerator {
 
         // Create the exists constraints for the specific relation type
         const createConstraintQuery = `
-          CREATE CONSTRAINT ${relationType.name}Key IF NOT exists
-          ON ()-[type:${relationType.name}]-()
+          CREATE CONSTRAINT \`${relationType.name}Key\` IF NOT exists
+          ON ()-[type:\`${relationType.name}\`]-()
           ASSERT exists(type.relationId)
         `;
         await session.run(createConstraintQuery).catch(console.error);

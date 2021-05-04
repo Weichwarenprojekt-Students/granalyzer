@@ -1,5 +1,5 @@
 <template>
-    <div v-if="$store.getters['inspector/isLoaded']" class="content" @keydown="keydown">
+    <div v-if="$store.getters['inspector/isLoaded']" class="inspector" @keydown="keydown">
         <!-- The dialog for deleting a node -->
         <ConfirmDialog
             @confirm="deleteItem"
@@ -38,13 +38,13 @@
                 <div class="attribute-key">
                     {{ $t("inspector.label") }}
                 </div>
-                <div>{{ element.label }}</div>
+                <div class="attribute-general">{{ element.label }}</div>
             </div>
             <div v-else class="attribute-item">
                 <div class="attribute-key">
                     {{ $t("inspector.relationType") }}
                 </div>
-                <div>{{ element.type }}</div>
+                <div class="attribute-general">{{ element.type }}</div>
             </div>
 
             <!-- The attributes -->
@@ -71,7 +71,7 @@
                         v-model="attribute.value"
                         :type="attribute.datatype"
                         :config="attribute.config"
-                        :disabled="!attribute.active"
+                        @change="attribute.active = true"
                     />
                 </div>
             </div>
@@ -90,7 +90,7 @@
             </div>
         </ScrollPanel>
     </div>
-    <DefaultInspector v-else />
+    <DefaultInspector v-else class="inspector" />
 </template>
 
 <script lang="ts">
@@ -283,9 +283,18 @@ export default defineComponent({
 }
 
 .attribute-key {
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     min-width: 0;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
+}
+
+.attributes-key {
+    flex: 1 1 auto;
+}
+
+.attribute-value {
+    text-align: start;
 }
 </style>

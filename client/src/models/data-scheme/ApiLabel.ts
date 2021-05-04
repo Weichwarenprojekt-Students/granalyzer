@@ -8,5 +8,5 @@ export default class ApiLabel {
      * @param color color of the label
      * @param attributes attributes of the label
      */
-    constructor(public name = "", public color = "#000", public attributes = new Array<ApiAttribute>()) {}
+    constructor(public name = "", public color = "#FFCC80", public attributes = new Array<ApiAttribute>()) {}
 }

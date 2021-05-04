@@ -58,7 +58,8 @@ export default defineComponent({
          * Clear graph if there is no selection
          */
         selectedNode(newValue) {
-            if (!newValue) this.clearGraphAndSettings();
+            this.clearGraphAndSettings();
+            this.$store.dispatch("inventory/loadNeighbors", newValue);
         },
         /**
          * Display graph once all neighbors and relations are in the store
@@ -110,6 +111,9 @@ export default defineComponent({
             // Neighbor nodes
             for (const apiNode of neighbors) this.graphUtils.addNodeToDiagram(apiNode);
 
+            // Set the focus on the currently edited node
+            this.graphUtils.setEditedNodeFocus();
+
             // Neighbor relations
             for (const apiRelation of relations) this.graphUtils.addRelationToDiagram(apiRelation);
 
@@ -133,7 +137,8 @@ export default defineComponent({
             const toNodes = new Array<ApiNode>();
             toNodes.push(...this.$store.state.inventory.neighbors, this.selectedNode as ApiNode);
 
-            this.fromNode = this.$store.state.inventory.draggedNode as ApiNode;
+            const drag = this.$store.state.inventory.draggedNode;
+            this.fromNode = new ApiNode(drag.name, drag.label, drag.nodeId);
             this.toNodes = toNodes;
             this.showDialog = true;
         },
@@ -144,7 +149,7 @@ export default defineComponent({
             this.showDialog = false;
 
             await this.$store.dispatch("inventory/addNewRelation", relation);
-            this.graphLoaded();
+            this.$store.dispatch("inventory/updateNeighborRelations", false);
         },
     },
 });
@@ -162,5 +167,9 @@ export default defineComponent({
         left: 0;
         right: 0;
     }
+}
+
+.empty-warning {
+    height: 100%;
 }
 </style>

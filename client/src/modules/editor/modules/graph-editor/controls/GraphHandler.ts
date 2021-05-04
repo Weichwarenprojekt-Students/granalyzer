@@ -1,7 +1,7 @@
 import { RelationInfo } from "./relations/models/RelationInfo";
 import { NodeInfo } from "./nodes/models/NodeInfo";
 import { SerializableGraph } from "@/modules/editor/modules/graph-editor/controls/models/SerializableGraph";
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { JointGraph } from "@/shared/JointGraph";
 import { Store } from "vuex";
 import { RootState } from "@/store";
@@ -10,7 +10,7 @@ import { RelationModeControls } from "@/modules/editor/modules/graph-editor/cont
 import NodesController from "@/modules/editor/modules/graph-editor/controls/nodes/NodesController";
 import RelationsController from "@/modules/editor/modules/graph-editor/controls/relations/RelationsController";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
-import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
+import { HeatConfig, HeatConfigType } from "@/modules/editor/modules/heat-map/models/HeatConfig";
 
 export class GraphHandler {
     /**
@@ -30,10 +30,6 @@ export class GraphHandler {
      */
     public relationMode: RelationModeControls;
     /**
-     * The actual graph object from joint
-     */
-    public readonly graph: JointGraph;
-    /**
      *  The redo stack
      */
     private redoStack = new Array<ICommand>();
@@ -43,18 +39,21 @@ export class GraphHandler {
     private undoStack = new Array<ICommand>();
 
     /**
+     * The heat configurations (Format: <Label>-<AttributeName>, HeatMapAttribute)
+     */
+    public heatConfigs = new Map<string, HeatConfig>();
+
+    /**
      * Constructor
      *
      * @param store The vuex store
      * @param graph The joint graph object
      */
-    constructor(private store: Store<RootState>, graph: JointGraph) {
-        this.graph = graph;
+    constructor(public store: Store<RootState>, public readonly graph: JointGraph) {
+        this.relations = new RelationsController(this);
 
-        this.relations = new RelationsController(this, store);
-
-        this.controls = new GraphControls(this, store);
-        this.relationMode = new RelationModeControls(this, store);
+        this.controls = new GraphControls(this);
+        this.relationMode = new RelationModeControls(this);
 
         this.registerPaperEvents();
     }
@@ -67,16 +66,14 @@ export class GraphHandler {
     public fromJSON(jsonString: string): void {
         if (!jsonString || jsonString === "{}") return;
 
-        const data: SerializableGraph = JSON.parse(jsonString);
-        const nodes: Array<NodeInfo> = data.nodes;
-        const relations: Array<RelationInfo> = data.relations;
+        const { nodes, relations, heatConfigs }: SerializableGraph = JSON.parse(jsonString);
 
         nodes.forEach((node) => {
-            // Get color for the label of the node for updating the diagram if the color changed
-            const labelColor = this.store.state.overview?.labelColor.get(node.label)?.color;
+            // Set default size for diagrams that don't have a saved size
+            if (node.size == null) node.size = { width: -1, height: -1 };
 
             // Create new node
-            this.nodes.new(node, labelColor);
+            this.nodes.new(node);
         });
 
         // Create the relations
@@ -87,19 +84,27 @@ export class GraphHandler {
 
             if (source && target) {
                 // If both source and target exist, create new relation
-                const newRel = this.relations.new(
-                    source,
-                    target,
-                    RelationModeType.NORMAL,
-                    relation.label,
-                    relation.uuid,
-                );
+                const newRel = this.relations.new(relation, source, target);
 
                 // And set vertices of the new relation, if they were saved
                 if (relation.vertices != null) newRel.vertices = relation.vertices;
                 if (relation.anchors != null) newRel.anchors = relation.anchors;
             }
         });
+
+        // Restore saved heat configs
+        if (heatConfigs)
+            Object.entries(heatConfigs).forEach(([key, value]) => {
+                const newHeatConfig = JSON.parse(JSON.stringify(value), HeatConfig.reviver);
+
+                // Restore the color map of heat enum config
+                if (newHeatConfig.type === HeatConfigType.ENUM) {
+                    newHeatConfig.valueColors = new Map<string, string>();
+                    newHeatConfig.updateColors();
+                }
+
+                return this.heatConfigs.set(key, newHeatConfig);
+            });
     }
 
     /**
@@ -109,28 +114,31 @@ export class GraphHandler {
         // Prepare the serialization object for each node
         const nodes: Array<NodeInfo> = Array.from(this.nodes, (node) => {
             // Get current position of the element
-            const { x, y } = node.jointElement.position();
-
             return {
-                ...node.nodeInfo,
-                x,
-                y,
+                ...node.info,
+                z: node.joint.get("z"),
             } as NodeInfo;
         });
 
         // Map normal and visual relations to an array
         const relations: RelationInfo[] = Array.from(this.relations.savableRelations(), (relation: Relation) => {
             return {
-                ...relation.relationInfo,
+                ...relation.info,
                 vertices: relation.vertices,
                 anchors: relation.anchors,
+                z: relation.joint.get("z"),
             } as RelationInfo;
         });
+
+        // Save heat configs to json object
+        const heatConfigs: { [key: string]: HeatConfig } = {};
+        this.heatConfigs.forEach((value, key) => (heatConfigs[key] = value));
 
         // Compose the serializable graph and return the JSON string
         return JSON.stringify({
             nodes,
             relations,
+            heatConfigs,
         } as SerializableGraph);
     }
 
@@ -185,6 +193,25 @@ export class GraphHandler {
     }
 
     /**
+     * Dispatch a new command to the store, so that "saveChange" will also be dispatched
+     *
+     * @param command The command to be dispatched to the store
+     * @param storeAction An optional action string, in case a different action than the default "addCommand" is needed
+     */
+    public async dispatchCommand(command: ICommand, storeAction = "editor/addCommand"): Promise<void> {
+        await this.store.dispatch(storeAction, command);
+    }
+
+    /**
+     * Remove the focus of other ui fields (input fields etc.)
+     * That's important for the toolbar shortcuts to work
+     */
+    private static removeInputFocus(): void {
+        const input = document.activeElement as HTMLElement;
+        if (input) input.blur();
+    }
+
+    /**
      * Register callbacks to joint js events
      * @private
      */
@@ -192,15 +219,31 @@ export class GraphHandler {
         this.graph.paper.on({
             // Reset selection when clicking on a blank paper space
             "blank:pointerclick": () => {
-                this.controls.resetSelection();
+                GraphHandler.removeInputFocus();
+                // Resetting the selection can not, under any circumstances, be done by calling
+                // this.controls.resetSelection()! This leads to unexplainable error after changing the shape of
+                // an element.
+                this.store.commit("editor/resetSelection");
+
+                // Interrupt drawing visual relations
+                this.relationMode.cancelRelationDrawing();
+            },
+            // Reset the focus of input fields if necessary
+            "cell:pointerdown": () => {
+                GraphHandler.removeInputFocus();
             },
             // Select node and begin registering a node movement
             "element:pointerdown": async (elementView) => {
+                // Handle pointer down on a resize handle
+                this.controls.resizeControls.pointerDownCallback(elementView);
                 this.controls.startNodeMovement(elementView);
                 await this.controls.selectNode(elementView);
             },
             // Stop registering node movement
-            "element:pointerup": async () => {
+            "element:pointerup": async (elementView) => {
+                // Handle pointer up on a resize handle
+                await this.controls.resizeControls.pointerUpCallback(elementView);
+
                 await this.controls.stopNodeMovement();
             },
             // Pass element click to relation mode for handling the drawing of visual relations
@@ -209,6 +252,9 @@ export class GraphHandler {
             },
             // Select relation or switch it, depending on the state of the relation mode
             "link:pointerdown": async (linkView) => {
+                // Interrupt drawing visual relations
+                this.relationMode.cancelRelationDrawing();
+
                 await this.controls.selectRelation(linkView);
 
                 await this.relationMode.switchRelation(linkView);

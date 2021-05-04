@@ -1,4 +1,4 @@
-import { ICommand } from "@/modules/editor/modules/graph-editor/controls/models/ICommand";
+import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
 import { GraphHandler } from "../../GraphHandler";
 import { Relation } from "@/modules/editor/modules/graph-editor/controls/relations/Relation";
 import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node";
@@ -44,8 +44,8 @@ export class ConnectRelationCommand implements ICommand {
 
         // Save new nodes from the actual source and target of the joint Link
         // They might be undefined if one end isn't connected to any node, but "floats" in the diagram
-        this.newSource = this.graphHandler.nodes.getByJointId(relation.jointLink.source()?.id);
-        this.newTarget = this.graphHandler.nodes.getByJointId(relation.jointLink.target()?.id);
+        this.newSource = this.graphHandler.nodes.getByJointId(relation.joint.source()?.id);
+        this.newTarget = this.graphHandler.nodes.getByJointId(relation.joint.target()?.id);
     }
 
     /**
@@ -65,10 +65,6 @@ export class ConnectRelationCommand implements ICommand {
         // Additional check for undefined, so that eslint is happy
         if (!this.connectionHasChanged() || this.newSource == null || this.newTarget == null) return;
 
-        // Connect the actual joint link
-        this.relation.jointLink.source(this.newSource.jointElement);
-        this.relation.jointLink.target(this.newTarget.jointElement);
-
         // Update sourceNode and targetNode of the relation, so that all relation references of the nodes are updated
         this.relation.sourceNode = this.newSource;
         this.relation.targetNode = this.newTarget;
@@ -79,10 +75,6 @@ export class ConnectRelationCommand implements ICommand {
      */
     undo(): void {
         if (!this.connectionHasChanged()) return;
-
-        // Connect the actual joint link
-        this.relation.jointLink.source(this.oldSource.jointElement);
-        this.relation.jointLink.target(this.oldTarget.jointElement);
 
         // Update sourceNode and targetNode of the relation, so that all relation references of the nodes are updated
         this.relation.sourceNode = this.oldSource;

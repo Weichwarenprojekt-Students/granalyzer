@@ -8,7 +8,10 @@
     "redo": "Redo (Ctrl + Y)",
     "delete": "Delete (Del)",
     "relation": "Edit relations (R)",
-    "active": "Active"
+    "related": "Add {amount} neighbor nodes (A)",
+    "active": "Active",
+    "front": "Bring to front (F)",
+    "back": "Bring to back (B)"
   },
   "noDiagram": {
     "title": "No Diagram",
@@ -25,5 +28,27 @@
   "inspector": "Inspector",
   "graphEditor": {
     "setRelationName": "New visual relation"
+  },
+  "nodeEdit": {
+    "title": "Element Edit",
+    "text": "Text",
+    "shape": "Shape",
+    "color": "Color",
+    "borderColor": "Border",
+    "shapes": {
+      "text": "Text",
+      "rectangle": "Rectangle",
+      "circle": "Circle",
+      "diamond": "Diamond",
+      "cylinder": "Cylinder",
+      "cloud": "Cloud"
+    }
+  },
+  "visualElements": {
+    "title": "Visual Elements"
+  },
+  "heatMap": {
+    "title": "Heat View",
+    "name": "Name:"
   }
 }

@@ -4,8 +4,7 @@ import ApiNode from "@/models/data-scheme/ApiNode";
 import { Store } from "vuex";
 import { RootState } from "@/store";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
-import { NodeShapes } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeShapes";
-import { getBrightness } from "@/utility";
+import { getFontColor } from "@/utility";
 import { JointGraph } from "@/shared/JointGraph";
 import { RelationInfo } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationInfo";
 
@@ -17,30 +16,37 @@ export class GraphUtils {
      * Maps the uuid of a node to the id of a diagram shape
      */
     public mappedNodes = new Map<string, string | number>();
+
     /**
      * Maps the uuid of a relation to the id of a diagram link
      */
     public mappedRelations = new Map<string, string | number>();
+
     /**
      * Distance between two nodes on a circle
      */
     private stepDistance = 0;
+
     /**
      * Amount of neighbors already placed
      */
     private neighborsPlaced = 0;
+
     /**
      * Radius of the circle
      */
     private radius = 0;
+
     /**
      * Current x position of the shape to be placed
      */
     private currentX = 0;
+
     /**
      * Current y position of the shape to be placed
      */
     private currentY = 0;
+
     /**
      *  True, if first node (origin) has been placed
      */
@@ -52,7 +58,7 @@ export class GraphUtils {
      * @param graph Graph to place nodes/relations into
      * @param store Root Store
      */
-    constructor(private graph: JointGraph, private store: Store<RootState>) {
+    constructor(public readonly graph: JointGraph, private store: Store<RootState>) {
         this.registerNodeInteraction();
     }
 
@@ -65,31 +71,24 @@ export class GraphUtils {
     public addNodeToDiagram(apiNode: ApiNode): dia.Element {
         this.calculateNewPosition();
 
-        const node: NodeInfo = {
-            x: this.currentX,
-            y: this.currentY,
-            shape: "rectangle",
-            label: apiNode.label,
-            name: apiNode.name,
-            ref: { uuid: apiNode.nodeId, index: 0 },
-            color: this.store.state.overview?.labelColor.get(apiNode.label)?.color ?? "#70FF87",
-        };
+        // Add the shape
+        const shape = new shapes.standard.Rectangle();
+        this.mappedNodes.set(apiNode.nodeId, shape.id);
 
-        const shape = NodeShapes.parseType(node.shape);
-        this.mappedNodes.set(node.ref.uuid, shape.id);
-
-        shape.position(node.x, node.y);
-        // Style node
+        // Position and style the shape
+        shape.position(this.currentX, this.currentY);
+        const color = this.store.state.overview?.labelColor.get(apiNode.label)?.color ?? "#70FF87";
         shape.attr({
             label: {
-                text: node.name,
+                text: apiNode.name,
                 textAnchor: "middle",
                 textVerticalAnchor: "middle",
-                fill: getBrightness(node.color) > 170 ? "#333" : "#FFF",
+                fill: getFontColor(color),
+                class: "node-text",
             },
             body: {
                 ref: "label",
-                fill: node.color,
+                fill: color,
                 strokeWidth: 1,
                 rx: 4,
                 ry: 4,
@@ -97,14 +96,26 @@ export class GraphUtils {
                 refHeight: 16,
                 refX: -16,
                 refY: -8,
-                class: "node",
+                class: "node-body",
             },
         });
+
         shape.addTo(this.graph.graph);
         shape.attr("body/strokeWidth", 0);
+        if (!this.rootNodeSet) this.graph.selectElement(this.graph.paper.findViewByModel(shape.id));
         this.rootNodeSet = true;
-
         return shape;
+    }
+
+    /**
+     * Sets the focus on the node which is currently edited in the inspector
+     */
+    public setEditedNodeFocus(): void {
+        const editedNode = this.store.state.inspector?.element;
+        if (editedNode && editedNode instanceof ApiNode) {
+            const shapeID = this.mappedNodes.get(editedNode.nodeId);
+            if (shapeID) this.graph.selectElement(this.graph.paper.findViewByModel(shapeID));
+        }
     }
 
     /**
@@ -113,23 +124,16 @@ export class GraphUtils {
      * @param apiRelation Relation to be placed in the diagram
      */
     public addRelationToDiagram(apiRelation: ApiRelation): shapes.standard.Link | undefined {
-        const relation = {
-            from: { uuid: apiRelation.from, index: 0 },
-            to: { uuid: apiRelation.to, index: 0 },
-            uuid: apiRelation.relationId,
-            type: apiRelation.type,
-        };
-
         // Prevent duplicate relations
-        if (this.mappedRelations.has(relation.uuid)) return;
+        if (this.mappedRelations.has(apiRelation.relationId)) return;
 
         // Get direction of the relation
-        const source = this.getShapeById(relation.from.uuid);
-        const target = this.getShapeById(relation.to.uuid);
+        const source = this.getShapeById(apiRelation.from);
+        const target = this.getShapeById(apiRelation.to);
         if (!(source && target)) return;
 
         const link = new shapes.standard.Link();
-        this.mappedRelations.set(relation.uuid, link.id);
+        this.mappedRelations.set(apiRelation.relationId, link.id);
 
         link.source(source);
         link.target(target);
@@ -137,10 +141,10 @@ export class GraphUtils {
             line: { strokeWidth: 4 },
         });
 
-        if (relation.type)
+        if (apiRelation.type)
             link.appendLabel({
                 attrs: {
-                    text: { text: relation.type, textAnchor: "middle", textVerticalAnchor: "middle", fill: "#fff" },
+                    text: { text: apiRelation.type, textAnchor: "middle", textVerticalAnchor: "middle", fill: "#fff" },
                     rect: {
                         ref: "text",
                         fill: "#333",
@@ -206,9 +210,9 @@ export class GraphUtils {
      * @param id Id of the node that is supposed to be in the graph
      * @private
      */
-    private getShapeById(id: string): dia.Cell | undefined {
+    private getShapeById(id: string): dia.Element | undefined {
         const shapeId = this.mappedNodes.get(id);
-        if (shapeId) return this.graph.graph.getCell(shapeId);
+        if (shapeId) return this.graph.graph.getCell(shapeId) as dia.Element;
         return undefined;
     }
 
@@ -234,16 +238,17 @@ export class GraphUtils {
             const node = await this.getNodeByShapeId(cell.model.id);
 
             this.store.commit("inventory/setSelectedNode", node);
-            this.store.commit("inventory/reset");
-            await this.store.dispatch("inventory/loadNeighbors", node);
         });
 
         // Make links selectable and show them in the inspector on click
         this.graph.paper.on("link:pointerdown", async (cell) => {
             const relationId = [...this.mappedRelations].find(([, value]) => value === cell.model.id);
             if (relationId) {
-                await this.store.dispatch("inspector/selectRelation", relationId[0]);
-                this.graph.selectElement(cell, true);
+                await this.store.dispatch("inspector/selectRelation", {
+                    uuid: relationId[0],
+                    includeDefaults: false,
+                });
+                this.graph.selectElement(cell);
             }
         });
 
@@ -251,7 +256,10 @@ export class GraphUtils {
         this.graph.paper.on("element:pointerdown", async (cell) => {
             const nodeId = [...this.mappedNodes].find(([, value]) => value === cell.model.id);
             if (nodeId) {
-                await this.store.dispatch("inspector/selectNode", nodeId[0]);
+                await this.store.dispatch("inspector/selectNode", {
+                    uuid: nodeId[0],
+                    includeDefaults: false,
+                });
                 this.graph.selectElement(cell);
             }
         });
@@ -268,6 +276,12 @@ export class GraphUtils {
             [this.store.state.inventory.selectedNode as ApiNode, ...this.store.state.inventory.neighbors],
             (node) => {
                 const diagEl = this.getShapeById(node.nodeId);
+
+                // Get color, size, and position of the diagram element
+                const color = this.store.state.overview?.labelColor.get(node.label)?.color;
+                const size = diagEl ? this.graph.sizeOf(diagEl) : { width: 200, height: 30 };
+                const pos = diagEl ? diagEl.position() : { x: 0, y: 0 };
+
                 return {
                     label: node.label,
                     ref: {
@@ -275,10 +289,11 @@ export class GraphUtils {
                         uuid: node.nodeId,
                     },
                     name: node.name,
-                    color: node.color,
+                    labelColor: color,
                     shape: "rectangle",
-                    x: diagEl?.attributes.position.x,
-                    y: diagEl?.attributes.position.y,
+                    x: pos.x - size.width / 2,
+                    y: pos.y - size.height / 2,
+                    size: size,
                 };
             },
         );
@@ -298,7 +313,7 @@ export class GraphUtils {
                     uuid: relation.to,
                     index: 0,
                 },
-                label: relation.type,
+                name: relation.type,
                 vertices: link.vertices(),
             } as RelationInfo;
         };

@@ -81,7 +81,11 @@ export class NodesController {
     }
 
     @Get(":id")
-    @ApiQuery({ name: "includeDefaults", type: "number" })
+    @ApiQuery({
+        name: "includeDefaults",
+        type: "number",
+        description: "True if the returned attributes shall contain default values",
+    })
     @ApiOperation({
         description: "Returns a specific node from the customer db matching by id",
     })
@@ -129,7 +133,7 @@ export class NodesController {
         description: "Identifier of the node which relations are requested",
     })
     @ApiOkResponse({
-        description: "Return the all relations of a node",
+        description: "Return all relations of a node",
         type: [Relation],
     })
     getRelationsOfNode(@Param("id") id: string) {

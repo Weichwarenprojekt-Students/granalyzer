@@ -29,6 +29,12 @@
 @blue: #008DDD;
 
 /**
+ * From an to colors for the heatmap in HSL values. Also update in HeatMapUtils.ts!
+ */
+@heat_from: hsl(0, 0.8, 0.5);
+@heat_to: hsl(120, 0.8, 0.5);
+
+/**
  * Font sizes
  */
 @h1: 24px;
@@ -43,6 +49,11 @@
 @input_width: 144px;
 
 /**
+ * The width for fields that show attribute keys
+ */
+@key_width: 120px;
+
+/**
  * The standard border radius
  */
 @border_radius: 4px;
@@ -53,14 +64,10 @@
 @navbar_width: 280px;
 
 /**
- * Inventory width
+ * The width of a side panel
+ * (e.g. overview list or inspector)
  */
-@inventory_width: 360px;
-
-/**
-  Inspector width
- */
-@inspector_width: 360px;
+@side_panel_width: 360px;
 
 /**
  * The navbar width (collapsed)

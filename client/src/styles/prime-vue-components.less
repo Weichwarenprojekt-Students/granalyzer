@@ -82,21 +82,22 @@
 /**
  * The dialog
  */
+.p-dialog {
+  max-height: 100% !important;
+}
+
 .p-dialog-header {
   display: none !important;
 }
 
 .p-dialog-content {
   padding: 0 !important;
+  background: transparent !important;
 }
 
 /**
- * Number input
+ * Input fields
  */
-.pi {
-  color: white;
-}
-
 .p-inputtext {
   padding: 6px 12px !important;
   border: 0 !important;
@@ -105,21 +106,6 @@
   color: @dark !important;
   box-shadow: none !important;
   font-family: "Fira Sans", normal, sans-serif !important;
-}
-
-.p-inputnumber-input {
-  width: 124px !important;
-  border: 0 !important;
-  color: @dark !important;
-  background: @light_grey !important;
-}
-
-.p-inputnumber-button {
-  background: @dark !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  width: 20px !important;
-  height: 12px !important;
 }
 
 /**
@@ -136,28 +122,6 @@
 .p-scrollpanel-content {
   padding-left: 0 !important;
   height: 100% !important;
-}
-
-/**
- * Color picker
- */
-.p-colorpicker {
-  display: flex !important;
-  justify-content: center;
-  align-items: center;
-}
-
-.p-colorpicker-preview {
-  width: 24px !important;
-  height: 24px !important;
-  border-bottom: 0 !important;
-  border-radius: 12px !important;
-
-  .p-inputtext {
-    border: 0 !important;
-    outline: 0 !important;
-    box-shadow: none !important;
-  }
 }
 
 /**

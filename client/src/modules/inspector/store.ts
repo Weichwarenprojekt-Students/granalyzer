@@ -13,10 +13,12 @@ export class InspectorState {
      *  The currently listed attribute items in inspector
      */
     public attributes = new Array<InspectorAttribute>();
+
     /**
      * The name of the currently displayed node or relation
      */
     public element?: ApiRelation | ApiNode;
+
     /**
      * The current type
      */
@@ -26,6 +28,11 @@ export class InspectorState {
      * The different labels (for creating)
      */
     public types?: Array<ApiLabel> = [];
+
+    /**
+     * True if the selection was reset, because a visual element was selected
+     */
+    public visualSelection = false;
 }
 
 export const inspector = {
@@ -35,10 +42,12 @@ export const inspector = {
         /**
          * Reset the current selection
          */
-        resetSelection(state: InspectorState): void {
+        resetSelection(state: InspectorState, visualSelection = false): void {
             state.attributes = [];
             state.element = undefined;
+            state.visualSelection = visualSelection;
         },
+
         /**
          * Set the inspector items for nodes
          */
@@ -60,11 +69,12 @@ export const inspector = {
                             attribute.name,
                             payload.item.attributes[attribute.name],
                             attribute.datatype,
-                            !!payload.item.attributes[attribute.name],
+                            payload.item.attributes[attribute.name] !== undefined,
                             attribute.config,
                         ),
                 ) ?? [];
         },
+
         /**
          * Select a new node
          */
@@ -82,12 +92,23 @@ export const inspector = {
         /**
          * Set the clicked node
          */
-        async selectNode(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
-            if (!uuid) return;
+        async selectNode(
+            context: ActionContext<InspectorState, RootState>,
+            payload: { uuid?: string; includeDefaults: boolean },
+        ): Promise<void> {
+            if (!payload.uuid) {
+                // Reset for visual selection
+                context.commit("resetSelection", true);
+                return;
+            }
 
             // Fetch node data
-            let result = await GET(`/api/nodes/${uuid}?includeDefaults=false`);
-            if (isUnexpected(result)) return;
+            let result = await GET(`/api/nodes/${payload.uuid}?includeDefaults=${payload.includeDefaults}`);
+            if (isUnexpected(result, false)) {
+                // Reset for visual selection
+                context.commit("resetSelection", true);
+                return;
+            }
             const node: ApiNode = await result.json();
 
             // Fetch scheme for the label of this node
@@ -97,15 +118,27 @@ export const inspector = {
 
             context.commit("setAttributes", { item: Object.assign(new ApiNode(), node), type });
         },
+
         /**
          * Set the clicked relation
          */
-        async selectRelation(context: ActionContext<InspectorState, RootState>, uuid?: string): Promise<void> {
-            if (!uuid) return;
+        async selectRelation(
+            context: ActionContext<InspectorState, RootState>,
+            payload: { uuid?: string; includeDefaults: boolean },
+        ): Promise<void> {
+            if (!payload.uuid) {
+                // Reset for visual selection
+                context.commit("resetSelection", true);
+                return;
+            }
 
             // Fetch the relation data
-            let result = await GET(`/api/relations/${uuid}?includeDefaults=false`);
-            if (isUnexpected(result)) return;
+            let result = await GET(`/api/relations/${payload.uuid}?includeDefaults=${payload.includeDefaults}`);
+            if (isUnexpected(result, false)) {
+                // Reset for visual selection
+                context.commit("resetSelection", true);
+                return;
+            }
             const relation: ApiRelation = await result.json();
 
             // Fetch scheme for the type of this relation
@@ -115,15 +148,18 @@ export const inspector = {
 
             context.commit("setAttributes", { item: Object.assign(new ApiRelation(), relation), type });
         },
+
         /**
          * Update a node
          */
         async updateNode(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
             const result = await PUT(`/api/nodes/${node.nodeId}`, JSON.stringify(node));
             if (isUnexpected(result)) return;
+            await context.dispatch("inventory/updateNeighborRelations", false, { root: true });
             context.commit("setAttributes", { item: Object.assign(new ApiNode(), await result.json()) });
             await context.dispatch("updateInspector");
         },
+
         /**
          * Update a relation
          */
@@ -133,15 +169,22 @@ export const inspector = {
             context.commit("setAttributes", { item: Object.assign(new ApiRelation(), await result.json()) });
             await context.dispatch("updateInspector");
         },
+
         /**
          * Update a node
          */
         async deleteNode(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
             const result = await DELETE(`/api/nodes/${node.nodeId}`);
             if (isUnexpected(result)) return;
+
+            if (node.nodeId === context.rootState.inventory?.selectedNode?.nodeId)
+                await context.dispatch("inventory/updateNeighborRelations", true, { root: true });
+            else await context.dispatch("inventory/updateNeighborRelations", false, { root: true });
+
             context.commit("setAttributes", {});
             await context.dispatch("updateInspector");
         },
+
         /**
          * Update a relation
          */
@@ -151,22 +194,26 @@ export const inspector = {
             context.commit("setAttributes", {});
             await context.dispatch("updateInspector");
         },
+
         /**
          * Create a label
          */
         async createNode(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
             const result = await POST(`/api/nodes`, JSON.stringify(node));
             if (isUnexpected(result)) return;
-            context.commit("setAttributes", { item: Object.assign(new ApiNode(), await result.json()) });
+            const data: ApiNode = await result.json();
+            await context.commit("inventory/setSelectedNode", data, { root: true });
+            context.commit("setAttributes", { item: Object.assign(new ApiNode(), data) });
             await context.dispatch("updateInspector");
         },
+
         /**
          * Reload the shown inspector content
          */
         async updateInspector(context: ActionContext<InspectorState, RootState>): Promise<void> {
-            await context.dispatch("inventory/loadNeighbors", undefined, { root: true });
             await context.dispatch("overview/reloadNodes", undefined, { root: true });
         },
+
         /**
          * Set a new node for creation
          */
@@ -183,12 +230,14 @@ export const inspector = {
         isLoaded(state: InspectorState): boolean {
             return !!state.element;
         },
+
         /**
          * @return True if selected element is a label
          */
         isNode(state: InspectorState): boolean {
             return state.element instanceof ApiNode;
         },
+
         /**
          * @return True if the inspector is in create mode
          */
@@ -198,6 +247,7 @@ export const inspector = {
                 (state.element instanceof ApiNode && !!state.element.nodeId)
             );
         },
+
         /**
          * @return True if the inspector is in create mode
          */

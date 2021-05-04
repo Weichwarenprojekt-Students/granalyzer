@@ -1,5 +1,5 @@
 <template>
-    <ScrollPanel class="filter">
+    <ScrollPanel ref="scroll" :class="['filter', { 'filter-expanded': expanded }]">
         <div class="row" v-for="label in labels" :key="label.name">
             <Checkbox v-model="selectedLabels" :value="label.name" :id="label.name" />
             <label class="label" :for="label.name">
@@ -23,6 +23,8 @@ export default defineComponent({
         labelColors: Object,
         // The filter
         modelValue: Array,
+        // True if the filter shall be expanded
+        expanded: Boolean,
     },
     data() {
         return {
@@ -35,6 +37,13 @@ export default defineComponent({
     },
     watch: {
         /**
+         * Check if the filter was expanded and start updating the view
+         * (necessary for scroll panel to update)
+         */
+        expanded() {
+            if (this.expanded) this.refresh();
+        },
+        /**
          * Watch filter property for changes to trigger label filtering
          */
         selectedLabels: {
@@ -44,6 +53,15 @@ export default defineComponent({
             deep: true,
         },
     },
+    methods: {
+        /**
+         * Refresh the view (necessary for scroll panel)
+         */
+        refresh(start: number = Date.now()): void {
+            this.$forceUpdate();
+            if (Date.now() - start < 400) window.requestAnimationFrame(() => this.refresh(start));
+        },
+    },
 });
 </script>
 
@@ -51,16 +69,23 @@ export default defineComponent({
 @import "~@/styles/global.less";
 
 .filter {
+    max-height: 0;
+    transition: all 400ms;
+    margin-bottom: 8px;
+    border-bottom: 2px solid @grey;
+    height: auto !important;
+}
+
+.filter-expanded {
     max-height: 200px;
     padding-bottom: 8px;
-    margin-bottom: 8px;
-    border-bottom: 1px solid @grey;
 }
 
 .row {
     display: flex;
     align-items: center;
     flex-direction: row;
+    overflow: hidden;
 }
 
 .label {
@@ -69,12 +94,19 @@ export default defineComponent({
     padding: 10px 0;
     cursor: pointer;
     width: 100%;
+    overflow: hidden;
 
     .labelName {
         font-size: 14px;
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding-right: 16px;
     }
 
     .color {
+        flex: 0 0 auto;
         margin: 0 8px;
         border-radius: 4px;
         width: 16px;

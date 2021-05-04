@@ -31,6 +31,8 @@ import { JointGraph } from "@/shared/JointGraph";
 import { infoToast } from "@/utility";
 import InputDialog from "@/components/dialog/InputDialog.vue";
 import { NodeFilter } from "@/modules/overview-list/models/NodeFilter";
+import { NodeDrag } from "@/shared/NodeDrag";
+import { NodeInfo } from "@/modules/editor/modules/graph-editor/controls/nodes/models/NodeInfo";
 
 export default defineComponent({
     name: "GraphEditor",
@@ -40,38 +42,52 @@ export default defineComponent({
     },
     data() {
         return {
+            // Graph of the editor view
             graph: {} as JointGraph,
         };
     },
     async mounted(): Promise<void> {
         this.$store.dispatch("editor/setRelationMode", false);
 
-        // Load the currently opened diagram from REST backend
-        await this.$store.dispatch("editor/fetchActiveDiagram");
-
         // Load the labels with the first load of matching nodes
         await this.$store.dispatch("overview/loadLabelsAndNodes", new NodeFilter());
 
-        // Set up the graph and the controls
-        this.graph = new JointGraph("joint");
+        // Set up the graph and the controls and enable async loading (only for first load)
+        this.graph = new JointGraph("joint", true);
+        this.graph.paper.freeze();
         this.graph.centerGraph();
-        this.$store.commit("editor/setGraphHandler", new GraphHandler(this.$store, this.graph));
+        const graphHandler = new GraphHandler(this.$store, this.graph);
+        this.$store.commit("editor/setGraphHandler", graphHandler);
 
-        // Generate the active diagram
-        this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
-        this.graph.centerContent();
-    },
-    watch: {
-        async "$store.state.editor.graphEditor.relationModeActive"() {
-            this.$store.commit("editor/setEditorLoading", true);
+        // Reset heat map
+        this.$store.commit("editor/clearHeatConfigs");
+        this.$store.commit("editor/resetHeatMap");
 
-            if (this.$store.state.editor.graphEditor.relationModeActive) {
-                await this.$store.state.editor.graphEditor.graphHandler.relationMode.enable();
-            } else {
-                await this.$store.state.editor.graphEditor.graphHandler.relationMode.disable();
+        // Generate the active diagram if available
+        if (this.$store.state.editor.diagram)
+            this.$store.commit("editor/generateDiagramFromJSON", this.$store.state.editor.diagram);
+
+        // Force the paper to update the DOM
+        this.graph.paper.updateViews();
+        this.graph.paper.unfreeze();
+
+        // Disable async loading and remove loading bar
+        this.graph.paper.options.async = false;
+
+        // Hide the link tools (for bending)
+        requestAnimationFrame(() => {
+            for (const link of this.graph.graph.getLinks()) {
+                this.graph.paper.findViewByModel(link)?.hideTools();
             }
-            this.$store.commit("editor/setEditorLoading", false);
-        },
+        });
+
+        graphHandler.controls.centerContent();
+
+        // Initialize heat map
+        await this.$store.dispatch("editor/updateHeatLabels");
+        await this.$store.dispatch("editor/initHeatMap");
+
+        this.$store.commit("editor/setEditorLoading", false);
     },
     methods: {
         /**
@@ -86,22 +102,22 @@ export default defineComponent({
             }
 
             // Get the selected node
-            const node = this.$store.state.editor.draggedNode;
-            if (!node) return;
+            const nodeDrag: NodeDrag = this.$store.state.editor.draggedNode;
+            if (!nodeDrag) return;
 
-            // Get the mouse position in the graph and add the node accordingly
+            // Set the position and add the node accordingly
             const point = this.graph.paper.clientToLocalPoint({ x: evt.clientX, y: evt.clientY });
-            this.$store.dispatch("editor/addNode", {
+            const node: NodeInfo = {
+                ...nodeDrag,
                 x: point.x,
                 y: point.y,
-                shape: "rectangle",
-                label: node.label,
-                name: node.name,
                 ref: {
-                    uuid: node.nodeId,
+                    uuid: nodeDrag.nodeId,
                     index: 0,
                 },
-            });
+                size: { width: -1, height: -1 },
+            };
+            this.$store.dispatch("editor/addNode", node);
         },
         /**
          * Call mousemove methods of JointGraph and RelationModeControls
@@ -123,7 +139,7 @@ export default defineComponent({
 });
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 @import "~@/styles/global";
 
 .container {
@@ -139,31 +155,6 @@ export default defineComponent({
 
 .disabled {
     pointer-events: none;
-}
-
-.node {
-    cursor: pointer;
-}
-
-.node + text {
-    color: grey;
-    cursor: pointer;
-
-    tspan {
-        font-size: 20px;
-        font-weight: bold;
-        cursor: pointer;
-    }
-}
-
-.label {
-    cursor: pointer;
-
-    text {
-        tspan {
-            font-size: 16px;
-        }
-    }
 }
 
 #joint {

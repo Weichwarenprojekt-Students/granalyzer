@@ -1,5 +1,7 @@
 import { ToastServiceMethods } from "primevue/toastservice";
 import i18n from "@/i18n";
+import { isHexColor } from "class-validator";
+import hexRgb from "hex-rgb";
 import { firaSansSVGStyle } from "@/assets/fonts/firasans/FiraSans-Bold-SVG";
 
 /**
@@ -13,23 +15,19 @@ export const routeNames = {
 };
 
 /**
- * Calculate the brightness for a given color
+ * Get the matching font color for a certain background color
  *
  * @param color The color as a string in hex format
  */
-export function getBrightness(color: string): number {
-    let brightness = 0;
-    const parsedHex = parseInt(color.substr(1), 16);
-    if (parsedHex) {
-        // Get R, G, B values from hex-code
-        const R = (parsedHex >> 16) & 255;
-        const G = (parsedHex >> 8) & 255;
-        const B = parsedHex & 255;
+export function getFontColor(color: string): string {
+    if (!isHexColor(color)) return "#333";
 
-        // Calculate color brightness from RGB-values
-        brightness = R * 0.299 + G * 0.587 + B * 0.114;
-    }
-    return brightness;
+    // Calculate brightness
+    const { red, green, blue, alpha } = hexRgb(color);
+    const brightness = (1 - alpha) * 255 + (red * 0.299 + green * 0.587 + blue * 0.114);
+
+    // Determine whether font should be white
+    return brightness > 128 ? "#333" : "#FFF";
 }
 
 /**
@@ -156,10 +154,12 @@ export function diagramToSVG(svg: HTMLElement): Blob {
  * Check if a response is unexpected
  *
  * @param response The response that shall be checked
+ * @param displayToast True if a toast should be displayed
  */
-export function isUnexpected(response: Response): boolean {
+export function isUnexpected(response: Response, displayToast = true): boolean {
     if (response.status >= 300) {
-        errorToast(i18n.global.t("global.unexpected.title"), i18n.global.t("global.unexpected.description"));
+        if (displayToast)
+            errorToast(i18n.global.t("global.unexpected.title"), i18n.global.t("global.unexpected.description"));
         return true;
     }
     return false;
@@ -204,7 +204,6 @@ export function errorToast(summary: string, detail: string, life = 3000): void {
     // Show easter egg toast
     if (toastCount < 4) return;
     toastCount = 0;
-    toast.removeAllGroups();
     warnToast(i18n.global.t("global.stopSpamming.title"), i18n.global.t("global.stopSpamming.description"), 10000);
 }
 
@@ -254,4 +253,63 @@ export function warnToast(summary: string, detail: string, life = 3000): void {
         detail,
         life,
     });
+}
+
+/**
+ * Provide wrapper for Promise.allSettled() that just returns the values of fulfilled promises
+ *
+ * @param promises All promises to await
+ */
+export async function allFulfilledPromises<T>(promises: Array<Promise<T>>): Promise<Array<T>> {
+    return (await Promise.allSettled(promises))
+        .filter((result): result is PromiseFulfilledResult<T> => result.status === "fulfilled")
+        .map((res: PromiseFulfilledResult<T>) => res.value);
+}
+
+/**
+ * Returns a random range that is also randomly positive or negative
+ *
+ * @param min Minimum number generated
+ * @param max Maximum number generated
+ * @return Returns a number that is randomly positive or negative within the given range
+ */
+export function randomRange(min: number, max: number): number {
+    let rand = Math.random() * (max - min) + min;
+
+    if (Math.random() < 0.5) {
+        rand = rand * -1;
+    }
+
+    return rand;
+}
+
+/**
+ * Clamp a number between a minimum and a maximum
+ *
+ * @param num The number
+ * @param min The minimum
+ * @param max The maximum
+ */
+export function clamp(num: number, min: number, max: number): number {
+    return num <= min ? min : num >= max ? max : num;
+}
+
+/**
+ * Convert hue, saturation, and lightness from HSL colors to RGB
+ *
+ * input: h in [0,360] and s,v in [0,1] - output: r,g,b in [0,255]
+ * See: https://stackoverflow.com/a/54014428/15087314
+ */
+export function hsl2rgb(h: number, s: number, l: number): [number, number, number] {
+    const a = s * Math.min(l, 1 - l);
+    const f = (n: number, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
+}
+
+/**
+ * Convert a number to a hex string of length 2 with leading 0
+ */
+export function toPaddedHex(num: number): string {
+    const hex = num.toString(16);
+    return hex.length === 1 ? "0" + hex : hex;
 }

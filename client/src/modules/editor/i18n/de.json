@@ -1,29 +1,54 @@
 {
-    "title": "Hier sind Sie im Editor!",
-    "nothing-loaded": "Bitte laden Sie ein Diagramm",
-    "exportDiagram": "Diagramm exportieren",
-    "toolbar": {
-        "center": "Zentrieren (C)",
-        "undo": "Rückgängig (Strg + Z)",
-        "redo": "Wiederholen (Strg + Y)",
-        "delete": "Löschen (Entf)",
-        "relation": "Beziehungen editieren (R)",
-        "active": "Aktiv"
-    },
-    "noDiagram": {
-        "title": "Kein Diagramm",
-        "description": "Laden Sie erst ein Diagramm!"
-    },
-    "noNodes": {
-        "description": "Keine Einträge gefunden!"
-    },
-    "relationModeToast": {
-        "title": "Beziehungsmodus ist aktiv!",
-        "description": "Im Beziehungsmodus können keine neuen Nodes hinzugefügt werden"
-    },
-    "toolbox": "Toolbox",
-    "inspector": "Inspektor",
-    "graphEditor": {
-        "setRelationName": "Neue visuelle Beziehung"
+  "title": "Hier sind Sie im Editor!",
+  "nothing-loaded": "Bitte laden Sie ein Diagramm",
+  "exportDiagram": "Diagramm exportieren",
+  "toolbar": {
+    "center": "Zentrieren (C)",
+    "undo": "Rückgängig (Strg + Z)",
+    "redo": "Wiederholen (Strg + Y)",
+    "delete": "Löschen (Entf)",
+    "relation": "Beziehungen editieren (R)",
+    "related": "{amount} benachbarte Elemente hinzufügen (A)",
+    "active": "Aktiv",
+    "front": "Nach vorne bringen (F)",
+    "back": "Nach hinten bringen (B)"
+  },
+  "noDiagram": {
+    "title": "Kein Diagramm",
+    "description": "Laden Sie erst ein Diagramm!"
+  },
+  "noNodes": {
+    "description": "Keine Einträge gefunden!"
+  },
+  "relationModeToast": {
+    "title": "Beziehungsmodus ist aktiv!",
+    "description": "Im Beziehungsmodus können keine neuen Nodes hinzugefügt werden"
+  },
+  "toolbox": "Toolbox",
+  "inspector": "Inspektor",
+  "graphEditor": {
+    "setRelationName": "Neue visuelle Beziehung"
+  },
+  "nodeEdit": {
+    "title": "Element Editierung",
+    "text": "Text",
+    "shape": "Form",
+    "color": "Farbe",
+    "borderColor": "Rand",
+    "shapes": {
+      "text": "Text",
+      "rectangle": "Rechteck",
+      "circle": "Kreis",
+      "diamond": "Diamand",
+      "cylinder": "Zylinder",
+      "cloud": "Wolke"
     }
+  },
+  "visualElements": {
+    "title": "Visuelle Elemente"
+  },
+  "heatMap": {
+    "title": "Heat View",
+    "name": "Name:"
+  }
 }

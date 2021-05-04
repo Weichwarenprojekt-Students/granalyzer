@@ -1,12 +1,12 @@
 <template>
-    <div v-if="$store.getters['inspector/isLoaded']" class="content nested-content">
+    <div v-if="$store.getters['inspector/isLoaded']" class="inspector">
         <ScrollPanel class="scroll-panel">
             <!-- The label -->
             <div v-if="$store.getters['inspector/isNode']" class="attribute-item">
                 <div class="attribute-key">
                     {{ $t("inspector.name") }}
                 </div>
-                <div>{{ $store.getters["inspector/getName"] }}</div>
+                <div class="attribute-general">{{ $store.getters["inspector/getName"] }}</div>
             </div>
 
             <!-- The label -->
@@ -14,13 +14,13 @@
                 <div class="attribute-key">
                     {{ $t("inspector.label") }}
                 </div>
-                <div>{{ $store.state.inspector.element.label }}</div>
+                <div class="attribute-general">{{ $store.state.inspector.element.label }}</div>
             </div>
             <div v-else class="attribute-item">
                 <div class="attribute-key">
                     {{ $t("inspector.relationType") }}
                 </div>
-                <div>{{ $store.state.inspector.element.type }}</div>
+                <div class="attribute-general">{{ $store.state.inspector.element.type }}</div>
             </div>
 
             <!-- The attributes -->
@@ -40,7 +40,7 @@
             ></ReadAttribute>
         </ScrollPanel>
     </div>
-    <DefaultInspector v-else :title="false" />
+    <DefaultInspector v-else :title="false" class="inspector" :visual-info="$store.state.inspector.visualSelection" />
 </template>
 
 <script lang="ts">
@@ -60,8 +60,9 @@ export default defineComponent({
 <style lang="less" scoped>
 @import "styles/inspector";
 
-.content {
+.inspector {
     border: 0;
     padding: 0;
+    width: 100%;
 }
 </style>

@@ -47,6 +47,7 @@
             <div class="attribute-modification-row">
                 <span>{{ $t("schemes.attribute.default") }}</span>
                 <DynamicInput
+                    class="attribute-default-input"
                     v-model="modifiedAttribute.defaultValue"
                     :config="modifiedAttribute.config"
                     :type="modifiedAttribute.datatype"
@@ -160,8 +161,6 @@ export default defineComponent({
 
 .attribute-view-expanded {
     height: @line_height + 3 * @attribute_edit_height;
-    overflow: initial;
-    animation: 0.4s delay-overflow forwards;
 
     .attribute-collapse-icon {
         transform: rotate(90deg);
@@ -196,13 +195,12 @@ export default defineComponent({
 }
 
 .attribute-name {
-    width: 100px;
     height: @line_height;
     line-height: @line_height;
     margin-right: 16px;
 
     input {
-        width: 100px;
+        width: @key_width;
         padding: 8px 12px;
         height: 30px;
         background: @light_grey;
@@ -235,11 +233,11 @@ export default defineComponent({
 }
 
 .attribute-checkbox {
-    margin-right: 124px;
+    margin-right: @input_width - 20px;
 }
 
 .attribute-expanded {
-    margin-left: 140px;
+    margin-left: @key_width + 40px;
     padding: 0 16px;
     height: 0;
     border-bottom: 1px solid @grey;
@@ -251,5 +249,9 @@ export default defineComponent({
     height: @attribute_edit_height;
     display: flex;
     justify-content: space-between;
+}
+
+.attribute-default-input {
+    width: @input_width;
 }
 </style>

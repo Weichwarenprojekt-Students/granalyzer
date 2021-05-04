@@ -1,11 +1,12 @@
 import ApiNode from "@/models/data-scheme/ApiNode";
 import { ActionContext } from "vuex";
 import { RootState } from "@/store";
-import { errorToast, GET, POST, successToast, isUnexpected } from "@/utility";
+import { errorToast, GET, POST, successToast, isUnexpected, allFulfilledPromises } from "@/utility";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import i18n from "@/i18n";
 import { GraphUtils } from "@/modules/inventory/modules/neighbor-view/controls/GraphUtils";
 import { ApiRelationType } from "@/models/data-scheme/ApiRelationType";
+import { NodeDrag } from "@/shared/NodeDrag";
 
 export class InventoryState {
     /**
@@ -16,7 +17,7 @@ export class InventoryState {
     /**
      * Replication of the overview item that is dragged into the diagram
      */
-    public draggedNode?: ApiNode;
+    public draggedNode?: NodeDrag;
 
     /**
      * First degree neighbors of the currently selected node
@@ -53,8 +54,9 @@ export const inventory = {
         /**
          * Set dragged item
          */
-        setDraggedNode(state: InventoryState, node?: ApiNode): void {
+        setDraggedNode(state: InventoryState, node?: NodeDrag): void {
             state.draggedNode = node;
+            if (node) state.graphUtils?.graph.createDragNode(node);
         },
 
         /**
@@ -100,11 +102,6 @@ export const inventory = {
         async loadNeighbors(context: ActionContext<InventoryState, RootState>, node: ApiNode): Promise<void> {
             context.commit("setLoading", true);
 
-            // Ensure that a node is loaded and that it is up to date
-            node = node ?? context.state.selectedNode;
-            const nodeRes = await GET(`api/nodes/${node ? node.nodeId : ""}`);
-            node = nodeRes.status === 200 ? await nodeRes.json() : undefined;
-            context.commit("setSelectedNode", node);
             if (!node) {
                 context.commit("setLoading", false);
                 return;
@@ -140,7 +137,7 @@ export const inventory = {
                 const neighborId = relation.from === payload.origin.nodeId ? relation.to : relation.from;
                 if (!neighborIds.includes(neighborId)) neighborIds.push(neighborId);
             });
-            const apiNodes: Array<ApiNode> = await Promise.all(
+            const apiNodes: Array<ApiNode> = await allFulfilledPromises(
                 [...neighborIds].map(async (id) => (await (await GET(`api/nodes/${id}`)).json()) as ApiNode),
             );
 
@@ -160,7 +157,7 @@ export const inventory = {
             payload: { neighborIds: Array<string>; apiRelationsOrigin: Array<ApiRelation> },
         ): Promise<void> {
             // Get relations of the neighbors
-            const apiRelationsNeighbors = await Promise.all(
+            const apiRelationsNeighbors = await allFulfilledPromises(
                 [...payload.neighborIds].map(
                     async (id) => (await (await GET(`api/nodes/${id}/relations`)).json()) as Array<ApiRelation>,
                 ),
@@ -201,6 +198,24 @@ export const inventory = {
                     ),
                 )
                 .map((entry) => entry.name);
+        },
+
+        /**
+         * Updates the neighbor view
+         */
+        async updateNeighborRelations(
+            context: ActionContext<InventoryState, RootState>,
+            rootDeleted: boolean,
+        ): Promise<void> {
+            // Ensure that a node is loaded and that it is up to date
+            if (rootDeleted) {
+                context.commit("setSelectedNode", undefined);
+                return;
+            }
+
+            const res = await GET(`api/nodes/${context.state.selectedNode?.nodeId}`);
+            const node = res.status === 200 ? await res.json() : undefined;
+            context.commit("setSelectedNode", node);
         },
 
         /**

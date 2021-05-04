@@ -1,6 +1,7 @@
 {
   "title": "Inspector",
   "nothingSelected": "Please select a node or relation to show the attributes",
+  "visualSelected": "The selected element is purely visual",
   "save": "Save",
   "delete": "Delete",
   "deleteDialog": {

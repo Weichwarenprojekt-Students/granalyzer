@@ -18,7 +18,7 @@ export class DatabaseUtil {
      * @param err
      * @private
      */
-    catchDbError(err: Error) {
+    catchDbError(err: Error): any {
         // Check for Neo4J errors
         if (err instanceof Neo4jError) {
             switch (err.code) {
@@ -40,9 +40,6 @@ export class DatabaseUtil {
         // Catch neo4j errors
         logger.error(err.message, err.stack);
         throw new InternalServerErrorException();
-
-        // Necessary to avoid void return value of function
-        return null;
     }
 
     /**

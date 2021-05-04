@@ -1,14 +1,19 @@
 <template>
-    <InputNumber
+    <NumberInput
         v-if="type === datatype.NUMBER"
         v-model="value"
-        showButtons
-        class="input"
         :placeholder="$t('global.input.placeholder')"
         :disabled="disabled"
     />
-    <Dropdown v-else-if="type === datatype.ENUM" :options="config" v-model="value" :disabled="disabled" />
-    <ColorMultiInput v-else-if="type === datatype.COLOR" v-model="value" :disabled="disabled" />
+    <Dropdown
+        v-else-if="type === datatype.ENUM"
+        :options="config"
+        v-model="value"
+        :disabled="disabled"
+        :placeholder="$t('global.dropdown.choose')"
+        :emptyMessage="$t('global.dropdown.empty')"
+    />
+    <ColorPicker v-else-if="type === datatype.COLOR" v-model="value" :disabled="disabled" />
     <label v-else>
         <input
             v-model="value"
@@ -22,12 +27,13 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
-import ColorMultiInput from "@/components/ColorMultiInput.vue";
 import { isHexColor, isNumber } from "class-validator";
+import ColorPicker from "@/components/ColorPicker.vue";
+import NumberInput from "@/components/NumberInput.vue";
 
 export default defineComponent({
     name: "DynamicInput",
-    components: { ColorMultiInput },
+    components: { NumberInput, ColorPicker },
     props: {
         // The v-model
         modelValue: {
@@ -101,10 +107,6 @@ export default defineComponent({
 
 <style lang="less">
 @import "~@/styles/global.less";
-
-.attribute-value {
-    text-align: start;
-}
 
 .text-input {
     padding: 6px 12px;
