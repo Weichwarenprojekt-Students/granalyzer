@@ -7,20 +7,20 @@
                 :style="{ 'border-right': `4px ${config.valueColors.get(entry)} solid` }"
             />
         </div>
-        <ul class="heat-list" ref="enumList">
-            <li v-for="entry in config.values" :key="entry" :data-value="entry">
+        <div class="heat-list" ref="enumList">
+            <div v-for="entry in config.values" :data-value="entry" :key="entry">
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#drag`"></use>
                 </svg>
                 {{ entry }}
-            </li>
-        </ul>
+            </div>
+        </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import Sortable, { SortableEvent } from "sortablejs";
+import Sortable from "sortablejs";
 import { HeatEnumConfig } from "@/modules/editor/modules/heat-map/models/HeatEnumConfig";
 
 export default defineComponent({
@@ -33,40 +33,31 @@ export default defineComponent({
     },
     data() {
         return {
+            // The modified config
             config: new HeatEnumConfig("", []),
+            // The sortable object
+            sortable: {} as Sortable,
         };
     },
     mounted() {
         // Create the sortable list
-        Sortable.create(this.$refs.enumList as HTMLElement, {
+        this.sortable = Sortable.create(this.$refs.enumList as HTMLElement, {
             animation: 300,
             ghostClass: "heat-ghost-class",
             dragClass: "heat-drag",
-            onSort: (evt) => this.onSort(evt),
+            onSort: this.onSort,
+            dataIdAttr: "data-value",
         });
 
         // Get the initial value
         this.config = this.modelValue as HeatEnumConfig;
     },
-    watch: {
-        /**
-         * Watch for changes from the outside
-         */
-        modelValue() {
-            this.config = this.modelValue as HeatEnumConfig;
-        },
-    },
     methods: {
         /**
          * Handle drag events
          */
-        onSort(evt: SortableEvent) {
-            // Swap the elements
-            if (evt.newIndex === undefined || evt.oldIndex === undefined) return;
-            const draggedValue = this.config.values.splice(evt.oldIndex, 1)[0];
-            this.config.values.splice(evt.newIndex, 0, draggedValue);
-
-            // Update the colors and the v model
+        onSort() {
+            this.config.values = this.sortable.toArray();
             this.config.updateColors();
             this.$emit("update:modelValue", this.config);
         },
@@ -100,7 +91,7 @@ export default defineComponent({
     flex-direction: column;
     gap: 8px;
 
-    li {
+    div {
         align-items: center;
         display: flex;
         cursor: grab;
