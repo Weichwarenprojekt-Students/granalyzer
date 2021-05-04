@@ -10,7 +10,7 @@
                 <input
                     tabindex="0"
                     class="input-large"
-                    v-model="name"
+                    v-model.trim="name"
                     type="text"
                     id="name-input"
                     placeholder="Name"

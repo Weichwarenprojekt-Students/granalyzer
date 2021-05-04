@@ -11,7 +11,7 @@
 
         <!-- The title -->
         <div v-if="$store.getters['inspector/isNode']" class="underlined-title">
-            <input class="name-input" :placeholder="$t('inspector.name')" v-model="element.name" />
+            <input class="name-input" :placeholder="$t('inspector.name')" v-model.trim="element.name" />
         </div>
         <div v-else class="underlined-title">
             {{ element.type }}

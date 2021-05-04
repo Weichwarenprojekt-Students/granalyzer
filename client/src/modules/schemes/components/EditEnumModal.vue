@@ -12,7 +12,7 @@
                 <input
                     :placeholder="$t('schemes.attribute.editEnumConfig.newElementPlaceholder')"
                     class="input text-input"
-                    v-model="addEnumValue"
+                    v-model.trim="addEnumValue"
                     v-on:keyup.enter="addEnumProp()"
                 />
             </div>

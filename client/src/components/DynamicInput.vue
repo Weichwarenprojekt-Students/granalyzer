@@ -16,7 +16,7 @@
     <ColorPicker v-else-if="type === datatype.COLOR" v-model="value" :disabled="disabled" />
     <label v-else>
         <input
-            v-model="value"
+            v-model.trim="value"
             class="input text-input"
             :placeholder="$t('global.input.placeholder')"
             :disabled="disabled"

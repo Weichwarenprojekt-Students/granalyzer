@@ -1,50 +1,54 @@
 {
-  "title": "This is the start!",
-  "newDiagram": {
-    "title": "New Diagram",
-    "blank": {
-      "title": "Empty Diagram",
-      "description": "Start a diagram from scratch"
+    "title": "This is the start!",
+    "newDiagram": {
+        "title": "New Diagram",
+        "blank": {
+            "title": "Empty Diagram",
+            "description": "Start a diagram from scratch"
+        },
+        "node": {
+            "title": "From Node",
+            "description": "Auto-generate diagram from a certain node"
+        },
+        "empty": {
+            "title": "Name is empty",
+            "description": "Please specify a name!"
+        }
     },
-    "node": {
-      "title": "From Node",
-      "description": "Auto-generate diagram from a certain node"
+    "diagrams": {
+        "title": "Your Diagrams",
+        "addFolder": "Add folder",
+        "addDiagram": "Add diagram",
+        "renameItem": "Rename \"{item}\"",
+        "copyItem": "Copy of \"{item}\"",
+        "noCopyTitle": {
+            "title": "Name is empty",
+            "description": "Please specify a name!"
+        },
+        "deletion": {
+            "title": "Delete \"{item}\"",
+            "deleteItem": {
+                "description": "Are you sure you want to delete the selected item?"
+            },
+            "deleteFolder": {
+                "description": "The folder contains {num} item(s)."
+            }
+        },
+        "noSelection": {
+            "title": "No item selected",
+            "description": "You have to select an item to edit it!"
+        }
     },
-    "empty": {
-      "title": "Name is empty",
-      "description": "Please specify a name!"
-    }
-  },
-  "diagrams": {
-    "title": "Your Diagrams",
-    "addFolder": "Add folder",
-    "addDiagram": "Add diagram",
-    "renameItem": "Rename \"{item}\"",
-    "copyItem": "Copy of \"{item}\"",
-    "deletion": {
-      "title": "Delete \"{item}\"",
-      "deleteItem": {
-        "description": "Are you sure you want to delete the selected item?"
-      },
-      "deleteFolder": {
-        "description": "The folder contains {num} item(s)."
-      }
+    "newFolder": {
+        "empty": {
+            "title": "Name is empty",
+            "description": "Please specify a name!"
+        }
     },
-    "noSelection": {
-      "title": "No item selected",
-      "description": "You have to select an item to edit it!"
+    "tooltip": {
+        "newFolder": "New Folder",
+        "rename": "Rename",
+        "delete": "Delete (Del)",
+        "copy": "Copy (Ctrl + D)"
     }
-  },
-  "newFolder": {
-    "empty": {
-      "title": "Name is empty",
-      "description": "Please specify a name!"
-    }
-  },
-  "tooltip": {
-    "newFolder": "New Folder",
-    "rename": "Rename",
-    "delete": "Delete (Del)",
-    "copy": "Copy (Ctrl + D)"
-  }
 }

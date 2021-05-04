@@ -311,6 +311,11 @@ export default defineComponent({
          * Makes a copy of a diagram
          */
         copyDiagram(newName: string) {
+            if (!newName) {
+                errorToast(this.$t("start.diagrams.noCopyTitle.title"), this.$t("start.diagrams.noCopyTitle.description"));
+                return;
+            }
+
             this.diagramCopyDialog = false;
             const newDiagram = new ApiDiagram(newName);
             newDiagram.serialized = this.selectedDiagram.serialized;

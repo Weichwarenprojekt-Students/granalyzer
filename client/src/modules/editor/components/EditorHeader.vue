@@ -13,14 +13,31 @@
 <script>
 import { defineComponent } from "vue";
 import { saveAs } from "file-saver";
-import { diagramToSVG } from "@/utility";
+import { firaSansSVGStyle } from "@/assets/fonts/firasans/FiraSans-Bold-SVG";
 
 export default defineComponent({
     name: "EditorHeader",
     methods: {
+        /**
+         * Converts the diagram from JointJS to a downloadable binary blob SVG
+         */
         exportDiagram() {
             this.$store.commit("editor/centerContent");
-            saveAs(diagramToSVG(document.querySelector("#joint svg")), `${this.$store.state.editor.diagram.name}.svg`);
+            // Hide the selection border in diagram
+            this.$store.commit("editor/resetSelection");
+
+            // Embed the FiraSans Bold font into the SVG file
+            const styleElement = document.createElementNS("http://www.w3.org/2000/svg", "style");
+            styleElement.type = "text/css";
+            styleElement.textContent = firaSansSVGStyle;
+
+            // Perform a deep copy of the DOM element
+            const svgCopy = document.querySelector("#joint svg").cloneNode(true);
+            svgCopy.appendChild(styleElement);
+            const blob = new Blob([new XMLSerializer().serializeToString(svgCopy)], {
+                type: "image/svg+xml;charset=utf-8",
+            });
+            saveAs(blob, `${this.$store.state.editor.diagram.name}.svg`);
         },
     },
 });
