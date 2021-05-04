@@ -72,12 +72,21 @@ a:hover {
     box-shadow: none;
 }
 
-/** Different text sizes **/
+/** Often used text sizes **/
+.display-6 {
+    font-weight: 400;
+}
 .display-sub-1 {
     font-size: 1.4rem;
 }
 .display-sub-2 {
     font-size: 1.25rem;
+}
+
+/* Image with rounded corners and grey border */
+.bordered-img {
+    border-radius: 4px;
+    border: 2px solid var(--grey);
 }
 
 /**
@@ -112,8 +121,6 @@ section:last-of-type .container-md {
 .intro-image img {
     height: auto;
     width: 100%;
-    border: 2px solid var(--grey);
-    border-radius: 4px;
 }
 
 .logo-box {
@@ -157,16 +164,12 @@ section:last-of-type .container-md {
 }
 
 .granalyzer-doc-image {
-    border-radius: 4px;
-    border: 2px solid var(--grey);
     width: 100%;
     margin-top: 16px;
     margin-bottom: 16px;
 }
 
 .granalyzer-doc-image-right {
-    border-radius: 4px;
-    border: 2px solid var(--grey);
     width: 50%;
     float: right;
     margin-left: 16px;
@@ -210,20 +213,22 @@ hr {
 
 .getting-started-row > * {
     width: 100%;
-    padding-bottom: 32px;
-    padding-top: 32px;
+    margin-bottom: 32px;
+    margin-top: 32px;
 }
 
 .getting-started-first {
-    padding-right: 32px;
+    margin-right: 32px;
     grid-row: 1;
     grid-column: 1;
+    max-width: 500px;
 }
 
 .getting-started-second {
-    padding-left: 32px;
+    margin-left: 32px;
     grid-row: 1;
     grid-column: 2;
+    max-width: 500px;
 }
 
 /* Align the getting started blocks one after another */
@@ -234,7 +239,7 @@ hr {
     }
 
     .getting-started-first, .getting-started-second {
-        padding: 0;
+        margin: 0;
     }
 }
 
@@ -253,6 +258,10 @@ hr {
 .granalyzer-doc-nav > .navbar-brand {
     color: var(--text);
     padding-left: 1rem;
+}
+
+.nav-pills .nav-link {
+    background-color: transparent !important;
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
