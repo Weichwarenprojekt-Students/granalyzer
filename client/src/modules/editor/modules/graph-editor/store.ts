@@ -334,6 +334,8 @@ export const graphEditor = {
 
             await context.dispatch("saveChange");
 
+            await context.dispatch("editor/updateHeatMap", undefined, { root: true });
+
             // Select new shape
             await context.state.graphHandler?.controls.selectNode(
                 context.state.graphHandler?.graph.paper.findViewByModel(node.joint),

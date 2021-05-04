@@ -290,7 +290,7 @@ export const heatMap = {
                 // Create new styled node info
                 const styledNodeInfo = deepCopy(node.info);
                 styledNodeInfo.color = color;
-                styledNodeInfo.borderColor = color;
+                styledNodeInfo.borderColor = "#333";
 
                 // Set the new temporary style
                 node.updateStyle(styledNodeInfo);

@@ -17,6 +17,7 @@ export enum NodeShapes {
     CIRCLE = "circle",
     DIAMOND = "diamond",
     CYLINDER = "cylinder",
+    CLOUD = "cloud",
 }
 
 /**
@@ -38,6 +39,9 @@ export function getStyledShape(info: NodeInfo): dia.Element {
             break;
         case NodeShapes.CYLINDER:
             shape = getCylinderShape();
+            break;
+        case NodeShapes.CLOUD:
+            shape = getCloudShape();
             break;
         default:
             shape = getRectangleShape();
@@ -106,6 +110,9 @@ export function createDragNode(drag: NodeDrag, scale: number): void {
             break;
         case NodeShapes.CYLINDER:
             styleCylinder(ghostElement, drag, scale);
+            break;
+        case NodeShapes.CLOUD:
+            styleCloud(ghostElement, drag, scale);
             break;
         default:
             styleRectangle(ghostElement, drag, scale);
@@ -275,5 +282,37 @@ function styleCylinder(ghostElement: HTMLElement, drag: NodeDrag, scale: number)
     ghostElement.innerHTML = "";
     ghostElement.style.width = `${100 * scale}px`;
     ghostElement.style.height = `${150 * scale}px`;
+    ghostElement.style.border = `${4 * scale}px solid #333`;
+}
+
+/**
+ * Create and style a cloud shape
+ */
+function getCloudShape(): dia.Element {
+    const shape = new shapes.standard.Path();
+    shape.resize(150, 100);
+    shape.attr({
+        label: { ...label, refY: "65%" },
+        top: {
+            strokeWidth,
+        },
+        body: {
+            refD: `m 5.738 8.0797 a 5.1536 5.1536 90 0 0 0 10.3073 h 12.8841 a 5.1536 5.1536 90 0 0 0 -10.3073 a
+            2.5768 2.5768 90 0 0 -3.8652 -2.5768 a 3.8652 3.8652 90 0 0 -9.0189 2.5768 z`,
+            class: "node-body",
+            strokeWidth,
+        },
+    });
+    return shape;
+}
+
+/**
+ * Style the ghost element as a cloud
+ * (too complex => border preview)
+ */
+function styleCloud(ghostElement: HTMLElement, drag: NodeDrag, scale: number): void {
+    ghostElement.innerHTML = "";
+    ghostElement.style.width = `${150 * scale}px`;
+    ghostElement.style.height = `${100 * scale}px`;
     ghostElement.style.border = `${4 * scale}px solid #333`;
 }
