@@ -66,7 +66,6 @@ export class GraphEditorState {
  * @param nodeInfo The node info of the node to create
  */
 async function getCreateNodeCommand(graphHandler: GraphHandler, nodeInfo: NodeInfo) {
-    // Perform api request
     const res = await GET("/api/nodes/" + nodeInfo.ref.uuid + "/relations");
     const newVar: ApiRelation[] = res.status === 200 ? await res.json() : [];
 
@@ -118,6 +117,7 @@ export const graphEditor = {
         setGraphHandler(state: GraphEditorState, graphHandler: GraphHandler): void {
             state.graphHandler = graphHandler;
         },
+
         /**
          * Set the active diagram
          */
@@ -145,12 +145,14 @@ export const graphEditor = {
         undo(state: GraphEditorState): void {
             state.graphHandler?.Undo();
         },
+
         /**
          * Set selected item
          */
         redo(state: GraphEditorState): void {
             state.graphHandler?.Redo();
         },
+
         /**
          * Remove a node or relation
          */
@@ -163,6 +165,7 @@ export const graphEditor = {
 
             state.graphHandler.controls.resetSelection();
         },
+
         /**
          * Restyle a node or relation
          */
@@ -170,6 +173,7 @@ export const graphEditor = {
             if (!state.graphHandler) return;
             state.graphHandler.addCommand(restyleCommand);
         },
+
         /**
          * Remove a node or relation
          */
@@ -177,12 +181,14 @@ export const graphEditor = {
             if (!state.graphHandler) return;
             state.graphHandler.addCommand(new ShapeNodeCommand(state.graphHandler, node, shape));
         },
+
         /**
          * Active/Deactivate the loading state
          */
         setEditorLoading(state: GraphEditorState, loading: boolean): void {
             state.editorLoading = loading;
         },
+
         /**
          * Activate/Deactivate the relation edit mode
          */
@@ -199,18 +205,21 @@ export const graphEditor = {
             // state.graphHandler.graph.setInteractivity(!value);
             state.relationModeActive = value;
         },
+
         /**
          * Add new command for undo/redo
          */
         addCommand(state: GraphEditorState, command: ICommand): void {
             state.graphHandler?.addCommand(command);
         },
+
         /**
          * Set the flag for showing the new relation dialog
          */
         showNewRelationDialog(state: GraphEditorState, value: boolean): void {
             state.newRelationDialog = value;
         },
+
         /**
          * Set the temporary new relation command
          */
@@ -222,27 +231,30 @@ export const graphEditor = {
          * Updates the amount of nodes related to the selected nodes
          */
         updateRelatedNodesCount(state: GraphEditorState, relatedNodesAmount: number): void {
-            // Write amount of loaded related nodes to member
             state.relatedNodesAmount = relatedNodesAmount;
         },
+
         /**
          * Reset the selection in the graph editor
          */
         resetSelection(state: GraphEditorState): void {
             state.graphHandler?.controls.resetSelection();
         },
+
         /**
          * Set an active heat config
          */
         setHeatConfig(state: GraphEditorState, { label, config }: { label: string; config: HeatConfig }): void {
             state.graphHandler?.heatConfigs.set(label, config);
         },
+
         /**
          * Delete active heat config for labels
          */
         deleteHeatConfig(state: GraphEditorState, label: string): void {
             state.graphHandler?.heatConfigs.delete(label);
         },
+
         /**
          * Clear all active heat configs
          */
@@ -264,6 +276,7 @@ export const graphEditor = {
 
             await context.dispatch("editor/updateHeatMap", undefined, { root: true });
         },
+
         /**
          * Redo a change
          */
@@ -277,6 +290,7 @@ export const graphEditor = {
 
             await context.dispatch("editor/updateHeatMap", undefined, { root: true });
         },
+
         /**
          * Add a node with its relations
          */
@@ -293,6 +307,7 @@ export const graphEditor = {
 
             await context.dispatch("editor/updateHeatMap", undefined, { root: true });
         },
+
         /**
          * Remove a node
          */
@@ -304,6 +319,7 @@ export const graphEditor = {
 
             await context.dispatch("editor/updateHeatMap", undefined, { root: true });
         },
+
         /**
          * Restyle a relation or node
          */
@@ -318,6 +334,7 @@ export const graphEditor = {
 
             await context.dispatch("editor/updateHeatMap", undefined, { root: true });
         },
+
         /**
          * Change the shape of a node
          */
@@ -390,6 +407,7 @@ export const graphEditor = {
             context.commit("addCommand", command);
             await context.dispatch("saveChange");
         },
+
         /**
          * Add command to change the z index of an element
          */
@@ -407,6 +425,7 @@ export const graphEditor = {
 
             if (zIndexCommand.zIndexChanges) await context.dispatch("addCommand", zIndexCommand);
         },
+
         /**
          * Open the new relation dialog and temporarily save the command for adding the new relation
          */
@@ -417,6 +436,7 @@ export const graphEditor = {
             context.commit("setNewRelationCommand", command);
             context.commit("showNewRelationDialog", true);
         },
+
         /**
          * Close the new relation dialog and remove the new relation command
          */
@@ -424,6 +444,7 @@ export const graphEditor = {
             context.commit("setNewRelationCommand", undefined);
             context.commit("showNewRelationDialog", false);
         },
+
         /**
          * Confirm the new relation dialog
          */
@@ -440,6 +461,7 @@ export const graphEditor = {
 
             await context.dispatch("closeNewRelationDialog");
         },
+
         /**
          * Add related nodes
          */
@@ -466,6 +488,7 @@ export const graphEditor = {
 
             context.commit("setEditorLoading", false);
         },
+
         /**
          * Get create commands for multiple nodes
          */
@@ -503,6 +526,7 @@ export const graphEditor = {
                 )
             ).filter((el): el is CreateNodeCommand => !!el);
         },
+
         /**
          * Updates the amount of nodes related to the selected nodes
          */
@@ -527,18 +551,21 @@ export const graphEditor = {
         undoAvailable(state: GraphEditorState): boolean {
             return !!state.graphHandler?.hasUndo();
         },
+
         /**
          * @return True if redo is available
          */
         redoAvailable(state: GraphEditorState): boolean {
             return !!state.graphHandler?.hasRedo();
         },
+
         /**
          * @return True if element is being in selection
          */
         itemSelected(state: GraphEditorState): boolean {
             return state.selectedElement !== undefined;
         },
+
         /**
          * @return Set of labels in the diagram
          */

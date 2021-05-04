@@ -9,10 +9,12 @@ export class HeatNumberConfig extends HeatConfig {
      * The config type
      */
     public readonly type = HeatConfigType.NUMBER;
+
     /**
      * The from value
      */
     public from = 0;
+
     /**
      * The to value
      */

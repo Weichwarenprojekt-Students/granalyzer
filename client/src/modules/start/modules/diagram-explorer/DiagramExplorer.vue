@@ -191,8 +191,10 @@ export default defineComponent({
         window.removeEventListener("keydown", this.onKeyDown);
     },
     watch: {
+        /**
+         * Check if items have to be reloaded
+         */
         $route(to) {
-            // Check if the items have to be reloaded
             if (to.path.startsWith(routeNames.start)) this.loadItems();
         },
     },

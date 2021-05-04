@@ -47,6 +47,7 @@ export const inspector = {
             state.element = undefined;
             state.visualSelection = visualSelection;
         },
+
         /**
          * Set the inspector items for nodes
          */
@@ -73,6 +74,7 @@ export const inspector = {
                         ),
                 ) ?? [];
         },
+
         /**
          * Select a new node
          */
@@ -116,6 +118,7 @@ export const inspector = {
 
             context.commit("setAttributes", { item: Object.assign(new ApiNode(), node), type });
         },
+
         /**
          * Set the clicked relation
          */
@@ -145,6 +148,7 @@ export const inspector = {
 
             context.commit("setAttributes", { item: Object.assign(new ApiRelation(), relation), type });
         },
+
         /**
          * Update a node
          */
@@ -155,6 +159,7 @@ export const inspector = {
             context.commit("setAttributes", { item: Object.assign(new ApiNode(), await result.json()) });
             await context.dispatch("updateInspector");
         },
+
         /**
          * Update a relation
          */
@@ -164,6 +169,7 @@ export const inspector = {
             context.commit("setAttributes", { item: Object.assign(new ApiRelation(), await result.json()) });
             await context.dispatch("updateInspector");
         },
+
         /**
          * Update a node
          */
@@ -178,6 +184,7 @@ export const inspector = {
             context.commit("setAttributes", {});
             await context.dispatch("updateInspector");
         },
+
         /**
          * Update a relation
          */
@@ -187,6 +194,7 @@ export const inspector = {
             context.commit("setAttributes", {});
             await context.dispatch("updateInspector");
         },
+
         /**
          * Create a label
          */
@@ -198,12 +206,14 @@ export const inspector = {
             context.commit("setAttributes", { item: Object.assign(new ApiNode(), data) });
             await context.dispatch("updateInspector");
         },
+
         /**
          * Reload the shown inspector content
          */
         async updateInspector(context: ActionContext<InspectorState, RootState>): Promise<void> {
             await context.dispatch("overview/reloadNodes", undefined, { root: true });
         },
+
         /**
          * Set a new node for creation
          */
@@ -220,12 +230,14 @@ export const inspector = {
         isLoaded(state: InspectorState): boolean {
             return !!state.element;
         },
+
         /**
          * @return True if selected element is a label
          */
         isNode(state: InspectorState): boolean {
             return state.element instanceof ApiNode;
         },
+
         /**
          * @return True if the inspector is in create mode
          */
@@ -235,6 +247,7 @@ export const inspector = {
                 (state.element instanceof ApiNode && !!state.element.nodeId)
             );
         },
+
         /**
          * @return True if the inspector is in create mode
          */

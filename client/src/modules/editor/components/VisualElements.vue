@@ -28,6 +28,7 @@ export default defineComponent({
     name: "VisualElements",
     data() {
         return {
+            // Possible shapes
             shapes: NodeShapes,
         };
     },

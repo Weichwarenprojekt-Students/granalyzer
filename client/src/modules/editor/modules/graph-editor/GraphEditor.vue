@@ -42,6 +42,7 @@ export default defineComponent({
     },
     data() {
         return {
+            // Graph of the editor view
             graph: {} as JointGraph,
         };
     },
@@ -80,13 +81,13 @@ export default defineComponent({
             }
         });
 
+        graphHandler.controls.centerContent();
+
         // Initialize heat map
         await this.$store.dispatch("editor/updateHeatLabels");
         await this.$store.dispatch("editor/initHeatMap");
 
         this.$store.commit("editor/setEditorLoading", false);
-
-        graphHandler.controls.centerContent();
     },
     methods: {
         /**

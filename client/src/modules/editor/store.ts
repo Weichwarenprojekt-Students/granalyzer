@@ -63,12 +63,14 @@ export const editor = {
                 state.hidePanels = false;
             } else state.hidePanels = true;
         },
+
         /**
          * Set selected item
          */
         setSelectedNode(state: EditorState, node?: ApiNode): void {
             state.selectedNode = node;
         },
+
         /**
          * Set dragged item
          */
@@ -76,6 +78,7 @@ export const editor = {
             state.draggedNode = node;
             if (node) state.graphEditor?.graphHandler?.graph.createDragNode(node);
         },
+
         /**
          * Open either the toolbox or the inspector
          */

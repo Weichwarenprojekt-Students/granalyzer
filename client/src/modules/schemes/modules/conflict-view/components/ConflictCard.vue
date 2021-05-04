@@ -45,6 +45,7 @@ export default defineComponent({
     name: "ConflictCard",
     components: { ConfirmDialog },
     props: {
+        // Type of conflict
         conflict: {
             type: Object,
             default: new Conflict(),

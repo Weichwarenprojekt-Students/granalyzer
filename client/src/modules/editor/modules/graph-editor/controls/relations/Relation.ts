@@ -36,6 +36,18 @@ export class Relation {
     public readonly joint: dia.Link;
 
     /**
+     * Reference to the source node
+     * @private
+     */
+    private _sourceNode?: Node;
+
+    /**
+     * The relation mode type of the relation
+     * @private
+     */
+    private _relationModeType: RelationModeType = RelationModeType.NORMAL;
+
+    /**
      * Constructor
      *
      * @param relation Instance of a relation info
@@ -74,12 +86,6 @@ export class Relation {
 
     /**
      * The relation mode type of the relation
-     * @private
-     */
-    private _relationModeType: RelationModeType = RelationModeType.NORMAL;
-
-    /**
-     * The relation mode type of the relation
      */
     public get relationModeType(): RelationModeType {
         return this._relationModeType;
@@ -94,12 +100,6 @@ export class Relation {
         this._relationModeType = value;
         this.updateColor(true);
     }
-
-    /**
-     * Reference to the source node
-     * @private
-     */
-    private _sourceNode?: Node;
 
     /**
      * Reference to the source node

@@ -26,6 +26,7 @@ import { HeatEnumConfig } from "@/modules/editor/modules/heat-map/models/HeatEnu
 export default defineComponent({
     name: "EnumConfigList",
     props: {
+        // Enum config
         modelValue: {
             type: Object,
             default: new HeatEnumConfig("", []),

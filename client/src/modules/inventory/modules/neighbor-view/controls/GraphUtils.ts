@@ -16,30 +16,37 @@ export class GraphUtils {
      * Maps the uuid of a node to the id of a diagram shape
      */
     public mappedNodes = new Map<string, string | number>();
+
     /**
      * Maps the uuid of a relation to the id of a diagram link
      */
     public mappedRelations = new Map<string, string | number>();
+
     /**
      * Distance between two nodes on a circle
      */
     private stepDistance = 0;
+
     /**
      * Amount of neighbors already placed
      */
     private neighborsPlaced = 0;
+
     /**
      * Radius of the circle
      */
     private radius = 0;
+
     /**
      * Current x position of the shape to be placed
      */
     private currentX = 0;
+
     /**
      * Current y position of the shape to be placed
      */
     private currentY = 0;
+
     /**
      *  True, if first node (origin) has been placed
      */

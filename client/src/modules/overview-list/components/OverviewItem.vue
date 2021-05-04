@@ -17,12 +17,16 @@ import { NodeShapes } from "@/shared/NodeShapes";
 export default defineComponent({
     name: "OverviewItem",
     props: {
+        // Node to be displayed
         node: {
             type: Object,
             default: new ApiNode(),
         },
+        // Color of the node
         color: String,
+        // Font color for the node
         fontColor: String,
+        // True, if node is selected
         isSelected: Boolean,
     },
     methods: {

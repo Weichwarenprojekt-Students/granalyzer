@@ -51,18 +51,21 @@ export const overview = {
         storeNodes(state: OverviewState, nodes: ApiNode[]): void {
             state.nodes = nodes;
         },
+
         /**
          * Extend the existing nodes
          */
         extendNodes(state: OverviewState, nodes: ApiNode[]): void {
             state.nodes.push(...nodes);
         },
+
         /**
          * Update the filter
          */
         updateFilter(state: OverviewState, filter: NodeFilter): void {
             if (filter) state.filter = filter;
         },
+
         /**
          * Store the labels and create a color map for the label colors
          * with the matching font colors
@@ -99,6 +102,7 @@ export const overview = {
             isUnexpected(resLabels);
             isUnexpected(resNodes);
         },
+
         /**
          * Extend the nodes
          */
@@ -111,6 +115,7 @@ export const overview = {
             const resNodes = await GET(`/api/nodes?limit=50&offset=${context.state.nodes.length}${filterString}`);
             if (!isUnexpected(resNodes)) context.commit("extendNodes", await resNodes.json());
         },
+
         /**
          * Reload the nodes
          */

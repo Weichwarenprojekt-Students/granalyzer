@@ -234,7 +234,7 @@ export class GraphControls {
     }
 
     /**
-     * Scales the content of the graph to fit the given bounding box
+     * Scales the content of the given bounding box to fit the current client graph
      *
      * @param bBox Box that contains all the content that should be scaled to the client window
      * @param padding Extra padding in px

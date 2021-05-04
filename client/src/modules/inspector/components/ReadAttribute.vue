@@ -29,6 +29,7 @@ import { ApiDatatype } from "@/models/data-scheme/ApiDatatype";
 export default defineComponent({
     name: "ReadAttribute",
     props: {
+        // Displayed attribute
         attribute: {
             type: Object,
             default: new InspectorAttribute(),
@@ -36,6 +37,7 @@ export default defineComponent({
     },
     data() {
         return {
+            // Possible attribute types
             types: ApiDatatype,
         };
     },
