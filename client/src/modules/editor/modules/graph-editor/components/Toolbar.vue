@@ -3,7 +3,11 @@
     <div class="toolbar-container">
         <!-- Relation Edit Mode -->
         <div
-            :class="['item-relation-mode', $store.state.editor.graphEditor.relationModeActive ? 'selected' : '']"
+            :class="[
+                'item-relation-mode',
+                $store.state.editor.graphEditor.relationModeActive ? 'selected' : '',
+                disabled ? 'item-disabled' : '',
+            ]"
             v-tooltip.bottom="$t('editor.toolbar.relation')"
             @click="toggleRelationMode"
         >
@@ -17,7 +21,7 @@
 
         <!-- Add Related Nodes -->
         <div
-            :class="['item', canAddNeighbors ? '' : 'item-disabled']"
+            :class="['item', canAddNeighbors && !disabled ? '' : 'item-disabled']"
             v-tooltip.bottom="
                 $t('editor.toolbar.related', { amount: $store.state.editor.graphEditor.relatedNodesAmount })
             "
@@ -33,7 +37,7 @@
 
         <!-- To Front -->
         <div
-            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            :class="['item', $store.getters['editor/itemSelected'] && !disabled ? '' : 'item-disabled']"
             @click="toFront"
             v-tooltip.bottom="$t('editor.toolbar.front')"
         >
@@ -44,7 +48,7 @@
 
         <!-- To Back -->
         <div
-            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            :class="['item', $store.getters['editor/itemSelected'] && !disabled ? '' : 'item-disabled']"
             @click="toBack"
             v-tooltip.bottom="$t('editor.toolbar.back')"
         >
@@ -54,7 +58,11 @@
         </div>
 
         <!-- Center -->
-        <div :class="['item']" v-tooltip.bottom="$t('editor.toolbar.center')" @click="centerContent">
+        <div
+            :class="['item', disabled ? 'item-disabled' : '']"
+            v-tooltip.bottom="$t('editor.toolbar.center')"
+            @click="centerContent"
+        >
             <svg class="icon">
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#center`"></use>
             </svg>
@@ -62,7 +70,7 @@
 
         <!-- Undo -->
         <div
-            :class="['item', $store.getters['editor/undoAvailable'] ? '' : 'item-disabled']"
+            :class="['item', $store.getters['editor/undoAvailable'] && !disabled ? '' : 'item-disabled']"
             @click="undo"
             v-tooltip.bottom="$t('editor.toolbar.undo')"
         >
@@ -73,7 +81,7 @@
 
         <!-- Redo -->
         <div
-            :class="['item', $store.getters['editor/redoAvailable'] ? '' : 'item-disabled']"
+            :class="['item', $store.getters['editor/redoAvailable'] && !disabled ? '' : 'item-disabled']"
             @click="redo"
             v-tooltip.bottom="$t('editor.toolbar.redo')"
         >
@@ -84,7 +92,7 @@
 
         <!-- Trash -->
         <div
-            :class="['item', $store.getters['editor/itemSelected'] ? '' : 'item-disabled']"
+            :class="['item', $store.getters['editor/itemSelected'] && !disabled ? '' : 'item-disabled']"
             @click="remove"
             v-tooltip.bottom="$t('editor.toolbar.delete')"
         >
@@ -100,6 +108,9 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
     name: "Toolbar",
+    props: {
+        disabled: Boolean,
+    },
     mounted(): void {
         window.addEventListener("keydown", this.handleKeys);
         (document.activeElement as HTMLElement).blur();
@@ -114,6 +125,9 @@ export default defineComponent({
         handleKeys(e: KeyboardEvent): void {
             // Check if some input or something else is currently selected
             if (document.activeElement !== document.body) return;
+
+            // Toolbar is disabled
+            if (this.disabled) return;
 
             // Find the right shortcut
             if (e.key == "r") this.toggleRelationMode();

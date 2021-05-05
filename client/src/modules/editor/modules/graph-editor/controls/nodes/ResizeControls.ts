@@ -163,8 +163,17 @@ export class ResizeControls {
         // If node or resizeCommand are undefined, or if element wasn't a resize handle, just return
         if (!this.currentNode || !this.resizeCommand || !this.getDirectionOfClickedHandle(elementView.model)) return;
 
+        await this.saveCommand();
+    }
+
+    /**
+     * Save the current resizing command
+     */
+    public async saveCommand(): Promise<void> {
         // If the size of the node has changed, dispatch the command
-        if (this.resizeCommand.sizeChanged()) await this.graphHandler.dispatchCommand(this.resizeCommand);
+        if (this.resizeCommand?.sizeChanged()) await this.graphHandler.dispatchCommand(this.resizeCommand);
+
+        this.resizeCommand = undefined;
     }
 
     /**

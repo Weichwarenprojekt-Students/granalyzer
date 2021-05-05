@@ -36,7 +36,7 @@ export class GraphEditorState {
     /**
      * True if the graph editor is currently loading
      */
-    public editorLoading = false;
+    public editorLoading = 0;
 
     /**
      * True if the relation edit mode is active
@@ -186,7 +186,7 @@ export const graphEditor = {
          * Active/Deactivate the loading state
          */
         setEditorLoading(state: GraphEditorState, loading: boolean): void {
-            state.editorLoading = loading;
+            state.editorLoading += loading ? 1 : -1;
         },
 
         /**
@@ -268,6 +268,10 @@ export const graphEditor = {
          */
         async undo(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
+
+            // Interrupt resizing nodes and save the resizing command
+            await context.state.graphHandler?.controls.resizeControls.saveCommand();
+
             await context.dispatch("setRelationMode", false);
             context.commit("undo");
             context.commit("setEditorLoading", false);
@@ -282,6 +286,10 @@ export const graphEditor = {
          */
         async redo(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
+
+            // Interrupt resizing nodes and save the resizing command
+            await context.state.graphHandler?.controls.resizeControls.saveCommand();
+
             await context.dispatch("setRelationMode", false);
             context.commit("redo");
             context.commit("setEditorLoading", false);
@@ -313,8 +321,13 @@ export const graphEditor = {
          */
         async removeNode(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
+
+            // Interrupt resizing nodes and save the resizing command
+            await context.state.graphHandler?.controls.resizeControls.saveCommand();
+
             context.commit("removeNode");
             context.commit("setEditorLoading", false);
+
             await context.dispatch("saveChange");
 
             await context.dispatch("editor/updateHeatMap", undefined, { root: true });
@@ -404,7 +417,9 @@ export const graphEditor = {
          * Add any command to the undo/redo stack
          */
         async addCommand(context: ActionContext<GraphEditorState, RootState>, command: ICommand): Promise<void> {
+            context.commit("setEditorLoading", true);
             context.commit("addCommand", command);
+            context.commit("setEditorLoading", false);
             await context.dispatch("saveChange");
         },
 
