@@ -4,11 +4,11 @@
         "title": "Neues Diagramm",
         "blank": {
             "title": "Leeres Diagramm",
-            "description": "Starte mit einem komplett neuen Diagramm"
+            "description": "Starten Sie mit einem neuen Diagramm"
         },
         "node": {
             "title": "Basierend auf einer Node",
-            "description": "Generiere automatisch ein Diagram basierend auf einer bestimmten Node"
+            "description": "Generieren Sie automatisch ein Diagram basierend auf einer bestimmten Node"
         },
         "empty": {
             "title": "Name ist leer",
@@ -28,15 +28,15 @@
         "deletion": {
             "title": "\"{item}\" löschen",
             "deleteItem": {
-                "description": "Wollen Sie das ausgewählte Element löschen?"
+                "description": "Wollen Sie das ausgewählte Element wirklich löschen?"
             },
             "deleteFolder": {
-                "description": "Der Ordner enthält {num} Element(e)."
+                "description": "Der Ordner enthält {num} Element(e)"
             }
         },
         "noSelection": {
             "title": "Kein Element ausgewählt",
-            "description": "Sie müssen ein Element auswählen um es zu editieren!"
+            "description": "Sie müssen ein Element auswählen, um es zu editieren!"
         }
     },
     "newFolder": {

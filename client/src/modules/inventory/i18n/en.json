@@ -3,11 +3,11 @@
     "title": "Neighbor Relations"
   },
   "graph": {
-    "emptySelection": "Select an element to show its relations"
+    "emptySelection": "Select a node to show its relations"
   },
   "drop": {
     "error": {
-      "title": "Cannot add relation",
+      "title": "Cannot add a relation",
       "description": "Cannot add node to itself"
     }
   },
@@ -22,7 +22,7 @@
     }
   },
   "dialog": {
-    "title": "Add a relation",
+    "title": "Add a new relation",
     "from": "From",
     "to": "To",
     "type": "Type",
@@ -42,7 +42,7 @@
     },
     "emptyNode": {
       "title": "Choose a neighbor",
-      "description": "Neighbor cannot be empty"
+      "description": "Neighbor field cannot be empty"
     }
   },
   "createDiagram": "Create Diagram"

@@ -1,6 +1,6 @@
 {
   "title": "Inspektor",
-  "nothingSelected": "Bitte Node oder Relation auswählen, um Attribute anzuzeigen",
+  "nothingSelected": "Bitte wählen Sie eine Node oder Relation, um dessen Attribute anzuzeigen",
   "visualSelected": "Das ausgewählte Element is rein visuell",
   "save": "Speichern",
   "delete": "Löschen",
@@ -13,13 +13,13 @@
   "label": "Label",
   "relationType": "Typ",
   "attributes": "Attribute",
-  "noAttributes": "Keine Attribute vorhanden.",
+  "noAttributes": "Keine Attribute vorhanden",
   "nameRequired": {
-    "title": "Name nötig",
-    "description": "Ihr Knoten braucht noch einen Namen!"
+    "title": "Name benötigt",
+    "description": "Ihr Node braucht noch einen Namen!"
   },
   "labelInvalid": {
-    "title": "Label invalide",
+    "title": "Label ungültig",
     "description": "Das angegebene Label ist unbekannt!"
   }
 }
