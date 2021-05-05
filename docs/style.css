@@ -94,13 +94,24 @@ a:hover {
     padding: 0;
 }
 
+/* The background */
+#background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.5;
+}
+
 /**
  *
  * Home screen
  *
  */
 #intro {
-    margin-top: var(--header-height);
+    padding-top: var(--header-height);
 }
 
 .jumbo-logo-container img {
@@ -291,7 +302,6 @@ hr {
  */
 .header {
     height: var(--header-height);
-    background: white;
 }
 
 .navbar .container-md {
@@ -299,6 +309,10 @@ hr {
     border-bottom: 2px solid var(--prime-3);
     background: white;
     justify-content: flex-start;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
 }
 
 .navbar-nav .nav-link {
