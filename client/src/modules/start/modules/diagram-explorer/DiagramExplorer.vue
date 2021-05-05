@@ -312,7 +312,10 @@ export default defineComponent({
          */
         copyDiagram(newName: string) {
             if (!newName) {
-                errorToast(this.$t("start.diagrams.noCopyTitle.title"), this.$t("start.diagrams.noCopyTitle.description"));
+                errorToast(
+                    this.$t("start.diagrams.noCopyTitle.title"),
+                    this.$t("start.diagrams.noCopyTitle.description"),
+                );
                 return;
             }
 
