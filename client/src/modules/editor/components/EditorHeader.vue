@@ -13,7 +13,7 @@
 <script>
 import { defineComponent } from "vue";
 import { saveAs } from "file-saver";
-import { firaSansSVGStyle } from "@/assets/fonts/firasans/FiraSans-Bold-SVG";
+import { firaSansSvgStyle } from "@/assets/fonts/firasans/FiraSansSvgStyle";
 
 export default defineComponent({
     name: "EditorHeader",
@@ -29,7 +29,7 @@ export default defineComponent({
             // Embed the FiraSans Bold font into the SVG file
             const styleElement = document.createElementNS("http://www.w3.org/2000/svg", "style");
             styleElement.type = "text/css";
-            styleElement.textContent = firaSansSVGStyle;
+            styleElement.textContent = firaSansSvgStyle;
 
             // Perform a deep copy of the DOM element
             const svgCopy = document.querySelector("#joint svg").cloneNode(true);
