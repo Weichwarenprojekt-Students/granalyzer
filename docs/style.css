@@ -89,7 +89,10 @@ a:hover {
     border: 2px solid var(--grey);
 }
 
-/* Remove padding from row children */
+/* Adjust row style */
+.row {
+    margin: 0;
+}
 .row>* {
     padding: 0;
 }
@@ -161,7 +164,7 @@ section:last-of-type .container-md {
 
 /* Change the order of the flex box elements */
 @media screen and (max-width: 1199px) {
-    .put-below {
+    #home .put-below {
         order: 1;
     }
 }
@@ -179,26 +182,33 @@ section:last-of-type .container-md {
     padding: 64px var(--outer-padding);
 }
 
-.granalyzer-doc-image {
-    width: 100%;
-    margin-top: 16px;
-    margin-bottom: 16px;
-}
-
-.granalyzer-doc-image-right {
-    width: 50%;
-    float: right;
-    margin-left: 16px;
-    margin-top: 16px;
-    margin-bottom: 16px;
-}
-
-.granalyzer-doc-content {
+.manual-content {
     margin-left: calc(var(--doc-nav-width) + 64px);
 }
 
-.granalyzer-doc-text {
+.manual-text {
     font-size: 1.1rem;
+}
+
+.manual-row {
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
+    margin-bottom: 64px;
+}
+
+.manual-row>div {
+    flex: 1 1 auto;
+}
+
+.manual-row>img {
+    width: 40%;
+    max-width: 500px;
+    align-self: flex-start;
+}
+
+ol, ul {
+    padding-left: 1rem;
 }
 
 hr {
@@ -208,6 +218,34 @@ hr {
     height: 2px !important;
 }
 
+.tip {
+     font-style: italic;
+ }
+
+kbd {
+    padding: 0 0.2rem;
+    background: var(--text);
+}
+
+/* Align the getting started blocks one after another */
+@media screen and (max-width: 991px) {
+    .manual-row {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .manual-row img {
+        width: 100%;
+    }
+
+    .put-below {
+        order: 1;
+    }
+}
+
+/**
+ * The manual navigation
+ */
 .sticky-top {
     top: calc(64px + var(--header-height));
     padding: 12px 0;
@@ -221,55 +259,6 @@ hr {
     visibility: hidden;
 }
 
-.getting-started-row {
-    display: grid;
-    width: 100%;
-    grid-template-columns: repeat(2, 1fr);
-}
-
-.getting-started-row > * {
-    width: 100%;
-    margin-bottom: 32px;
-    margin-top: 32px;
-}
-
-.getting-started-first {
-    margin-right: 32px;
-    grid-row: 1;
-    grid-column: 1;
-    max-width: 500px;
-}
-
-.getting-started-second {
-    margin-left: 32px;
-    grid-row: 1;
-    grid-column: 2;
-    max-width: 500px;
-}
-
-.tip {
-    font-style: italic;
-}
-
-kbd {
-    background: var(--text);
-}
-
-/* Align the getting started blocks one after another */
-@media screen and (max-width: 991px) {
-    .getting-started-row {
-        display: block;
-        margin-bottom: 64px;
-    }
-
-    .getting-started-first, .getting-started-second {
-        margin: 0;
-    }
-}
-
-/**
- * The manual navigation
- */
 .granalyzer-doc-nav {
     width: var(--doc-nav-width);
     float: left;
@@ -298,7 +287,7 @@ kbd {
         display: none;
     }
 
-    div > .granalyzer-doc-content {
+    .manual-content {
         margin-left: 0;
     }
 }

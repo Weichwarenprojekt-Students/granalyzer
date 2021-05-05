@@ -179,7 +179,7 @@ class Background {
         const top = window.scrollY - 100;
         const height = window.innerHeight + 100;
         this.ctx.fillStyle = "white";
-        this.ctx.fillRect(0, top, this.canvas.clientWidth, height);
+        this.ctx.fillRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
         const start = Math.floor(Math.max(0, top / AREA_SIZE));
         const end = Math.floor(Math.max(this.areas.length - 1, (top + height) / AREA_SIZE));
         for (let i = start; i <= end; i++) {
