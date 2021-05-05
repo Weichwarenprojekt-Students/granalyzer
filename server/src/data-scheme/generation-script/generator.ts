@@ -74,7 +74,8 @@ export class SchemeGenerator {
     }
 
     /**
-     * Generates the schema for all labels from the database
+     * Generates the schema for all labels from the database.
+     * Ignores labels and attribute keys with only blank(s) as name.
      * @param session Database session
      * @private
      */
@@ -88,7 +89,10 @@ export class SchemeGenerator {
           UNWIND labels AS label
           RETURN DISTINCT label`;
 
-        const labelNames = await this.fetchData(query, {}, "label", session);
+        let labelNames = await this.fetchData(query, {}, "label", session);
+
+        // Filter all labels with only blank(s) as name
+        labelNames = labelNames.filter((name) => name.replace(" ", "").length > 0);
 
         const labels: LabelScheme[] = [];
 
@@ -105,7 +109,10 @@ export class SchemeGenerator {
               WITH keys WHERE keys <> "nodeId" AND keys <> "name"
               RETURN DISTINCT keys`;
 
-            const labelAttributes = await this.fetchData(query, { nodeName: labelName }, "keys", session);
+            let labelAttributes = await this.fetchData(query, { nodeName: labelName }, "keys", session);
+
+            // Filter all attributes with only blank(s) as key name
+            labelAttributes = labelAttributes.filter((key) => key.replace(" ", "").length > 0);
 
             // Generate a new string attribute key and add the current attribute key to the current label
             newLabel.attributes = labelAttributes.map((attr) => new StringAttribute(attr));
@@ -121,7 +128,8 @@ export class SchemeGenerator {
     }
 
     /**
-     * Generates the relation type scheme from the database
+     * Generates the relation type scheme from the database.
+     * Ignores relation types and attribute keys with only blank(s) as name.
      * @param session Database session
      * @private
      */
@@ -134,11 +142,13 @@ export class SchemeGenerator {
           MATCH (startNode)-[relation]-(endNode)
           RETURN DISTINCT type(relation) AS types`;
 
-        const relationNames = await this.fetchData(query, {}, "types", session);
+        let relationNames = await this.fetchData(query, {}, "types", session);
+
+        // Filter all relation types with only blank(s) as name
+        relationNames = relationNames.filter((name) => name.replace(" ", "").length > 0);
 
         for (const relationName of relationNames) {
             const newType = new RelationType(relationName);
-
             // Get all existing keys of properties/attributes of the current relation
             // language=cypher
             query = `
@@ -148,7 +158,10 @@ export class SchemeGenerator {
               WITH keys WHERE keys <> "relationId"
               RETURN DISTINCT keys`;
 
-            const relationAttributes = await this.fetchData(query, { relType: relationName }, "keys", session);
+            let relationAttributes = await this.fetchData(query, { relType: relationName }, "keys", session);
+
+            // Filter all attributes with only blank(s) as key name
+            relationAttributes = relationAttributes.filter((key) => key.replace(" ", "").length > 0);
 
             // Generate a new string attribute and add the current attribute key to the current relation
             newType.attributes = relationAttributes.map((attr) => new StringAttribute(attr));
@@ -165,7 +178,9 @@ export class SchemeGenerator {
     }
 
     /**
-     * Returns all connections for a specific relation
+     * Returns all connections for a specific relation.
+     * Ignores connections where start or destination node
+     * have label with only blank(s) as name.
      * @param relationName Name of the node relation
      * @param session Database session
      * @private
@@ -181,8 +196,15 @@ export class SchemeGenerator {
 
         const result = await session.run(query, { relationName });
 
+        // Filter all connections with labels with only blank(s) as name
+        const connections = result.records.filter(
+            (connection) =>
+                connection.get("froms").replace(" ", "").length > 0 &&
+                connection.get("tos").replace(" ", "").length > 0,
+        );
+
         // By default, connections always have M:N cardinalities
-        return result.records.map((record) => new Connection(record.get("froms"), record.get("tos")));
+        return connections.map((record) => new Connection(record.get("froms"), record.get("tos")));
     }
 
     /**
