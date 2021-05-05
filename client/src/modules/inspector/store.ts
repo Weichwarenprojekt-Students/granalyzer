@@ -199,14 +199,15 @@ export const inspector = {
         },
 
         /**
-         * Create a label
+         * Create a node
          */
         async createNode(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
             const result = await POST(`/api/nodes`, JSON.stringify(node));
             if (isUnexpected(result)) return;
             const data: ApiNode = await result.json();
             await context.commit("inventory/setSelectedNode", data, { root: true });
-            context.commit("setAttributes", { item: Object.assign(new ApiNode(), data) });
+            const type = context.state.types?.find((label) => label.name == data.label);
+            context.commit("setAttributes", { item: Object.assign(new ApiNode(), data), type });
             await context.dispatch("updateInspector");
         },
 
