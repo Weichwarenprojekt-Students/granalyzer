@@ -88,12 +88,18 @@ export default defineComponent({
             async handler() {
                 await this.$store.dispatch("editor/updateHeatColors");
                 // Get changed heat config
-                const heatConfig = this.$store.state.editor.graphEditor.graphHandler?.heatConfigs.get(this.label.name);
+                const heatConfig: HeatConfig = this.$store.state.editor.graphEditor.graphHandler?.heatConfigs.get(
+                    this.label.name,
+                );
 
                 if (heatConfig) {
                     if (heatConfig === this.heatConfig) return;
                     this.heatConfig = heatConfig;
-                } else this.heatConfig = {} as HeatConfig;
+                    this.selectedAttribute = heatConfig.attrName;
+                } else {
+                    this.heatConfig = {} as HeatConfig;
+                    this.selectedAttribute = "";
+                }
 
                 // Save changes
                 this.save();
