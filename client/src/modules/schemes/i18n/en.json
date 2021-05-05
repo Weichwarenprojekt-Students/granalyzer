@@ -118,9 +118,9 @@
     "check": "Force Changes",
     "labelTitle": "Label: {name}",
     "relationTitle": "Relation type: {name}",
-    "descriptionMissing": "{missingError} items miss mandatory attributes!",
-    "descriptionParse": "{parseError} items have conflicting fields!",
-    "descriptionBoth": "{missingError} items miss mandatory attributes and {parseError} items have conflicting fields!",
+    "descriptionMissing": "{missingError} mandatory attributes are missing!",
+    "descriptionParse": "{parseError} fields lead to conflicts!",
+    "descriptionBoth": "{missingError} mandatory attributes are missing and {parseError} fields lead to conflicts!",
     "descriptionUnknown": "Something went wrong!",
     "updateDialog": {
       "title": "Force Update?",

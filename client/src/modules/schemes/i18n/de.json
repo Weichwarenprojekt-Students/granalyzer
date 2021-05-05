@@ -118,9 +118,9 @@
     "check": "Änderungen erzwingen",
     "labelTitle": "Label: {name}",
     "relationTitle": "Relationstyp: {name}",
-    "descriptionMissing": "Bei {missingError} Elementen fehlen Pflichtfelder!",
-    "descriptionParse": "Bei {parseError} Elementen sind Felder ungültig!",
-    "descriptionBoth": "Bei {missingError} Elementen fehlen Pflichtfelder und bei {parseError} Elementen sind Felder ungültig!",
+    "descriptionMissing": "Es fehlen {missingError} Pflichtfelder!",
+    "descriptionParse": "{parseError} Felder sind ungültig!",
+    "descriptionBoth": "Es fehlen {missingError} Pflichtfelder und {parseError} Felder sind ungültig!",
     "descriptionUnknown": "Etwas ist schief gelaufen!",
     "updateDialog": {
       "title": "Update erzwingen?",
