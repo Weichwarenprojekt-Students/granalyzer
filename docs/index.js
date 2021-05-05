@@ -6,7 +6,18 @@ const AREA_SIZE = 300;
 /**
  * The radius for nodes to build relations
  */
-const RADIUS = 200;
+const RELATION_RADIUS = 200;
+
+/**
+ * The radius of the dots
+ */
+const NODE_RADIUS = 4;
+
+/**
+ * The delta time between the animation frames
+ */
+let deltaTime = 0;
+let lastTime = Date.now();
 
 /**
  * A small area of the background
@@ -19,9 +30,13 @@ class Area {
     lineColor = "#F1F3F4";
 
     /**
-     * The radius of the dots
+     * The parameters for the one animated node
      */
-    radius = 4;
+    x = 0;
+    y = 0;
+    radius = 0;
+    speed = 0;
+    progress = 0;
 
     /**
      * The nodes in the given area
@@ -41,6 +56,13 @@ class Area {
         for (let i = 0; i < 5; i++) {
             this.nodes.push([offset_x + Math.random() * AREA_SIZE, offset_y + Math.random() * AREA_SIZE]);
         }
+
+        // Save the information for the animated circle
+        this.x = this.nodes[0][0];
+        this.y = this.nodes[0][1];
+        this.radius = Math.random() * 50;
+        this.speed = Math.random() * 1e-3;
+
         // Set the related nodes
         this.setRelatedNodes(this.nodes);
     }
@@ -55,7 +77,7 @@ class Area {
             for (const node2 of nodes) {
                 if (node1 !== node2) {
                     const distance = Math.sqrt(Math.pow(node1[0] - node2[0], 2) + Math.pow(node1[1] - node2[1], 2));
-                    if (distance < RADIUS && Math.random() < 0.5) this.relations.push([node1, node2]);
+                    if (distance < RELATION_RADIUS && Math.random() < 0.5) this.relations.push([node1, node2]);
                 }
             }
         }
@@ -67,6 +89,11 @@ class Area {
      * @param ctx The canvas context
      */
     draw(ctx) {
+        // Animate the first node
+        this.progress += deltaTime * this.speed;
+        this.nodes[0][0] = this.x + this.radius * Math.sin(this.progress);
+        this.nodes[0][1] = this.y + this.radius * Math.cos(this.progress);
+
         // Draw the relations
         ctx.strokeStyle = this.lineColor;
         ctx.lineWidth = 2;
@@ -81,7 +108,7 @@ class Area {
         ctx.fillStyle = this.dotColor;
         for (let point of this.nodes) {
             ctx.beginPath();
-            ctx.arc(point[0], point[1], this.radius, 0, 2 * Math.PI);
+            ctx.arc(point[0], point[1], NODE_RADIUS, 0, 2 * Math.PI);
             ctx.fill();
         }
     }
@@ -125,13 +152,13 @@ class Background {
         this.ctx.canvas.height = this.canvas.clientHeight;
 
         // Create new areas on demand
-        const m = this.canvas.clientWidth / AREA_SIZE;
-        const n = this.canvas.clientHeight / AREA_SIZE;
+        const m = this.canvas.clientHeight / AREA_SIZE;
+        const n = this.canvas.clientWidth / AREA_SIZE;
         for (let i = 0; i <= m; i++) {
             if (!this.areas[i]) this.areas[i] = [];
             for (let j = 0; j <= n; j++) {
                 if (!this.areas[i][j]) {
-                    this.areas[i][j] = new Area(i * AREA_SIZE, j * AREA_SIZE);
+                    this.areas[i][j] = new Area(j * AREA_SIZE, i * AREA_SIZE);
                     if (this.areas[i - 1] && this.areas[i - 1][j]) this.areas[i - 1][j].setRelatedNodes(this.areas[i][j].nodes);
                     if (this.areas[i][j - 1]) this.areas[i][j - 1].setRelatedNodes(this.areas[i][j].nodes);
                 }
@@ -143,9 +170,23 @@ class Background {
      * Draw the graph background
      */
     drawBackground = () => {
+        // Calculate the time difference
+        const now = Date.now()
+        deltaTime = now - lastTime;
+        lastTime = now;
+
+        // Draw the background
+        const top = window.scrollY - 100;
+        const height = window.innerHeight + 100;
         this.ctx.fillStyle = "white";
-        this.ctx.fillRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
-        for (const areaRow of this.areas) for (const area of areaRow) area.draw(this.ctx);
+        this.ctx.fillRect(0, top, this.canvas.clientWidth, height);
+        const start = Math.floor(Math.max(0, top / AREA_SIZE));
+        const end = Math.floor(Math.max(this.areas.length - 1, (top + height) / AREA_SIZE));
+        for (let i = start; i <= end; i++) {
+            if (this.areas[i]) for (const area of this.areas[i]) area.draw(this.ctx);
+        }
+
+        // Keep the animation going
         requestAnimationFrame(this.drawBackground);
     };
 }
