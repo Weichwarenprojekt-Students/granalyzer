@@ -247,6 +247,14 @@ hr {
     max-width: 500px;
 }
 
+.tip {
+    font-style: italic;
+}
+
+kbd {
+    background: var(--text);
+}
+
 /* Align the getting started blocks one after another */
 @media screen and (max-width: 991px) {
     .getting-started-row {
