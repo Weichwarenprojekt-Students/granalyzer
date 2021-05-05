@@ -175,7 +175,7 @@ section:last-of-type .container-md {
  *
  */
 #manual {
-    margin-top: var(--header-height);
+    padding-top: var(--header-height);
 }
 
 #manual .container-md {
