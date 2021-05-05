@@ -142,7 +142,8 @@
                                 </p>
                             </div>
                         </div>
-                        <img alt="logo" class="getting-started-second bordered-img" src="img/manual/square-inventory.png">
+                        <img alt="logo" class="getting-started-second bordered-img"
+                             src="img/manual/square-inventory.png">
                     </div>
 
                     <div class="getting-started-row">
@@ -164,169 +165,366 @@
 
             <hr>
 
-            <!-- Project Management -->
-            <div id="home"></div>
-            <div>
-                <h1 class="display-4">Project Management</h1>
+            <h1 class="display-4 granalyzer-doc-title">Manual</h1>
 
-                <p class="granalyzer-doc-text">
-                    After opening the application you will see the project creation window. At the right-hand side, you
-                    can create a new project by entering your preferred project name, a destination where it should be
-                    saved, and the .obj-file of your assembled 3D model. Optionally, you can overwrite an existing
-                    project at the destination directory. Your project is created after clicking on the "Create"-button.
-                </p>
-                <p class="granalyzer-doc-text">
-                    On the left half of the window you can see previously created projects. You can open them by simply
-                    clicking
-                    on the project or delete it by clicking on the trashcan-icon. Further, you are able to open projects
-                    which
-                    are not listed with the "Import"-button.
-                </p>
+            <!-- Home -->
+            <div id="home"></div>
+            <div class="granalyzer-doc-text">
+                <h1 class="display-6">Home - How to ...?</h1>
+
+                <div style="display:flex;">
+                    <div>
+                        <h2>Create a Diagram</h2>
+                        <ul>
+                            <li>In the “New Diagram” section, choose “Empty Diagram”</li>
+                            <li>Enter a name for your new diagram</li>
+                            <li>Confirm your choice</li>
+                            <li>After confirmation, you will be redirected to your new diagram</li>
+                        </ul>
+                    </div>
+<!--                    <img alt="" class="granalyzer-doc-image-right bordered-img"-->
+<!--                         src="img/manual/screenshots/">-->
+                </div>
+
+                <h2>Create a Folder</h2>
+                <ul>
+                    <li> In the “Your Diagrams” section, click the “+ Folder” icon</li>
+                    <li> Enter a name for your new folder</li>
+                    <li> Confirm your choice</li>
+                </ul>
+
+                <h2>Rename a Diagram/ Folder</h2>
+                <ul>
+                    <li> In the “Your Diagrams” section, click on the diagram/ folder you want to rename</li>
+                    <li> After clicking on an element, new icons will appear above your diagrams</li>
+                    <li> Click on the “Pencil” icon to rename your diagram/ folder</li>
+                    <li> Enter a new name for your folder</li>
+                    <li> Confirm your choice</li>
+                </ul>
+
+                <h2>Delete a Diagram/ Folder </h2>
+                <ul>
+                    <li> In the “Your Diagrams” section, click on the diagram/ folder you want to delete</li>
+                    <li> After clicking on an element, new icons will appear above your diagrams</li>
+                    <li> Click on the “Recycle Bin” icon to delete your diagram/ folder</li>
+                    <li> Confirm your choice</li>
+                </ul>
+
+                <h2>Copy a Diagram </h2>
+                <ul>
+                    <li> In the “Your Diagrams” section, click on the diagram you want to make a copy of</li>
+                    <li> After clicking on a diagram, new icons will appear above your diagrams</li>
+                    <li> Click on the “Copy” icon to copy your folder</li>
+                    <li> Enter a new name for your copy</li>
+                    <li> Confirm your choice</li>
+                </ul>
+
+                <h2>Move a Diagram/ Folder</h2>
+                <ul>
+                    <li> In the “Your Diagrams” section, left-click and hold a diagram/ folder to drag it</li>
+                    <li> Drop it onto the folder of your choice</li>
+                </ul>
+
+                <h2>Open a Diagram/ Folder </h2>
+                <ul>
+                    <li> To open a diagram/ folder, double-click it in the “Your Diagrams” section</li>
+                </ul>
             </div>
 
             <hr>
 
             <!-- Editor -->
             <div id="editor"></div>
-            <div>
-                <h1 class="display-4">Editor</h1>
+            <div class="granalyzer-doc-text">
+                <h1 class="display-6">Editor - How to ...?</h1>
 
-                <img alt="Overview" class="granalyzer-doc-image bordered-img" data-action="zoom" src="img/home/overview.png">
+                <h2>Find Specific Nodes</h2>
+                <ul>
+                    <li>In the “Node Overview” on the left-hand side of your screen click on the search bar</li>
+                    <li>Enter the name of the node you are looking for</li>
+                </ul>
 
-                <p class="granalyzer-doc-text">
-                    The 3D preview visualizes all components of the assembled model. You can easily inspect the 3D model
-                    by using your mouse.
-                    To rotate the object, hold the right mouse button while moving the mouse. The mousewheel can be used
-                    to zoom in and out. Additionally, you can change the focus of the camera by double clicking a
-                    component of the 3D model or an entry of the hierarchical list. To change the focus without changing
-                    the selection you can press <kbd>Ctrl</kbd> while double clicking.
-                </p>
+                <h2>Filter by Labels</h2>
+                <ul>
+                    <li>In the “Node Overview” on the left-hand side of your screen, click on the “Filter” icon in the
+                        search bar
+                    </li>
+                    <li>This will open a list of available labels contained in your database</li>
+                    <li>Check the labels you want to filter your list by</li>
+                </ul>
 
-                <p class="granalyzer-doc-text">
-                    If you want to revert any changes you can use the Undo-button in
-                    the sidebar navigation. Similarly, you can move one step forward with the Redo-button.
-                    Alternatively, both action are mapped to a shortcut:
-                    <kbd><kbd>Ctrl</kbd>+<kbd>Z</kbd></kbd> to Undo and <kbd><kbd>Ctrl</kbd>+<kbd>Y</kbd></kbd>
-                    or <kbd><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></kbd> to
-                    Redo.
-                </p>
+                <h2>Add Nodes to a Diagram </h2>
+                <ul>
+                    <li> Left-click and hold a node in the “Node Overview”</li>
+                    <li> Drag the node into the diagram</li>
+                    <li> Drop it at the position of your choice</li>
+                </ul>
+
+                <h2>Move Nodes in a Diagram </h2>
+                <ul>
+                    <li> Left-click and hold a node in the diagram</li>
+                    <li> Drag it to the position of your choice</li>
+                    <li> Release the mouse button</li>
+                </ul>
+
+                <h2>Redirect Relations in a Diagram </h2>
+                <ul>
+                    <li> Left-click and hold a relation in the diagram</li>
+                    <li> Drag it to the position of your choice</li>
+                    <li> Release the mouse button</li>
+                </ul>
+
+                <h2>Remove an Anchor of a Redirected Relation </h2>
+                <ul>
+                    <li> Hover over the anchor which holds the relation in a fixed position</li>
+                    <li> Double left-click the circle that appears on top of the relation</li>
+                </ul>
+
+                <h2>Remove Nodes from a Diagram </h2>
+                <ul>
+                    <li> Left-click the node you want to delete</li>
+                    <li> Click the “Recycle Bin” icon in the top-right corner of the diagram in the toolbar</li>
+                </ul>
+
+                <h2>Undo/ Redo an Action </h2>
+                <ul>
+                    <li> After altering the state of the diagram, the “Undo” and “Redo” icon in the top-right corner of
+                        the diagram (toolbar) are available
+                    </li>
+                    <li> Click on one of those icons to undo/ redo your actions</li>
+                </ul>
+
+                <h2>Center the Content Diagram </h2>
+                <ul>
+                    <li> In the top-right corner of the diagram, click on the “Center” icon in the toolbar</li>
+                </ul>
+
+                <h2>Add the Neighbors of a Node to the Diagram </h2>
+                <ul>
+                    <li> Left-click the node for which you want to add the neighbors</li>
+                    <li> In the top right corner of the diagram (toolbar), an icon will display the amount of neighbors
+                        the currently selected node has
+                    </li>
+                    <li> To add the neighbors to the diagram, click the icon</li>
+                </ul>
+
+                <h2>Put a Node into the Foreground/ Background </h2>
+                <ul>
+                    <li> Left-click the node, which you want to put into the foreground or background</li>
+                    <li> In the top right corner of the diagram (toolbar), use the “Bring to front” or “Bring to back”
+                        icon to change the position of the element
+                    </li>
+                </ul>
+
+                <h2>View the Attributes of a Node/ Relation </h2>
+                <ul>
+                    <li> Left-click the node/ relation you want to inspect (either in the diagram, or the “Node
+                        Overview”)
+                    </li>
+                    <li> Switch to the “Inspector” tab on the right-hand side of your screen</li>
+                    <li> The inspector will display all the information contained in a node or relation</li>
+                </ul>
+
+                <h2>Enter the Relation Edit Mode </h2>
+                <ul>
+                    <li> In the top-right corner of the diagram, click on the “Edit relations” icon in the toolbar</li>
+                </ul>
+
+                <h2>Hide/ Show Relations </h2>
+                <ul>
+                    <li> Enter the relation edit mode</li>
+                    <li> Click on the relation you want to hide/ show</li>
+                    <li> Exit the relation edit mode</li>
+                </ul>
+
+                <h2>Add New Visual Relations </h2>
+                <ul>
+                    <li> Enter the relation edit mode</li>
+                    <li> Click on the node the relation comes from</li>
+                    <li> When moving your mouse you will see a blue arrow following your mouse</li>
+                    <li> Move your mouse towards the node the relation should go to and click on it</li>
+                </ul>
+
+                <h2>Change the Appearance of Nodes/ Relations/ Visual Elements </h2>
+                <ul>
+                    <li> Left-click the node or relation which you want to change</li>
+                    <li> Switch to the “Toolbox” tab on the right-hand side of your screen</li>
+                    <li> In the “Element Edit” section, adjust the styling of the node or relation</li>
+                </ul>
+
+                <h2>Resize Nodes in the Diagram </h2>
+                <ul>
+                    <li> Left-click the node you want to resize</li>
+                    <li> Use the orange box that surrounds the node to adjust its width and height</li>
+                </ul>
+
+                <h2>Add Visual Elements to the Diagram </h2>
+                <ul>
+                    <li> Switch to the “Toolbox” tab on the right-hand side of your screen</li>
+                    <li> In the “Visual Elements” section, choose an element</li>
+                    <li> Left-click and hold an element to drag it into the diagram</li>
+                    <li> Drop it at the position of your choice</li>
+                </ul>
+
+                <h2>Activate a Heat View </h2>
+                <ul>
+                    <li> Make sure the attributes you want to display in a heat view are defined as “number”, “color” or
+                        “enum” in the data scheme
+                    </li>
+                    <li> Switch to the “Toolbox” tab on the right-hand side of your screen</li>
+                    <li> In the “Heat View” section, choose attributes for the labels that you want to display in a heat
+                        view
+                    </li>
+                    <li> Adjust the style and boundaries of your heat view</li>
+                </ul>
                 <br>
-                <h1 class="display-6"> Editing the Assembly Line</h1>
-
-                <p class="granalyzer-doc-text">
-                    The editing of your assembly sequence is done in the hierarchical list. The actual assembly sequence
-                    is
-                    defined by the ordering of the elements inside the hierarchical list.
-                    The ordering can be modified by dragging elements. Multiple items can be selected by clicking and
-                    holding <kbd>Ctrl</kbd> while selecting items in the list. Press <kbd>Shift</kbd> to select all
-                    items
-                    between two boundaries.
-                </p>
-
-                <p class="granalyzer-doc-text">
-                    By default, all components are located inside the "Default Station". New assembly stations can be
-                    created by
-                    clicking the overflow-menu in the top and selecting "Create Station". The station will be added as a
-                    top-level group.
-                    Simply move components into the new station by using Drag&Drop.
-                    If the station view is open, you can also directly drag components onto the 3D editor
-                    to add them to the station.
-                </p>
-
-                <p class="granalyzer-doc-text">
-                    To keep the project clean and tidy, multiple components can be grouped.
-                    You can either right-click on an assembly station and select "Add Group" to create a new empty group
-                    or you can select multiple items to be grouped and right click on the selection and select
-                    "Group selected" to group the marked components.
-                    If you want to abstract pre-built components, you can fuse existing groups by right-clicking on a
-                    group and selecting "Fuse Group" to hide all items of the group from the user. Fused groups are
-                    marked with a chain icon and their content can be toggled by clicking at the icon.
-                </p>
-                <p class="granalyzer-doc-text">
-                    To rename a component, component group or assembly station, open the context menu with a right-click
-                    and select "Rename" to alter the displayed name.
-                </p>
             </div>
 
             <hr>
 
-            <!-- Visualization -->
+            <!-- Inventory -->
             <div id="inventory"></div>
-            <div>
-                <h1 class="display-4">Inventory</h1>
+            <div class="granalyzer-doc-text">
+                <h1 class="display-6">Inventory - How to ...?</h1>
 
-                <h1 class="display-6">Station View</h1>
+                <h2>View the Neighbors of a Node</h2>
+                <ul>
+                    <li> Click on a node in the “Node Overview” on the left-hand side of your screen</li>
+                    <li> This will load the node and all of its neighbor nodes into the diagram</li>
+                </ul>
 
-                <p class="granalyzer-doc-text">
-                    The station view allows to fully assemble and disassemble the 3D model in realtime.
-                    It allows you to visualize and understand your built assembly line through the help
-                    of the 3D preview. You can use the default mouse navigation to view the 3D model.
-                </p>
+                <h2>View the Neighbors of a Neighbor Node </h2>
+                <ul>
+                    <li> In the diagram, double-click the node you are interested in</li>
+                    <li>This will reload the diagram and display the new node with its neighbors</li>
+                </ul>
 
-                <p class="granalyzer-doc-text">
-                    To open the station view for a specific assembly station, simply click on the box-pointer-icon
-                    of the corresponding station in the list.
-                </p>
+                <h2>Create a Diagram from the Neighbor View </h2>
+                <ul>
+                    <li> Select a node in the “Node Overview” on the left-hand side of your screen</li>
+                    <li> Press the + Create Diagram button that will appear at the top-right of your diagram</li>
+                </ul>
 
-                <p class="granalyzer-doc-text">
-                    Use the skip-arrows on the bottom of the screen to incrementally assemble or disassemble all
-                    components.
-                    The dot-icon and the color highlighting in the hierarchical list indicate which components have
-                    already
-                    been assembled into the final model. <br />
-                    Alternatively you can right-click on a list item and select "Skip To" to jump to the selected
-                    component.
+                <h2>Add New Relations </h2>
+                <ul>
+                    <li> Choose a node in the “Node Overview” on the left-hand side of your screen</li>
+                    <li> Left-click and hold the node that you want to add as a neighbor</li>
+                    <li> Drop the node on the diagram</li>
+                    <li> This will open a dialog - choose the end-point of your relation</li>
+                    <li> To change the direction of the relation, use the “Switch” icon on the right-hand side of the
+                        dialog
+                    </li>
+                    <li> Choose a relation type</li>
+                    <li> Confirm your choice</li>
+                </ul>
 
-                    To switch the currently visible station, simply click on the navigation arrows on the top of the
-                    screen.
-                    The name of the currently visible station is displayed on the top of the screen.
-                </p>
+                <h2>Add New Nodes </h2>
+                <ul>
+                    <li> Press the + Add Node button at the top of the “Node Overview”</li>
+                    <li> Enter the name of your node</li>
+                    <li> Confirm your choice</li>
+                </ul>
 
-                <p class="granalyzer-doc-text">
-                    By default, all components which have been assembled in previous stations, are hidden to ensure
-                    clarity.
-                    You can enable visibility of components from preceding stations by clicking the eye-button in the
-                    upper right corner of the screen.
-                </p>
+                <h2>Modify Nodes/ Relations </h2>
+                <ul>
+                    <li> Left-click the node/ relation you want to inspect (either in the diagram, or the “Node
+                        Overview”)
+                    </li>
+                    <li> This will display all information contained in the node/ relation in the “Inspector” on the
+                        right-hand side of your screen
+                    </li>
+                    <li> Change the attribute values or enable/ disable them</li>
+                    <li> Press the Save button in the “Inspector”</li>
+                </ul>
 
-
-                <h1 class="display-6">Cinema Mode</h1>
-
-                <p class="granalyzer-doc-text">
-                    The cinema mode offers a movie-like experience to visualize the assembly process and to train
-                    assembly personnel.
-                    This mode works similar to the station view but is is not intended to apply changes to the assembly
-                    line but to solely
-                    playback the entire assembly process for employee training.
-                </p>
-
-                <p class="granalyzer-doc-text">
-                    To open the cinema mode, simply click on the box-triangle icon on the sidebar. The cinema mode
-                    screen will appear and start with the very first assembly station.
-                    You can skip to the previous or next component with the skip buttons. The assembly speed/delay can
-                    be modified with the speed slider right next to the playback control buttons.
-                </p>
-
-                <p class="granalyzer-doc-text">
-                    Alternatively you can click and drag around the dot indicator which is placed on the progress bar,
-                    which
-                    is
-                    located above the playback controls to go one step back
-                    or forth. Each section of the progress bar represents one assembly station. The dot indicator shows
-                    the
-                    assembly progress inside the current station. To show the
-                    name of the assembly station and the amount of components, simply hover the mouse above the desired
-                    progress
-                    bar section.
-                </p>
+                <h2>Delete Nodes/ Relations </h2>
+                <ul>
+                    <li> Left-click the node/ relation you want to delete (either in the diagram, or the “Node
+                        Overview”)
+                    </li>
+                    <li> Press the Delete button in the “Inspector”</li>
+                    <li> Confirm your choice</li>
+                </ul>
             </div>
 
             <hr>
 
-            <!-- Export -->
+            <!-- Schemes -->
             <div id="schemes"></div>
-            <div>
-                <h1 class="display-4">Schemes</h1>
+            <div class="granalyzer-doc-text">
+                <h1 class="display-6">Schemes - How to ...?</h1>
+
+                <h2>Add New Labels </h2>
+                <ul>
+                    <li> Switch to the “Labels” tab on the left-hand side of your screen</li>
+                    <li> Press the + Add Label button to add a new label</li>
+                    <li> Choose a name and color in the “Editor”</li>
+                    <li> If needed, add attributes that the label should have</li>
+                    <li> Press the Create button to create the new label</li>
+                </ul>
+
+                <h2>Delete Labels </h2>
+                <ul>
+                    <li> Choose the label you want to delete in the “Labels” tab</li>
+                    <li> Press the Delete button in the “Editor”</li>
+                    <li> Confirm your choice</li>
+                </ul>
+
+                <h2>Change the Color of a Label </h2>
+                <ul>
+                    <li> Choose the label which you want to alter in the “Labels” tab</li>
+                    <li> Press the Color button in the “Editor”</li>
+                    <li>Choose a color in the color picker</li>
+                    <li> Press the Save changes button in the “Editor”</li>
+                </ul>
+
+                <h2>Add/ Delete/ Modify Node Attributes </h2>
+                <ul>
+                    <li> Choose the label which you want to alter in the “Labels” tab</li>
+                    <li> To add a new attribute, click the “+” icon in the “Attributes” section</li>
+                    <li> To delete an attribute, click the “x” icon of the attribute you want to delete</li>
+                    <li> To modify attributes, click the “dropdown” icon of the attribute you want to modify and adjust
+                        it to your needs
+                    </li>
+                    <li> Press the Save Changes button in the “Editor”</li>
+                </ul>
+
+                <h2>Add New Relations </h2>
+                <ul>
+                    <li> Switch to the “Relations” tab on the left-hand side of your screen</li>
+                    <li> Press the + Add Relation button to add a new relation</li>
+                    <li> Choose a name and possible connections in the “Editor”</li>
+                    <li> If needed, add attributes that the relation should have</li>
+                    <li> Press the Create button to create the new relation</li>
+                </ul>
+
+                <h2>Delete Relations </h2>
+                <ul>
+                    <li> Choose the relation you want to delete in the “Relations” tab</li>
+                    <li> Press the Delete button at the bottom of the “Editor”</li>
+                    <li> Confirm your choice</li>
+                </ul>
+
+                <h2>Add/ Delete/ Modify Relation Attributes </h2>
+                <ul>
+                    <li> Choose the relation which you want to alter in the “Relations” tab</li>
+                    <li> To add a new attribute, click the “+” icon in the “Attributes” section</li>
+                    <li> To delete an attribute, click the “x” icon of the attribute you want to delete</li>
+                    <li> To modify attributes, click the “dropdown” icon of the attribute you want to modify and
+                        adjust it to your needs
+                    </li>
+                    <li> Press the Save Changes button in the “Editor”</li>
+                </ul>
+
+                <h2>Add/ Delete/ Modify Relation Connections </h2>
+                <ul>
+                    <li> Choose the relation which you want to alter in the “Relations” tab</li>
+                    <li> To add a new connection, click the “+” icon in the “Connections” section and choose a
+                        source and target label
+                    </li>
+                    <li> To delete a connection, click the “x” icon of the connection you want to delete</li>
+                    <li> Press the Save Changes button in the “Editor”</li>
+                </ul>
             </div>
         </div>
     </div>
