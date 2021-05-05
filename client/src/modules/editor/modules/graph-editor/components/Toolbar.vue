@@ -102,6 +102,7 @@ export default defineComponent({
     name: "Toolbar",
     mounted(): void {
         window.addEventListener("keydown", this.handleKeys);
+        (document.activeElement as HTMLElement).blur();
     },
     unmounted(): void {
         window.removeEventListener("keydown", this.handleKeys);
