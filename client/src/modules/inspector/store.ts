@@ -191,6 +191,9 @@ export const inspector = {
         async deleteRelation(context: ActionContext<InspectorState, RootState>, relation: ApiRelation): Promise<void> {
             const result = await DELETE(`/api/relations/${relation.relationId}`);
             if (isUnexpected(result)) return;
+
+            await context.dispatch("inventory/updateNeighborRelations", false, { root: true });
+
             context.commit("setAttributes", {});
             await context.dispatch("updateInspector");
         },
