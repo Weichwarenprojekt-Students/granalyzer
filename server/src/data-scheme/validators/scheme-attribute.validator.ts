@@ -33,7 +33,7 @@ export function IsAttributeDefinition(validationOptions?: ValidationOptions) {
                     for (const attribute of attributes) {
                         // Validate the object itself
                         if (!isObject(attribute)) return false;
-                        if (!isString(attribute.name)) return false;
+                        if (!isString(attribute.name) || !minLength(attribute.name.trim(), 1)) return false;
                         if (!isBoolean(attribute.mandatory)) return false;
 
                         // Check the datatype

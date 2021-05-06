@@ -1,4 +1,12 @@
-import { buildMessage, isNumber, isObject, isString, registerDecorator, ValidationOptions } from "class-validator";
+import {
+    buildMessage,
+    isNumber,
+    isObject,
+    isString,
+    minLength,
+    registerDecorator,
+    ValidationOptions,
+} from "class-validator";
 
 /**
  * A custom validator for actual attribute values
@@ -17,14 +25,13 @@ export function IsAttributesObject(validationOptions?: ValidationOptions) {
 
                     // Check the attributes
                     for (const [key, value] of Object.entries(attributes)) {
-                        if (!isString(key)) return false;
+                        if (!isString(key) || !minLength(key.trim(), 1)) return false;
                         if (!(isString(value) || isNumber(value))) return false;
                     }
                     return true;
                 },
                 defaultMessage: buildMessage(
-                    (eachPrefix) =>
-                        `${eachPrefix} $property has to be an object and the attributes have to either strings or numbers.`,
+                    (eachPrefix) => `${eachPrefix} $property has to be an array of valid attribute objects.`,
                     validationOptions,
                 ),
             },

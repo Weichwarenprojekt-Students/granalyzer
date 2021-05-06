@@ -1,8 +1,9 @@
 import { Attribute } from "./attributes.model";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsHexColor, IsString, ValidateNested } from "class-validator";
+import { IsHexColor, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
 import { IsAttributeDefinition } from "../validators/scheme-attribute.validator";
+import { IsValidName } from "../../validator/name-validator";
 
 export class LabelScheme {
     @ApiProperty({
@@ -11,7 +12,7 @@ export class LabelScheme {
         name: "name",
         description: "Unique Name of the label scheme",
     })
-    @IsString()
+    @IsValidName()
     name: string;
 
     @ApiProperty({
