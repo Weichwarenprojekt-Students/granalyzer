@@ -12,7 +12,7 @@
                 <svg>
                     <use :xlink:href="`${require('@/assets/img/icons.svg')}#drag`"></use>
                 </svg>
-                {{ entry }}
+                <span>{{ entry }}</span>
             </div>
         </div>
     </div>
@@ -91,6 +91,7 @@ export default defineComponent({
     display: flex;
     flex-direction: column;
     gap: 8px;
+    flex: 1 1 auto;
 
     div {
         align-items: center;
@@ -104,6 +105,15 @@ export default defineComponent({
             width: 14px;
             height: 14px;
             fill: @dark;
+            flex: 0 0 auto;
+        }
+
+        span {
+            width: 0;
+            flex: 1 1 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
     }
 }

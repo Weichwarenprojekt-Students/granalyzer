@@ -49,6 +49,13 @@ export default defineComponent({
     justify-content: center;
     align-items: center;
     position: relative;
+
+    h3 {
+        max-width: 350px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
 
 .btn-icon {

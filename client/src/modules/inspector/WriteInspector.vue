@@ -293,8 +293,4 @@ export default defineComponent({
 .attributes-key {
     flex: 1 1 auto;
 }
-
-.attribute-value {
-    text-align: start;
-}
 </style>

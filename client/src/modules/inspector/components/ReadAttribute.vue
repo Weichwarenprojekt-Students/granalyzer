@@ -76,5 +76,8 @@ export default defineComponent({
 .attribute-value {
     flex: 1 1 auto;
     justify-content: flex-end;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
 }
 </style>

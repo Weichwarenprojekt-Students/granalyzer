@@ -262,7 +262,6 @@ export default defineComponent({
          * @param newName The new name of the item
          */
         renameItem(newName: string): void {
-            console.log("test");
             if (!newName) {
                 errorToast(this.$t("start.newFolder.empty.title"), this.$t("start.newFolder.empty.description"));
                 return;
@@ -411,6 +410,10 @@ export default defineComponent({
 .title-extra {
     margin-left: 12px;
     font-style: italic;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .tooltip {
