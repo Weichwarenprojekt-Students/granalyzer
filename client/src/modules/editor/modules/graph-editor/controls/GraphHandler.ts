@@ -237,7 +237,10 @@ export class GraphHandler {
                 // Handle pointer down on a resize handle
                 this.controls.resizeControls.pointerDownCallback(elementView);
                 this.controls.startNodeMovement(elementView);
-                await this.controls.selectNode(elementView);
+                // Move the select event behind other possible events
+                // (e.g. change events of input fields would be fired after otherwise.
+                // This is a problem as restyle commands are added within those change commands)
+                setTimeout(async () => await this.controls.selectNode(elementView));
             },
             // Stop registering node movement
             "element:pointerup": async (elementView) => {

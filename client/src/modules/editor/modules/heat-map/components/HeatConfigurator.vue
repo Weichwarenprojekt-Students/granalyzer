@@ -126,7 +126,6 @@ export default defineComponent({
          * Remove the focus from the dropdown (necessary to disable shortcuts)
          */
         hide(): void {
-            console.log("hide");
             (document.activeElement as HTMLElement).blur();
         },
     },
