@@ -201,7 +201,7 @@ class Background {
 
         // Redraw the visible areas only
         const start = Math.floor(Math.max(0, top / AREA_SIZE));
-        const end = Math.floor(Math.max(this.areas.length - 1, (top + height) / AREA_SIZE));
+        const end = Math.floor(Math.min(this.areas.length - 1, (top + height) / AREA_SIZE));
         for (let i = start; i <= end; i++) {
             if (this.areas[i]) for (const area of this.areas[i]) area.draw(this.ctx);
         }
