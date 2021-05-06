@@ -50,7 +50,8 @@ export function IsAttributeDefinition(validationOptions?: ValidationOptions) {
                             case Datatype.ENUM:
                                 // Check if config is string array
                                 if (!isArray(attribute.config) || attribute.config.length <= 0) return false;
-                                for (const value of attribute.config) if (!minLength(value, 1)) return false;
+                                for (const value of attribute.config)
+                                    if (!isString(value) || !minLength(value.trim(), 1)) return false;
                                 // Check if default value is included in enum config
                                 if (!attribute.config.includes(attribute.defaultValue)) return false;
                                 // Check whether the values are unique
