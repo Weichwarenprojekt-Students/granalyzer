@@ -132,6 +132,12 @@ export const heatMap = {
                 "setHeatLabels",
                 allLabels.filter((lab) => editorLabels.has(lab.name)),
             );
+
+            // Delete all heat configs that are not part of the diagram anymore
+            context.rootState.editor?.graphEditor?.graphHandler?.heatConfigs.forEach((heatConfig, heatLabel) => {
+                if (context.state.labels.find((lab) => lab.name === heatLabel) == null)
+                    context.commit("editor/deleteHeatConfig", heatLabel, { root: true });
+            });
         },
         /**
          * Init the heat configs
