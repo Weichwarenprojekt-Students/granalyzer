@@ -112,7 +112,7 @@ export const inspector = {
             const node: ApiNode = await result.json();
 
             // Fetch scheme for the label of this node
-            result = await GET(`/api/data-scheme/label/${node.label}`);
+            result = await GET(`/api/data-scheme/label/${encodeURIComponent(node.label)}`);
             if (isUnexpected(result)) return;
             const type: ApiLabel = await result.json();
 
@@ -142,7 +142,7 @@ export const inspector = {
             const relation: ApiRelation = await result.json();
 
             // Fetch scheme for the type of this relation
-            result = await GET(`/api/data-scheme/relation/${relation.type}`);
+            result = await GET(`/api/data-scheme/relation/${encodeURIComponent(relation.type)}`);
             if (isUnexpected(result)) return;
             const type: ApiRelationType = await result.json();
 

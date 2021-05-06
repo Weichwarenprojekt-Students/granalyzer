@@ -203,7 +203,7 @@ export const schemes = {
             payload: { label: ApiLabel; force: boolean },
         ): Promise<void> {
             const res = await PUT(
-                `/api/data-scheme/label/${payload.label.name}?force=${payload.force}`,
+                `/api/data-scheme/label/${encodeURIComponent(payload.label.name)}?force=${payload.force}`,
                 JSON.stringify(payload.label),
             );
             if (res.status === 200) {
@@ -241,7 +241,7 @@ export const schemes = {
             payload: { relation: ApiRelationType; force: boolean },
         ): Promise<void> {
             const res = await PUT(
-                `/api/data-scheme/relation/${payload.relation.name}?force=${payload.force}`,
+                `/api/data-scheme/relation/${encodeURIComponent(payload.relation.name)}?force=${payload.force}`,
                 JSON.stringify(payload.relation),
             );
             if (res.status === 200) {
@@ -276,7 +276,7 @@ export const schemes = {
          */
         async deleteLabel(context: ActionContext<SchemesState, RootState>): Promise<boolean> {
             if (!context.state.selectedLabel) return false;
-            const res = await DELETE(`/api/data-scheme/label/${context.state.selectedLabel.name}`);
+            const res = await DELETE(`/api/data-scheme/label/${encodeURIComponent(context.state.selectedLabel.name)}`);
             if (res.status === 200) {
                 context.commit("deleteLabel", context.state.selectedLabel);
                 return true;
@@ -288,7 +288,9 @@ export const schemes = {
          */
         async deleteRelation(context: ActionContext<SchemesState, RootState>): Promise<boolean> {
             if (!context.state.selectedRelation) return false;
-            const res = await DELETE(`/api/data-scheme/relation/${context.state.selectedRelation.name}`);
+            const res = await DELETE(
+                `/api/data-scheme/relation/${encodeURIComponent(context.state.selectedRelation.name)}`,
+            );
             if (res.status === 200) {
                 context.commit("deleteRelation", context.state.selectedRelation);
                 return true;
