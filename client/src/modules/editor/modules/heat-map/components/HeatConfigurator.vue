@@ -10,6 +10,7 @@
                 optionLabel="name"
                 optionValue="name"
                 v-model="selectedAttribute"
+                @hide="hide"
                 :showClear="!!heatConfig.type"
                 :placeholder="$t('global.dropdown.choose')"
                 :emptyMessage="$t('global.dropdown.empty')"
@@ -120,6 +121,13 @@ export default defineComponent({
                     this.saveChangeTimeoutActive = false;
                 }, 500);
             }
+        },
+        /**
+         * Remove the focus from the dropdown (necessary to disable shortcuts)
+         */
+        hide(): void {
+            console.log("hide");
+            (document.activeElement as HTMLElement).blur();
         },
     },
 });
