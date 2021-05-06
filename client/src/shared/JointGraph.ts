@@ -75,7 +75,7 @@ export class JointGraph {
     /**
      * Centers the graph
      */
-    public centerGraph(newMiddlePoint?: { x?: number; y?: number }): void {
+    public centerGraph(newMiddlePoint?: { x: number; y: number }): void {
         const area = this.paper.getArea();
         const xMiddle = area.x + area.width / 2;
         const yMiddle = area.y + area.height / 2;
@@ -86,8 +86,8 @@ export class JointGraph {
         if (!newMiddlePoint) this.paper.translate(translate.tx + xMiddle * scale.sx, translate.ty + yMiddle * scale.sy);
         else
             this.paper.translate(
-                translate.tx + (newMiddlePoint.x ? (xMiddle - newMiddlePoint.x) * scale.sx : 0),
-                translate.ty + (newMiddlePoint.y ? (yMiddle - newMiddlePoint.y) * scale.sy : 0),
+                translate.tx + (xMiddle - newMiddlePoint.x) * scale.sx,
+                translate.ty + (yMiddle - newMiddlePoint.y) * scale.sy,
             );
     }
 
