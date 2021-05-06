@@ -2,7 +2,7 @@
     <a href="https://weichwarenprojekt.github.io/granalyzer">
         <img src="client/src/assets/img/logo.svg" height="130" alt="granalyzer logo"/></a>
 </p>
-<h1 align="center">Visualize and edit complex graph data like never before</h1>
+<h1 align="center">Visualize and edit complex graph data<br>like never before</h1>
 
 <p align="center">
     <a href="https://github.com/Weichwarenprojekt/granalyzer/actions/workflows/ci.yml">
@@ -13,6 +13,7 @@
         <img src="https://img.shields.io/github/contributors/weichwarenprojekt/granalyzer.svg" alt="contributors" /></a>
     <a href="https://vuejs.org/">
         <img src="https://img.shields.io/badge/Node.js-v14.16.1-informational?logo=node.js&logoColor=white" alt="Vue.js" /></a>
+    <br>
     <a href="https://vuejs.org/">
         <img src="https://img.shields.io/badge/Vue.js-v3.0.0-informational?logo=vue.js" alt="Vue.js" /></a>
     <a href="https://nestjs.com/">
