@@ -7,11 +7,11 @@
 <p align="center">
     <a href="https://github.com/Weichwarenprojekt/granalyzer/actions/workflows/ci.yml">
         <img src="https://img.shields.io/github/workflow/status/weichwarenprojekt/granalyzer/CI?label=CI&logo=github" alt="tag" /></a>
-    <a href="https://GitHub.com/weichwarenprojekt/granalyzer.js/releases/">
+    <a href="https://GitHub.com/weichwarenprojekt/granalyzer/releases/">
         <img src="https://img.shields.io/github/release/weichwarenprojekt/granalyzer.svg?logo=github" alt="release" /></a>
-    <a href="https://GitHub.com/weichwarenprojekt/granalyzer.js/graphs/contributors/">
+    <a href="https://GitHub.com/weichwarenprojekt/granalyzer/graphs/contributors/">
         <img src="https://img.shields.io/github/contributors/weichwarenprojekt/granalyzer.svg" alt="contributors" /></a>
-    <a href="https://vuejs.org/">
+    <a href="https://nodejs.org/">
         <img src="https://img.shields.io/badge/Node.js-v14.16.1-informational?logo=node.js&logoColor=white" alt="Vue.js" /></a>
     <br>
     <a href="https://vuejs.org/">
