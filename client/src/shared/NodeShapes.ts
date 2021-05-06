@@ -93,8 +93,8 @@ export function createDragNode(drag: NodeDrag, scale: number): void {
     // Style the ghost element
     ghostElement.style.fontSize = `${20 * scale}px`;
     ghostElement.style.position = "absolute";
-    ghostElement.style.top = "-200px";
-    ghostElement.style.left = "-200px";
+    ghostElement.style.top = "150vh";
+    ghostElement.style.left = "0";
     ghostElement.style.color = getFontColor(drag.color ?? drag.labelColor ?? DEFAULT_COLOR);
     ghostElement.style.fontWeight = "bold";
 
