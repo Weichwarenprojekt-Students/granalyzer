@@ -194,8 +194,7 @@ class Background {
         // Clear the canvas
         const top = -this.canvas.getBoundingClientRect().top - AREA_SIZE;
         const height = window.innerHeight + AREA_SIZE;
-        this.ctx.fillStyle = "white";
-        this.ctx.fillRect(0, top, this.canvas.clientWidth, height);
+        this.ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
 
         // Redraw the visible areas only
         const start = Math.floor(Math.max(0, top / AREA_SIZE));
