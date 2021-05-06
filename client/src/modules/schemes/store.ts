@@ -125,6 +125,7 @@ export const schemes = {
         addLabel(state: SchemesState, label: ApiLabel): void {
             state.selectedLabel = undefined;
             state.labels.push(label);
+            state.conflicts = state.conflicts.filter((c) => label.name !== c.modifiedItem);
         },
         /**
          * Add a relation type
@@ -132,6 +133,7 @@ export const schemes = {
         addRelation(state: SchemesState, relation: ApiRelationType): void {
             state.selectedRelation = undefined;
             state.relations.push(relation);
+            state.conflicts = state.conflicts.filter((c) => relation.name !== c.modifiedItem);
         },
         /**
          * Update a label
@@ -139,6 +141,7 @@ export const schemes = {
         updateLabel(state: SchemesState, label: ApiLabel): void {
             state.labels = state.labels.map((l) => (l.name == label.name ? label : l));
             state.selectedLabel = label;
+            state.conflicts = state.conflicts.filter((c) => label.name !== c.modifiedItem);
         },
         /**
          * Update a relation type
@@ -146,6 +149,7 @@ export const schemes = {
         updateRelation(state: SchemesState, relation: ApiRelationType): void {
             state.relations = state.relations.map((r) => (r.name == relation.name ? relation : r));
             state.selectedRelation = relation;
+            state.conflicts = state.conflicts.filter((c) => relation.name !== c.modifiedItem);
         },
         /**
          * Delete a label
@@ -153,6 +157,7 @@ export const schemes = {
         deleteLabel(state: SchemesState, label: ApiLabel): void {
             state.selectedLabel = undefined;
             state.labels = state.labels.filter((l) => l.name !== label.name);
+            state.conflicts = state.conflicts.filter((c) => label.name !== c.modifiedItem);
         },
         /**
          * Delete a relation type
@@ -160,6 +165,7 @@ export const schemes = {
         deleteRelation(state: SchemesState, relation: ApiRelationType): void {
             state.selectedRelation = undefined;
             state.relations = state.relations.filter((r) => r.name !== relation.name);
+            state.conflicts = state.conflicts.filter((c) => relation.name !== c.modifiedItem);
         },
     },
     actions: {
