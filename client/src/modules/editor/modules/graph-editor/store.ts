@@ -66,19 +66,24 @@ export class GraphEditorState {
  * @param nodeInfo The node info of the node to create
  */
 async function getCreateNodeCommand(graphHandler: GraphHandler, nodeInfo: NodeInfo) {
-    const res = await GET("/api/nodes/" + nodeInfo.ref.uuid + "/relations");
-    const newVar: ApiRelation[] = res.status === 200 ? await res.json() : [];
+    let relations: RelationInfo[];
+    if (nodeInfo.ref.uuid) {
+        const res = await GET("/api/nodes/" + nodeInfo.ref.uuid + "/relations");
+        const newVar: ApiRelation[] = res.status === 200 ? await res.json() : [];
 
-    // Transform relations from api into Relation objects
-    const relations: RelationInfo[] = newVar.map((rel) => {
-        return {
-            from: { uuid: rel.from, index: 0 },
-            to: { uuid: rel.to, index: 0 },
-            uuid: rel.relationId,
-            name: rel.type,
-            color: Relation.NORMAL_RELATION_COLOR,
-        } as RelationInfo;
-    });
+        // Transform relations from api into Relation objects
+        relations = newVar.map((rel) => {
+            return {
+                from: { uuid: rel.from, index: 0 },
+                to: { uuid: rel.to, index: 0 },
+                uuid: rel.relationId,
+                name: rel.type,
+                color: Relation.NORMAL_RELATION_COLOR,
+            } as RelationInfo;
+        });
+    } else {
+        relations = [];
+    }
 
     return new CreateNodeCommand(graphHandler, nodeInfo, relations);
 }
