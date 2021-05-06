@@ -24,12 +24,6 @@ let lastTime = Date.now();
  */
 class Area {
     /**
-     * The different colors
-     */
-    dotColor = "#FFE0B2";
-    lineColor = "#F1F3F4";
-
-    /**
      * The parameters for the one animated node
      */
     x = 0;
@@ -54,13 +48,14 @@ class Area {
     constructor(offset_x = 0, offset_y = 0) {
         // Create the nodes
         for (let i = 0; i < 5; i++) {
-            this.nodes.push([offset_x + Math.random() * AREA_SIZE, offset_y + Math.random() * AREA_SIZE]);
+            this.nodes.push([Math.floor(offset_x + Math.random() * AREA_SIZE),
+                             Math.floor(offset_y + Math.random() * AREA_SIZE)]);
         }
 
         // Save the information for the animated circle
         this.x = this.nodes[0][0];
         this.y = this.nodes[0][1];
-        this.radius = Math.random() * 50;
+        this.radius = Math.random() * 40 + 15;
         this.speed = Math.random() * 1e-3;
 
         // Set the related nodes
@@ -95,8 +90,6 @@ class Area {
         this.nodes[0][1] = this.y + this.radius * Math.cos(this.progress);
 
         // Draw the relations
-        ctx.strokeStyle = this.lineColor;
-        ctx.lineWidth = 2;
         for (const relation of this.relations) {
             ctx.beginPath();
             ctx.moveTo(relation[0][0], relation[0][1]);
@@ -105,7 +98,6 @@ class Area {
         }
 
         // Draw the dots
-        ctx.fillStyle = this.dotColor;
         for (let point of this.nodes) {
             ctx.beginPath();
             ctx.arc(point[0], point[1], NODE_RADIUS, 0, 2 * Math.PI);
@@ -121,7 +113,13 @@ class Background {
     /**
      * The recent fps counts
      */
-    fpsCounts = []
+    fpsCounts = [];
+
+    /**
+     * The different colors
+     */
+    dotColor = "#FFE0B2";
+    lineColor = "#F1F3F4";
 
     /**
      * The fps count
@@ -182,14 +180,19 @@ class Background {
      */
     drawBackground = () => {
         // Calculate the time difference
-        const now = Date.now()
+        const now = Date.now();
         deltaTime = now - lastTime;
         lastTime = now;
 
         // Update the fps count
         this.fpsCounts.push(1000 / deltaTime);
         if (this.fpsCounts.length > 60) this.fpsCounts.splice(0, 1);
-        this.fps.innerHTML = `FPS: ${Math.floor(this.fpsCounts.reduce((acc,v) => acc + v) / this.fpsCounts.length)}`;
+        this.fps.innerHTML = `FPS: ${Math.floor(this.fpsCounts.reduce((acc, v) => acc + v) / this.fpsCounts.length)}`;
+
+        // Set the colors
+        this.ctx.strokeStyle = this.lineColor;
+        this.ctx.lineWidth = 2;
+        this.ctx.fillStyle = this.dotColor;
 
         // Clear the canvas
         const top = -this.canvas.getBoundingClientRect().top - AREA_SIZE;
@@ -204,7 +207,7 @@ class Background {
         }
 
         // Keep the animation going
-        requestAnimationFrame(this.drawBackground);
+        window.requestAnimationFrame(this.drawBackground);
     };
 }
 
