@@ -36,7 +36,40 @@ can reuse elements in multiple diagrams, creating those visualizations becomes r
 
 # Deployment
 
-The application can either be deployed locally (see [below](#local-deployment)) or via docker image.
+The application can either be deployed locally or via docker image (see [below](#deployment-with-docker)) .
+
+## Local deployment
+
+### Prerequisites
+
+* A clone of this repository
+* A running instance of Neo4j Enterprise Edition with APOC library installed (e.g. Neo4j Desktop or via docker)
+* Data imported into the Neo4j database
+* Node.js 14.16 LTS installed on your PC
+
+### Steps for deployment
+
+* Go into “server” and “client” directories and run npm install in order to install the required versions of all node
+  modules
+* In the server directory, copy the file `example.env` to a new file called `.env`. In this file, configure the
+  environment variables appropriately:
+    * `DB_USERNAME`, `DB_PASSWORD`, `DB_PASSWORD` and `DB_PORT` specify how to connect to the Neo4j instance
+    * `DB_TOOL` and `DB_CUSTOMER` specify the names of the databases in the Neo4j database, where the tool DB saves all
+      data needed for granalyzer itself, and the customer DB contains the company data of the customer
+    * `SWAGGER_PREFIX` defines the route for swagger API docs, defaults to “docs”
+    * `API_PREFIX` defines the route for the rest API, currently must be “api” since there is no way yet to configure
+      this route in the Vue frontend
+    * `BACKEND_PORT` specifies the port of the node.js server, defaults to 3000
+
+* In the server directory you can then execute npm run start:all:win or npm run start:all:linux depending on the
+  operating system you are on. This will build frontend and backend for production and then start the node.js server
+  which will serve both frontend and backend.
+* The first time you are running granalyzer with this database, you will need to create a new data scheme. You can do
+  this either manually in the data scheme editor, or you can use our data scheme generator script, which generates a data
+  scheme on the current data in the database. The script can be run by executing `npm run scheme` in the server
+  directory.
+* Now, granalyzer can be used by accessing “localhost:3000” (or on a different port, depending on what you specified
+  above).
 
 ## Deployment with Docker
 
@@ -130,7 +163,7 @@ networks:
 * Create a new directory “granalyzer” with this docker-compose.yml.
     * You need to specify the ports you want to expose from the container.
       "127.0.0.1:8080:3000" means, that port 3000 of the backend is exposed to port 8080 on localhost. This means, that
-      granalyzer is not reachable from outside of the machine.
+      granalyzer is not reachable from outside the machine.
 
       If you want to serve granalyzer publicly on your machine, you can remove 127.0.0.1 from the port definition.
     * If you are using a Neo4j Database not hosted by the docker-compose file shown above, we trust you to define the
@@ -147,7 +180,7 @@ networks:
           different name!
 * Run `docker-compose up -d` to run the container in the background
 * The first time you are running granalyzer with a certain data set, you will need to create a new data scheme. You can
-  do this either manually in the data scheme editor or you can use our data scheme generator script, which generates a
+  do this either manually in the data scheme editor, or you can use our data scheme generator script, which generates a
   data scheme on the current data in the database. The script can be run by executing `npm run scheme` in the server
   directory.
 
@@ -164,37 +197,3 @@ granalyzer docker-compose file is located, and execute the following commands.
 * `docker-compose pull` – downloads the newest version of the `granalyzer:latest` image
 * `docker-compose down` – stops granalyzer and removes the container
 * `docker-compose up -d` – runs the container with the new image in the background
-
-## Local deployment
-
-### Prerequisites
-
-* A clone of this repository
-* A running instance of Neo4j Enterprise Edition with APOC library installed (e.g. the Neo4j docker container from
-  above)
-* Data imported into the Neo4j database
-* Node.js 14.16 LTS installed on your PC
-
-### Steps for deployment
-
-* Go into “server” and “client” directories and run npm install in order to install the required versions of all node
-  modules
-* In the server directory, copy the file `example.env` to a new file called `.env`. In this file, configure the
-  environment variables appropriately:
-    * `DB_USERNAME`, `DB_PASSWORD`, `DB_PASSWORD` and `DB_PORT` specify how to connect to the Neo4j instance
-    * `DB_TOOL` and `DB_CUSTOMER` specify the names of the databases in the Neo4j database, where the tool DB saves all
-      data needed for granalyzer itself, and the customer DB contains the company data of the customer
-    * `SWAGGER_PREFIX` defines the route for swagger API docs, defaults to “docs”
-    * `API_PREFIX` defines the route for the rest API, currently must be “api” since there is no way yet to configure
-      this route in the Vue frontend
-    * `BACKEND_PORT` specifies the port of the node.js server, defaults to 3000
-
-* In the server directory you can then execute npm run start:all:win or npm run start:all:linux depending on the
-  operating system you are on. This will build frontend and backend for production and then start the node.js server
-  which will serve both frontend and backend.
-* The first time you are running granalyzer with this database, you will need to create a new data scheme. You can do
-  this either manually in the data scheme editor or you can use our data scheme generator script, which generates a data
-  scheme on the current data in the database. The script can be run by executing `npm run scheme` in the server
-  directory.
-* Now, granalyzer can be used by accessing “localhost:3000” (or on a different port, depending on what you specified
-  above).
