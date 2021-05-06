@@ -9,8 +9,8 @@
     "relation": "Edit relations (R)",
     "related": "Add {amount} neighbor nodes (A)",
     "active": "Active",
-    "front": "Bring to front (F)",
-    "back": "Bring to back (B)"
+    "front": "To front (F)",
+    "back": "To back (B)"
   },
   "noDiagram": {
     "title": "No Diagram",
