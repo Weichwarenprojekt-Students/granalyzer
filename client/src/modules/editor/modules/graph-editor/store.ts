@@ -6,7 +6,7 @@ import { ApiDiagram } from "@/models/ApiDiagram";
 import { CreateNodeCommand } from "./controls/nodes/commands/CreateNodeCommand";
 import { g } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/RemoveNodeCommand";
-import { GET, PUT, randomRange } from "@/utility";
+import { GET, PUT } from "@/utility";
 import { RelationInfo } from "./controls/relations/models/RelationInfo";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
@@ -488,12 +488,12 @@ export const graphEditor = {
 
             context.commit("setEditorLoading", true);
 
-            const nodeIds = await getUniqueNeighborIds(context.state.selectedElement);
+            const neighborIds = await getUniqueNeighborIds(context.state.selectedElement);
 
-            if (nodeIds != null) {
+            if (neighborIds != null) {
                 // Get array of create node commands
                 const commands: CreateNodeCommand[] = await context.dispatch("getNodeCommands", [
-                    nodeIds,
+                    neighborIds,
                     context.state.selectedElement.position,
                 ]);
 
@@ -509,11 +509,16 @@ export const graphEditor = {
          */
         async getNodeCommands(
             context: ActionContext<GraphEditorState, RootState>,
-            [nodeIds, originPosition]: [Set<string>, g.PlainPoint],
+            [neighborIds, originPosition]: [Set<string>, g.PlainPoint],
         ): Promise<CreateNodeCommand[]> {
+            // Get base values for positioning neighbors in a circle
+            const neighborCount = neighborIds.size;
+            const partRadius = (2 * Math.PI) / neighborCount;
+            const radius = neighborCount > 9 ? neighborCount * 50 : neighborCount > 3 ? 500 : 300;
+
             return (
                 await Promise.all(
-                    [...nodeIds].map(async (id) => {
+                    [...neighborIds].map(async (id, idx) => {
                         // Perform request
                         const res = await GET(`/api/nodes/${id}`);
 
@@ -521,10 +526,13 @@ export const graphEditor = {
 
                         const apiNode: ApiNode = await res.json();
 
+                        // Calculate angle for this node
+                        const alpha = partRadius * idx - 0.5 * Math.PI;
+
                         // Transform to node info
                         const nodeInfo: NodeInfo = {
-                            x: originPosition.x + randomRange(150, 500),
-                            y: originPosition.y + randomRange(150, 500),
+                            x: originPosition.x + radius * Math.cos(alpha),
+                            y: originPosition.y + radius * Math.sin(alpha),
                             ref: {
                                 uuid: apiNode.nodeId,
                                 index: 0,
