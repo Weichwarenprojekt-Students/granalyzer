@@ -501,6 +501,8 @@ export const graphEditor = {
                 if (commands.length) await context.dispatch("addCommand", new CompoundCommand(commands));
             }
 
+            await context.dispatch("editor/updateHeatMap", undefined, { root: true });
+
             context.commit("setEditorLoading", false);
         },
 
