@@ -1,7 +1,7 @@
 <template>
     <div class="header">
         <InputDialog
-            @input-confirm="createDiagram"
+            @confirm="createDiagram"
             @cancel="dialogAddDiagram = false"
             :show="dialogAddDiagram"
             :default="$store.state.inventory.selectedNode?.name"

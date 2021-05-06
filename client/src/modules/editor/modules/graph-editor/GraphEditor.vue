@@ -2,7 +2,7 @@
     <div class="container" @mousemove="mousemove">
         <!-- The dialog for adding a new visual relation -->
         <InputDialog
-            @input-confirm="addNewVisualRelation"
+            @confirm="addNewVisualRelation"
             @cancel="$store.dispatch('editor/closeNewRelationDialog')"
             :show="$store.state.editor.graphEditor.newRelationDialog"
             :image-src="`${require('@/assets/img/icons.svg')}#relation`"

@@ -61,6 +61,7 @@ import ApiRelation from "@/models/data-scheme/ApiRelation";
 
 export default defineComponent({
     name: "NewRelationDialog",
+    emits: ["cancel", "confirm"],
     components: {
         BaseDialog,
     },
@@ -145,7 +146,7 @@ export default defineComponent({
                 ) as ApiNode;
 
                 this.$emit(
-                    "input-confirm",
+                    "confirm",
                     new ApiRelation(
                         this.switched ? selection.nodeId : this.fromNode.nodeId,
                         this.switched ? this.fromNode.nodeId : selection.nodeId,

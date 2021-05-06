@@ -2,7 +2,7 @@
     <div class="container" @mousemove="graph.mousemove">
         <!-- Dialog for adding new relations -->
         <NewRelationDialog
-            @input-confirm="addNewRelation"
+            @confirm="addNewRelation"
             @cancel="showDialog = false"
             :show="showDialog"
             :fromNode="fromNode"

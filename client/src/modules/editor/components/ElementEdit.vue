@@ -104,6 +104,9 @@ export default defineComponent({
             skipStyleUpdate: false,
         };
     },
+    created() {
+        this.updateSelectedElement();
+    },
     computed: {
         /**
          * @return True if the currently selected element is a node
@@ -131,6 +134,7 @@ export default defineComponent({
         elementStyle: {
             handler() {
                 // Check if the update shall be skipped once
+                console.log(this.elementStyle);
                 if (this.skipStyleUpdate) {
                     this.skipStyleUpdate = false;
                     return;
@@ -163,6 +167,7 @@ export default defineComponent({
             // Check if an element was selected
             const newElement = this.$store.state.editor.graphEditor.selectedElement;
             if (newElement) {
+                console.log(newElement.info);
                 this.colorEnabled = !!newElement.info.color;
                 this.borderColorEnabled = !!newElement.info.borderColor;
                 this.restyleCommand = new RestyleCommand(newElement);

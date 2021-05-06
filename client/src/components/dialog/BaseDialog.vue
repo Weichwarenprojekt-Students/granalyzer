@@ -22,6 +22,8 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
     name: "BaseDialog",
+    emits: ["cancel", "confirm"],
+    inheritAttrs: false,
     props: {
         // True if the dialog should be shown
         show: Boolean,

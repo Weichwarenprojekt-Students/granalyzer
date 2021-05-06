@@ -38,6 +38,7 @@ import { EnumConfigElement } from "@/modules/schemes/models/EnumConfigElement";
 
 export default defineComponent({
     name: "EditEnumModal",
+    emits: ["cancel", "confirm", "update:config"],
     components: { BaseDialog },
     props: {
         config: Array,

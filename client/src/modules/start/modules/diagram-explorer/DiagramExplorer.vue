@@ -1,7 +1,7 @@
 <template>
     <!-- The dialog for adding a folder -->
     <InputDialog
-        @input-confirm="addEmptyFolder"
+        @confirm="addEmptyFolder"
         @cancel="addFolderDialog = false"
         :show="addFolderDialog"
         :image-src="`${require('@/assets/img/icons.svg')}#circle-plus`"
@@ -10,7 +10,7 @@
 
     <!-- The dialog for renaming an item -->
     <InputDialog
-        @input-confirm="renameItem"
+        @confirm="renameItem"
         @cancel="renameItemDialog = false"
         :show="renameItemDialog"
         :image-src="`${require(`@/assets/img/icons.svg`)}#editor-thin`"
@@ -19,7 +19,7 @@
 
     <!-- The dialog for copying a diagram -->
     <InputDialog
-        @input-confirm="copyDiagram"
+        @confirm="copyDiagram"
         @cancel="diagramCopyDialog = false"
         :show="diagramCopyDialog"
         :image-src="`${require(`@/assets/img/icons.svg`)}#circle-plus`"
@@ -262,6 +262,7 @@ export default defineComponent({
          * @param newName The new name of the item
          */
         renameItem(newName: string): void {
+            console.log("test");
             if (!newName) {
                 errorToast(this.$t("start.newFolder.empty.title"), this.$t("start.newFolder.empty.description"));
                 return;
