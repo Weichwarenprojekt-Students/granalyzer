@@ -142,30 +142,60 @@ section:last-of-type .container-md {
     width: 100%;
 }
 
-.logo-box {
-    display: inline-block;
-    padding: 40px 80px 0 0;
+/* The style for the developed by part */
+.developed-by {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 64px;
+}
+.developed-by .display-5 {
+    margin-bottom: 0;
+}
+.developed-by img {
+    height: 100px;
 }
 
-.logo-image {
-    height: 120px;
-    padding: 16px 0;
+/* The style for the in association part */
+.in-association {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 48px;
+}
+.in-association .display-5 {
+    margin-bottom: 0;
+    text-align: center;
+}
+.in-association img {
+    height: 64px;
 }
 
-.logo-box .logo-image img {
-    height: 100%;
-    width: auto;
+/* Lower the icon sizes */
+@media screen and (max-width: 400px) {
+    .in-association img {
+        height: 48px;
+    }
 }
 
-.logo-box p {
-    text-align: left;
-    padding: 0 16px;
+/* Put the images below each other */
+@media screen and (max-width: 991px) {
+    .developed-by,
+    .in-association {
+        flex-direction: column;
+    }
 }
 
 /* Change the order of the flex box elements */
 @media screen and (max-width: 1199px) {
     #home .put-below {
         order: 1;
+    }
+
+    .in-association {
+        justify-content: flex-start;
     }
 }
 

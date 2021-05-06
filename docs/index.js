@@ -111,20 +111,10 @@ class Area {
  */
 class Background {
     /**
-     * The recent fps counts
-     */
-    fpsCounts = [];
-
-    /**
      * The different colors
      */
     dotColor = "#FFE0B2";
     lineColor = "#F1F3F4";
-
-    /**
-     * The fps count
-     */
-    fps = document.getElementById("fps");
 
     /**
      * The canvas
@@ -183,11 +173,6 @@ class Background {
         const now = Date.now();
         deltaTime = now - lastTime;
         lastTime = now;
-
-        // Update the fps count
-        this.fpsCounts.push(1000 / deltaTime);
-        if (this.fpsCounts.length > 60) this.fpsCounts.splice(0, 1);
-        this.fps.innerHTML = `FPS: ${Math.floor(this.fpsCounts.reduce((acc, v) => acc + v) / this.fpsCounts.length)}`;
 
         // Set the colors
         this.ctx.strokeStyle = this.lineColor;
