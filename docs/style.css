@@ -147,13 +147,13 @@ section:last-of-type .container-md {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 32px;
     margin-bottom: 64px;
 }
 .developed-by .display-5 {
     margin-bottom: 0;
 }
 .developed-by img {
+    margin-left: 32px;
     height: 100px;
 }
 
@@ -163,13 +163,13 @@ section:last-of-type .container-md {
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
-    gap: 48px;
 }
 .in-association .display-5 {
     margin-bottom: 0;
     text-align: center;
 }
 .in-association img {
+    margin-left: 48px;
     height: 64px;
 }
 
@@ -185,6 +185,16 @@ section:last-of-type .container-md {
     .developed-by,
     .in-association {
         flex-direction: column;
+    }
+    .developed-by img {
+        margin-top: 32px;
+        margin-bottom: 32px;
+        margin-left: 0;
+    }
+
+    .in-association>* {
+        margin-left: 0 !important;
+        margin-bottom: 48px !important;
     }
 }
 
@@ -223,8 +233,11 @@ section:last-of-type .container-md {
 .manual-row {
     display: flex;
     flex-direction: row;
-    gap: 32px;
     margin-bottom: 64px;
+}
+
+.manual-row>*:first-child {
+    margin-right: 32px;
 }
 
 .manual-row>div {
@@ -262,7 +275,15 @@ kbd {
 @media screen and (max-width: 991px) {
     .manual-row {
         flex-direction: column;
-        gap: 16px;
+        margin-right: 0;
+    }
+
+    .manual-row>*:first-child {
+        margin-right: 0;
+    }
+
+    .manual-row div {
+        margin-bottom: 16px;
     }
 
     .manual-row img {
@@ -348,7 +369,6 @@ kbd {
     flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 6px;
     color: var(--text) !important;
     background: transparent !important;
 }
@@ -357,6 +377,7 @@ kbd {
     flex: 0 0 auto;
     width: 22px;
     height: 22px;
+    margin-right: 6px;
 }
 
 .granalyzer-logo {
@@ -390,12 +411,12 @@ kbd {
     .navbar-nav .nav-link {
         text-align: center;
         font-size: 3rem;
-        gap: 16px;
     }
 
     .navbar-nav .nav-link img {
         width: 48px;
         height: 48px;
+        margin-right: 16px;
     }
 }
 
