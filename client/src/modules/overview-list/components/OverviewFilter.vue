@@ -1,8 +1,8 @@
 <template>
     <ScrollPanel ref="scroll" :class="['filter', { 'filter-expanded': expanded }]">
-        <div class="row" v-for="label in labels" :key="label.name">
-            <Checkbox v-model="selectedLabels" :value="label.name" :id="label.name" />
-            <label class="label" :for="label.name">
+        <div class="row" v-for="(label, index) in labels" :key="label.name">
+            <Checkbox v-model="selectedLabels" :value="label.name" :id="index" />
+            <label class="label" :for="index">
                 <span class="checkmark"></span>
                 <span class="color" :style="{ background: labelColors.get(label.name).color }"></span>
                 <span class="labelName">{{ label.name }}</span>

@@ -8,7 +8,7 @@
     },
     "node": {
       "title": "From Node",
-      "description": "Auto-generate diagram from a certain node"
+      "description": "Generate a diagram based on a certain node"
     },
     "empty": {
       "title": "Name is empty",
@@ -21,13 +21,17 @@
     "addDiagram": "Add diagram",
     "renameItem": "Rename \"{item}\"",
     "copyItem": "Copy of \"{item}\"",
+    "noCopyTitle": {
+      "title": "Name is empty",
+      "description": "Please specify a name!"
+    },
     "deletion": {
       "title": "Delete \"{item}\"",
       "deleteItem": {
         "description": "Are you sure you want to delete the selected item?"
       },
       "deleteFolder": {
-        "description": "The folder contains {num} item(s)."
+        "description": "The folder contains {num} item(s)"
       }
     },
     "noSelection": {

@@ -1,5 +1,4 @@
 {
-  "title": "Hier sind Sie im Editor!",
   "nothing-loaded": "Bitte laden Sie ein Diagramm",
   "exportDiagram": "Diagramm exportieren",
   "toolbar": {
@@ -21,7 +20,7 @@
     "description": "Keine Einträge gefunden!"
   },
   "relationModeToast": {
-    "title": "Beziehungsmodus ist aktiv!",
+    "title": "Beziehungsmodus aktiv!",
     "description": "Im Beziehungsmodus können keine neuen Nodes hinzugefügt werden"
   },
   "toolbox": "Toolbox",
@@ -30,7 +29,7 @@
     "setRelationName": "Neue visuelle Beziehung"
   },
   "nodeEdit": {
-    "title": "Element Editierung",
+    "title": "Bearbeiten",
     "text": "Text",
     "shape": "Form",
     "color": "Farbe",
@@ -39,7 +38,7 @@
       "text": "Text",
       "rectangle": "Rechteck",
       "circle": "Kreis",
-      "diamond": "Diamand",
+      "diamond": "Raute",
       "cylinder": "Zylinder",
       "cloud": "Wolke"
     }
@@ -48,7 +47,7 @@
     "title": "Visuelle Elemente"
   },
   "heatMap": {
-    "title": "Heat View",
+    "title": "Heatmap",
     "name": "Name:"
   }
 }

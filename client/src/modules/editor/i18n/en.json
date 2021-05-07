@@ -1,5 +1,4 @@
 {
-  "title": "Here you are in the editor!",
   "nothing-loaded": "Please load a diagram",
   "exportDiagram": "Export diagram",
   "toolbar": {
@@ -10,8 +9,8 @@
     "relation": "Edit relations (R)",
     "related": "Add {amount} neighbor nodes (A)",
     "active": "Active",
-    "front": "Bring to front (F)",
-    "back": "Bring to back (B)"
+    "front": "To front (F)",
+    "back": "To back (B)"
   },
   "noDiagram": {
     "title": "No Diagram",
@@ -21,8 +20,8 @@
     "description": "No nodes found!"
   },
   "relationModeToast": {
-    "title": "Relation Edit Mode Active!",
-    "description": "Nodes can't be added while the relation edit mode is active"
+    "title": "Relation Edit Mode active!",
+    "description": "Nodes cannot be added in the relation edit mode"
   },
   "toolbox": "Toolbox",
   "inspector": "Inspector",
@@ -30,7 +29,7 @@
     "setRelationName": "New visual relation"
   },
   "nodeEdit": {
-    "title": "Element Edit",
+    "title": "Edit",
     "text": "Text",
     "shape": "Shape",
     "color": "Color",
@@ -48,7 +47,7 @@
     "title": "Visual Elements"
   },
   "heatMap": {
-    "title": "Heat View",
+    "title": "Heat Map",
     "name": "Name:"
   }
 }

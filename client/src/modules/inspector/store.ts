@@ -112,7 +112,7 @@ export const inspector = {
             const node: ApiNode = await result.json();
 
             // Fetch scheme for the label of this node
-            result = await GET(`/api/data-scheme/label/${node.label}`);
+            result = await GET(`/api/data-scheme/label/${encodeURIComponent(node.label)}`);
             if (isUnexpected(result)) return;
             const type: ApiLabel = await result.json();
 
@@ -142,7 +142,7 @@ export const inspector = {
             const relation: ApiRelation = await result.json();
 
             // Fetch scheme for the type of this relation
-            result = await GET(`/api/data-scheme/relation/${relation.type}`);
+            result = await GET(`/api/data-scheme/relation/${encodeURIComponent(relation.type)}`);
             if (isUnexpected(result)) return;
             const type: ApiRelationType = await result.json();
 
@@ -191,19 +191,23 @@ export const inspector = {
         async deleteRelation(context: ActionContext<InspectorState, RootState>, relation: ApiRelation): Promise<void> {
             const result = await DELETE(`/api/relations/${relation.relationId}`);
             if (isUnexpected(result)) return;
+
+            await context.dispatch("inventory/updateNeighborRelations", false, { root: true });
+
             context.commit("setAttributes", {});
             await context.dispatch("updateInspector");
         },
 
         /**
-         * Create a label
+         * Create a node
          */
         async createNode(context: ActionContext<InspectorState, RootState>, node: ApiNode): Promise<void> {
             const result = await POST(`/api/nodes`, JSON.stringify(node));
             if (isUnexpected(result)) return;
             const data: ApiNode = await result.json();
             await context.commit("inventory/setSelectedNode", data, { root: true });
-            context.commit("setAttributes", { item: Object.assign(new ApiNode(), data) });
+            const type = context.state.types?.find((label) => label.name == data.label);
+            context.commit("setAttributes", { item: Object.assign(new ApiNode(), data), type });
             await context.dispatch("updateInspector");
         },
 

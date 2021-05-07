@@ -13,7 +13,7 @@
                 <use :xlink:href="`${require('@/assets/img/icons.svg')}#arrow`"></use>
             </svg>
             <label :key="'name_label'" class="attribute-name">
-                <input :key="'name_input'" type="text" v-model="modifiedAttribute.name" />
+                <input :key="'name_input'" type="text" v-model.trim="modifiedAttribute.name" />
             </label>
             <span class="attribute-type">{{ $t(`schemes.attribute.datatype.${modifiedAttribute.datatype}`) }}</span>
             <div class="attribute-spacer" />

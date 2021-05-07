@@ -1,15 +1,15 @@
 {
   "overview": {
     "labels": "Labels",
-    "relations": "Relationen",
+    "relations": "Relationstypen",
     "noLabels": "Keine Labels gefunden!",
-    "noRelations": "Keine Relationen gefunden!",
+    "noRelations": "Keine Relationstypen gefunden!",
     "addLabel": "Label hinzufügen",
-    "addRelation": "Relation hinzufügen"
+    "addRelation": "Relationstyp hinzufügen"
   },
-  "nothing-selected": "Wählen Sie entweder ein Label oder eine Relation aus um diese hier zu editieren.",
+  "nothing-selected": "Wählen Sie ein Label oder einen Relationstypen zum Editieren aus",
   "labelEditor": {
-    "title": "Label Editor",
+    "title": "Editor",
     "name": "Name:",
     "color": "Farbe:",
     "attributes": "Attribute",
@@ -18,31 +18,31 @@
     "delete": "Löschen",
     "deleteDialog": {
       "title": "Label löschen",
-      "description": "Zugehörige Knoten werden dadurch unsichtbar!"
+      "description": "Zugehörige Nodes werden dadurch unsichtbar!"
     },
     "deleteFailed": {
       "title": "Löschen fehlgeschlagen",
       "description": "Das Label konnte nicht gelöscht werden!"
     },
     "nameRequired": {
-      "title": "Name nötig",
+      "title": "Name benötigt",
       "description": "Ihr Label braucht noch einen Namen!"
     },
     "nameDuplicate": {
-      "title": "Name besetzt",
+      "title": "Name vergeben",
       "description": "Ein anderes Label hat bereits diesen Namen!"
     },
     "updateSuccess": {
-      "title": "Label aktualisiert ",
-      "description": "Manche Knoten könnten nun anders erscheinen."
+      "title": "Label aktualisiert",
+      "description": "Manche Nodes könnten nun anders erscheinen"
     },
     "updateConflicts": {
-      "title": "Konflikte! Aktualisierung abgebrochen",
-      "description": "Wenn Sie wissen was Sie tun können Sie die Aktualsierung erzwingen!"
+      "title": "Konflikte! Aktualisierung abgebrochen.",
+      "description": "Wenn Sie wissen, was Sie tun, können Sie die Aktualisierung erzwingen!"
     }
   },
   "relationEditor": {
-    "title": "Relationen Editor",
+    "title": "Editor",
     "name": "Name:",
     "attributes": "Attribute",
     "connections": "Verbindungen",
@@ -50,36 +50,36 @@
     "create": "Erstellen",
     "delete": "Löschen",
     "deleteDialog": {
-      "title": "Relationen-Typ löschen",
+      "title": "Relationstyp löschen",
       "description": "Relationen könnten dadurch ihre Referenz verlieren!"
     },
     "deleteFailed": {
       "title": "Löschen fehlgeschlagen",
-      "description": "Die Relation konnte nicht gelöscht werden!"
+      "description": "Der Relationstyp konnte nicht gelöscht werden!"
     },
     "nameRequired": {
-      "title": "Name nötig",
-      "description": "Ihre Relation braucht noch einen Namen!"
+      "title": "Name benötigt",
+      "description": "Ihr Relationstyp braucht noch einen Namen!"
     },
     "nameDuplicate": {
-      "title": "Name besetzt",
-      "description": "Eine andere Relation hat bereits diesen Namen!"
+      "title": "Name vergeben",
+      "description": "Ein anderer Relationstyp hat bereits diesen Namen!"
     },
     "connectionInvalid": {
       "title": "Verbindung ungültig",
       "description": "Das Label {name} ist unbekannt!"
     },
     "updateSuccess": {
-      "title": "Relation aktualisiert ",
-      "description": "Manche Relationen könnten nun anders erscheinen."
+      "title": "Relationstyp aktualisiert",
+      "description": "Manche Relationen könnten nun anders erscheinen"
     },
     "updateConflicts": {
-      "title": "Konflikte! Aktualisierung abgebrochen",
-      "description": "Wenn Sie wissen was Sie tun können Sie die Aktualsierung erzwingen!"
+      "title": "Konflikte - Aktualisierung abgebrochen!",
+      "description": "Wenn Sie wissen was Sie tun können Sie die Aktualisierung erzwingen!"
     }
   },
   "attribute": {
-    "new": "neu",
+    "new": "Neu",
     "delete": "Löschen",
     "type": "Type",
     "mandatory": "Pflichtfeld",
@@ -91,15 +91,15 @@
       "enum": "Enum"
     },
     "nameRequired": {
-      "title": "Name nötig",
+      "title": "Name benötigt",
       "description": "Ein Attribut braucht noch einen Namen!"
     },
     "nameDuplicate": {
-      "title": "Name doppelt",
+      "title": "Doppelter Name",
       "description": "Das Attribut {name} ist bereits vorhanden!"
     },
     "invalidEnumDefault": {
-      "title": "Standardwert invalide",
+      "title": "Standardwert ungültig",
       "description": "Der Standardwert von {name} ist kein Teil des Enums!"
     },
     "editEnumConfig": {
@@ -107,7 +107,7 @@
       "add": "Hinzufügen",
       "newElementPlaceholder": "Neues Element",
       "duplicateElement": {
-        "title": "Besetzter Wert",
+        "title": "Doppelter Wert",
         "description": "Dieser Wert befindet sich bereits im Enum"
       }
     }
@@ -117,10 +117,10 @@
     "revert": "Rückgängig",
     "check": "Änderungen erzwingen",
     "labelTitle": "Label: {name}",
-    "relationTitle": "Relation: {name}",
-    "descriptionMissing": "Bei {missingError} Elementen fehlen Pflichtfelder!",
-    "descriptionParse": "Bei {parseError} Elementen sind Felder ungültig!",
-    "descriptionBoth": "Bei {missingError} Elementen fehlen Pflichtfelder und bei {parseError} Elementen sind Felder ungültig!",
+    "relationTitle": "Relationstyp: {name}",
+    "descriptionMissing": "Es fehlen {missingError} Pflichtfelder!",
+    "descriptionParse": "{parseError} Felder sind ungültig!",
+    "descriptionBoth": "Es fehlen {missingError} Pflichtfelder und {parseError} Felder sind ungültig!",
     "descriptionUnknown": "Etwas ist schief gelaufen!",
     "updateDialog": {
       "title": "Update erzwingen?",

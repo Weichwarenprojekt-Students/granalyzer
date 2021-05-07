@@ -1,6 +1,6 @@
 <template>
     <label class="searchbar">
-        <input v-model="inputValue" type="text" :placeholder="$t('global.searchPlaceholder')" />
+        <input v-model.trim="inputValue" type="text" :placeholder="$t('global.searchPlaceholder')" />
         <svg class="close" v-if="inputValue.length > 0" @click="inputValue = ''">
             <use xlink:href="@/assets/img/icons.svg#delete"></use>
         </svg>

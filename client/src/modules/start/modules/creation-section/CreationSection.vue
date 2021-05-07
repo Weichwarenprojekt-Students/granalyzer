@@ -1,6 +1,6 @@
 <template>
     <InputDialog
-        @input-confirm="addEmptyDiagram"
+        @confirm="addEmptyDiagram"
         @cancel="dialogAddEmpty = false"
         :show="dialogAddEmpty"
         :image-src="require('@/assets/img/icons.svg') + '#circle-plus'"

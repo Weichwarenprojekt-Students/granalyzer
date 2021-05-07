@@ -13,11 +13,6 @@ export class RootState {
     public locale: string = navigator.language.split("-")[0];
 
     /**
-     * True if the sidebar is minimized
-     */
-    public sidebarMinimized = false;
-
-    /**
      * Start state
      */
     public start?: StartState;
@@ -50,14 +45,6 @@ export class RootState {
 
 export default createStore({
     state: new RootState(),
-    mutations: {
-        /**
-         * Change the state of the sidebar
-         */
-        minimizeSidebar(state, value): void {
-            state.sidebarMinimized = value;
-        },
-    },
     modules: {
         start,
         editor,

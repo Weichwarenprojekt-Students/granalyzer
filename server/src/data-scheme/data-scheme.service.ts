@@ -429,10 +429,10 @@ export class DataSchemeService {
         };
         // language=Cypher
         const cypher = attributeExists
-            ? `MATCH (node:${labelName})
+            ? `MATCH (node:\`${labelName}\`)
                     WHERE exists(node.\`${attributeName}\`)
                   RETURN node {.*, label: $labelName} AS node`
-            : `MATCH (node:${labelName})
+            : `MATCH (node:\`${labelName}\`)
                     WHERE NOT exists(node.\`${attributeName}\`)
                   RETURN node {.*, label: $labelName} AS node`;
 
@@ -460,10 +460,10 @@ export class DataSchemeService {
         };
         // language=Cypher
         const cypher = attributeExists
-            ? `MATCH ()-[rel:${relationTypeName}]-()
+            ? `MATCH ()-[rel:\`${relationTypeName}\`]-()
                 WHERE exists(rel.\`${attributeName}\`)
                 RETURN DISTINCT rel {.*, type: $relationTypeName} AS relation`
-            : `MATCH ()-[rel:${relationTypeName}]-()
+            : `MATCH ()-[rel:\`${relationTypeName}\`]-()
                 WHERE NOT exists(rel.\`${attributeName}\`)
                 RETURN DISTINCT rel {.*, type: $relationTypeName} AS relation`;
 

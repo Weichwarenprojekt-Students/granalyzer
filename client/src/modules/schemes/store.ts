@@ -125,6 +125,7 @@ export const schemes = {
         addLabel(state: SchemesState, label: ApiLabel): void {
             state.selectedLabel = undefined;
             state.labels.push(label);
+            state.conflicts = state.conflicts.filter((c) => label.name !== c.modifiedItem);
         },
         /**
          * Add a relation type
@@ -132,6 +133,7 @@ export const schemes = {
         addRelation(state: SchemesState, relation: ApiRelationType): void {
             state.selectedRelation = undefined;
             state.relations.push(relation);
+            state.conflicts = state.conflicts.filter((c) => relation.name !== c.modifiedItem);
         },
         /**
          * Update a label
@@ -139,6 +141,7 @@ export const schemes = {
         updateLabel(state: SchemesState, label: ApiLabel): void {
             state.labels = state.labels.map((l) => (l.name == label.name ? label : l));
             state.selectedLabel = label;
+            state.conflicts = state.conflicts.filter((c) => label.name !== c.modifiedItem);
         },
         /**
          * Update a relation type
@@ -146,6 +149,7 @@ export const schemes = {
         updateRelation(state: SchemesState, relation: ApiRelationType): void {
             state.relations = state.relations.map((r) => (r.name == relation.name ? relation : r));
             state.selectedRelation = relation;
+            state.conflicts = state.conflicts.filter((c) => relation.name !== c.modifiedItem);
         },
         /**
          * Delete a label
@@ -153,6 +157,7 @@ export const schemes = {
         deleteLabel(state: SchemesState, label: ApiLabel): void {
             state.selectedLabel = undefined;
             state.labels = state.labels.filter((l) => l.name !== label.name);
+            state.conflicts = state.conflicts.filter((c) => label.name !== c.modifiedItem);
         },
         /**
          * Delete a relation type
@@ -160,6 +165,7 @@ export const schemes = {
         deleteRelation(state: SchemesState, relation: ApiRelationType): void {
             state.selectedRelation = undefined;
             state.relations = state.relations.filter((r) => r.name !== relation.name);
+            state.conflicts = state.conflicts.filter((c) => relation.name !== c.modifiedItem);
         },
     },
     actions: {
@@ -197,7 +203,7 @@ export const schemes = {
             payload: { label: ApiLabel; force: boolean },
         ): Promise<void> {
             const res = await PUT(
-                `/api/data-scheme/label/${payload.label.name}?force=${payload.force}`,
+                `/api/data-scheme/label/${encodeURIComponent(payload.label.name)}?force=${payload.force}`,
                 JSON.stringify(payload.label),
             );
             if (res.status === 200) {
@@ -235,7 +241,7 @@ export const schemes = {
             payload: { relation: ApiRelationType; force: boolean },
         ): Promise<void> {
             const res = await PUT(
-                `/api/data-scheme/relation/${payload.relation.name}?force=${payload.force}`,
+                `/api/data-scheme/relation/${encodeURIComponent(payload.relation.name)}?force=${payload.force}`,
                 JSON.stringify(payload.relation),
             );
             if (res.status === 200) {
@@ -270,7 +276,7 @@ export const schemes = {
          */
         async deleteLabel(context: ActionContext<SchemesState, RootState>): Promise<boolean> {
             if (!context.state.selectedLabel) return false;
-            const res = await DELETE(`/api/data-scheme/label/${context.state.selectedLabel.name}`);
+            const res = await DELETE(`/api/data-scheme/label/${encodeURIComponent(context.state.selectedLabel.name)}`);
             if (res.status === 200) {
                 context.commit("deleteLabel", context.state.selectedLabel);
                 return true;
@@ -282,7 +288,9 @@ export const schemes = {
          */
         async deleteRelation(context: ActionContext<SchemesState, RootState>): Promise<boolean> {
             if (!context.state.selectedRelation) return false;
-            const res = await DELETE(`/api/data-scheme/relation/${context.state.selectedRelation.name}`);
+            const res = await DELETE(
+                `/api/data-scheme/relation/${encodeURIComponent(context.state.selectedRelation.name)}`,
+            );
             if (res.status === 200) {
                 context.commit("deleteRelation", context.state.selectedRelation);
                 return true;

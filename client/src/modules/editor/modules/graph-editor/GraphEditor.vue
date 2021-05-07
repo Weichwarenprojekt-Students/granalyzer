@@ -2,7 +2,7 @@
     <div class="container" @mousemove="mousemove">
         <!-- The dialog for adding a new visual relation -->
         <InputDialog
-            @input-confirm="addNewVisualRelation"
+            @confirm="addNewVisualRelation"
             @cancel="$store.dispatch('editor/closeNewRelationDialog')"
             :show="$store.state.editor.graphEditor.newRelationDialog"
             :image-src="`${require('@/assets/img/icons.svg')}#relation`"
@@ -13,7 +13,7 @@
             mode="indeterminate"
             class="graph-editor-loading"
         />
-        <Toolbar v-show="!$store.state.editor.graphEditor.editorLoading" />
+        <Toolbar :disabled="!!$store.state.editor.graphEditor.editorLoading" />
         <div
             id="joint"
             :class="{ disabled: $store.state.editor.graphEditor.editorLoading }"
@@ -47,6 +47,8 @@ export default defineComponent({
         };
     },
     async mounted(): Promise<void> {
+        // Show the loading bar
+        this.$store.commit("editor/setEditorLoading", true);
         this.$store.dispatch("editor/setRelationMode", false);
 
         // Load the labels with the first load of matching nodes
@@ -83,11 +85,11 @@ export default defineComponent({
 
         graphHandler.controls.centerContent();
 
+        this.$store.commit("editor/setEditorLoading", false);
+
         // Initialize heat map
         await this.$store.dispatch("editor/updateHeatLabels");
         await this.$store.dispatch("editor/initHeatMap");
-
-        this.$store.commit("editor/setEditorLoading", false);
     },
     methods: {
         /**
@@ -159,7 +161,7 @@ export default defineComponent({
 
 #joint {
     > svg {
-        background: #f2f2f2;
+        background: @light_grey;
     }
 }
 </style>

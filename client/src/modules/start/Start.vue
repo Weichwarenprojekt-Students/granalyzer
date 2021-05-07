@@ -21,7 +21,7 @@ export default defineComponent({
 
 <style lang="less">
 .content {
-    height: 100%;
+    height: 100vh;
     overflow: hidden;
 }
 </style>

@@ -12,15 +12,15 @@
     "placeholder": "Hier..."
   },
   "unexpected": {
-    "title": "Uuups",
+    "title": "Hoppla",
     "description": "Etwas ist schief gelaufen..."
   },
   "stopSpamming": {
-    "title": "WHaT tHE FUcK",
-    "description": "Könnten Sie bitte aufhören zu spammen? Was zum Himmel !?"
+    "title": "Wahnsinn, der [Substantiv]",
+    "description": "Immer wieder das Gleiche zu tun und andere Ergebnisse zu erwarten"
   },
   "dropdown":{
     "choose": "Wähle",
-    "empty": "Keine Optionen verfügbar."
+    "empty": "Keine Optionen verfügbar"
   }
 }

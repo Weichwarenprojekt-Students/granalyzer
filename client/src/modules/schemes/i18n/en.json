@@ -1,15 +1,15 @@
 {
   "overview": {
     "labels": "Labels",
-    "relations": "Relations",
+    "relations": "Relation Types",
     "noLabels": "No labels found!",
-    "noRelations": "No relations found!",
-    "addLabel": "Add Label",
-    "addRelation": "Add Relation"
+    "noRelations": "No relation types found!",
+    "addLabel": "Add a label",
+    "addRelation": "Add a relation type"
   },
-  "nothing-selected": "Select either a label or a relation to edit it here.",
+  "nothing-selected": "Select a label or a relation type to edit it here",
   "labelEditor": {
-    "title": "Label Editor",
+    "title": "Editor",
     "name": "Name:",
     "color": "Color:",
     "attributes": "Attributes",
@@ -34,15 +34,15 @@
     },
     "updateSuccess": {
       "title": "Label updated",
-      "description": "Some nodes may appear different now."
+      "description": "Some nodes may appear different now"
     },
     "updateConflicts": {
-      "title": "Conflicts! Update cancelled",
+      "title": "Conflicts! Update cancelled.",
       "description": "If you know what you are doing you can force the update!"
     }
   },
   "relationEditor": {
-    "title": "Relation Editor",
+    "title": "Type Editor",
     "name": "Name:",
     "attributes": "Attributes",
     "connections": "Connections",
@@ -50,36 +50,36 @@
     "create": "Create",
     "delete": "Delete",
     "deleteDialog": {
-      "title": "Delete Relation",
+      "title": "Delete relation type",
       "description": "Relations could lose their actual reference!"
     },
     "deleteFailed": {
       "title": "Deletion failed",
-      "description": "Could not delete the relation!"
+      "description": "Relation type could not be deleted!"
     },
     "nameRequired": {
       "title": "Name required",
-      "description": "Your relation needs a name!"
+      "description": "Your relation type still needs a name!"
     },
     "nameDuplicate": {
       "title": "Name taken",
-      "description": "Another relation already has this name!"
+      "description": "Another relation type already has this name!"
     },
     "connectionInvalid": {
       "title": "Connection invalid",
       "description": "The label {name} is unknown!"
     },
     "updateSuccess": {
-      "title": "Relation updated",
-      "description": "Some relations may appear different now."
+      "title": "Relation type updated",
+      "description": "Some relations may appear different now"
     },
     "updateConflicts": {
-      "title": "Conflicts! Update cancelled",
+      "title": "Conflicts - Update cancelled!",
       "description": "If you know what you are doing you can force the update!"
     }
   },
   "attribute": {
-    "new": "new",
+    "new": "New",
     "delete": "Delete",
     "type": "Type",
     "mandatory": "Mandatory",
@@ -95,12 +95,12 @@
       "description": "One attribute still needs a name!"
     },
     "nameDuplicate": {
-      "title": "Name duplicate",
-      "description": "The attribute {name} is defined multiple times!"
+      "title": "Duplicate name",
+      "description": "The attribute {name} already exists!"
     },
     "invalidEnumDefault": {
       "title": "Default value invalid",
-      "description": "The default value of {name} isn't a part of the defined enum!"
+      "description": "The default value of {name} is not a part of the defined enum!"
     },
     "editEnumConfig": {
       "title": "Edit Enum",
@@ -117,10 +117,10 @@
     "revert": "Revert",
     "check": "Force Changes",
     "labelTitle": "Label: {name}",
-    "relationTitle": "Relation: {name}",
-    "descriptionMissing": "{missingError} items miss mandatory attributes!",
-    "descriptionParse": "{parseError} items have conflicting fields!",
-    "descriptionBoth": "{missingError} items miss mandatory attributes and {parseError} items have conflicting fields!",
+    "relationTitle": "Relation type: {name}",
+    "descriptionMissing": "{missingError} mandatory attributes are missing!",
+    "descriptionParse": "{parseError} fields lead to conflicts!",
+    "descriptionBoth": "{missingError} mandatory attributes are missing and {parseError} fields lead to conflicts!",
     "descriptionUnknown": "Something went wrong!",
     "updateDialog": {
       "title": "Force Update?",

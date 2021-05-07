@@ -6,7 +6,7 @@ import { ApiDiagram } from "@/models/ApiDiagram";
 import { CreateNodeCommand } from "./controls/nodes/commands/CreateNodeCommand";
 import { g } from "jointjs";
 import { RemoveNodeCommand } from "@/modules/editor/modules/graph-editor/controls/nodes/commands/RemoveNodeCommand";
-import { GET, PUT, randomRange } from "@/utility";
+import { GET, PUT } from "@/utility";
 import { RelationInfo } from "./controls/relations/models/RelationInfo";
 import ApiRelation from "@/models/data-scheme/ApiRelation";
 import { ICommand } from "@/modules/editor/modules/graph-editor/controls/commands/ICommand";
@@ -36,7 +36,7 @@ export class GraphEditorState {
     /**
      * True if the graph editor is currently loading
      */
-    public editorLoading = false;
+    public editorLoading = 0;
 
     /**
      * True if the relation edit mode is active
@@ -66,19 +66,24 @@ export class GraphEditorState {
  * @param nodeInfo The node info of the node to create
  */
 async function getCreateNodeCommand(graphHandler: GraphHandler, nodeInfo: NodeInfo) {
-    const res = await GET("/api/nodes/" + nodeInfo.ref.uuid + "/relations");
-    const newVar: ApiRelation[] = res.status === 200 ? await res.json() : [];
+    let relations: RelationInfo[];
+    if (nodeInfo.ref.uuid) {
+        const res = await GET("/api/nodes/" + nodeInfo.ref.uuid + "/relations");
+        const newVar: ApiRelation[] = res.status === 200 ? await res.json() : [];
 
-    // Transform relations from api into Relation objects
-    const relations: RelationInfo[] = newVar.map((rel) => {
-        return {
-            from: { uuid: rel.from, index: 0 },
-            to: { uuid: rel.to, index: 0 },
-            uuid: rel.relationId,
-            name: rel.type,
-            color: Relation.NORMAL_RELATION_COLOR,
-        } as RelationInfo;
-    });
+        // Transform relations from api into Relation objects
+        relations = newVar.map((rel) => {
+            return {
+                from: { uuid: rel.from, index: 0 },
+                to: { uuid: rel.to, index: 0 },
+                uuid: rel.relationId,
+                name: rel.type,
+                color: Relation.NORMAL_RELATION_COLOR,
+            } as RelationInfo;
+        });
+    } else {
+        relations = [];
+    }
 
     return new CreateNodeCommand(graphHandler, nodeInfo, relations);
 }
@@ -186,7 +191,7 @@ export const graphEditor = {
          * Active/Deactivate the loading state
          */
         setEditorLoading(state: GraphEditorState, loading: boolean): void {
-            state.editorLoading = loading;
+            state.editorLoading += loading ? 1 : -1;
         },
 
         /**
@@ -268,6 +273,10 @@ export const graphEditor = {
          */
         async undo(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
+
+            // Interrupt resizing nodes and save the resizing command
+            await context.state.graphHandler?.controls.resizeControls.saveCommand();
+
             await context.dispatch("setRelationMode", false);
             context.commit("undo");
             context.commit("setEditorLoading", false);
@@ -282,6 +291,10 @@ export const graphEditor = {
          */
         async redo(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
+
+            // Interrupt resizing nodes and save the resizing command
+            await context.state.graphHandler?.controls.resizeControls.saveCommand();
+
             await context.dispatch("setRelationMode", false);
             context.commit("redo");
             context.commit("setEditorLoading", false);
@@ -313,8 +326,13 @@ export const graphEditor = {
          */
         async removeNode(context: ActionContext<GraphEditorState, RootState>): Promise<void> {
             context.commit("setEditorLoading", true);
+
+            // Interrupt resizing nodes and save the resizing command
+            await context.state.graphHandler?.controls.resizeControls.saveCommand();
+
             context.commit("removeNode");
             context.commit("setEditorLoading", false);
+
             await context.dispatch("saveChange");
 
             await context.dispatch("editor/updateHeatMap", undefined, { root: true });
@@ -404,7 +422,9 @@ export const graphEditor = {
          * Add any command to the undo/redo stack
          */
         async addCommand(context: ActionContext<GraphEditorState, RootState>, command: ICommand): Promise<void> {
+            context.commit("setEditorLoading", true);
             context.commit("addCommand", command);
+            context.commit("setEditorLoading", false);
             await context.dispatch("saveChange");
         },
 
@@ -473,18 +493,20 @@ export const graphEditor = {
 
             context.commit("setEditorLoading", true);
 
-            const nodeIds = await getUniqueNeighborIds(context.state.selectedElement);
+            const neighborIds = await getUniqueNeighborIds(context.state.selectedElement);
 
-            if (nodeIds != null) {
+            if (neighborIds != null) {
                 // Get array of create node commands
                 const commands: CreateNodeCommand[] = await context.dispatch("getNodeCommands", [
-                    nodeIds,
+                    neighborIds,
                     context.state.selectedElement.position,
                 ]);
 
                 // Dispatch all commands at once
                 if (commands.length) await context.dispatch("addCommand", new CompoundCommand(commands));
             }
+
+            await context.dispatch("editor/updateHeatMap", undefined, { root: true });
 
             context.commit("setEditorLoading", false);
         },
@@ -494,11 +516,16 @@ export const graphEditor = {
          */
         async getNodeCommands(
             context: ActionContext<GraphEditorState, RootState>,
-            [nodeIds, originPosition]: [Set<string>, g.PlainPoint],
+            [neighborIds, originPosition]: [Set<string>, g.PlainPoint],
         ): Promise<CreateNodeCommand[]> {
+            // Get base values for positioning neighbors in a circle
+            const neighborCount = neighborIds.size;
+            const partRadius = (2 * Math.PI) / neighborCount;
+            const radius = neighborCount > 9 ? neighborCount * 50 : neighborCount > 3 ? 500 : 300;
+
             return (
                 await Promise.all(
-                    [...nodeIds].map(async (id) => {
+                    [...neighborIds].map(async (id, idx) => {
                         // Perform request
                         const res = await GET(`/api/nodes/${id}`);
 
@@ -506,10 +533,13 @@ export const graphEditor = {
 
                         const apiNode: ApiNode = await res.json();
 
+                        // Calculate angle for this node
+                        const alpha = partRadius * idx - 0.5 * Math.PI;
+
                         // Transform to node info
                         const nodeInfo: NodeInfo = {
-                            x: originPosition.x + randomRange(150, 500),
-                            y: originPosition.y + randomRange(150, 500),
+                            x: originPosition.x + radius * Math.cos(alpha),
+                            y: originPosition.y + radius * Math.sin(alpha),
                             ref: {
                                 uuid: apiNode.nodeId,
                                 index: 0,

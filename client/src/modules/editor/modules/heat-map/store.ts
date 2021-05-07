@@ -116,8 +116,10 @@ export const heatMap = {
          * Update heat map
          */
         async updateHeatMap(context: ActionContext<HeatMapState, RootState>): Promise<void> {
+            context.commit("editor/setEditorLoading", true, { root: true });
             await context.dispatch("updateHeatLabels");
             await context.dispatch("updateHeatColors");
+            context.commit("editor/setEditorLoading", false, { root: true });
         },
         /**
          * Get all labels which are in the diagram
@@ -130,6 +132,12 @@ export const heatMap = {
                 "setHeatLabels",
                 allLabels.filter((lab) => editorLabels.has(lab.name)),
             );
+
+            // Delete all heat configs that are not part of the diagram anymore
+            context.rootState.editor?.graphEditor?.graphHandler?.heatConfigs.forEach((heatConfig, heatLabel) => {
+                if (context.state.labels.find((lab) => lab.name === heatLabel) == null)
+                    context.commit("editor/deleteHeatConfig", heatLabel, { root: true });
+            });
         },
         /**
          * Init the heat configs
@@ -137,6 +145,8 @@ export const heatMap = {
         async initHeatMap(context: ActionContext<HeatMapState, RootState>): Promise<void> {
             const graphHandler = context.rootState.editor?.graphEditor?.graphHandler;
             if (!graphHandler) return;
+
+            context.commit("editor/setEditorLoading", true, { root: true });
 
             let labelName: string, heatConfig: HeatConfig;
             for ([labelName, heatConfig] of graphHandler.heatConfigs) {
@@ -154,11 +164,7 @@ export const heatMap = {
                     // Generate symmetric difference between enum values
                     const configSet = new Set((heatConfig as HeatEnumConfig).values);
                     const attrSet = new Set(attribute.config);
-                    if (
-                        [...configSet, ...attrSet].filter((x) => {
-                            return !(attrSet.has(x) && configSet.has(x));
-                        }).length !== 0
-                    ) {
+                    if ([...configSet, ...attrSet].filter((x) => !(attrSet.has(x) && configSet.has(x))).length !== 0) {
                         // If they differ, generate new heat config for this attribute
                         const newHeatConfig = await context.dispatch("newHeatConfig", {
                             labelName,
@@ -180,6 +186,8 @@ export const heatMap = {
 
             // Update colors of heatmap
             await context.dispatch("updateHeatColors");
+
+            context.commit("editor/setEditorLoading", false, { root: true });
         },
         /**
          * Set the heat config for a label
@@ -274,6 +282,8 @@ export const heatMap = {
                 return;
             }
 
+            context.commit("editor/setEditorLoading", true, { root: true });
+
             for (const node of graphHandler.nodes) {
                 // Get the config for the label of the node
                 const config = graphHandler.heatConfigs.get(node.info.label);
@@ -295,6 +305,8 @@ export const heatMap = {
                 // Set the new temporary style
                 node.updateStyle(styledNodeInfo);
             }
+
+            context.commit("editor/setEditorLoading", false, { root: true });
         },
         /**
          * Reset heat colors

@@ -104,6 +104,9 @@ export default defineComponent({
             skipStyleUpdate: false,
         };
     },
+    created() {
+        this.updateSelectedElement();
+    },
     computed: {
         /**
          * @return True if the currently selected element is a node

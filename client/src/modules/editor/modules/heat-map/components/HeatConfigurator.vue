@@ -10,6 +10,7 @@
                 optionLabel="name"
                 optionValue="name"
                 v-model="selectedAttribute"
+                @hide="hide"
                 :showClear="!!heatConfig.type"
                 :placeholder="$t('global.dropdown.choose')"
                 :emptyMessage="$t('global.dropdown.empty')"
@@ -67,14 +68,7 @@ export default defineComponent({
             async handler() {
                 await this.$store.dispatch("editor/updateHeatColors");
 
-                // Only save changes once ever 0.5 seconds
-                if (!this.saveChangeTimeoutActive) {
-                    this.saveChangeTimeoutActive = true;
-                    setTimeout(async () => {
-                        this.saveChangeTimeoutActive = false;
-                        await this.$store.dispatch("editor/saveChange");
-                    }, 500);
-                }
+                this.save();
             },
             deep: true,
         },
@@ -93,16 +87,46 @@ export default defineComponent({
          */
         "$store.state.editor.graphEditor.graphHandler.heatConfigs": {
             async handler() {
+                await this.$store.dispatch("editor/updateHeatColors");
                 // Get changed heat config
-                const heatConfig = this.$store.state.editor.graphEditor.graphHandler?.heatConfigs.get(this.label.name);
+                const heatConfig: HeatConfig = this.$store.state.editor.graphEditor.graphHandler?.heatConfigs.get(
+                    this.label.name,
+                );
+
                 if (heatConfig) {
+                    if (heatConfig === this.heatConfig) return;
                     this.heatConfig = heatConfig;
-                } else this.heatConfig = {} as HeatConfig;
+                    this.selectedAttribute = heatConfig.attrName;
+                } else {
+                    this.heatConfig = {} as HeatConfig;
+                    this.selectedAttribute = "";
+                }
 
                 // Save changes
-                await this.$store.dispatch("editor/saveChange");
+                this.save();
             },
             deep: true,
+        },
+    },
+    methods: {
+        /**
+         * Save after changes to the heat configs
+         */
+        save(): void {
+            // Only save changes once ever 0.5 seconds
+            if (!this.saveChangeTimeoutActive) {
+                this.saveChangeTimeoutActive = true;
+                setTimeout(async () => {
+                    await this.$store.dispatch("editor/saveChange");
+                    this.saveChangeTimeoutActive = false;
+                }, 500);
+            }
+        },
+        /**
+         * Remove the focus from the dropdown (necessary to disable shortcuts)
+         */
+        hide(): void {
+            (document.activeElement as HTMLElement).blur();
         },
     },
 });

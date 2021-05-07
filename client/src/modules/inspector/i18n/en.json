@@ -1,6 +1,6 @@
 {
   "title": "Inspector",
-  "nothingSelected": "Please select a node or relation to show the attributes",
+  "nothingSelected": "Please select a node or relation to show its attributes",
   "visualSelected": "The selected element is purely visual",
   "save": "Save",
   "delete": "Delete",
@@ -13,7 +13,7 @@
   "label": "Label",
   "relationType": "Type",
   "attributes": "Attributes",
-  "noAttributes": "No attributes found.",
+  "noAttributes": "No attributes found",
   "nameRequired": {
     "title": "Name required",
     "description": "Your node needs a name!"

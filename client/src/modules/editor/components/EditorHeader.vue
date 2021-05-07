@@ -13,14 +13,31 @@
 <script>
 import { defineComponent } from "vue";
 import { saveAs } from "file-saver";
-import { diagramToSVG } from "@/utility";
+import { firaSansSvgStyle } from "@/assets/fonts/firasans/FiraSansSvgStyle";
 
 export default defineComponent({
     name: "EditorHeader",
     methods: {
+        /**
+         * Converts the diagram from JointJS to a downloadable binary blob SVG
+         */
         exportDiagram() {
             this.$store.commit("editor/centerContent");
-            saveAs(diagramToSVG(document.querySelector("#joint svg")), `${this.$store.state.editor.diagram.name}.svg`);
+            // Hide the selection border in diagram
+            this.$store.commit("editor/resetSelection");
+
+            // Embed the FiraSans Bold font into the SVG file
+            const styleElement = document.createElementNS("http://www.w3.org/2000/svg", "style");
+            styleElement.type = "text/css";
+            styleElement.textContent = firaSansSvgStyle;
+
+            // Perform a deep copy of the DOM element
+            const svgCopy = document.querySelector("#joint svg").cloneNode(true);
+            svgCopy.appendChild(styleElement);
+            const blob = new Blob([new XMLSerializer().serializeToString(svgCopy)], {
+                type: "image/svg+xml;charset=utf-8",
+            });
+            saveAs(blob, `${this.$store.state.editor.diagram.name}.svg`);
         },
     },
 });
@@ -32,6 +49,13 @@ export default defineComponent({
     justify-content: center;
     align-items: center;
     position: relative;
+
+    h3 {
+        max-width: 350px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
 }
 
 .btn-icon {

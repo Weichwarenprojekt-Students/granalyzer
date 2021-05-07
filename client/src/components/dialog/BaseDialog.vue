@@ -1,6 +1,6 @@
 <template>
-    <Dialog :visible="show">
-        <div class="dialog-background" @click="$emit('cancel')">
+    <teleport to="body">
+        <div v-if="show" class="dialog-background" @click="$emit('cancel')">
             <div class="dialog-content" @click.stop>
                 <!-- Insert customized content -->
                 <slot></slot>
@@ -14,7 +14,7 @@
                 </div>
             </div>
         </div>
-    </Dialog>
+    </teleport>
 </template>
 
 <script lang="ts">
@@ -22,6 +22,8 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
     name: "BaseDialog",
+    emits: ["cancel", "confirm"],
+    inheritAttrs: false,
     props: {
         // True if the dialog should be shown
         show: Boolean,
@@ -66,7 +68,11 @@ export default defineComponent({
 }
 
 .dialog-background {
+    position: absolute;
+    z-index: 1000;
     display: flex;
+    top: 0;
+    left: 0;
     width: 100vw;
     height: 100vh;
     background: rgba(0, 0, 0, 0.5);

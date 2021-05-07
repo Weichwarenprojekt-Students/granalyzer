@@ -32,6 +32,8 @@ export default defineComponent({
     name: "Sidebar",
     data() {
         return {
+            // True if the sidebar is minimized
+            sidebarMinimized: false,
             // The link items
             items: ["start", "editor", "inventory", "schemes"],
         };
@@ -60,20 +62,13 @@ export default defineComponent({
         routes() {
             return routeNames;
         },
-        /**
-         * Forward the sidebar state
-         */
-        sidebarMinimized() {
-            return this.$store.state.sidebarMinimized;
-        },
     },
     methods: {
         /**
          * Update the sidebar state
          */
         updateSidebar(): void {
-            const expand = this.$route.path.startsWith(routeNames.start) && window.innerWidth >= 1080;
-            this.$store.commit("minimizeSidebar", !expand);
+            this.sidebarMinimized = !this.$route.path.startsWith(routeNames.start) || window.innerWidth < 1080;
         },
     },
 });

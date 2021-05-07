@@ -11,7 +11,7 @@
 
         <!-- The title -->
         <div v-if="$store.getters['inspector/isNode']" class="underlined-title">
-            <input class="name-input" :placeholder="$t('inspector.name')" v-model="element.name" />
+            <input class="name-input" :placeholder="$t('inspector.name')" v-model.trim="element.name" />
         </div>
         <div v-else class="underlined-title">
             {{ element.type }}
@@ -121,7 +121,7 @@ export default defineComponent({
             // True if the delete dialog is open
             deleteDialog: false,
             // The selected label
-            label: {} as ApiLabel,
+            label: new ApiLabel(),
         };
     },
     beforeCreate() {
@@ -134,7 +134,7 @@ export default defineComponent({
         "$store.state.inspector.element"() {
             if (this.$store.state.inspector.element instanceof ApiNode) {
                 this.element = Object.assign(new ApiNode(), deepCopy(this.$store.state.inspector.element));
-                this.label = this.$store.state.inspector.type;
+                this.label = this.$store.state.inspector.type ?? new ApiLabel();
             } else if (this.$store.state.inspector.element instanceof ApiRelation) {
                 this.element = Object.assign(new ApiRelation(), deepCopy(this.$store.state.inspector.element));
             } else return;
@@ -292,9 +292,5 @@ export default defineComponent({
 
 .attributes-key {
     flex: 1 1 auto;
-}
-
-.attribute-value {
-    text-align: start;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
     <!-- Expand the base dialog -->
-    <BaseDialog :show="show" @confirm="$emit('input-confirm', name)">
+    <BaseDialog :show="show" @cancel="$emit('cancel')" @confirm="$emit('confirm', name)">
         <div class="mid-section">
             <svg>
                 <use :xlink:href="imageSrc"></use>
@@ -10,7 +10,7 @@
                 <input
                     tabindex="0"
                     class="input-large"
-                    v-model="name"
+                    v-model.trim="name"
                     type="text"
                     id="name-input"
                     placeholder="Name"
@@ -27,6 +27,7 @@ import BaseDialog from "@/components/dialog/BaseDialog.vue";
 
 export default defineComponent({
     name: "InputDialog",
+    emits: ["cancel", "confirm"],
     components: {
         BaseDialog,
     },
@@ -59,7 +60,7 @@ export default defineComponent({
     },
     updated() {
         // Auto focus the input field
-        this.$nextTick().then(() => document.getElementById("name-input")?.focus());
+        requestAnimationFrame(() => document.getElementById("name-input")?.focus());
     },
 });
 </script>

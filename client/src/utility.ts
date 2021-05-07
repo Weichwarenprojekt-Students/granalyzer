@@ -2,7 +2,6 @@ import { ToastServiceMethods } from "primevue/toastservice";
 import i18n from "@/i18n";
 import { isHexColor } from "class-validator";
 import hexRgb from "hex-rgb";
-import { firaSansSVGStyle } from "@/assets/fonts/firasans/FiraSans-Bold-SVG";
 
 /**
  * The route names of the three main modules
@@ -132,25 +131,6 @@ export function DELETE(path: string): Promise<Response> {
 }
 
 /**
- * Converts a SVG DOM element to a downloadable binary blob svg
- * @param svg The DOM element to be converted
- * @returns Returns the binary svg data
- */
-export function diagramToSVG(svg: HTMLElement): Blob {
-    // Perform a deep copy of the DOM element
-    const svgCopy = <HTMLElement>svg.cloneNode(true);
-
-    // Embed the FiraSans Bold font into the SVG file
-    const styleElement: SVGStyleElement = document.createElementNS("http://www.w3.org/2000/svg", "style");
-    styleElement.type = "text/css";
-    styleElement.textContent = firaSansSVGStyle;
-    svgCopy.appendChild(styleElement);
-
-    const xmlSvg = new XMLSerializer().serializeToString(svgCopy);
-    return new Blob([xmlSvg], { type: "image/svg+xml;charset=utf-8" });
-}
-
-/**
  * Check if a response is unexpected
  *
  * @param response The response that shall be checked
@@ -264,23 +244,6 @@ export async function allFulfilledPromises<T>(promises: Array<Promise<T>>): Prom
     return (await Promise.allSettled(promises))
         .filter((result): result is PromiseFulfilledResult<T> => result.status === "fulfilled")
         .map((res: PromiseFulfilledResult<T>) => res.value);
-}
-
-/**
- * Returns a random range that is also randomly positive or negative
- *
- * @param min Minimum number generated
- * @param max Maximum number generated
- * @return Returns a number that is randomly positive or negative within the given range
- */
-export function randomRange(min: number, max: number): number {
-    let rand = Math.random() * (max - min) + min;
-
-    if (Math.random() < 0.5) {
-        rand = rand * -1;
-    }
-
-    return rand;
 }
 
 /**

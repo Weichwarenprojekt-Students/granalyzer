@@ -6,6 +6,7 @@ import { Node } from "@/modules/editor/modules/graph-editor/controls/nodes/Node"
 import { RemoveRelationCommand } from "@/modules/editor/modules/graph-editor/controls/relations/commands/RemoveRelationCommand";
 import { RelationModeType } from "@/modules/editor/modules/graph-editor/controls/relations/models/RelationModeType";
 import { RelationsMap } from "@/modules/editor/modules/graph-editor/controls/relations/RelationsMap";
+import { deepCopy } from "@/utility";
 
 /**
  * Controller for all relations in the joint js graph
@@ -57,9 +58,12 @@ export default class RelationsController extends RelationsMap {
      * @param relationModeType The type of relation in relation mode, defaults to NORMAL
      */
     public new(info: RelationInfo, source: Node, target: Node, relationModeType = RelationModeType.NORMAL): Relation {
+        // Create new relation info to mitigate problems with passed references
+        const newInfo = deepCopy(info);
+
         // Create new relation info
-        info.from = source.reference;
-        info.to = target.reference;
+        newInfo.from = source.reference;
+        newInfo.to = target.reference;
 
         // Create the link and connect it to source and target
         const link = new shapes.standard.Link();
@@ -72,12 +76,12 @@ export default class RelationsController extends RelationsMap {
         });
 
         // Create the relation and add it to the graph
-        const relation = new Relation(info, link, source, target, relationModeType);
-        relation.updateStyle(info);
+        const relation = new Relation(newInfo, link, source, target, relationModeType);
+        relation.updateStyle(newInfo);
         this.addExisting(relation);
 
         // Set z index
-        if (info.z != null) relation.joint.set("z", info.z);
+        if (newInfo.z != null) relation.joint.set("z", newInfo.z);
 
         return relation;
     }

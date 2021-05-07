@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsJSON, IsString, MinLength } from "class-validator";
+import { IsJSON } from "class-validator";
+import { IsValidName } from "../validator/name-validator";
 
 export class Diagram {
     @ApiProperty({
@@ -16,8 +17,7 @@ export class Diagram {
         name: "name",
         description: "The name of the diagram",
     })
-    @IsString()
-    @MinLength(1)
+    @IsValidName()
     name: string;
 
     @ApiProperty({

@@ -1,7 +1,7 @@
 <template>
     <!-- The dialog for adding a folder -->
     <InputDialog
-        @input-confirm="addEmptyFolder"
+        @confirm="addEmptyFolder"
         @cancel="addFolderDialog = false"
         :show="addFolderDialog"
         :image-src="`${require('@/assets/img/icons.svg')}#circle-plus`"
@@ -10,7 +10,7 @@
 
     <!-- The dialog for renaming an item -->
     <InputDialog
-        @input-confirm="renameItem"
+        @confirm="renameItem"
         @cancel="renameItemDialog = false"
         :show="renameItemDialog"
         :image-src="`${require(`@/assets/img/icons.svg`)}#editor-thin`"
@@ -19,7 +19,7 @@
 
     <!-- The dialog for copying a diagram -->
     <InputDialog
-        @input-confirm="copyDiagram"
+        @confirm="copyDiagram"
         @cancel="diagramCopyDialog = false"
         :show="diagramCopyDialog"
         :image-src="`${require(`@/assets/img/icons.svg`)}#circle-plus`"
@@ -311,6 +311,14 @@ export default defineComponent({
          * Makes a copy of a diagram
          */
         copyDiagram(newName: string) {
+            if (!newName) {
+                errorToast(
+                    this.$t("start.diagrams.noCopyTitle.title"),
+                    this.$t("start.diagrams.noCopyTitle.description"),
+                );
+                return;
+            }
+
             this.diagramCopyDialog = false;
             const newDiagram = new ApiDiagram(newName);
             newDiagram.serialized = this.selectedDiagram.serialized;
@@ -402,6 +410,10 @@ export default defineComponent({
 .title-extra {
     margin-left: 12px;
     font-style: italic;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .tooltip {

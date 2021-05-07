@@ -12,14 +12,14 @@
                 <input
                     :placeholder="$t('schemes.attribute.editEnumConfig.newElementPlaceholder')"
                     class="input text-input"
-                    v-model="addEnumValue"
+                    v-model.trim="addEnumValue"
                     v-on:keyup.enter="addEnumProp()"
                 />
             </div>
             <ScrollPanel class="list-wrapper">
                 <ul class="enum-prop-list">
                     <li class="enum-prop-list-element" :key="el" v-for="el in modifiedConfig">
-                        {{ el }}
+                        <div>{{ el }}</div>
                         <svg class="delete-enum-prop-icon" @click="removeEnumProp(el)">
                             <use :xlink:href="`${require('@/assets/img/icons.svg')}#delete`"></use>
                         </svg>
@@ -38,6 +38,7 @@ import { EnumConfigElement } from "@/modules/schemes/models/EnumConfigElement";
 
 export default defineComponent({
     name: "EditEnumModal",
+    emits: ["cancel", "confirm", "update:config"],
     components: { BaseDialog },
     props: {
         config: Array,
@@ -155,7 +156,15 @@ export default defineComponent({
     justify-content: space-between;
     align-items: center;
 
+    div {
+        flex: 1 1 auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     svg {
+        flex: 0 0 auto;
         fill: @dark;
         margin-left: 8px;
     }
