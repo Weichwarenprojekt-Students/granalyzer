@@ -117,14 +117,24 @@ class Background {
     lineColor = "#F1F3F4";
 
     /**
-     * The canvas
+     * The visible canvas
      */
-    canvas = document.getElementById("background");
+    actualCanvas = document.getElementById("background");
 
     /**
-     * The canvas context
+     * The context of the visible canvas
      */
-    ctx = this.canvas.getContext("2d");
+    actualCtx = this.actualCanvas.getContext("2d");
+
+    /**
+     * The rendering canvas
+     */
+    renderCanvas = document.createElement("canvas");
+
+    /**
+     * The rendering context
+     */
+    renderCtx = this.renderCanvas.getContext("2d");
 
     /**
      * The drawn areas
@@ -137,7 +147,7 @@ class Background {
     constructor() {
         // Watch for size changes
         const resizeObserver = new ResizeObserver(this.updateCanvas);
-        resizeObserver.observe(this.canvas);
+        resizeObserver.observe(this.actualCanvas);
         this.updateCanvas();
         this.drawBackground();
     }
@@ -147,12 +157,12 @@ class Background {
      */
     updateCanvas = () => {
         // Update context size
-        this.ctx.canvas.width = this.canvas.clientWidth;
-        this.ctx.canvas.height = this.canvas.clientHeight;
+        this.renderCtx.canvas.width = this.renderCanvas.width = this.actualCtx.canvas.width = this.actualCanvas.clientWidth;
+        this.renderCtx.canvas.height = this.renderCanvas.height = this.actualCtx.canvas.height = this.actualCanvas.clientHeight;
 
         // Create new areas on demand
-        const m = this.canvas.clientHeight / AREA_SIZE;
-        const n = this.canvas.clientWidth / AREA_SIZE;
+        const m = this.actualCanvas.clientHeight / AREA_SIZE;
+        const n = this.actualCanvas.clientWidth / AREA_SIZE;
         for (let i = 0; i <= m; i++) {
             if (!this.areas[i]) this.areas[i] = [];
             for (let j = 0; j <= n; j++) {
@@ -175,21 +185,25 @@ class Background {
         lastTime = now;
 
         // Set the colors
-        this.ctx.strokeStyle = this.lineColor;
-        this.ctx.lineWidth = 2;
-        this.ctx.fillStyle = this.dotColor;
+        this.renderCtx.strokeStyle = this.lineColor;
+        this.renderCtx.lineWidth = 2;
+        this.renderCtx.fillStyle = this.dotColor;
 
         // Clear the canvas
-        const top = -this.canvas.getBoundingClientRect().top - AREA_SIZE;
+        const top = -this.actualCanvas.getBoundingClientRect().top - AREA_SIZE;
         const height = window.innerHeight + AREA_SIZE;
-        this.ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight);
+        this.renderCtx.clearRect(0, 0, this.actualCanvas.clientWidth, this.actualCanvas.clientHeight);
 
         // Redraw the visible areas only
         const start = Math.floor(Math.max(0, top / AREA_SIZE));
         const end = Math.floor(Math.min(this.areas.length - 1, (top + height) / AREA_SIZE));
         for (let i = start; i <= end; i++) {
-            if (this.areas[i]) for (const area of this.areas[i]) area.draw(this.ctx);
+            if (this.areas[i]) for (const area of this.areas[i]) area.draw(this.renderCtx);
         }
+
+        // Render on the actual canvas
+        this.actualCtx.clearRect(0, 0, this.actualCanvas.clientWidth, this.actualCanvas.clientHeight);
+        this.actualCtx.drawImage(this.renderCanvas, 0, 0);
 
         // Keep the animation going
         window.requestAnimationFrame(this.drawBackground);
