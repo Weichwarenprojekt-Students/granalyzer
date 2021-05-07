@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0, user-scalable=no" name="viewport">
+    <title>Granalyzer</title>
+    <link href="img/favicon.svg" rel="shortcut icon" type="image/x-icon">
+
+    <!-- Boostrap -->
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" rel="stylesheet">
+    <script crossorigin="anonymous"
+            integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom styles -->
+    <link href="fonts/firasans/style.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+
+    <!-- The script for the background -->
+    <script src="index.js"></script>
+</head>
+
+<body id="home">
+
+<!-- The animated background -->
+<canvas id="background"></canvas>
+
+<!-- The header -->
+<nav class="navbar navbar-expand-sm fixed-top navbar-light header">
+    <div class="container-md">
+        <!-- The logo -->
+        <a class="navbar-brand" href="index.html">
+            <img alt="" class="granalyzer-logo" src="img/logo-granalyzer.svg">
+        </a>
+
+        <!-- The menu collapse button -->
+        <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"
+                class="navbar-toggle toggle-x collapsed"
+                data-bs-target="#navbarNav" data-bs-toggle="collapse" type="button">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+
+        <!-- The menu points (Home, Manual, GitHub) -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navigation-wrapper">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a aria-current="page" class="nav-link" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="manual.html">Manual</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/Weichwarenprojekt/granalyzer">
+                            <img alt="github logo" src="img/github-logo.svg" /> Github
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- The intro section -->
+<section id="intro">
+    <div class="container-md">
+        <!-- Intro -->
+        <div class="row">
+            <div class="col-xl-6 col-lg-8 col-md-12 jumbotron">
+                <div>
+                    <h1 class="display-3">Diagramming? Granalyzing!</h1>
+                    <p class="display-sub-1">
+                        Visualize and edit complex graph data like never before
+                    </p>
+                    <div class="intro-buttons">
+                        <a class="btn btn-lg btn-primary" href="manual.html#getting-started">Get started</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-6 col-lg-4 col-md-12 jumbo-logo-container">
+                <img alt="Granalyzer" class="jumbo-logo" src="img/home/logo-granalyzer-mini.svg">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Kickstart diagramming -->
+<section>
+    <div class="container-md">
+        <div class="row">
+            <div class="col-xl-4 col-lg-12">
+                <h1 class="display-5">Kickstart diagramming.</h1>
+                <p class="display-sub-2">
+                    Create diagrams fast. As every chart is based on the same data, you don't have to continuously
+                    waste time entering your data.
+                </p>
+            </div>
+            <div class="col-xl-7 offset-xl-1 col-lg-12 intro-image bordered-img">
+                <img alt="screenshot" src="img/home/01_Kickstart.png">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Cloud is not a visual element -->
+<section>
+    <div class="container-md">
+        <div class="row">
+            <div class="col-xl-5 col-lg-12 intro-image put-below bordered-img">
+                <img alt="cloud" src="img/home/02_Cloud.png">
+            </div>
+            <div class="col-xl-6 offset-xl-1 col-lg-12">
+                <h1 class="display-5">Cloud is not just a visual element.</h1>
+                <p class="display-sub-2">
+                    Access your charts from anywhere, anytime, by running Granalyzer on your server.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Share your creations -->
+<section>
+    <div class="container-md">
+        <div class="row">
+            <div class="col-xl-4 col-lg-12">
+                <h1 class="display-5">Share your creations.</h1>
+                <p class="display-sub-2">
+                    Easily export your diagrams to share by mail, in presentations or however you like.
+                </p>
+            </div>
+            <div class="col-xl-7 offset-xl-1 col-lg-12 intro-image bordered-img">
+                <img alt="screenshot" src="img/home/03_Share.png">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Dynamic but entirely consistent -->
+<section>
+    <div class="container-md">
+        <div class="row">
+            <div class="col-xl-5 col-lg-12 intro-image put-below bordered-img">
+                <img alt="cloud" src="img/home/04_Dynamic.png">
+            </div>
+            <div class="col-xl-6 offset-xl-1 col-lg-12">
+                <h1 class="display-5">Dynamic but entirely consistent.</h1>
+                <p class="display-sub-2">
+                    By applying a data scheme to your nodes and relations, similar elements appear in the same way every
+                    time.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Developed by -->
+<section id="association">
+    <div class="container-md">
+        <div class="developed-by">
+            <h1 class="display-5">Developed By</h1>
+            <a href="https://weichwarenprojekt.github.io">
+                <img alt="Weichwarenprojekt" src="img/home/logo-wp.svg">
+            </a>
+        </div>
+        <div class="in-association">
+            <h1 class="display-5">In Association With</h1>
+            <img alt="THU" src="img/home/logo-thu.svg">
+            <img alt="Exxcellent Solutions" src="img/home/logo-exxcellent.png">
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,494 @@
+/**
+ *
+ * General styles
+ *
+ */
+:root {
+    /* The colors*/
+    --prime-1: #FFE0B2;
+    --prime-2: #FFCC80;
+    --prime-3: #FFB547;
+    --text: #333;
+    --grey: #C4C4C4;
+
+    /* The dimensions */
+    --header-height: 78px;
+    --outer-padding: 32px;
+    --doc-nav-width: 220px;
+}
+
+* {
+    color: var(--text);
+    font-family: "Fira Sans", normal, sans-serif;
+    margin: 0;
+    padding: 0;
+    font-weight: normal;
+}
+
+body {
+    overflow-x: hidden;
+    min-height: calc(100vh - var(--header-height));
+    position: relative;
+    background: white;
+}
+
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+}
+
+/* Links */
+a {
+    text-decoration: none;
+    color: var(--prime-3);
+}
+
+a:hover {
+    color: var(--prime-3);
+}
+
+/* Buttons */
+.bg-primary {
+    background-color: var(--prime-3) !important;
+}
+
+.btn {
+    border-radius: 0;
+}
+
+.btn-primary {
+    background-color: var(--prime-2);
+    border-color: var(--prime-2);
+    color: var(--text);
+}
+
+.btn-primary:hover,
+.btn-primary:active,
+.btn-primary:focus,
+.btn-primary:active:focus {
+    color: var(--text);
+    background-color: var(--prime-1);
+    border-color: var(--prime-1);
+    box-shadow: none;
+}
+
+/** Often used text sizes **/
+.display-6 {
+    font-weight: 400;
+}
+.display-sub-1 {
+    font-size: 1.4rem;
+}
+.display-sub-2 {
+    font-size: 1.25rem;
+}
+
+/* Image with rounded corners and grey border */
+.bordered-img {
+    border-radius: 4px;
+    border: 2px solid var(--grey);
+}
+
+/* Adjust row style */
+.row {
+    margin: 0;
+}
+.row>* {
+    padding: 0;
+}
+
+/* The background */
+#background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.5;
+}
+
+/**
+ *
+ * Home screen
+ *
+ */
+#intro {
+    padding-top: var(--header-height);
+}
+
+.jumbo-logo-container img {
+    width: 90%;
+    height: auto;
+    max-width: 250px;
+    margin: 24px auto;
+}
+
+.jumbo-logo-container {
+    text-align: center;
+}
+
+section .container-md {
+    padding: 92px var(--outer-padding);
+    border-bottom: 2px solid var(--text);
+}
+
+section:last-of-type .container-md {
+    border-bottom: 0;
+}
+
+.intro-image img {
+    height: auto;
+    width: 100%;
+}
+
+/* The style for the developed by part */
+.developed-by {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 64px;
+}
+.developed-by .display-5 {
+    margin-bottom: 0;
+}
+.developed-by img {
+    margin-left: 32px;
+    height: 100px;
+}
+
+/* The style for the in association part */
+.in-association {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+}
+.in-association .display-5 {
+    margin-bottom: 0;
+    text-align: center;
+}
+.in-association img {
+    margin-left: 48px;
+    height: 64px;
+}
+
+/* Lower the icon sizes */
+@media screen and (max-width: 400px) {
+    .in-association img {
+        height: 48px;
+    }
+}
+
+/* Put the images below each other */
+@media screen and (max-width: 991px) {
+    .developed-by,
+    .in-association {
+        flex-direction: column;
+    }
+    .developed-by img {
+        margin-top: 32px;
+        margin-bottom: 32px;
+        margin-left: 0;
+    }
+
+    .in-association>* {
+        margin-left: 0 !important;
+        margin-bottom: 48px !important;
+    }
+}
+
+/* Change the order of the flex box elements */
+@media screen and (max-width: 1199px) {
+    #home .put-below {
+        order: 1;
+    }
+
+    .in-association {
+        justify-content: flex-start;
+    }
+}
+
+/**
+ *
+ * Manual
+ *
+ */
+#manual {
+    padding-top: var(--header-height);
+}
+
+#manual .container-md {
+    padding: 64px var(--outer-padding);
+}
+
+.manual-content {
+    margin-left: calc(var(--doc-nav-width) + 64px);
+}
+
+.manual-text {
+    font-size: 1.1rem;
+}
+
+.manual-row {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 64px;
+}
+
+.manual-row>*:first-child {
+    margin-right: 32px;
+}
+
+.manual-row>div {
+    flex: 1 1 auto;
+}
+
+.manual-row>img {
+    width: 40%;
+    max-width: 500px;
+    align-self: flex-start;
+    flex: 0 0 auto;
+}
+
+ol, ul {
+    padding-left: 1rem;
+}
+
+hr {
+    margin: 64px 0;
+    color: var(--grey);
+    opacity: 1;
+    height: 2px !important;
+}
+
+.tip {
+     font-style: italic;
+ }
+
+kbd {
+    padding: 0 0.2rem;
+    background: var(--text);
+}
+
+/* Align the getting started blocks one after another */
+@media screen and (max-width: 991px) {
+    .manual-row {
+        flex-direction: column;
+        margin-right: 0;
+    }
+
+    .manual-row>*:first-child {
+        margin-right: 0;
+    }
+
+    .manual-row div {
+        margin-bottom: 16px;
+    }
+
+    .manual-row img {
+        width: 100%;
+    }
+
+    .put-below {
+        order: 1;
+    }
+}
+
+/**
+ * The manual navigation
+ */
+.sticky-top {
+    top: calc(64px + var(--header-height));
+    padding: 12px 0;
+    border-radius: 4px;
+}
+
+:target {
+    display: block;
+    position: relative;
+    top: -92px;
+    visibility: hidden;
+}
+
+.granalyzer-doc-nav {
+    width: var(--doc-nav-width);
+    float: left;
+}
+
+.granalyzer-doc-nav > ul {
+    width: 100%;
+}
+
+.granalyzer-doc-nav > .navbar-brand {
+    color: var(--text);
+    padding-left: 1rem;
+}
+
+.nav-pills .nav-link {
+    background-color: transparent !important;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: var(--text);
+    background-color: var(--prime-2) !important;
+}
+
+@media screen and (max-width: 767px) {
+    .granalyzer-doc-nav {
+        display: none;
+    }
+
+    .manual-content {
+        margin-left: 0;
+    }
+}
+
+/**
+ *
+ * The header styles
+ *
+ */
+.header {
+    height: var(--header-height);
+}
+
+.navbar .container-md {
+    padding: 16px var(--outer-padding);
+    border-bottom: 2px solid var(--prime-3);
+    background: white;
+    justify-content: flex-start;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+}
+
+.navbar-nav .nav-link {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    color: var(--text) !important;
+    background: transparent !important;
+}
+
+.navbar-nav .nav-link img {
+    flex: 0 0 auto;
+    width: 22px;
+    height: 22px;
+    margin-right: 6px;
+}
+
+.granalyzer-logo {
+    height: 30px;
+    width: auto;
+}
+
+/**
+ *
+ * Header collapse styles + animation
+ *
+ */
+.navbar-toggle {
+    display: none;
+}
+
+@media screen and (max-width: 575px) {
+    .navbar .container-md {
+        justify-content: space-between;
+    }
+
+    .navigation-wrapper {
+        width: calc(100vw - 64px);
+        height: calc(100vh - var(--header-height));
+        background-color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .navbar-nav .nav-link {
+        text-align: center;
+        font-size: 3rem;
+    }
+
+    .navbar-nav .nav-link img {
+        width: 48px;
+        height: 48px;
+        margin-right: 16px;
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .navbar-toggle {
+        display: block;
+        padding: 9px 10px;
+    }
+
+    .navbar-toggle.toggle-x {
+        border: none;
+        background: transparent !important;
+        outline: none;
+    }
+
+    .navbar-toggle.toggle-x:hover {
+        background: transparent !important;
+    }
+
+    .navbar-toggle.toggle-x .icon-bar {
+        width: 22px;
+        height: 2px;
+        display: block;
+        -webkit-transition: all 0.2s;
+        transition: all 0.2s;
+        background-color: var(--text);
+    }
+
+    .navbar-toggle.toggle-x .icon-bar:nth-of-type(1) {
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+        -webkit-transform-origin: 10% 10%;
+        -ms-transform-origin: 10% 10%;
+        transform-origin: 10% 10%;
+    }
+
+    .navbar-toggle.toggle-x .icon-bar:nth-of-type(2) {
+        margin-top: 4px;
+        opacity: 0;
+        filter: alpha(opacity=0);
+    }
+
+    .navbar-toggle.toggle-x .icon-bar:nth-of-type(3) {
+        margin-top: 4px;
+        -webkit-transform: rotate(-45deg);
+        -ms-transform: rotate(-45deg);
+        transform: rotate(-45deg);
+        -webkit-transform-origin: 10% 90%;
+        -ms-transform-origin: 10% 90%;
+        transform-origin: 10% 90%;
+    }
+
+    .navbar-toggle.toggle-x.collapsed .icon-bar:nth-of-type(1) {
+        -webkit-transform: rotate(0);
+        -ms-transform: rotate(0);
+        transform: rotate(0);
+    }
+
+    .navbar-toggle.toggle-x.collapsed .icon-bar:nth-of-type(2) {
+        opacity: 1;
+        filter: alpha(opacity=100);
+    }
+
+    .navbar-toggle.toggle-x.collapsed .icon-bar:nth-of-type(3) {
+        -webkit-transform: rotate(0);
+        -ms-transform: rotate(0);
+        transform: rotate(0);
+    }
+
+    .navbar-header {
+        float: none;
+    }
+}
+
