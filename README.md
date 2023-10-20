@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="https://weichwarenprojekt.github.io/granalyzer">
+    <a href="https://weichwarenprojekt-students.github.io/granalyzer">
         <img src="client/src/assets/img/logo.svg" height="130" alt="granalyzer logo"/></a>
 </p>
 <h1 align="center">Visualize and edit complex graph data<br>like never before</h1>
@@ -32,7 +32,7 @@
 This diagramming tool allows you to create and visualize graphs of elements and their relations to each other. As you
 can reuse elements in multiple diagrams, creating those visualizations becomes remarkably fast.
 
-**For more infos visit our [website](https://weichwarenprojekt.github.io/granalyzer)**!
+**For more infos visit our [website](https://weichwarenprojekt-students.github.io/granalyzer)**!
 
 # Deployment
 
